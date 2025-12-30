@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Practice Trading - Stock League</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1E3888;
+            --secondary: #47A992;
+            --accent: #FFB100;
+            --background: #0B1622;
+            --surface: #162A3D;
+            --success: #00FF88;
+            --danger: #FF4444;
+            --text-primary: #ffffff;
+            --text-secondary: #b2b5be;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--success) 0%, transparent 70%);
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            top: 60%;
+            right: 15%;
+            animation-delay: 5s;
+        }
+
+        .shape-3 {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        .chart-lines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+        }
+
+        .chart-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--success), transparent);
+            animation: chartMove 15s infinite linear;
+        }
+
+        .chart-line:nth-child(1) {
+            top: 20%;
+            width: 400px;
+            animation-delay: 0s;
+        }
+
+        .chart-line:nth-child(2) {
+            top: 40%;
+            width: 300px;
+            animation-delay: 3s;
+        }
+
+        .chart-line:nth-child(3) {
+            top: 60%;
+            width: 500px;
+            animation-delay: 6s;
+        }
+
+        .chart-line:nth-child(4) {
+            top: 80%;
+            width: 350px;
+            animation-delay: 9s;
+        }
+
+        @keyframes chartMove {
+            0% { left: -400px; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { left: 100%; opacity: 0; }
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, rgba(11, 22, 34, 0.95) 0%, rgba(22, 42, 61, 0.95) 100%);
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .back-button {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(0, 255, 136, 0.15));
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.25), rgba(255, 177, 0, 0.25));
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, var(--success) 50%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 90px;
+            padding: 3rem 2rem;
+            position: relative;
+            z-index: 1;
+            min-height: calc(100vh - 90px);
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 4rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-title {
+            font-size: 4.5rem;
+            font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #ffffff 0%, var(--success) 50%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(0, 255, 136, 0.3);
+            letter-spacing: -2px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .hero-tagline {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+        }
+
+        .practice-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        .practice-card {
+            background: linear-gradient(135deg, rgba(22, 42, 61, 0.8) 0%, rgba(11, 22, 34, 0.9) 100%);
+            border: 2px solid rgba(0, 255, 136, 0.2);
+            border-radius: 24px;
+            padding: 3rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: block;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .practice-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .practice-card:hover::before {
+            left: 100%;
+        }
+
+        .practice-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--success);
+            box-shadow: 0 20px 60px rgba(0, 255, 136, 0.3), 0 0 40px rgba(0, 255, 136, 0.1);
+        }
+
+        .card-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 255, 136, 0.05));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.4s ease;
+        }
+
+        .practice-card:hover .card-icon {
+            transform: scale(1.1) rotate(5deg);
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.3), rgba(0, 255, 136, 0.15));
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .card-icon svg {
+            width: 45px;
+            height: 45px;
+            fill: var(--success);
+            filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.5));
+        }
+
+        .card-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .card-description {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .card-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .card-features li {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+            padding-left: 2rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: 700;
+            font-size: 1.2rem;
+            width: 24px;
+            height: 24px;
+            background: rgba(0, 255, 136, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-cta {
+            margin-top: 2rem;
+            text-align: center;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 255, 136, 0.05));
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 12px;
+            color: var(--success);
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .practice-card:hover .card-cta {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.25), rgba(0, 255, 136, 0.15));
+            border-color: var(--success);
+            transform: scale(1.05);
+        }
+
+        .stats-bar {
+            max-width: 1200px;
+            margin: 4rem auto 0;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(22, 42, 61, 0.6), rgba(11, 22, 34, 0.8));
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, var(--success), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+            
+            .practice-cards {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .practice-card {
+                padding: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .main-content {
+                padding: 2rem 1rem;
+            }
+            
+            .practice-card {
+                padding: 2rem;
+            }
+            
+            .card-title {
+                font-size: 1.8rem;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="grid-overlay"></div>
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="chart-lines">
+            <div class="chart-line"></div>
+            <div class="chart-line"></div>
+            <div class="chart-line"></div>
+            <div class="chart-line"></div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <a href="dashboard.html" class="back-button">
+                ← Back to Dashboard
+            </a>
+            <h1 class="page-title">Practice</h1>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="hero-section">
+            <h1 class="hero-title">Master the Markets</h1>
+            <p class="hero-subtitle">Practice trading with real-time data, zero risk</p>
+            <p class="hero-tagline">Build confidence before you invest real capital</p>
+        </div>
+
+        <div class="practice-cards">
+            <a href="trading.html" class="practice-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
+                    </svg>
+                </div>
+                <h2 class="card-title">Live Trading</h2>
+                <p class="card-description">
+                    Execute trades in real-time with live market data. Practice your strategies and learn from every decision.
+                </p>
+                <ul class="card-features">
+                    <li>Real-time market prices</li>
+                    <li>Advanced order types</li>
+                    <li>Performance analytics</li>
+                    <li>Risk-free environment</li>
+                </ul>
+                <div class="card-cta">Start Trading →</div>
+            </a>
+
+            <a href="portfolio.html" class="practice-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4V6h11v12zm5 0h-3V6h3v12z"/>
+                        <path d="M7 12h2v5H7zm8-5h2v10h-2zm-4 7h2v3h-2zm0-4h2v2h-2z"/>
+                    </svg>
+                </div>
+                <h2 class="card-title">Portfolio Builder</h2>
+                <p class="card-description">
+                    Construct and manage a diversified portfolio. Track performance, analyze holdings, and optimize your strategy.
+                </p>
+                <ul class="card-features">
+                    <li>Multi-asset portfolio</li>
+                    <li>Performance tracking</li>
+                    <li>Diversification analysis</li>
+                    <li>Historical insights</li>
+                </ul>
+                <div class="card-cta">View Portfolio →</div>
+            </a>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-value">100%</span>
+                <span class="stat-label">Risk Free</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">24/7</span>
+                <span class="stat-label">Market Access</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">Real</span>
+                <span class="stat-label">Market Data</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">∞</span>
+                <span class="stat-label">Practice Time</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1215,15 +1215,28 @@
     })();
     </script>
 <style>
-    .main-content { padding-top: 0 !important; margin-top: 84px !important; }
+    /* The <header> is 84px tall and sits in normal flow, so the old 84px
+       top margin here was double-counting it — that was the big empty gap
+       above the banner. Just a little breathing room now. */
+    .main-content { padding-top: 0 !important; margin-top: 0.6rem !important; }
     .practice-cards { margin-top: 0.5rem !important; gap: 2.5rem !important; }
-    .practice-card { min-height: min(340px, 46vh) !important; padding: 2rem 2.5rem !important; }
-    .practice-card .card-icon svg { width: 64px !important; height: 64px !important; }
+    .practice-card { min-height: 0 !important; padding: 1.8rem 2.4rem 2rem !important; }
+    .practice-card .card-icon svg { width: 58px !important; height: 58px !important; }
     .stats-bar { display: none !important; }
+
+    /* Short laptops were cutting the buttons off the bottom of the cards. */
+    @media (max-height: 860px) {
+        .practice-banner { height: 92px !important; margin: 0.3rem auto 0.7rem !important; }
+        .practice-cards { gap: 2rem !important; }
+        .practice-card { padding: 1.4rem 2rem 1.6rem !important; }
+        .practice-card .card-icon { margin-bottom: 0.5rem !important; }
+        .practice-card .card-icon svg { width: 48px !important; height: 48px !important; }
+        .pb-line { font-size: 1.18rem !important; }
+    }
 
     /* ── Candlestick banner ── */
     .practice-banner {
-        max-width: 1200px; margin: 0.4rem auto 0.9rem; height: 138px;
+        max-width: 1200px; margin: 0.4rem auto 0.9rem; height: 104px;
         background:
             linear-gradient(90deg, rgba(26, 23, 20, 0.55) 0%, rgba(26, 23, 20, 0.78) 50%, rgba(26, 23, 20, 0.55) 100%),
             url('practice-banner.png') center 30% / cover no-repeat;

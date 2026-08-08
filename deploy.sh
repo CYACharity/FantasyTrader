@@ -68,6 +68,12 @@ ok "Linked to github.com/CYACharity/FantasyTrader"
 
 # ---- 6. push ----
 echo ""
+# Big first push? git's 1MB default buffer + HTTP/2 causes "RPC failed; HTTP 400".
+# These two settings are the standard cure.
+git config http.postBuffer 524288000     # 500MB
+git config http.version HTTP/1.1
+git config core.compression 0
+
 say "Pushing to GitHub… (a browser may open to sign you in)"
 # HEAD:main = "publish whatever I have right now as the main branch"
 if git push -u origin HEAD:main; then

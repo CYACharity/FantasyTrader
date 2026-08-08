@@ -97,7 +97,7 @@
             position: fixed;
             top: 80px;
             width: 100%;
-            height: 80px;
+            height: 64px;   /* 20% shorter than the old 80px */
             background: rgba(36, 31, 27, 0.9);
             z-index: 998;
             overflow: hidden;
@@ -105,7 +105,7 @@
         }
 
         .ticker-row {
-            height: 40px;
+            height: 32px;   /* two rows -> 64px total */
             overflow: hidden;
             display: flex;
             align-items: center;
@@ -142,7 +142,7 @@
             padding: 0 1rem;
             font-family: 'Inter', sans-serif;
             font-weight: 500;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
         }
 
         .ticker-item.up {
@@ -254,12 +254,12 @@
                `contain` + `center` centers the bull & bear inside it. This keeps
                the gaps above the horns and below the hooves equal on ANY screen —
                laptop, iMac or iPad — instead of a hardcoded offset. */
-            top: 161px;
+            top: 145px;
             left: 50%;
             transform: translateX(-50%);
             width: min(1120px, 96vw);
-            height: calc(100vh - 261px);
-            height: calc(100dvh - 261px);   /* mobile browser chrome-aware */
+            height: calc(100vh - 245px);
+            height: calc(100dvh - 245px);   /* mobile browser chrome-aware */
             min-height: 300px;
             background: url('dash-hero-centered.png') center center / contain no-repeat;
             opacity: 0.08;
@@ -269,12 +269,12 @@
         .hero-art-trace {
             position: absolute;
             /* must match .hero-art EXACTLY or the glowing outline desyncs from the art */
-            top: 161px;
+            top: 145px;
             left: 50%;
             transform: translateX(-50%);
             width: min(1120px, 96vw);
-            height: calc(100vh - 261px);
-            height: calc(100dvh - 261px);
+            height: calc(100vh - 245px);
+            height: calc(100dvh - 245px);
             min-height: 300px;
             pointer-events: none;
             z-index: 0;
@@ -906,7 +906,7 @@
         /* Center title section vertically */
         .title-section {
             text-align: center;
-            margin: 220px 0 50px 0;
+            margin: 204px 0 50px 0;   /* clears the (now shorter) ticker strip */
             position: relative;
             z-index: 2;
             padding: 0 20px;
@@ -1594,14 +1594,14 @@
            league 245, learn 222, practice 200) so the row always clears it.
            Selectors are .main-actions-scoped to outrank .action-button.league. */
         @media (max-height: 900px) {
-            .title-section { margin-top: 200px !important; margin-bottom: 32px !important; }
+            .title-section { margin-top: 184px !important; margin-bottom: 32px !important; }
             .main-actions { gap: 1.7rem; margin-bottom: 1.4rem; }
             .main-actions .action-button           { width: 176px; height: 176px; padding: 0.9rem 1rem 0.85rem; }
             .main-actions .action-button.league    { width: 216px; height: 216px; }
             .main-actions .action-button.learn     { width: 196px; height: 196px; }
         }
         @media (max-height: 800px) {
-            .title-section { margin-top: 182px !important; margin-bottom: 24px !important; }
+            .title-section { margin-top: 166px !important; margin-bottom: 24px !important; }
             .main-actions { gap: 1.25rem; margin-bottom: 1rem; }
             .main-actions .action-button           { width: 152px; height: 152px; padding: 0.72rem 0.8rem 0.68rem; }
             .main-actions .action-button.league    { width: 186px; height: 186px; }

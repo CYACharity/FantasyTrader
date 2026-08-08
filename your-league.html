@@ -1820,6 +1820,16 @@
             cursor: pointer; white-space: nowrap; transition: all 0.15s ease;
         }
         .pf-trade:hover { background: rgba(224, 162, 76, 0.12); }
+        /* confirm dialog buttons */
+        .cf-no, .cf-yes {
+            cursor: pointer; padding: 0.62rem 1.1rem; border-radius: 8px;
+            font: 700 0.8rem 'Inter', sans-serif; transition: all 0.15s ease;
+        }
+        .cf-no { background: none; border: 1px solid rgba(236,226,214,0.16); color: #B7ADA1; }
+        .cf-no:hover { color: #F4EEE6; border-color: rgba(236,226,214,0.32); }
+        .cf-yes { background: #E0A24C; border: none; color: #17130F; }
+        .cf-yes:hover { filter: brightness(1.08); }
+
         .tc-bar { margin-bottom: 1rem; }
         .tf-group { display: inline-flex; gap: 2px; background: rgba(236,226,214,0.05); padding: 2px; }
         .tf-btn {
@@ -4385,11 +4395,49 @@
             document.body.appendChild(el);
         };
 
+        // A real dialog instead of the browser's grey confirm() box.
+        // Resolves true if they go ahead, false if they back out.
+        function askConfirm({ title, body, warn, ok, cancel }) {
+            return new Promise(resolve => {
+                const old = document.getElementById('confirmModal'); if (old) old.remove();
+                const m = document.createElement('div');
+                m.id = 'confirmModal'; m.className = 'ts-overlay';
+                m.innerHTML = `<div class="ts-box" style="max-width:440px;">
+                    <div class="ts-sym" style="margin-bottom:.5rem;">${title}</div>
+                    <div class="team-sub" style="line-height:1.65;margin-bottom:.9rem;">${body}</div>
+                    ${warn ? `<div style="background:rgba(224,162,76,.08);border-left:2px solid #E0A24C;
+                        padding:.7rem .9rem;margin-bottom:1.1rem;font:500 .8rem 'Inter',sans-serif;color:#E0A24C;">${warn}</div>` : ''}
+                    <div style="display:flex;gap:.6rem;justify-content:flex-end;">
+                        <button class="cf-no">${cancel || 'Cancel'}</button>
+                        <button class="cf-yes">${ok || 'Continue'}</button>
+                    </div>
+                </div>`;
+                const done = v => { m.remove(); resolve(v); };
+                m.querySelector('.cf-no').onclick = () => done(false);
+                m.querySelector('.cf-yes').onclick = () => done(true);
+                m.addEventListener('click', e => { if (e.target === m) done(false); });
+                document.addEventListener('keydown', function esc(e) {
+                    if (e.key === 'Escape') { document.removeEventListener('keydown', esc); done(false); }
+                });
+                document.body.appendChild(m);
+            });
+        }
+
         window.draftStart = async () => {
             const dAt = (DRAFT.league || {}).draft_at ? new Date(DRAFT.league.draft_at) : null;
             if (dAt && dAt.getTime() > Date.now()) {
-                const when = dAt.toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-                if (!confirm('The draft is scheduled for ' + when + '.\n\nStart early anyway? Everyone in the lobby will be pulled in now.')) return;
+                const when = dAt.toLocaleString([], { weekday: 'long', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+                const ms = dAt.getTime() - Date.now();
+                const d = Math.floor(ms / 86400000), h = Math.floor(ms % 86400000 / 3600000), mn = Math.floor(ms % 3600000 / 60000);
+                const away = d ? `${d}d ${h}h` : h ? `${h}h ${mn}m` : `${mn}m`;
+                const waiting = (DRAFT.members || []).length;
+                const ok = await askConfirm({
+                    title: 'Start the draft early?',
+                    body: `This league is scheduled to draft <b style="color:#F4EEE6;">${when}</b> — that's still <b style="color:#F4EEE6;">${away}</b> away.`,
+                    warn: `Starting now pulls in all ${waiting} player${waiting === 1 ? '' : 's'} currently in the lobby. Anyone who hasn't joined yet will miss the draft entirely.`,
+                    ok: 'Start anyway', cancel: 'Wait for the scheduled time'
+                });
+                if (!ok) return;
             }
             const b = document.getElementById('draftStartBtn'); if (b){ b.disabled=true; b.textContent='Starting…'; }
             try { await SL.startDraft(DRAFT.id); await draftRefresh(); }

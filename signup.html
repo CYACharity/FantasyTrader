@@ -428,11 +428,18 @@
             el.textContent = msg; el.style.display = 'block';
         }
 
-        // If already signed in, skip straight to the dashboard.
+        // Already signed in? Don't make people type their password again —
+        // Supabase keeps the session alive, so send them straight in.
+        // Escape hatch: signup.html?switch=1 stays here to log in as someone else.
         (async () => {
-            if (false && SL.configured && await SL.currentUser()) { // stay here — let people log in or sign up
-                window.location.href = 'dashboard.html';
-            }
+            if (new URLSearchParams(location.search).has('switch')) return;
+            try {
+                if (SL.configured && await SL.currentUser()) {
+                    const d = (() => { try { const v = sessionStorage.getItem('sl_after_login');
+                        sessionStorage.removeItem('sl_after_login'); return v; } catch (e) { return null; } })();
+                    window.location.replace(d || 'dashboard.html');
+                }
+            } catch (e) { /* not signed in — show the form */ }
         })();
 
         // ---- LOGIN ----

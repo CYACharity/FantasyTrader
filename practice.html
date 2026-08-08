@@ -1226,7 +1226,7 @@
 
     /* Short laptops were cutting the buttons off the bottom of the cards. */
     @media (max-height: 860px) {
-        .practice-banner { height: 92px !important; margin: 0.3rem auto 0.7rem !important; }
+        .practice-banner { height: 92px !important; margin: 0 auto 0.7rem !important; }
         .practice-cards { gap: 2rem !important; }
         .practice-card { padding: 1.4rem 2rem 1.6rem !important; }
         .practice-card .card-icon { margin-bottom: 0.5rem !important; }
@@ -1236,7 +1236,7 @@
 
     /* ── Candlestick banner ── */
     .practice-banner {
-        max-width: 1200px; margin: 0.4rem auto 0.9rem; height: 104px;
+        max-width: 1200px; margin: 0 auto 0.9rem; height: 104px;
         background:
             linear-gradient(90deg, rgba(26, 23, 20, 0.55) 0%, rgba(26, 23, 20, 0.78) 50%, rgba(26, 23, 20, 0.55) 100%),
             url('practice-banner.png') center 30% / cover no-repeat;
@@ -1256,6 +1256,15 @@
         letter-spacing: 0.04em; margin-top: 0.6rem;
     }
     .practice-footnote b { color: #B7ADA1; font-weight: 600; }
+
+    /* ── Vertically balance the page ──────────────────────────────────
+       Flex column + auto margins: the leftover space gets split EVENLY
+       between above the banner and below the footnote, so the block is
+       always centred between the header and the bottom of the screen —
+       on any monitor, without hardcoding a number. */
+    body { display: flex; flex-direction: column; min-height: 100vh; }
+    .main-content { margin-top: auto !important; }
+    .practice-footnote { margin-bottom: auto !important; }
 </style>
 
 

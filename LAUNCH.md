@@ -96,13 +96,22 @@ needs to know your new address, or **signup emails will point to the wrong place
 ### 4a. Set the site URL
 <https://supabase.com/dashboard> → your project → **Authentication** → **URL Configuration**
 
-- **Site URL:** `https://yourdomain.com` (or the github.io URL if no domain yet)
-- **Redirect URLs:** add both, one per line:
-  ```
-  https://yourdomain.com/**
-  https://YOURNAME.github.io/fantasytrader/**
-  ```
-- **Save**
+**Site URL** (no trailing slash, no leading spaces):
+
+```
+https://fantasytrader.co
+```
+
+**Redirect URLs** — one per line. The `/**` wildcards are required so any page
+in the app is a valid landing spot after login. Paste with NO leading spaces:
+
+```
+https://fantasytrader.co/**
+https://www.fantasytrader.co/**
+https://cyacharity.github.io/FantasyTrader/**
+```
+
+Then **Save**.
 
 ### 4b. Choose how signup works
 **Authentication** → **Sign In / Providers** → **Email**

@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 4: Fundamental Analysis - FantasyTrader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5cb88a;
+            --accent: #e0a24c;
+            --background: #1a1714;
+            --surface: #1e1a16;
+            --surface-2: #241f1b;
+            --border: #2a2420;
+            --text-primary: #e8e8e8;
+            --text-body: #c4c4c4;
+            --text-muted: #888888;
+            --success: #5cb88a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Header ── */
+        .mod-header {
+            background: rgba(20, 20, 20, 0.97);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .mod-header-inner {
+            max-width: 820px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover { opacity: 0.75; }
+
+        .mod-header-meta {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── Reading Progress ── */
+        .reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            width: 0%;
+            background: var(--primary);
+            z-index: 200;
+            transition: width 0.15s linear;
+        }
+
+        /* ── Article Layout ── */
+        .article {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 5rem;
+        }
+
+        /* ── Module Label ── */
+        .module-label {
+            display: inline-block;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--primary);
+            background: rgba(236, 226, 214, 0.08);
+            border: 1px solid rgba(236, 226, 214, 0.18);
+            padding: 5px 12px;
+            border-radius: 4px;
+            margin-bottom: 1.2rem;
+        }
+
+        .article-title {
+            font-family: 'Lora', serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #ffffff;
+            margin-bottom: 0.8rem;
+        }
+
+        .article-subtitle {
+            font-family: 'Lora', serif;
+            font-size: 1.15rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .meta-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        /* ── Body Text ── */
+        .article p {
+            font-family: 'Lora', serif;
+            font-size: 1.05rem;
+            line-height: 1.85;
+            color: var(--text-body);
+            margin-bottom: 1.5rem;
+        }
+
+        .article h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .article h3 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* ── Callout Box ── */
+        .callout {
+            background: var(--surface);
+            border-left: 3px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+            padding: 1.25rem 1.5rem;
+            margin: 1.8rem 0;
+        }
+
+        .callout-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .callout p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 0;
+        }
+
+        /* ── Example Box ── */
+        .example-box {
+            background: rgba(236, 226, 214, 0.04);
+            border: 1px solid rgba(224, 162, 76, 0.12);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.8rem 0;
+        }
+
+        .example-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.6rem;
+        }
+
+        .example-box p {
+            font-size: 0.95rem;
+            margin-bottom: 0.8rem;
+        }
+        .example-box p:last-child { margin-bottom: 0; }
+
+        /* ── Diagram / Figure ── */
+        .figure {
+            margin: 2.2rem 0;
+            text-align: center;
+        }
+
+        .figure-diagram {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            margin-bottom: 0.7rem;
+        }
+
+        .figure-caption {
+            font-size: 0.73rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* ── Flow Diagram ── */
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-box {
+            background: rgba(236, 226, 214, 0.08);
+            border: 1px solid rgba(236, 226, 214, 0.2);
+            border-radius: 10px;
+            padding: 0.9rem 1.2rem;
+            text-align: center;
+            min-width: 130px;
+        }
+
+        .flow-box-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+        }
+
+        .flow-box-desc {
+            font-size: 0.72rem;
+            color: var(--text-body);
+            line-height: 1.4;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .flow-arrow {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            padding: 0 0.6rem;
+        }
+
+        /* ── Comparison Table ── */
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1.8rem 0;
+            font-size: 0.88rem;
+        }
+
+        .comparison-table thead {
+            background: var(--surface);
+        }
+
+        .comparison-table th {
+            padding: 0.9rem 1.2rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table td {
+            padding: 0.85rem 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text-body);
+            font-family: 'Lora', serif;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ── Bar Chart (CSS-only) ── */
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 1.2rem;
+            height: 160px;
+            padding: 0 1rem;
+            justify-content: center;
+        }
+
+        .bar-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .bar {
+            width: 48px;
+            border-radius: 6px 6px 0 0;
+            transition: height 0.5s ease;
+        }
+
+        .bar-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-align: center;
+            max-width: 60px;
+        }
+
+        .bar-value {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* ── Inline List ── */
+        .numbered-list {
+            counter-reset: item;
+            margin: 1.2rem 0 1.5rem;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .numbered-list li {
+            counter-increment: item;
+            font-family: 'Lora', serif;
+            font-size: 1rem;
+            line-height: 1.8;
+            color: var(--text-body);
+            margin-bottom: 0.6rem;
+            padding-left: 2.2rem;
+            position: relative;
+        }
+
+        .numbered-list li::before {
+            content: counter(item) ".";
+            position: absolute;
+            left: 0;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+        }
+
+        /* ── Quiz Section ── */
+        .quiz-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 3rem 0 2rem;
+        }
+
+        .quiz-section h3 {
+            margin-top: 0;
+            margin-bottom: 0.3rem;
+        }
+
+        .quiz-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-q {
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-q p {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.7rem;
+        }
+
+        .quiz-opts {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .quiz-opt {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 0.7rem 1rem;
+            font-size: 0.88rem;
+            color: var(--text-body);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .quiz-opt:hover {
+            background: rgba(236, 226, 214, 0.06);
+            border-color: rgba(236, 226, 214, 0.2);
+        }
+
+        .quiz-opt.correct {
+            background: rgba(236, 226, 214, 0.12);
+            border-color: var(--primary);
+            color: #ffffff;
+        }
+
+        .quiz-opt.wrong {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .quiz-opt.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .quiz-feedback {
+            font-size: 0.82rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.right { color: var(--primary); }
+        .quiz-feedback.wrong-fb { color: #d9645c; }
+
+        /* ── Sources ── */
+        .sources {
+            margin-top: 3.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .sources h3 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            margin-top: 0;
+        }
+
+        .source-item {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 0.6rem;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .source-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.55rem;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .source-item a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .source-item a:hover { text-decoration: underline; }
+
+        /* ── Footer Nav ── */
+        .module-footer {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.85rem 1.6rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            border: none;
+            cursor: pointer;
+        }
+
+        .footer-btn-next {
+            background: var(--primary);
+            color: var(--background);
+        }
+        .footer-btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        .footer-btn-back {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+        .footer-btn-back:hover {
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .article { padding: 2rem 1.1rem 4rem; }
+            .article-title { font-size: 1.8rem; }
+            .flow-row { flex-direction: column; gap: 0.5rem; }
+            .flow-arrow { transform: rotate(90deg); padding: 0.2rem 0; }
+            .comparison-table { font-size: 0.8rem; }
+            .comparison-table th, .comparison-table td { padding: 0.65rem 0.8rem; }
+        }
+            :root { --level: #5cb88a; }
+
+        /* Unified module chrome (matches all pathway modules) */
+        .quiz-figure {
+            background: rgba(236, 226, 214, 0.03);
+            border: 1px solid var(--border, #2a2420);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }
+        .quiz-figure svg { width: 100%; max-width: 430px; height: auto; display: block; margin: 0 auto; }
+        .module-label { color: var(--level, var(--primary)) !important; }
+        .reading-progress { background: var(--level, var(--primary)) !important; }
+    
+        /* Quiz rework: lettered options, cleaner questions */
+        .quiz-section h3 { font-family: 'Fraunces', Georgia, serif !important; font-size: 1.3rem !important; }
+        .quiz-q { padding-top: 1.2rem; border-top: 1px solid rgba(236, 226, 214, 0.07); }
+        .quiz-q:first-of-type { border-top: none; padding-top: 0; }
+        .quiz-q > p { font-size: 1rem !important; }
+        .quiz-opts { counter-reset: opt; }
+        .quiz-opt { position: relative; padding-left: 2.9rem !important; counter-increment: opt; }
+        .quiz-opt::before {
+            content: counter(opt, upper-alpha);
+            position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%);
+            width: 1.45rem; height: 1.45rem; border: 1px solid rgba(236, 226, 214, 0.25);
+            border-radius: 5px; display: flex; align-items: center; justify-content: center;
+            font: 700 0.68rem 'Inter', sans-serif; color: #8a8178;
+        }
+        .quiz-opt:hover::before { border-color: rgba(236, 226, 214, 0.5); color: #F4EEE6; }
+        .quiz-opt.correct::before { border-color: #5cb88a; color: #5cb88a; content: '✓'; }
+        .quiz-opt.wrong::before { border-color: #d9645c; color: #d9645c; content: '✕'; }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+    <div class="reading-progress" id="readingProgress"></div>
+
+    <div class="mod-header">
+        <div class="mod-header-inner">
+            <a href="beginner-path.html" class="back-link">
+                <span>&larr;</span> Beginner Path
+            </a>
+            <div class="mod-header-meta">MODULE 4 OF 6</div>
+        </div>
+    </div>
+
+    <article class="article">
+        <div class="module-label">Beginner &middot; Module 4</div>
+        <h1 class="article-title">Fundamental Analysis</h1>
+        <p class="article-subtitle">How to evaluate a company's financial health, read its statements, and determine if a stock is worth buying.</p>
+
+        <div class="article-meta">
+            <div class="meta-item">~8 min read</div>
+            <div class="meta-dot"></div>
+            <div class="meta-item">Sources: MIT 15.401, Rice University</div>
+            <div class="meta-dot"></div>
+            <div class="meta-item">Last updated Mar 2026</div>
+        </div>
+
+        <!-- ─── Section 1 ─── -->
+        <p>Fundamental analysis is the practice of evaluating a company's <strong>intrinsic value</strong> — what it is genuinely worth — based on its financial statements and business operations. Unlike technical analysis, which focuses on price charts and trends, fundamental analysis asks a deeper question: Is this company's stock priced fairly given its actual earning power? MIT's 15.401 Finance Theory I framework teaches that security prices should reflect the present value of all future cash flows, adjusted for risk. Fundamental analysis is the disciplined method for estimating those cash flows.</p>
+
+        <h2>What Is Fundamental Analysis?</h2>
+
+        <p>At its core, fundamental analysis compares a company's stock price to measurable financial metrics: revenue, earnings, assets, liabilities, and cash flow. If a stock is trading at $50 but analysis suggests it should be worth $80, you may have found an undervalued opportunity. Conversely, if a $50 stock should theoretically be worth $30, it may be overpriced.</p>
+
+        <div class="callout">
+            <div class="callout-label">Key Concept</div>
+            <p>Fundamental analysis rests on the idea that stock prices eventually converge to a company's intrinsic value. In the short term, prices can diverge due to emotion, speculation, or incomplete information. But over time — months or years — fundamental value wins. Your job as an investor is to identify when price and value diverge, then position yourself to profit as they converge.</p>
+        </div>
+
+        <h2>The Three Financial Statements</h2>
+
+        <p>Every publicly traded company publishes three core financial statements each quarter and year. Together, they paint a complete picture of a company's health, profitability, and financial position.</p>
+
+        <h3>Income Statement (Profit & Loss)</h3>
+        <p>The income statement shows whether a company is profitable. It begins with revenue (total sales), subtracts all expenses (cost of goods sold, operating expenses, interest, taxes), and arrives at net income (profit or loss). The income statement answers: Did the company make money this period?</p>
+
+        <h3>Balance Sheet (Statement of Financial Position)</h3>
+        <p>The balance sheet is a snapshot of the company's financial position at a specific date. It lists all assets (what the company owns), all liabilities (what it owes), and shareholders' equity (what is left for owners). The fundamental equation is: Assets = Liabilities + Equity. The balance sheet answers: What does the company own, and how is it financed?</p>
+
+        <h3>Cash Flow Statement</h3>
+        <p>The cash flow statement tracks how much actual cash enters and leaves the company during a period. It reconciles net income (from the income statement) with actual cash movements, revealing how much free cash flow the company generates. This is crucial because a company can be profitable on paper but starved for cash if it is not collecting money from customers or is investing heavily in growth. The cash flow statement answers: Can the company actually pay its bills and fund growth?</p>
+
+        <div class="figure">
+            <div class="figure-diagram">
+                <div class="flow-row">
+                    <div class="flow-box">
+                        <div class="flow-box-title">Revenue</div>
+                        <div class="flow-box-desc">Total sales</div>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-box">
+                        <div class="flow-box-title">Expenses</div>
+                        <div class="flow-box-desc">COGS, operating costs</div>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-box">
+                        <div class="flow-box-title">Net Income</div>
+                        <div class="flow-box-desc">Profit/loss</div>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-box">
+                        <div class="flow-box-title">Retained Earnings</div>
+                        <div class="flow-box-desc">Reinvested in company</div>
+                    </div>
+                </div>
+            </div>
+            <div class="figure-caption">Fig. 1 &mdash; Flow from revenue to retained earnings: the income statement path.</div>
+        </div>
+
+        <h2>Key Financial Ratios</h2>
+
+        <p>Financial ratios distill a company's statements into a few crucial metrics that let you quickly assess value, profitability, leverage, and efficiency. Below are the most important ratios for fundamental investors.</p>
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Ratio</th>
+                    <th>Formula</th>
+                    <th>What It Measures</th>
+                    <th>Good Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>P/E Ratio</strong></td>
+                    <td>Stock Price / Earnings Per Share</td>
+                    <td>How many dollars investors pay for each dollar of annual earnings</td>
+                    <td>15–25 (depends on growth); S&amp;P 500 avg ~20</td>
+                </tr>
+                <tr>
+                    <td><strong>P/B Ratio</strong></td>
+                    <td>Stock Price / Book Value Per Share</td>
+                    <td>How many dollars investors pay for each dollar of assets (net of liabilities)</td>
+                    <td>1.0–3.0; below 1.0 suggests undervalue</td>
+                </tr>
+                <tr>
+                    <td><strong>Debt-to-Equity</strong></td>
+                    <td>Total Liabilities / Shareholders' Equity</td>
+                    <td>How much the company borrows relative to owner capital; leverage</td>
+                    <td>0.5–2.0 (varies by industry); higher = more risk</td>
+                </tr>
+                <tr>
+                    <td><strong>ROE</strong></td>
+                    <td>Net Income / Shareholders' Equity</td>
+                    <td>How efficiently the company uses shareholder capital to generate profit</td>
+                    <td>&gt;15% is strong; &lt;10% is weak</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="example-box">
+            <div class="example-label">Example &mdash; Using the P/E Ratio</div>
+            <p>TechCorp stock trades at $100. Last year it earned $4 per share. The P/E ratio is 100 / 4 = 25. This means you pay $25 for every $1 of annual earnings. If the S&amp;P 500 average P/E is 20, TechCorp is trading at a premium — suggesting either that investors expect faster growth, or that the stock is overpriced. You would compare this P/E to other tech companies, the market average, and the company's own historical range to judge if 25 is reasonable.</p>
+        </div>
+
+        <h2>Growth vs. Value Investing</h2>
+
+        <p>Two major schools of thought exist in fundamental analysis. <strong>Growth investors</strong> focus on companies with rapidly expanding revenues and earnings, accepting high P/E ratios in exchange for the prospect of capital appreciation. <strong>Value investors</strong> seek companies trading below their intrinsic value (low P/E, low P/B), betting that the market has misjudged them and that prices will eventually rise to reflect true worth.</p>
+
+        <div class="callout">
+            <div class="callout-label">The Difference</div>
+            <p><strong>Growth:</strong> High P/E, high growth rates, reinvests profits, smaller dividends. Example: a biotech company with a $500M P/E but expected 30% annual earnings growth. <strong>Value:</strong> Low P/E, mature business, stable dividends, less growth. Example: a utility company with a $12 P/E and 2% growth but 4% dividend yield. Neither approach is objectively "better" — it depends on your risk tolerance and time horizon.</p>
+        </div>
+
+        <h2>Industry Analysis: Context Matters</h2>
+
+        <p>A critical mistake is evaluating a company's ratios in isolation. A P/E of 30 is alarming for a grocery chain (mature, stable, predictable) but reasonable for a software company (high growth potential, large market). Different industries have fundamentally different characteristics, margins, and growth rates. Always compare a company to its direct competitors and industry peers, not to the broad market.</p>
+
+        <div class="example-box">
+            <div class="example-label">Example &mdash; Industry Context</div>
+            <p>FoodMart, a supermarket chain, has a P/E of 22. The average grocery store P/E is 16. This suggests FoodMart is overpriced compared to peers. But TechSoft, a software company, has a P/E of 45 while its industry peers average 40. TechSoft looks more attractive. The same ratio means something different depending on industry norms, growth rates, and competitive positioning.</p>
+        </div>
+
+        <h2>How to Use Fundamental Analysis in Practice</h2>
+
+        <p>In FantasyTrader, you will apply these ideas by: (1) selecting a stock from the portfolio universe; (2) pulling up its latest financial statements (available through company fact sheets); (3) calculating or observing key ratios; (4) comparing those ratios to industry averages; and (5) deciding whether the stock is attractive relative to its price. This is not a guarantee of profit — the market is unpredictable — but it shifts the odds in your favor by keeping you disciplined and fact-based.</p>
+
+        <h2>Key Takeaways</h2>
+
+        <ol class="numbered-list">
+            <li>Fundamental analysis evaluates a company's stock price against its intrinsic value, calculated from financial statements and future cash flow potential.</li>
+            <li>The three core financial statements are the income statement (profitability), balance sheet (assets, liabilities, equity), and cash flow statement (actual cash movements).</li>
+            <li>Key ratios like P/E, P/B, debt-to-equity, and ROE quickly reveal valuation, leverage, and efficiency. Ratios are most useful when compared to industry peers and historical averages.</li>
+            <li>Growth investing prioritizes expansion and capital gains; value investing prioritizes undervaluation and margin of safety. Both are valid approaches.</li>
+            <li>Always analyze a company within its industry context. Identical ratios mean different things for utilities, retailers, and tech companies.</li>
+        </ol>
+
+        <!-- ─── Quiz ─── -->
+        <div class="quiz-section">
+            <h3>Check Your Understanding</h3>
+            <p class="quiz-subtitle">Answer these questions before moving on to Module 5.</p>
+
+            <div class="quiz-q" id="q1">
+                <p>1. What is the primary goal of fundamental analysis?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">To identify short-term price trends using historical charts</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, true)">To estimate a company's intrinsic value and compare it to its market price</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">To predict the stock market's overall direction</div>
+                </div>
+                <div class="quiz-feedback" id="fb1"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <p>2. Which of the following best describes the purpose of a cash flow statement?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">To show how much profit a company made in the accounting period</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, true)">To track actual cash entering and leaving the company, separate from accounting profit</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">To list all the company's assets and liabilities at a single point in time</div>
+                </div>
+                <div class="quiz-feedback" id="fb2"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <p>3. Why is it important to compare a company's ratios to its industry peers rather than the S&amp;P 500 average?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">Because the S&amp;P 500 only includes large companies</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, true)">Because different industries have different growth rates, margins, and risk profiles; a healthy ratio varies by industry</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">Because peer companies always have the same profitability as your target stock</div>
+                </div>
+                <div class="quiz-feedback" id="fb3"></div>
+            </div>
+
+        
+            <div class="quiz-q" id="q4" data-why="Stops are decided when you are calm, not after the drop. The trade failed at -3%, not -20%.">
+                <p>4. The line falls from $100 to $80, then recovers to $95 before rolling over. Where was the smart stop-loss?</p>
+                <div class="quiz-figure"><svg viewBox="0 0 300 130" xmlns="http://www.w3.org/2000/svg"><line x1="30" y1="10" x2="30" y2="105" stroke="rgba(236,226,214,0.25)"/><line x1="30" y1="105" x2="290" y2="105" stroke="rgba(236,226,214,0.25)"/><polyline points="30,30 80,30 120,80 170,42 220,50 290,95" fill="none" stroke="#D9645C" stroke-width="2"/><line x1="30" y1="38" x2="290" y2="38" stroke="#5cb88a" stroke-width="1.5" stroke-dasharray="5,4"/><text x="34" y="26" fill="#B7ADA1" font-size="10">$100 entry</text><text x="238" y="34" fill="#5cb88a" font-size="10">stop</text></svg></div>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">No stop — conviction means holding</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, true)">Just below entry, set BEFORE the trade — small loss, no ride to $80</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">After it hit $80</div>
+                </div>
+                <div class="quiz-feedback" id="fb4"></div>
+            </div>
+
+        </div>
+
+        <!-- ─── Sources ─── -->
+        <div class="sources">
+            <h3>Sources &amp; Further Reading</h3>
+            <div class="source-item">Lo, Andrew. <em>Finance Theory I</em> (MIT 15.401), Fall 2008. Lecture 5: Corporate Finance and Valuation. MIT OpenCourseWare. <a href="https://ocw.mit.edu/courses/15-401-finance-theory-i-fall-2008/" target="_blank">ocw.mit.edu/courses/15-401-finance-theory-i-fall-2008</a></div>
+            <div class="source-item">Graham, Benjamin &amp; Dodd, David L. <em>Security Analysis</em> (6th ed.). The classic text on fundamental and value investing principles; foundational framework for ratio analysis and intrinsic value estimation.</div>
+            <div class="source-item">Ozoguz, Arzu &amp; Foote, Jill. <em>Global Financial Markets and Instruments</em>, Rice University (Jesse H. Jones Graduate School of Business). Coursera. Module 4: Financial Statement Analysis &amp; Valuation Metrics. <a href="https://www.coursera.org/learn/global-financial-markets-instruments" target="_blank">coursera.org/learn/global-financial-markets-instruments</a></div>
+            <div class="source-item">Rice University. <em>Investment and Portfolio Management Specialization</em>. Course 2: Fundamental Analysis and Equity Valuation; ratio analysis, DCF models, industry benchmarking. <a href="https://www.coursera.org/specializations/investment-portolio-management" target="_blank">coursera.org/specializations/investment-portolio-management</a></div>
+            <div class="source-item">Buffett, Warren. <em>Berkshire Hathaway Letters to Shareholders</em>. Annual letters contain practical examples of fundamental analysis applied to real portfolio decisions.</div>
+        </div>
+    
+        <div class="legal-note" style="margin-top:2rem;padding:0.9rem 1.1rem;border:1px solid rgba(236,226,214,0.1);border-radius:8px;font:500 0.72rem 'Inter',sans-serif;color:#7d746a;line-height:1.6;">Educational content only — nothing here is investment, legal, or tax advice. Markets involve risk, figures are illustrative and may contain errors, and past performance never guarantees future results. Do your own research before investing real money.</div>
+    </article>
+
+    <div class="module-footer">
+        <a href="beginner-path.html" class="footer-btn footer-btn-back">&larr; Back to Path</a>
+        <a href="beginner-module-5.html" class="footer-btn footer-btn-next">Module 5: Trading Strategies &rarr;</a>
+    </div>
+
+    <script>
+        // Reading progress
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+            document.getElementById('readingProgress').style.width = Math.min(pct, 100) + '%';
+        });
+
+        // Quiz logic
+        function checkQuiz(num, el, isCorrect) {
+            const q = document.getElementById('q' + num);
+            const fb = document.getElementById('fb' + num);
+            const opts = q.querySelectorAll('.quiz-opt');
+
+            opts.forEach(o => {
+                o.classList.add('disabled');
+                o.classList.remove('correct', 'wrong');
+            });
+
+            const why = q.dataset.why ? ' ' + q.dataset.why : '';
+            if (isCorrect) {
+                el.classList.add('correct');
+                fb.textContent = 'Correct.' + why;
+                fb.className = 'quiz-feedback show right';
+            } else {
+                el.classList.add('wrong');
+                // Highlight correct answer
+                opts.forEach(o => {
+                    if (o.getAttribute('onclick') && o.getAttribute('onclick').includes('true')) {
+                        o.classList.add('correct');
+                    }
+                });
+                fb.textContent = 'Not quite. The correct answer is highlighted above.' + why;
+                fb.className = 'quiz-feedback show wrong-fb';
+            }
+
+            // Track progress
+            updateModuleProgress();
+        }
+
+        function updateModuleProgress() {
+            const answered = document.querySelectorAll('.quiz-opt.correct').length;
+            const total = 3;
+            if (answered >= total) {
+                const progress = JSON.parse(localStorage.getItem('learningProgress') || '{}');
+                progress.beginner = progress.beginner || {};
+                progress.beginner.module4 = true;
+                localStorage.setItem('learningProgress', JSON.stringify(progress));
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/quiz.js"></script>
+</body>
+</html>

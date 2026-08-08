@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock League - Career Education</title>
+    <style>
+        /* Modern Typography */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap');
+
+        :root {
+            --primary: #4a6785;
+            --secondary: #6aa08d;
+            --accent: #e0a24c;
+            --background: #1a1714;
+            --surface: #241f1b;
+            --up-green: #4fa87b;
+            --down-red: #d9645c;
+            --glow-green: #5cb88a50;
+            --success: #5cb88a;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #1a1714;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 1rem 2rem;
+        }
+
+        .navbar {
+            background: var(--surface);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .career-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .title-container {
+            text-align: center;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1;
+            margin: 0;
+            padding: 0;
+            letter-spacing: 2px;
+        }
+
+        .career {
+            background: linear-gradient(90deg, #e0a24c 0%, #e7be6b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(224, 162, 76, 0.3);
+        }
+
+        .education {
+            background: linear-gradient(90deg, #e7be6b 0%, #FFA500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            margin-left: 20px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        .career-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .career-card {
+            background: rgba(26, 23, 20, 0.95);
+            border: 1px solid rgba(224, 162, 76, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .career-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        .career-card.unlocked {
+            border-color: var(--success);
+        }
+
+        .career-card.locked {
+            opacity: 0.6;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .career-icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 1.5rem;
+            fill: var(--accent);
+        }
+
+        .career-title {
+            color: var(--accent);
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .career-description {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .career-details {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .career-details h4 {
+            color: var(--success);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .career-details ul {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin: 0;
+            padding-left: 1rem;
+        }
+
+        .career-details li {
+            margin-bottom: 0.3rem;
+        }
+
+        .career-button {
+            background: linear-gradient(45deg, var(--accent), #e7be6b);
+            color: var(--background);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .career-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        .career-button.locked {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            cursor: not-allowed;
+        }
+
+        .career-button.locked:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .unlock-requirements {
+            background: rgba(255, 68, 68, 0.05);
+            border: 1px solid rgba(255, 68, 68, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .unlock-requirements h4 {
+            color: #d9645c;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .unlock-requirements ul {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0;
+            padding-left: 1rem;
+        }
+
+        .dashboard-btn {
+            background: rgba(236, 226, 214, 0.1);
+            color: #5cb88a;
+            border: 1px solid rgba(92, 184, 138, 0.3);
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem;
+            font-size: 1rem;
+        }
+
+        .menu-icon {
+            font-size: 1.2rem;
+        }
+
+        .back-btn {
+            background: rgba(224, 162, 76, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(224, 162, 76, 0.3);
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem;
+            font-size: 1rem;
+        }
+
+        .coming-soon-banner {
+            background: linear-gradient(135deg, rgba(224, 162, 76, 0.15), rgba(255, 215, 0, 0.1));
+            border: 2px solid rgba(224, 162, 76, 0.4);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin: 2rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        .coming-soon-banner h2 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin: 0;
+            background: linear-gradient(90deg, #e0a24c, #e7be6b, #e0a24c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(224, 162, 76, 0.3);
+            letter-spacing: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.5rem;
+            }
+            .career-grid {
+                grid-template-columns: 1fr;
+            }
+            .coming-soon-banner h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+</head>
+<body>
+    <button class="dashboard-btn" onclick="window.location.href='dashboard.html'">
+        <span class="menu-icon">≡</span>
+        Dashboard
+    </button>
+
+    <button class="back-btn" onclick="window.location.href='learn.html'">
+        ← Back to Learning Hub
+    </button>
+
+    <div class="title-container">
+        <h1 class="main-title">
+            <span class="career">CAREER</span>
+            <span class="education">EDUCATION</span>
+        </h1>
+        <p class="subtitle">Explore high-finance career paths and unlock your potential</p>
+    </div>
+
+    <div class="coming-soon-banner">
+        <h2>COMING SOON</h2>
+    </div>
+
+    <div class="career-container">
+        <div class="career-grid">
+            <!-- Research Analyst -->
+            <div class="career-card unlocked">
+                <svg class="career-icon" viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+                <h3 class="career-title">Research Analyst</h3>
+                <p class="career-description">Analyze companies, industries, and market trends. Provide investment recommendations and insights to clients.</p>
+                
+                <div class="career-details">
+                    <h4>Skills You'll Learn</h4>
+                    <ul>
+                        <li>Financial analysis & modeling</li>
+                        <li>Industry research</li>
+                        <li>Report writing</li>
+                        <li>Client presentations</li>
+                    </ul>
+                </div>
+
+                <div class="career-details">
+                    <h4>Career Path</h4>
+                    <ul>
+                        <li>Analyst → Senior Analyst → Associate</li>
+                        <li>Average salary: $75K - $120K+</li>
+                        <li>Top firms: JPMorgan, Morgan Stanley, Goldman Sachs</li>
+                    </ul>
+                </div>
+
+                <button class="career-button" onclick="startCareerPath('research')">
+                    Start Learning
+                </button>
+            </div>
+
+            <!-- M&A Analyst -->
+            <div class="career-card locked">
+                <svg class="career-icon" viewBox="0 0 24 24">
+                    <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4V6h11v12zm5 0h-3V6h3v12z"/>
+                    <path d="M7 8h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/>
+                </svg>
+                <h3 class="career-title">M&A Analyst</h3>
+                <p class="career-description">Evaluate deals, build financial models, and advise on mergers & acquisitions. Master deal structuring and due diligence.</p>
+                
+                <div class="career-details">
+                    <h4>Skills You'll Learn</h4>
+                    <ul>
+                        <li>Financial modeling & valuation</li>
+                        <li>Due diligence processes</li>
+                        <li>Deal structuring & negotiation</li>
+                        <li>Regulatory compliance</li>
+                    </ul>
+                </div>
+
+                <button class="career-button locked">
+                    Coming Soon
+                </button>
+            </div>
+
+            <!-- Private Equity -->
+            <div class="career-card locked">
+                <svg class="career-icon" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z"/>
+                    <path d="M12 9l-3 3 3 3 3-3-3-3z"/>
+                </svg>
+                <h3 class="career-title">Private Equity</h3>
+                <p class="career-description">Source deals, perform due diligence, and manage portfolio companies. Drive value creation through strategic investments.</p>
+                
+                <div class="career-details">
+                    <h4>Skills You'll Learn</h4>
+                    <ul>
+                        <li>Deal sourcing & screening</li>
+                        <li>LBO modeling & analysis</li>
+                        <li>Portfolio management</li>
+                        <li>Exit strategy planning</li>
+                    </ul>
+                </div>
+
+                <button class="career-button locked">
+                    Coming Soon
+                </button>
+            </div>
+
+            <!-- Venture Capital -->
+            <div class="career-card locked">
+                <svg class="career-icon" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                <h3 class="career-title">Venture Capital</h3>
+                <p class="career-description">Evaluate startups, make investment decisions, and track growth. Identify the next unicorn and support entrepreneurs.</p>
+                
+                <div class="career-details">
+                    <h4>Skills You'll Learn</h4>
+                    <ul>
+                        <li>Startup evaluation</li>
+                        <li>Market opportunity analysis</li>
+                        <li>Term sheet negotiation</li>
+                        <li>Board governance</li>
+                    </ul>
+                </div>
+
+                <button class="career-button locked">
+                    Coming Soon
+                </button>
+            </div>
+
+            <!-- Investment Banking -->
+            <div class="career-card locked">
+                <svg class="career-icon" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                <h3 class="career-title">Investment Banking</h3>
+                <p class="career-description">Learn capital raising, IPOs, and financial advisory services. Master corporate finance and deal execution.</p>
+                
+                <div class="career-details">
+                    <h4>Skills You'll Learn</h4>
+                    <ul>
+                        <li>Capital raising strategies</li>
+                        <li>IPO process & execution</li>
+                        <li>Financial advisory services</li>
+                        <li>Client relationship management</li>
+                    </ul>
+                </div>
+
+                <button class="career-button locked">
+                    Coming Soon
+                </button>
+            </div>
+
+            <!-- Start Your Own Fund -->
+            <div class="career-card locked">
+                <svg class="career-icon" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z"/>
+                    <path d="M12 9l-3 3 3 3 3-3-3-3z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <h3 class="career-title">Start Your Own Fund</h3>
+                <p class="career-description">Build a team, attract LPs, and manage your own strategy. Launch your own investment firm.</p>
+                
+                <div class="career-details">
+                    <h4>Skills You'll Learn</h4>
+                    <ul>
+                        <li>Fund formation & structure</li>
+                        <li>LP fundraising strategies</li>
+                        <li>Team building & management</li>
+                        <li>Performance reporting</li>
+                    </ul>
+                </div>
+
+                <button class="career-button locked">
+                    Coming Soon
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function startCareerPath(career) {
+            if (career === 'm&a') {
+                alert('M&A Analyst path unlocked! This feature will include detailed modules, case studies, and interactive simulations.');
+            }
+        }
+
+        // Check user progress and unlock paths accordingly
+        function checkUnlockStatus() {
+            const progress = JSON.parse(localStorage.getItem('learningProgress') || '{}');
+            const leagueRank = localStorage.getItem('leagueRank') || '50%';
+            
+            // This is where you'd implement the unlock logic based on user progress
+            // For now, only M&A is unlocked by default
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkUnlockStatus();
+        });
+    </script>
+</body>
+</html> 

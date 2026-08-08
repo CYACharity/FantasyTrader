@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Stock Data</title>
+    <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+    <div class="stock-container">
+        <h1>Live Market Data</h1>
+        <div class="stock-ticker">
+            <div class="stock" id="AAPL">
+                <span class="symbol">AAPL</span>
+                <span class="price">Loading...</span>
+                <span class="change"></span>
+            </div>
+            <div class="stock" id="TSLA">
+                <span class="symbol">TSLA</span>
+                <span class="price">Loading...</span>
+                <span class="change"></span>
+            </div>
+            <div class="stock" id="MSFT">
+                <span class="symbol">MSFT</span>
+                <span class="price">Loading...</span>
+                <span class="change"></span>
+            </div>
+            <div class="stock" id="AMZN">
+                <span class="symbol">AMZN</span>
+                <span class="price">Loading...</span>
+                <span class="change"></span>
+            </div>
+            <div class="stock" id="META">
+                <span class="symbol">META</span>
+                <span class="price">Loading...</span>
+                <span class="change"></span>
+            </div>
+        </div>
+        <div class="last-updated">
+            Last updated: <span id="update-time">Loading...</span>
+        </div>
+    </div>
+
+<script>
+    const API_KEY = 'JLUZVLTW2N31IWWH';
+    const symbols = ['AAPL', 'TSLA', 'MSFT', 'AMZN', 'META'];
+    let currentIndex = 0;
+
+    async function getStockPrice(symbol) {
+        try {
+            const response = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${API_KEY}`);
+            const data = await response.json();
+            
+            if (data['Global Quote']) {
+                return {
+                    price: data['Global Quote']['05. price'],
+                    change: data['Global Quote']['09. change'],
+                    changePercent: data['Global Quote']['10. change percent']
+                };
+            } else {
+                console.error('Rate limit reached or invalid data for', symbol);
+                return null;
+            }
+        } catch (error) {
+            console.error(`Error fetching ${symbol}:`, error);
+            return null;
+        }
+    }
+
+    function updateDisplay(symbol, data) {
+        if (!data) return;
+
+        const stockDiv = document.getElementById(symbol);
+        const priceSpan = stockDiv.querySelector('.price');
+        const changeSpan = stockDiv.querySelector('.change');
+
+        const price = parseFloat(data.price);
+        const change = parseFloat(data.change);
+        
+        priceSpan.textContent = `$${price.toFixed(2)}`;
+        changeSpan.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)} (${data.changePercent})`;
+        changeSpan.className = `change ${change >= 0 ? 'positive' : 'negative'}`;
+    }
+
+    async function updateNextStock() {
+        const symbol = symbols[currentIndex];
+        const data = await getStockPrice(symbol);
+        updateDisplay(symbol, data);
+        
+        currentIndex = (currentIndex + 1) % symbols.length;
+        
+        // Update the last updated time
+        document.getElementById('update-time').textContent = new Date().toLocaleTimeString();
+    }
+
+    // Update one stock every 15 seconds to stay within API limits
+    updateNextStock();
+    setInterval(updateNextStock, 15000);
+</script>
+
+<style>
+    body {
+        background: #1a1714;
+        color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+        padding: 2rem;
+        margin: 0;
+    }
+
+    .stock-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    h1 {
+        color: #5cb88a;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 2rem;
+    }
+
+    .stock-ticker {
+        background: rgba(26, 23, 20, 0.95);
+        border: 1px solid rgba(236, 226, 214, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .stock {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        transition: background-color 0.3s ease;
+    }
+
+    .stock:hover {
+        background: rgba(236, 226, 214, 0.05);
+    }
+
+    .stock:last-child {
+        border-bottom: none;
+    }
+
+    .symbol {
+        color: #5cb88a;
+        font-weight: bold;
+        font-size: 1.2rem;
+        width: 80px;
+    }
+
+    .price {
+        color: white;
+        font-size: 1.1rem;
+        width: 100px;
+        text-align: right;
+    }
+
+    .change {
+        width: 150px;
+        text-align: right;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .change.positive {
+        color: #5cb88a;
+    }
+
+    .change.negative {
+        color: #d9645c;
+    }
+
+    .last-updated {
+        text-align: center;
+        margin-top: 1rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+    }
+</style>
+</body>
+</html> 

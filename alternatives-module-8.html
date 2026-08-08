@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyzing REITs Like a Professional - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        :root {
+            --primary: #5cb88a;
+            --accent: #e0a24c;
+            --level: #e0a24c;
+            --background: #1a1714;
+            --surface: #1e1a16;
+            --surface-2: #241f1b;
+            --border: #2a2420;
+            --text-primary: #e8e8e8;
+            --text-body: #c4c4c4;
+            --text-muted: #888888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .mod-header {
+            background: rgba(20, 20, 20, 0.97);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .mod-header-inner {
+            max-width: 820px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .back-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover { opacity: 0.75; }
+        .mod-header-meta {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            width: 0%;
+            background: var(--level);
+            z-index: 200;
+            transition: width 0.15s linear;
+        }
+
+        .article {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 5rem;
+        }
+
+        .module-label {
+            display: inline-block;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--level);
+            background: rgba(236, 226, 214, 0.08);
+            border: 1px solid rgba(236, 226, 214, 0.18);
+            padding: 5px 12px;
+            border-radius: 4px;
+            margin-bottom: 1.2rem;
+        }
+
+        .article-title {
+            font-family: 'Lora', serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #ffffff;
+            margin-bottom: 0.8rem;
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .meta-item { display: flex; align-items: center; gap: 5px; }
+        .meta-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); }
+
+        .article p {
+            font-family: 'Lora', serif;
+            font-size: 1.05rem;
+            line-height: 1.85;
+            color: var(--text-body);
+            margin-bottom: 1.5rem;
+        }
+
+        .article h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+        .article h2:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+
+        .sources {
+            margin-top: 3.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+        .sources h3 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            margin-top: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        .source-item {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 0.6rem;
+            font-family: 'Inter', sans-serif;
+        }
+        .source-item a { color: #5cb88a; text-decoration: none; overflow-wrap: anywhere; }
+        .source-item a:hover { text-decoration: underline; }
+                .example-box { background: rgba(236, 226, 214, 0.04); border: 1px solid rgba(224, 162, 76, 0.12); border-radius: 10px; padding: 1.5rem; margin: 1.8rem 0; }
+        .example-label { font-family: 'Inter', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
+        .example-box p { font-size: 0.95rem; margin-bottom: 0; }
+
+        .fig { background: rgba(236, 226, 214, 0.03); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem 1rem 0.9rem; margin: 1.8rem 0; }
+        .fig svg { width: 100%; max-width: 560px; height: auto; display: block; margin: 0 auto; }
+        .fig-cap { font: 500 0.75rem 'Inter', sans-serif; color: var(--text-muted); text-align: center; margin-top: 0.7rem; line-height: 1.5; }
+        .data-table { width: 100%; border-collapse: collapse; margin: 1.6rem 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; }
+        .data-table th { text-align: left; font-size: 0.66rem; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-muted); padding: 0.5rem 0.7rem; border-bottom: 1px solid rgba(236,226,214,0.18); }
+        .data-table td { padding: 0.55rem 0.7rem; border-bottom: 1px solid rgba(236,226,214,0.07); color: var(--text-body); }
+        .data-table td:first-child { color: var(--text-primary); font-weight: 600; }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table th.num { text-align: right; }
+        .key-box { background: rgba(92,184,138,0.06); border: 1px solid rgba(92,184,138,0.2); border-radius: 10px; padding: 1.2rem 1.4rem; margin: 1.8rem 0; }
+        .key-box .example-label { color: #5cb88a; }
+        .key-box p { font-size: 0.95rem; margin-bottom: 0; }
+        .quiz-section {
+            margin-top: 3.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.75rem;
+        }
+        .quiz-section h3 { font-family: 'Inter', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 0.3rem; color: #ffffff; }
+        .quiz-subtitle { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; font-family: 'Inter', sans-serif !important; }
+        .quiz-q { margin-bottom: 1.75rem; }
+
+        /* Quiz rework: lettered options, cleaner questions */
+        .quiz-section h3 { font-family: 'Fraunces', Georgia, serif !important; font-size: 1.3rem !important; }
+        .quiz-q { padding-top: 1.2rem; border-top: 1px solid rgba(236, 226, 214, 0.07); }
+        .quiz-q:first-of-type { border-top: none; padding-top: 0; }
+        .quiz-q > p { font-size: 1rem !important; }
+        .quiz-opts { counter-reset: opt; }
+        .quiz-opt { position: relative; padding-left: 2.9rem !important; counter-increment: opt; }
+        .quiz-opt::before {
+            content: counter(opt, upper-alpha);
+            position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%);
+            width: 1.45rem; height: 1.45rem; border: 1px solid rgba(236, 226, 214, 0.25);
+            border-radius: 5px; display: flex; align-items: center; justify-content: center;
+            font: 700 0.68rem 'Inter', sans-serif; color: #8a8178;
+        }
+        .quiz-opt:hover::before { border-color: rgba(236, 226, 214, 0.5); color: #F4EEE6; }
+        .quiz-opt.correct::before { border-color: #5cb88a; color: #5cb88a; content: '✓'; }
+        .quiz-opt.wrong::before { border-color: #d9645c; color: #d9645c; content: '✕'; }
+
+        .quiz-figure {
+            background: rgba(236, 226, 214, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }
+        .quiz-figure svg { width: 100%; max-width: 430px; height: auto; display: block; margin: 0 auto; }
+        .quiz-q p { font-family: 'Inter', sans-serif; font-weight: 600; margin-bottom: 0.7rem; font-size: 0.95rem; line-height: 1.5; color: var(--text-primary); }
+        .quiz-opts { display: flex; flex-direction: column; gap: 0.5rem; }
+        .quiz-opt { padding: 0.7rem 0.95rem; background: rgba(236,226,214,0.04); border: 1px solid rgba(236,226,214,0.1); border-radius: 10px; cursor: pointer; font-size: 0.9rem; transition: all 0.15s ease; }
+        .quiz-opt:hover { border-color: rgba(236,226,214,0.25); }
+        .quiz-opt.correct { border-color: #5cb88a; background: rgba(92,184,138,0.12); }
+        .quiz-opt.wrong { border-color: #d9645c; background: rgba(217,100,92,0.12); }
+        .quiz-opt.disabled { pointer-events: none; }
+        .quiz-feedback { display: none; font-size: 0.82rem; margin-top: 0.5rem; font-family: 'Inter', sans-serif; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.right { color: #5cb88a; }
+        .quiz-feedback.wrong-fb { color: #d9645c; }
+
+        .module-footer { max-width: 720px; margin: 0 auto; padding: 0 1.5rem 4rem; display: flex; justify-content: space-between; align-items: center; }
+        .footer-btn {
+            display: inline-flex; align-items: center; gap: 8px; padding: 0.85rem 1.6rem;
+            border-radius: 10px; font-size: 0.85rem; font-weight: 700; text-decoration: none;
+            transition: all 0.2s ease; font-family: 'Inter', sans-serif; border: none; cursor: pointer;
+        }
+        .footer-btn-next { background: var(--primary); color: var(--background); }
+        .footer-btn-next:hover { transform: translateY(-2px); box-shadow: 0 2px 10px rgba(0,0,0,0.18); }
+        .footer-btn-back { background: rgba(255, 255, 255, 0.04); color: var(--text-muted); }
+        .footer-btn-back:hover { background: rgba(255, 255, 255, 0.09); color: var(--text-primary); }
+    </style>
+</head>
+<body>
+    <div class="reading-progress" id="readingProgress"></div>
+    <header class="mod-header">
+        <div class="mod-header-inner">
+            <a href="alternatives-path.html" class="back-link">← Alternative Investments</a>
+            <span class="mod-header-meta">MODULE 8 OF 18 · INTERMEDIATE</span>
+        </div>
+    </header>
+
+    <article class="article">
+        <span class="module-label">Intermediate · Module 8</span>
+        <h1 class="article-title">Analyzing REITs Like a Professional</h1>
+        <div class="article-meta">
+            <span class="meta-item">Alternative Investments</span>
+            <span class="meta-dot"></span>
+            <span class="meta-item">Intermediate</span>
+            <span class="meta-dot"></span>
+            <span class="meta-item">4 min read</span>
+        </div>
+
+        <h2>Why REIT earnings are fake (legally)</h2>
+        <p>Look up any REIT's P/E ratio and you'll see something absurd — 60, 80, sometimes no earnings at all — for a company collecting rent from a thousand tenants. The culprit is <b>depreciation</b>: accounting rules force REITs to pretend their buildings lose value on a fixed schedule, even as those buildings appreciate in the real world. A REIT can collect $500M of rent, pay $350M of real expenses, and report near-zero "earnings" after a $140M non-cash depreciation charge. P/E is useless here. The industry's fix is <b>FFO — funds from operations</b>: net income with depreciation added back and one-time property-sale gains stripped out.</p>
+        <div class="fig"><svg viewBox="0 0 560 190" xmlns="http://www.w3.org/2000/svg">
+<rect x="30"  y="60" width="120" height="60" rx="4" fill="rgba(217,100,92,0.15)" stroke="#D9645C"/>
+<text x="90" y="85" text-anchor="middle" fill="#D9645C" font-size="11" font-weight="700">NET INCOME</text>
+<text x="90" y="103" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">GAAP fiction</text>
+<text x="163" y="95" fill="#7d746a" font-size="16">+</text>
+<rect x="180" y="60" width="130" height="60" rx="4" fill="rgba(224,162,76,0.15)" stroke="#E0A24C"/>
+<text x="245" y="85" text-anchor="middle" fill="#E0A24C" font-size="11" font-weight="700">+ DEPRECIATION</text>
+<text x="245" y="103" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">buildings don't rot on schedule</text>
+<text x="323" y="95" fill="#7d746a" font-size="16">−</text>
+<rect x="340" y="60" width="120" height="60" rx="4" fill="rgba(157,184,210,0.15)" stroke="#9DB8D2"/>
+<text x="400" y="85" text-anchor="middle" fill="#9DB8D2" font-size="11" font-weight="700">− GAINS ON SALES</text>
+<text x="400" y="103" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">one-offs out</text>
+<text x="475" y="95" fill="#7d746a" font-size="16">=</text>
+<rect x="490" y="55" width="60" height="70" rx="4" fill="rgba(92,184,138,0.25)" stroke="#5CB88A"/>
+<text x="520" y="92" text-anchor="middle" fill="#5CB88A" font-size="13" font-weight="700">FFO</text>
+<text x="280" y="165" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">Then subtract recurring capex → AFFO, the cash that actually funds the dividend.</text>
+</svg><div class="fig-cap">FFO reconstruction: undo the accounting fictions to find the cash.</div></div>
+        <p>One refinement deeper sits <b>AFFO</b> (adjusted FFO): FFO minus the recurring capital spending that keeps buildings leasable — new roofs, lobby renovations, leasing commissions. AFFO is the closest thing to the true cash available for dividends. The core REIT valuation stat is therefore <b>P/AFFO</b> (or P/FFO), used exactly as you'd use P/E on a normal stock: compare it to the REIT's own history and its sector peers. Quality apartment and industrial REITs have typically traded at 18–25× FFO; struggling office REITs at 6–10× — the market's way of saying it doesn't believe the F in their FFO.</p>
+        <h2>The dividend: test it, don't trust it</h2>
+        <p>REIT investors buy dividends, so test the dividend's plumbing. Compute the <b>AFFO payout ratio</b>: dividends ÷ AFFO. Below ~80%, the dividend has a cushion and room to grow. At 95%+, one bad quarter forces a cut. And a screaming 11% yield is almost never a gift — it's the market pricing in a cut before management admits it. The 2020 lesson: mall and hotel REITs yielding 10%+ in February slashed or suspended dividends by May. Yield is an output of price; distress is usually the input.</p>
+        <div class="example-box"><div class="example-label">Dividend Stress Test</div><p>REIT pays $2.10/share, AFFO $2.35/share: payout 89% — functional, but no room for a recession. Its competitor pays $1.80 on $2.60 AFFO: 69% payout, growing 6% a year. The second stock yields less today and is worth more — the first is renting you your own principal.</p></div>
+        <h2>Balance sheet and NAV</h2>
+        <p>REITs live on borrowed money, so two more checks. <b>Net debt / EBITDA</b>: under 5.5× is investment-grade territory; over 7× means the dividend competes with lenders for every dollar. Also check the debt <i>maturity wall</i> — a REIT rolling 40% of its debt in a high-rate year gets repriced brutally. Then <b>NAV — net asset value</b>: what the buildings would fetch at market cap rates, minus debt. When a REIT trades far below NAV, you're buying buildings at a discount through the stock market — sometimes a genuine bargain (2009, 2020), sometimes a value trap where the market has correctly concluded the buildings' marks are stale (office, 2023). The discount is the beginning of the question, not the answer.</p>
+        <div class="key-box"><div class="example-label">The Five-Minute REIT Checklist</div><p>Sector and its demand story → P/AFFO vs peers and own history → AFFO payout ratio under ~85% → net debt/EBITDA under ~6× with no near-term maturity wall → same-store NOI growth positive. Five numbers, five minutes, and you're ahead of nearly everyone quoting dividend yields at parties.</p></div>
+        <h2>Sectors are the strategy</h2>
+        <p>Most of a REIT's fate is its sector. Industrial and data centers ride e-commerce and AI compute demand; cell towers are utilities with contracts; apartments track wage growth and local supply; grocery-anchored retail proved durable while malls decayed; office is a falling knife with a narrative problem; healthcare REITs lease to operators whose margins are political footballs. Buy the sector thesis first, the specific REIT second — and if you don't want to choose, a broad REIT index fund holds them all, letting sector winners compound over the losers.</p>
+
+        <div class="quiz-section">
+            <h3>Check your understanding</h3>
+            <p class="quiz-subtitle">5 questions — expect real numbers. Your score saves to your account.</p>
+            <div class="quiz-q" id="q1" data-why="FFO exists precisely to add that fictional depreciation back.">
+                <p>1. Why is P/E nearly meaningless for REITs?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">REITs have no revenue</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, true)">non-cash depreciation crushes reported earnings while buildings may appreciate</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">REITs are exempt from accounting</div>
+                </div>
+                <div class="quiz-feedback" id="fb1"></div>
+            </div>
+
+            <div class="quiz-q" id="q2" data-why="80 + 120 − 30 = $170M.">
+                <p>2. A REIT reports net income $80M, depreciation $120M, gains on property sales $30M. FFO is…</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, true)">$170M</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">$230M</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">$80M</div>
+                </div>
+                <div class="quiz-feedback" id="fb2"></div>
+            </div>
+
+            <div class="quiz-q" id="q3" data-why="Paying more than AFFO means borrowing or issuing shares to fund the dividend. Cuts follow.">
+                <p>3. A REIT pays $3.00/share in dividends with AFFO of $2.80/share. The correct read is…</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, true)">a 107% payout — the dividend is being funded beyond cash flow and is at risk</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">great — high payouts mean confidence</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">irrelevant, only yield matters</div>
+                </div>
+                <div class="quiz-feedback" id="fb3"></div>
+            </div>
+
+            <div class="quiz-q" id="q4" data-why="Office REITs in 2023 traded at huge &quot;discounts&quot; to NAVs that were themselves fantasy. The discount is a question.">
+                <p>4. A REIT trades 35% below its stated NAV. This means…</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">guaranteed 35% upside</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, true)">either a bargain or the market disbelieving stale building values — investigate which</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">the REIT will be delisted</div>
+                </div>
+                <div class="quiz-feedback" id="fb4"></div>
+            </div>
+
+            <div class="quiz-q" id="q5" data-why="Moderate multiple, cushioned payout, investment-grade leverage — boring and durable, which is the point.">
+                <p>5. Which combination is the healthiest?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(5, this, false)">P/AFFO 30×, payout 98%, debt/EBITDA 8×</div>
+                    <div class="quiz-opt" onclick="checkQuiz(5, this, true)">P/AFFO 17×, payout 72%, debt/EBITDA 5.2×</div>
+                    <div class="quiz-opt" onclick="checkQuiz(5, this, false)">P/AFFO 5×, payout 110%, debt/EBITDA 9×</div>
+                </div>
+                <div class="quiz-feedback" id="fb5"></div>
+            </div>
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; Further Reading</h3>
+            <div class="source-item">Nareit. <em>FFO and AFFO.</em> <a href="https://www.reit.com/investing/reit-basics/glossary-reit-terms" target="_blank" rel="noopener">reit.com/investing/reit-basics/glossary-reit-terms</a></div>
+            <div class="source-item">Investopedia. <em>Funds From Operations (FFO).</em> <a href="https://www.investopedia.com/terms/f/fundsfromoperations.asp" target="_blank" rel="noopener">investopedia.com/terms/f/fundsfromoperations.asp</a></div>
+            <div class="source-item">Investopedia. <em>Net Asset Value in REITs.</em> <a href="https://www.investopedia.com/terms/n/nav.asp" target="_blank" rel="noopener">investopedia.com/terms/n/nav.asp</a></div>
+        </div>
+
+        <div class="legal-note" style="margin-top:2rem;padding:0.9rem 1.1rem;border:1px solid rgba(236,226,214,0.1);border-radius:8px;font:500 0.72rem 'Inter',sans-serif;color:#7d746a;line-height:1.6;">Educational content only — nothing here is investment, legal, or tax advice. Markets involve risk, figures are illustrative and may contain errors, and past performance never guarantees future results. Do your own research before investing real money.</div>
+    </article>
+
+    <div class="module-footer">
+        <a href="alternatives-path.html" class="footer-btn footer-btn-back">&larr; Back to Path</a>
+        <a href="alternatives-module-9.html" class="footer-btn footer-btn-next">Next Module →</a>
+    </div>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+            document.getElementById('readingProgress').style.width = Math.min(pct, 100) + '%';
+        });
+        function checkQuiz(num, el, isCorrect) {
+            const q = document.getElementById('q' + num);
+            const fb = document.getElementById('fb' + num);
+            const opts = q.querySelectorAll('.quiz-opt');
+            opts.forEach(o => { o.classList.add('disabled'); o.classList.remove('correct', 'wrong'); });
+            const why = q.dataset.why ? ' ' + q.dataset.why : '';
+            if (isCorrect) {
+                el.classList.add('correct');
+                fb.textContent = 'Correct.' + why;
+                fb.className = 'quiz-feedback show right';
+            } else {
+                el.classList.add('wrong');
+                opts.forEach(o => { if (o.getAttribute('onclick').includes('true')) o.classList.add('correct'); });
+                fb.textContent = 'Not quite — the correct answer is highlighted.' + why;
+                fb.className = 'quiz-feedback show wrong-fb';
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/quiz.js"></script>
+</body>
+</html>

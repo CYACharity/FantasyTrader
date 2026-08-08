@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market News - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="stock-data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #1A1714;
+            color: #F4EEE6;
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+        .wrap { max-width: 1080px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+        /* Header */
+        .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2.25rem; gap: 1rem; flex-wrap: wrap; }
+        .masthead h1 { font-family: 'Fraunces', Georgia, serif; font-size: 2rem; font-weight: 600; letter-spacing: -0.01em; }
+        .masthead p { color: #B7ADA1; font-size: 0.85rem; margin-top: 0.25rem; }
+        .search-wrap { position: relative; }
+        .search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #B7ADA1; font-size: 0.8rem; }
+        .search-wrap input {
+            width: 260px; padding: 0.6rem 0.9rem 0.6rem 2.1rem;
+            background: #221E1A; border: 1px solid rgba(236,226,214,0.1); border-radius: 10px;
+            color: #F4EEE6; font-size: 0.9rem;
+        }
+        .search-wrap input:focus { outline: none; border-color: #5CB88A; }
+
+        /* Topic chips */
+        .topics { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 2rem; }
+        .topic {
+            padding: 0.55rem 1.15rem; border-radius: 8px; cursor: pointer;
+            background: transparent; border: 1px solid rgba(236,226,214,0.12);
+            color: #B7ADA1; font: 600 0.72rem 'Inter', sans-serif;
+            text-transform: uppercase; letter-spacing: 0.08em; transition: all .15s ease;
+        }
+        .topic:hover { color: #F4EEE6; border-color: rgba(236,226,214,0.3); }
+        .topic.active { background: #221E1A; border-color: #E0A24C; color: #E0A24C; }
+        .img.noimg { display: flex; align-items: center; justify-content: center;
+                     background: linear-gradient(135deg, #2A2521, #201C18); }
+        .img.noimg span { font: 600 1.6rem 'Fraunces', Georgia, serif; color: rgba(236,226,214,0.25); }
+
+        /* Featured story */
+        .featured {
+            display: grid; grid-template-columns: 1.2fr 1fr; gap: 0; overflow: hidden;
+            background: #221E1A; border: 1px solid rgba(236,226,214,0.08); border-radius: 16px;
+            margin-bottom: 1.25rem; text-decoration: none; color: inherit; min-height: 280px;
+        }
+        .featured .img { background-size: cover; background-position: center; min-height: 220px; }
+        .featured .body { padding: 1.75rem; display: flex; flex-direction: column; justify-content: center; }
+        .featured .kicker { color: #E0A24C; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.6rem; }
+        .featured h2 { font-family: 'Fraunces', Georgia, serif; font-size: 1.45rem; font-weight: 600; line-height: 1.3; margin-bottom: 0.75rem; }
+        .featured:hover h2 { color: #5CB88A; }
+        .featured .meta { color: #B7ADA1; font-size: 0.8rem; }
+
+        /* Story grid */
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+        .story {
+            background: #221E1A; border: 1px solid rgba(236,226,214,0.08); border-radius: 14px;
+            overflow: hidden; text-decoration: none; color: inherit; display: flex; flex-direction: column;
+            transition: border-color .15s ease, transform .15s ease;
+        }
+        .story:hover { border-color: rgba(236,226,214,0.2); transform: translateY(-2px); }
+        .story .img { height: 150px; background-size: cover; background-position: center; background-color: #2A2521; }
+        .story .body { padding: 1rem 1.1rem 1.2rem; display: flex; flex-direction: column; gap: 0.45rem; flex: 1; }
+        .story .src { color: #E0A24C; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; }
+        .story h3 { font-size: 0.95rem; font-weight: 600; line-height: 1.4; }
+        .story:hover h3 { color: #5CB88A; }
+        .story .when { color: #B7ADA1; font-size: 0.75rem; margin-top: auto; }
+
+        .state { text-align: center; color: #B7ADA1; padding: 3rem 0; font-size: 0.95rem; }
+        .state a { color: #5CB88A; }
+
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: repeat(2, 1fr); }
+            .featured { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+            .search-wrap input { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="top-bar">
+            <div style="display:flex; align-items:center; gap:1.25rem;">
+                <a href="dashboard.html" class="back-button"><i class="fas fa-arrow-left"></i> Dashboard</a>
+                <div class="masthead">
+                    <h1>Market News</h1>
+                    <p id="dateline">Loading the latest headlines…</p>
+                </div>
+            </div>
+            <div class="search-wrap">
+                <i class="fas fa-search"></i>
+                <input type="text" id="newsSearch" placeholder="Search a stock or topic…" autocomplete="off">
+            </div>
+        </div>
+
+        <div class="topics" id="topics">
+            <div class="topic active" data-t="top">Top Stories</div>
+            <div class="topic" data-t="fed">The Fed</div>
+            <div class="topic" data-t="tech">Tech</div>
+            <div class="topic" data-t="energy">Energy</div>
+            <div class="topic" data-t="earnings">Earnings</div>
+            <div class="topic" data-t="crypto">Crypto</div>
+        </div>
+
+        <div id="content"><div class="state">Loading news…</div></div>
+    </div>
+
+    <script>
+        const content = document.getElementById('content');
+
+        // Each section pulls from several targeted queries so every tab has its own news.
+        const TOPICS = {
+            top:      ['stock market today', 'S&P 500'],
+            fed:      ['federal reserve', 'interest rates inflation', 'FOMC'],
+            tech:     ['NVDA', 'AAPL', 'MSFT', 'technology stocks'],
+            energy:   ['XOM', 'oil prices', 'CVX', 'natural gas'],
+            earnings: ['earnings report', 'quarterly earnings', 'earnings beat'],
+            crypto:   ['BTC-USD', 'ETH-USD', 'bitcoin'],
+        };
+        // Relevance gate: a story only makes a section if it actually talks about it.
+        const TOPIC_RX = {
+            fed:      /\b(fed|federal reserve|fomc|powell|rate cut|rate hike|interest rate|inflation|cpi|treasur)/i,
+            tech:     /\b(tech|nvidia|nvda|apple|aapl|microsoft|msft|google|alphabet|meta|amazon|amzn|chip|semiconductor|ai|software|intel|amd|tesla)/i,
+            energy:   /\b(oil|crude|energy|gas|opec|exxon|chevron|drilling|barrel|refin|solar|lng)/i,
+            earnings: /\b(earnings|revenue|profit|quarter|guidance|eps|beat|missed|outlook|results)/i,
+            crypto:   /\b(bitcoin|btc|crypto|ethereum|eth|coinbase|blockchain|token|stablecoin)/i,
+        };
+        let activeTopic = 'top';
+
+        function timeAgo(ts) {
+            if (!ts) return '';
+            const s = Math.floor(Date.now() / 1000) - ts;
+            if (s < 3600) return Math.max(1, Math.floor(s / 60)) + 'm ago';
+            if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+            return Math.floor(s / 86400) + 'd ago';
+        }
+
+        function thumbOf(n) {
+            const res = n.thumbnail && n.thumbnail.resolutions;
+            if (!res || !res.length) return null;
+            return res.slice().sort((a, b) => (b.width || 0) - (a.width || 0))[0].url;
+        }
+
+        function imgHtml(n) {
+            const img = thumbOf(n);
+            if (img) return '<div class="img" style="background-image:url(\'' + img + '\')"></div>';
+            const mono = (n.publisher || 'News').split(/\s+/).map(w => w[0]).join('').slice(0, 3).toUpperCase();
+            return '<div class="img noimg"><span>' + mono + '</span></div>';
+        }
+
+        async function fetchQuery(q) {
+            try {
+                const j = await stockDataService.fetchYahoo('/v1/finance/search?q=' + encodeURIComponent(q) + '&newsCount=10&quotesCount=0');
+                return (j && j.news) || [];
+            } catch (e) { return []; }
+        }
+
+        async function loadNews(queries) {
+            content.innerHTML = '<div class="state">Loading news…</div>';
+            const results = await Promise.all(queries.map(fetchQuery));
+
+            // Merge + dedupe (by uuid, then title) + newest first
+            const seen = new Set();
+            let items = [];
+            results.flat().forEach(n => {
+                const key = n.uuid || (n.title || '').toLowerCase();
+                if (!key || seen.has(key)) return;
+                seen.add(key);
+                items.push(n);
+            });
+            // keep only stories relevant to this section (title/publisher text match)
+            const rx = TOPIC_RX[activeTopic];
+            if (rx) {
+                const hit = items.filter(x => rx.test((x.title || '') + ' ' + (x.publisher || '')));
+                const miss = items.filter(x => !rx.test((x.title || '') + ' ' + (x.publisher || '')));
+                items = hit.length >= 5 ? hit : hit.concat(miss.slice(0, 5 - hit.length));
+            }
+            items.sort((a, b) => (b.providerPublishTime || 0) - (a.providerPublishTime || 0));
+
+            if (!items.length) {
+                content.innerHTML = '<div class="state">Couldn\'t load news right now — try again in a moment, or <a href="https://finance.yahoo.com/news" target="_blank" rel="noopener">read on Yahoo Finance →</a></div>';
+                return;
+            }
+
+            document.getElementById('dateline').textContent =
+                new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+
+            // Feature the newest story that has a photo; grid prefers photo stories too.
+            const withImg = items.filter(n => thumbOf(n));
+            const featured = withImg[0] || items[0];
+            const pool = items.filter(n => n !== featured);
+            const rest = pool.filter(n => thumbOf(n)).concat(pool.filter(n => !thumbOf(n))).slice(0, 12);
+
+            let html = '';
+            html += '<a class="featured" href="' + featured.link + '" target="_blank" rel="noopener">' +
+                imgHtml(featured) +
+                '<div class="body">' +
+                '<div class="kicker">' + (featured.publisher || 'Top story') + '</div>' +
+                '<h2>' + featured.title + '</h2>' +
+                '<div class="meta">' + timeAgo(featured.providerPublishTime) + '</div>' +
+                '</div></a>';
+
+            html += '<div class="grid">' + rest.map(n =>
+                '<a class="story" href="' + n.link + '" target="_blank" rel="noopener">' +
+                    imgHtml(n) +
+                    '<div class="body">' +
+                    '<div class="src">' + (n.publisher || '') + '</div>' +
+                    '<h3>' + n.title + '</h3>' +
+                    '<div class="when">' + timeAgo(n.providerPublishTime) + '</div>' +
+                    '</div></a>').join('') + '</div>';
+
+            content.innerHTML = html;
+        }
+
+        // Topic tabs
+        document.querySelectorAll('.topic').forEach(t => {
+            t.addEventListener('click', () => {
+                document.querySelectorAll('.topic').forEach(x => x.classList.remove('active'));
+                t.classList.add('active');
+                activeTopic = t.dataset.t;
+                loadNews(TOPICS[activeTopic]);
+            });
+        });
+
+        // Search (debounced)
+        let searchTimer = null;
+        document.getElementById('newsSearch').addEventListener('input', (e) => {
+            clearTimeout(searchTimer);
+            const q = e.target.value.trim();
+            searchTimer = setTimeout(() => {
+                if (q) {
+                    document.querySelectorAll('.topic').forEach(x => x.classList.remove('active'));
+                    activeTopic = 'search';
+                    loadNews([q]);
+                } else {
+                    activeTopic = 'top';
+                    document.querySelector('.topic[data-t="top"]').classList.add('active');
+                    loadNews(TOPICS.top);
+                }
+            }, 400);
+        });
+
+        loadNews(TOPICS.top);
+    </script>
+</body>
+</html>

@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 1: Technical Indicators - Stocks League</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #e0a24c;
+            --accent: #e0a24c;
+            --background: #1a1714;
+            --surface: #1e1a16;
+            --surface-2: #241f1b;
+            --border: #2a2420;
+            --text-primary: #e8e8e8;
+            --text-body: #c4c4c4;
+            --text-muted: #888888;
+            --success: #e0a24c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .mod-header {
+            background: rgba(20, 20, 20, 0.97);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .mod-header-inner {
+            max-width: 820px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover { opacity: 0.75; }
+
+        .mod-header-meta {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            width: 0%;
+            background: var(--primary);
+            z-index: 200;
+            transition: width 0.15s linear;
+        }
+
+        .article {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 5rem;
+        }
+
+        .module-label {
+            display: inline-block;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--primary);
+            background: rgba(236, 226, 214, 0.08);
+            border: 1px solid rgba(224, 162, 76, 0.18);
+            padding: 5px 12px;
+            border-radius: 4px;
+            margin-bottom: 1.2rem;
+        }
+
+        .article-title {
+            font-family: 'Lora', serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #ffffff;
+            margin-bottom: 0.8rem;
+        }
+
+        .article-subtitle {
+            font-family: 'Lora', serif;
+            font-size: 1.15rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .meta-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .article p {
+            font-family: 'Lora', serif;
+            font-size: 1.05rem;
+            line-height: 1.85;
+            color: var(--text-body);
+            margin-bottom: 1.5rem;
+        }
+
+        .article h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .article h3 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .callout {
+            background: var(--surface);
+            border-left: 3px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+            padding: 1.25rem 1.5rem;
+            margin: 1.8rem 0;
+        }
+
+        .callout-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .callout p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 0;
+        }
+
+        .figure {
+            margin: 2.2rem 0;
+            text-align: center;
+        }
+
+        .figure-diagram {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            margin-bottom: 0.7rem;
+        }
+
+        .figure-caption {
+            font-size: 0.73rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-box {
+            background: rgba(236, 226, 214, 0.08);
+            border: 1px solid rgba(224, 162, 76, 0.2);
+            border-radius: 10px;
+            padding: 0.9rem 1.2rem;
+            text-align: center;
+            min-width: 130px;
+        }
+
+        .flow-box-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+        }
+
+        .flow-box-desc {
+            font-size: 0.72rem;
+            color: var(--text-body);
+            line-height: 1.4;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .flow-arrow {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            padding: 0 0.6rem;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1.8rem 0;
+            font-size: 0.88rem;
+        }
+
+        .comparison-table thead {
+            background: var(--surface);
+        }
+
+        .comparison-table th {
+            padding: 0.9rem 1.2rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table td {
+            padding: 0.85rem 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text-body);
+            font-family: 'Lora', serif;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 1.2rem;
+            height: 160px;
+            padding: 0 1rem;
+            justify-content: center;
+        }
+
+        .bar-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .bar {
+            width: 48px;
+            border-radius: 6px 6px 0 0;
+            transition: height 0.5s ease;
+        }
+
+        .bar-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-align: center;
+            max-width: 60px;
+        }
+
+        .bar-value {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .numbered-list {
+            counter-reset: item;
+            margin: 1.2rem 0 1.5rem;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .numbered-list li {
+            counter-increment: item;
+            font-family: 'Lora', serif;
+            font-size: 1rem;
+            line-height: 1.8;
+            color: var(--text-body);
+            margin-bottom: 0.6rem;
+            padding-left: 2.2rem;
+            position: relative;
+        }
+
+        .numbered-list li::before {
+            content: counter(item) ".";
+            position: absolute;
+            left: 0;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+        }
+
+        .quiz-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 3rem 0 2rem;
+        }
+
+        .quiz-section h3 {
+            margin-top: 0;
+            margin-bottom: 0.3rem;
+        }
+
+        .quiz-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-q {
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-q p {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.7rem;
+        }
+
+        .quiz-opts {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .quiz-opt {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 0.7rem 1rem;
+            font-size: 0.88rem;
+            color: var(--text-body);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .quiz-opt:hover {
+            background: rgba(236, 226, 214, 0.06);
+            border-color: rgba(224, 162, 76, 0.2);
+        }
+
+        .quiz-opt.correct {
+            background: rgba(224, 162, 76, 0.12);
+            border-color: var(--primary);
+            color: #ffffff;
+        }
+
+        .quiz-opt.wrong {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .quiz-opt.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .quiz-feedback {
+            font-size: 0.82rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.right { color: var(--primary); }
+        .quiz-feedback.wrong-fb { color: #d9645c; }
+
+        .sources {
+            margin-top: 3.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .sources h3 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            margin-top: 0;
+        }
+
+        .source-item {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 0.6rem;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .source-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.55rem;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .source-item a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .source-item a:hover { text-decoration: underline; }
+
+        .module-footer {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.85rem 1.6rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            border: none;
+            cursor: pointer;
+        }
+
+        .footer-btn-next {
+            background: var(--primary);
+            color: var(--background);
+        }
+        .footer-btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        .footer-btn-back {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+        .footer-btn-back:hover {
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        @media (max-width: 640px) {
+            .article { padding: 2rem 1.1rem 4rem; }
+            .article-title { font-size: 1.8rem; }
+            .flow-row { flex-direction: column; gap: 0.5rem; }
+            .flow-arrow { transform: rotate(90deg); padding: 0.2rem 0; }
+            .comparison-table { font-size: 0.8rem; }
+            .comparison-table th, .comparison-table td { padding: 0.65rem 0.8rem; }
+        }
+            :root { --level: #e0a24c; }
+
+        /* Unified module chrome (matches all pathway modules) */
+        .quiz-figure {
+            background: rgba(236, 226, 214, 0.03);
+            border: 1px solid var(--border, #2a2420);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }
+        .quiz-figure svg { width: 100%; max-width: 430px; height: auto; display: block; margin: 0 auto; }
+        .module-label { color: var(--level, var(--primary)) !important; }
+        .reading-progress { background: var(--level, var(--primary)) !important; }
+    
+        /* Quiz rework: lettered options, cleaner questions */
+        .quiz-section h3 { font-family: 'Fraunces', Georgia, serif !important; font-size: 1.3rem !important; }
+        .quiz-q { padding-top: 1.2rem; border-top: 1px solid rgba(236, 226, 214, 0.07); }
+        .quiz-q:first-of-type { border-top: none; padding-top: 0; }
+        .quiz-q > p { font-size: 1rem !important; }
+        .quiz-opts { counter-reset: opt; }
+        .quiz-opt { position: relative; padding-left: 2.9rem !important; counter-increment: opt; }
+        .quiz-opt::before {
+            content: counter(opt, upper-alpha);
+            position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%);
+            width: 1.45rem; height: 1.45rem; border: 1px solid rgba(236, 226, 214, 0.25);
+            border-radius: 5px; display: flex; align-items: center; justify-content: center;
+            font: 700 0.68rem 'Inter', sans-serif; color: #8a8178;
+        }
+        .quiz-opt:hover::before { border-color: rgba(236, 226, 214, 0.5); color: #F4EEE6; }
+        .quiz-opt.correct::before { border-color: #5cb88a; color: #5cb88a; content: '✓'; }
+        .quiz-opt.wrong::before { border-color: #d9645c; color: #d9645c; content: '✕'; }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+    <div class="reading-progress" id="readingProgress"></div>
+
+    <div class="mod-header">
+        <div class="mod-header-inner">
+            <a href="intermediate-path.html" class="back-link">
+                <span>&larr;</span> Intermediate Path
+            </a>
+            <div class="mod-header-meta">MODULE 1 OF 6</div>
+        </div>
+    </div>
+
+    <article class="article">
+        <div class="module-label">Intermediate &middot; Module 1</div>
+        <h1 class="article-title">Technical Indicators</h1>
+        <p class="article-subtitle">Use momentum, trend, and volatility indicators to spot entry and exit signals with precision.</p>
+
+        <div class="article-meta">
+            <div class="meta-item">7 min read</div>
+            <div class="meta-dot"></div>
+            <div class="meta-item">Sources: CFA Institute, J. Welles Wilder</div>
+            <div class="meta-dot"></div>
+            <div class="meta-item">Last updated Mar 2026</div>
+        </div>
+
+        <h2>Why Technical Indicators Matter</h2>
+
+        <p>Technical indicators are tools that turn price and volume data into readable signals. Think of them like a dashboard in a car. The four most essential are RSI, MACD, Moving Averages, and Bollinger Bands. Each one watches a different part of the market: how fast prices are moving, which direction they're trending, how strong that trend is, and how volatile the stock has become.</p>
+
+        <div class="callout">
+            <div class="callout-label">Key Insight</div>
+            <p>No single indicator tells the whole story. Professional traders use <strong>confirmation</strong>: they wait for two or more indicators to agree before making a trade. This filters out false signals and keeps you from losing money on tricks.</p>
+        </div>
+
+        <h2>RSI: Relative Strength Index</h2>
+
+        <p>RSI is like a speedometer for stock momentum. It runs from 0 to 100. When it goes above 70, the stock has been rising fast—it might be due for a pullback (potential sell signal). When it drops below 30, the stock has been falling sharply—it might bounce back soon (potential buy signal).</p>
+
+        <div class="callout-box" style="background: rgba(236, 226, 214, 0.08); border-left: 3px solid rgba(224, 162, 76, 0.3); padding: 1rem 1.2rem; margin: 1.2rem 0; border-radius: 0 6px 6px 0;">
+            <strong>Example:</strong> Tesla's RSI is 75 (overbought). The stock has rocketed up 15% in a week. RSI signals caution—don't chase the rally. Traders often look to take profits here.
+        </div>
+
+        <h3>How to Use RSI</h3>
+        <ul class="numbered-list">
+            <li>RSI above 70 = overbought. The stock may be due for a cooldown or pullback.</li>
+            <li>RSI below 30 = oversold. Look for signs of a bounce or reversal.</li>
+            <li>Divergence: The price hits a new high, but RSI doesn't. This often signals a reversal is coming.</li>
+        </ul>
+
+        <h2>MACD: Moving Average Convergence Divergence</h2>
+
+        <p>MACD is a trend-following indicator that watches for momentum shifts. It compares two averages of price: a faster one (12 days) and a slower one (26 days). When the faster average crosses above the slower one, it signals upward momentum. When it crosses below, it signals weakness. It's great for catching early moves in a new trend.</p>
+
+        <div class="callout-box" style="background: rgba(236, 226, 214, 0.08); border-left: 3px solid rgba(224, 162, 76, 0.3); padding: 1rem 1.2rem; margin: 1.2rem 0; border-radius: 0 6px 6px 0;">
+            <strong>Example:</strong> Netflix has been stuck sideways for weeks. Suddenly the MACD line crosses above its signal line. Traders interpret this as the start of an uptrend and buy. Sure enough, the stock rises 8% over the next two weeks.
+        </div>
+
+        <h3>Components</h3>
+        <ul class="numbered-list">
+            <li><strong>MACD Line:</strong> The faster 12-day average minus the slower 26-day average. It shows momentum direction.</li>
+            <li><strong>Signal Line:</strong> A 9-day average of the MACD line. Use this as a trigger: when MACD crosses above the signal line, it's bullish.</li>
+            <li><strong>Histogram:</strong> The gap between MACD and its signal line. A growing histogram means momentum is strengthening.</li>
+        </ul>
+
+        <h2>Moving Averages: Golden Cross & Death Cross</h2>
+
+        <p>A moving average smooths out daily price wiggles to show you the real trend. It's like squinting at a chart to see the big picture. A 50-day average shows the medium-term direction. A 200-day average shows the long-term direction. When the 50-day line crosses above the 200-day, it's a "golden cross" (strong buy signal). When it crosses below, it's a "death cross" (strong sell signal). These simple patterns have predicted big moves for decades.</p>
+
+        <div class="callout-box" style="background: rgba(236, 226, 214, 0.08); border-left: 3px solid rgba(224, 162, 76, 0.3); padding: 1rem 1.2rem; margin: 1.2rem 0; border-radius: 0 6px 6px 0;">
+            <strong>Example:</strong> Apple's 50-day MA crosses above the 200-day MA (golden cross). This signals a transition from a downtrend to an uptrend. Many traders bought after this signal, and Apple went on to gain 20% in the following months.
+        </div>
+
+        <h3>SMA vs EMA</h3>
+        <p>A Simple Moving Average (SMA) treats every day equally. An Exponential Moving Average (EMA) gives more weight to recent days. This makes EMA react faster to new price moves. For short-term trading, many prefer EMA. For long-term trends, SMA works fine.</p>
+
+        <h2>Bollinger Bands: Volatility & Support/Resistance</h2>
+
+        <p>Bollinger Bands are like guardrails around price movement. They're built from a 20-day average with an upper and lower band set 2 standard deviations away. Price bounces between these bands. When the bands squeeze tightly together (the stock isn't moving much), a breakout is often coming—a sudden big move in one direction. When the bands are wide apart (lots of volatility), the stock is active and emotional, and volatility may be cooling soon.</p>
+
+        <div class="callout-box" style="background: rgba(236, 226, 214, 0.08); border-left: 3px solid rgba(224, 162, 76, 0.3); padding: 1rem 1.2rem; margin: 1.2rem 0; border-radius: 0 6px 6px 0;">
+            <strong>Example:</strong> Amazon's Bollinger Bands have been very narrow for two weeks—almost no price movement. Then earnings come out, and the bands suddenly expand. The stock jumps 12% in one day. The squeeze predicted this volatility burst.
+        </div>
+
+        <div class="figure">
+            <div class="figure-diagram">
+                <div class="bar-chart">
+                    <div class="bar-col">
+                        <div class="bar-value">RSI</div>
+                        <div class="bar" style="height: 80px; background: rgba(224, 162, 76, 0.4); border: 1px solid rgba(224, 162, 76, 0.6);"></div>
+                        <div class="bar-label">Momentum</div>
+                    </div>
+                    <div class="bar-col">
+                        <div class="bar-value">MACD</div>
+                        <div class="bar" style="height: 100px; background: rgba(224, 162, 76, 0.4); border: 1px solid rgba(224, 162, 76, 0.6);"></div>
+                        <div class="bar-label">Trend</div>
+                    </div>
+                    <div class="bar-col">
+                        <div class="bar-value">MA</div>
+                        <div class="bar" style="height: 85px; background: rgba(224, 162, 76, 0.3); border: 1px solid rgba(224, 162, 76, 0.5);"></div>
+                        <div class="bar-label">Direction</div>
+                    </div>
+                    <div class="bar-col">
+                        <div class="bar-value">BB</div>
+                        <div class="bar" style="height: 95px; background: rgba(239, 68, 68, 0.3); border: 1px solid rgba(239, 68, 68, 0.5);"></div>
+                        <div class="bar-label">Volatility</div>
+                    </div>
+                </div>
+            </div>
+            <div class="figure-caption">Fig. 1 &mdash; The four key technical indicators measure different market aspects.</div>
+        </div>
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Indicator</th>
+                    <th>Best For</th>
+                    <th>Signal</th>
+                    <th>Pitfall</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>RSI</strong></td>
+                    <td>Identifying overbought/oversold</td>
+                    <td>Above 70 = overbought; Below 30 = oversold</td>
+                    <td>Can stay overbought/oversold in strong trends</td>
+                </tr>
+                <tr>
+                    <td><strong>MACD</strong></td>
+                    <td>Confirming trend changes</td>
+                    <td>Line crosses signal line</td>
+                    <td>Lags on fast reversals</td>
+                </tr>
+                <tr>
+                    <td><strong>MA</strong></td>
+                    <td>Following the trend</td>
+                    <td>Golden cross (50 > 200) = bullish</td>
+                    <td>Slow signal in ranging markets</td>
+                </tr>
+                <tr>
+                    <td><strong>Bollinger Bands</strong></td>
+                    <td>Spotting volatility breakouts</td>
+                    <td>Squeeze followed by breakout</td>
+                    <td>False breakouts in choppy markets</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Using Indicators Together: A Confirmation Framework</h2>
+
+        <div class="figure">
+            <div class="figure-diagram">
+                <div class="flow-row">
+                    <div class="flow-box">
+                        <div class="flow-box-title">MA Trend</div>
+                        <div class="flow-box-desc">50 > 200</div>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-box">
+                        <div class="flow-box-title">RSI Check</div>
+                        <div class="flow-box-desc">Not extreme (30-70)</div>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-box">
+                        <div class="flow-box-title">MACD Confirm</div>
+                        <div class="flow-box-desc">Positive histogram</div>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-box">
+                        <div class="flow-box-title">Entry</div>
+                        <div class="flow-box-desc">Multiple confirmations</div>
+                    </div>
+                </div>
+            </div>
+            <div class="figure-caption">Fig. 2 &mdash; A simple multi-indicator confirmation process.</div>
+        </div>
+
+        <h2>Key Takeaways</h2>
+
+        <ol class="numbered-list">
+            <li>RSI shows momentum: above 70 is overbought, below 30 is oversold.</li>
+            <li>MACD identifies trend changes via signal line crossovers; histogram shows strength.</li>
+            <li>Moving averages (50-day and 200-day) define the primary trend direction.</li>
+            <li>Bollinger Bands pinpoint volatility extremes; squeezes precede breakouts.</li>
+            <li>Never trade on one indicator alone. Wait for confirmation from multiple sources.</li>
+        </ol>
+
+        <div class="quiz-section">
+            <h3>Check Your Understanding</h3>
+            <p class="quiz-subtitle">Test your knowledge before advancing.</p>
+
+            <div class="quiz-q" id="q1">
+                <p>1. What RSI value typically signals an overbought condition?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">Below 30</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, true)">Above 70</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">Between 50 and 60</div>
+                </div>
+                <div class="quiz-feedback" id="fb1"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <p>2. When the 50-day MA crosses above the 200-day MA, what is this called?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, true)">Golden cross</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">Death cross</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">Bollinger squeeze</div>
+                </div>
+                <div class="quiz-feedback" id="fb2"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <p>3. Which indicator is best for spotting volatility breakouts?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">RSI</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, true)">Bollinger Bands</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">Moving Average</div>
+                </div>
+                <div class="quiz-feedback" id="fb3"></div>
+            </div>
+
+        
+            <div class="quiz-q" id="q4" data-why="Support is a price where demand has repeatedly absorbed selling. Breaks below it are meaningful.">
+                <p>4. Price keeps bouncing at the dashed line. What is that level called?</p>
+                <div class="quiz-figure"><svg viewBox="0 0 300 130" xmlns="http://www.w3.org/2000/svg"><line x1="30" y1="10" x2="30" y2="105" stroke="rgba(236,226,214,0.25)"/><line x1="30" y1="105" x2="290" y2="105" stroke="rgba(236,226,214,0.25)"/><line x1="30" y1="88" x2="290" y2="88" stroke="#E0A24C" stroke-width="1.5" stroke-dasharray="6,4"/><polyline points="30,40 70,70 95,86 120,55 150,84 175,50 205,87 235,45 265,80 290,60" fill="none" stroke="#5cb88a" stroke-width="2"/></svg></div>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">Resistance — a ceiling</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, true)">Support — a floor where buyers keep stepping in</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">The moving average</div>
+                </div>
+                <div class="quiz-feedback" id="fb4"></div>
+            </div>
+
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; Further Reading</h3>
+            <div class="source-item">Wilder, J. Welles. <em>New Concepts in Technical Trading Systems</em>. Hunter Publishing, 1978. Chapter 2: The RSI.</div>
+            <div class="source-item">CFA Institute. <em>Technical Analysis</em> curriculum. Module 1: Trend-following and momentum indicators. <a href="https://www.cfainstitute.org" target="_blank">cfainstitute.org</a></div>
+            <div class="source-item">Appel, Gerald. <em>Technical Analysis: Power Tools for Active Investors</em>. Pearson, 2005. Chapter 4: MACD and Signal Lines.</div>
+            <div class="source-item">Bollinger, John. <em>Bollinger on Bollinger Bands</em>. McGraw-Hill, 2002. ISBN: 978-0071373531.</div>
+        </div>
+    
+        <div class="legal-note" style="margin-top:2rem;padding:0.9rem 1.1rem;border:1px solid rgba(236,226,214,0.1);border-radius:8px;font:500 0.72rem 'Inter',sans-serif;color:#7d746a;line-height:1.6;">Educational content only — nothing here is investment, legal, or tax advice. Markets involve risk, figures are illustrative and may contain errors, and past performance never guarantees future results. Do your own research before investing real money.</div>
+    </article>
+
+    <div class="module-footer">
+        <a href="intermediate-path.html" class="footer-btn footer-btn-back">&larr; Back to Path</a>
+        <a href="intermediate-module-2.html" class="footer-btn footer-btn-next">Module 2: Options Basics &rarr;</a>
+    </div>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+            document.getElementById('readingProgress').style.width = Math.min(pct, 100) + '%';
+        });
+
+        function checkQuiz(num, el, isCorrect) {
+            const q = document.getElementById('q' + num);
+            const fb = document.getElementById('fb' + num);
+            const opts = q.querySelectorAll('.quiz-opt');
+
+            opts.forEach(o => {
+                o.classList.add('disabled');
+                o.classList.remove('correct', 'wrong');
+            });
+
+            const why = q.dataset.why ? ' ' + q.dataset.why : '';
+            if (isCorrect) {
+                el.classList.add('correct');
+                fb.textContent = 'Correct.' + why;
+                fb.className = 'quiz-feedback show right';
+            } else {
+                el.classList.add('wrong');
+                opts.forEach(o => {
+                    if (o.getAttribute('onclick').includes('true')) {
+                        o.classList.add('correct');
+                    }
+                });
+                fb.textContent = 'Not quite. The correct answer is highlighted.';
+                fb.className = 'quiz-feedback show wrong-fb';
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/quiz.js"></script>
+</body>
+</html>

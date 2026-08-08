@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commercial Real Estate & the Capital Stack - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        :root {
+            --primary: #5cb88a;
+            --accent: #e0a24c;
+            --level: #d9645c;
+            --background: #1a1714;
+            --surface: #1e1a16;
+            --surface-2: #241f1b;
+            --border: #2a2420;
+            --text-primary: #e8e8e8;
+            --text-body: #c4c4c4;
+            --text-muted: #888888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .mod-header {
+            background: rgba(20, 20, 20, 0.97);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .mod-header-inner {
+            max-width: 820px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .back-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover { opacity: 0.75; }
+        .mod-header-meta {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            width: 0%;
+            background: var(--level);
+            z-index: 200;
+            transition: width 0.15s linear;
+        }
+
+        .article {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 5rem;
+        }
+
+        .module-label {
+            display: inline-block;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--level);
+            background: rgba(236, 226, 214, 0.08);
+            border: 1px solid rgba(236, 226, 214, 0.18);
+            padding: 5px 12px;
+            border-radius: 4px;
+            margin-bottom: 1.2rem;
+        }
+
+        .article-title {
+            font-family: 'Lora', serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #ffffff;
+            margin-bottom: 0.8rem;
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .meta-item { display: flex; align-items: center; gap: 5px; }
+        .meta-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); }
+
+        .article p {
+            font-family: 'Lora', serif;
+            font-size: 1.05rem;
+            line-height: 1.85;
+            color: var(--text-body);
+            margin-bottom: 1.5rem;
+        }
+
+        .article h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+        .article h2:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+
+        .sources {
+            margin-top: 3.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+        .sources h3 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            margin-top: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        .source-item {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 0.6rem;
+            font-family: 'Inter', sans-serif;
+        }
+        .source-item a { color: #5cb88a; text-decoration: none; overflow-wrap: anywhere; }
+        .source-item a:hover { text-decoration: underline; }
+                .example-box { background: rgba(236, 226, 214, 0.04); border: 1px solid rgba(224, 162, 76, 0.12); border-radius: 10px; padding: 1.5rem; margin: 1.8rem 0; }
+        .example-label { font-family: 'Inter', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
+        .example-box p { font-size: 0.95rem; margin-bottom: 0; }
+
+        .fig { background: rgba(236, 226, 214, 0.03); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem 1rem 0.9rem; margin: 1.8rem 0; }
+        .fig svg { width: 100%; max-width: 560px; height: auto; display: block; margin: 0 auto; }
+        .fig-cap { font: 500 0.75rem 'Inter', sans-serif; color: var(--text-muted); text-align: center; margin-top: 0.7rem; line-height: 1.5; }
+        .data-table { width: 100%; border-collapse: collapse; margin: 1.6rem 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; }
+        .data-table th { text-align: left; font-size: 0.66rem; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-muted); padding: 0.5rem 0.7rem; border-bottom: 1px solid rgba(236,226,214,0.18); }
+        .data-table td { padding: 0.55rem 0.7rem; border-bottom: 1px solid rgba(236,226,214,0.07); color: var(--text-body); }
+        .data-table td:first-child { color: var(--text-primary); font-weight: 600; }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table th.num { text-align: right; }
+        .key-box { background: rgba(92,184,138,0.06); border: 1px solid rgba(92,184,138,0.2); border-radius: 10px; padding: 1.2rem 1.4rem; margin: 1.8rem 0; }
+        .key-box .example-label { color: #5cb88a; }
+        .key-box p { font-size: 0.95rem; margin-bottom: 0; }
+        .quiz-section {
+            margin-top: 3.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.75rem;
+        }
+        .quiz-section h3 { font-family: 'Inter', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 0.3rem; color: #ffffff; }
+        .quiz-subtitle { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; font-family: 'Inter', sans-serif !important; }
+        .quiz-q { margin-bottom: 1.75rem; }
+
+        /* Quiz rework: lettered options, cleaner questions */
+        .quiz-section h3 { font-family: 'Fraunces', Georgia, serif !important; font-size: 1.3rem !important; }
+        .quiz-q { padding-top: 1.2rem; border-top: 1px solid rgba(236, 226, 214, 0.07); }
+        .quiz-q:first-of-type { border-top: none; padding-top: 0; }
+        .quiz-q > p { font-size: 1rem !important; }
+        .quiz-opts { counter-reset: opt; }
+        .quiz-opt { position: relative; padding-left: 2.9rem !important; counter-increment: opt; }
+        .quiz-opt::before {
+            content: counter(opt, upper-alpha);
+            position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%);
+            width: 1.45rem; height: 1.45rem; border: 1px solid rgba(236, 226, 214, 0.25);
+            border-radius: 5px; display: flex; align-items: center; justify-content: center;
+            font: 700 0.68rem 'Inter', sans-serif; color: #8a8178;
+        }
+        .quiz-opt:hover::before { border-color: rgba(236, 226, 214, 0.5); color: #F4EEE6; }
+        .quiz-opt.correct::before { border-color: #5cb88a; color: #5cb88a; content: '✓'; }
+        .quiz-opt.wrong::before { border-color: #d9645c; color: #d9645c; content: '✕'; }
+
+        .quiz-figure {
+            background: rgba(236, 226, 214, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }
+        .quiz-figure svg { width: 100%; max-width: 430px; height: auto; display: block; margin: 0 auto; }
+        .quiz-q p { font-family: 'Inter', sans-serif; font-weight: 600; margin-bottom: 0.7rem; font-size: 0.95rem; line-height: 1.5; color: var(--text-primary); }
+        .quiz-opts { display: flex; flex-direction: column; gap: 0.5rem; }
+        .quiz-opt { padding: 0.7rem 0.95rem; background: rgba(236,226,214,0.04); border: 1px solid rgba(236,226,214,0.1); border-radius: 10px; cursor: pointer; font-size: 0.9rem; transition: all 0.15s ease; }
+        .quiz-opt:hover { border-color: rgba(236,226,214,0.25); }
+        .quiz-opt.correct { border-color: #5cb88a; background: rgba(92,184,138,0.12); }
+        .quiz-opt.wrong { border-color: #d9645c; background: rgba(217,100,92,0.12); }
+        .quiz-opt.disabled { pointer-events: none; }
+        .quiz-feedback { display: none; font-size: 0.82rem; margin-top: 0.5rem; font-family: 'Inter', sans-serif; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.right { color: #5cb88a; }
+        .quiz-feedback.wrong-fb { color: #d9645c; }
+
+        .module-footer { max-width: 720px; margin: 0 auto; padding: 0 1.5rem 4rem; display: flex; justify-content: space-between; align-items: center; }
+        .footer-btn {
+            display: inline-flex; align-items: center; gap: 8px; padding: 0.85rem 1.6rem;
+            border-radius: 10px; font-size: 0.85rem; font-weight: 700; text-decoration: none;
+            transition: all 0.2s ease; font-family: 'Inter', sans-serif; border: none; cursor: pointer;
+        }
+        .footer-btn-next { background: var(--primary); color: var(--background); }
+        .footer-btn-next:hover { transform: translateY(-2px); box-shadow: 0 2px 10px rgba(0,0,0,0.18); }
+        .footer-btn-back { background: rgba(255, 255, 255, 0.04); color: var(--text-muted); }
+        .footer-btn-back:hover { background: rgba(255, 255, 255, 0.09); color: var(--text-primary); }
+    </style>
+</head>
+<body>
+    <div class="reading-progress" id="readingProgress"></div>
+    <header class="mod-header">
+        <div class="mod-header-inner">
+            <a href="alternatives-path.html" class="back-link">← Alternative Investments</a>
+            <span class="mod-header-meta">MODULE 13 OF 18 · ADVANCED</span>
+        </div>
+    </header>
+
+    <article class="article">
+        <span class="module-label">Advanced · Module 13</span>
+        <h1 class="article-title">Commercial Real Estate & the Capital Stack</h1>
+        <div class="article-meta">
+            <span class="meta-item">Alternative Investments</span>
+            <span class="meta-dot"></span>
+            <span class="meta-item">Advanced</span>
+            <span class="meta-dot"></span>
+            <span class="meta-item">7 min read</span>
+        </div>
+
+        <h2>CRE is a different sport</h2>
+        <p>Everything you learned about houses stops working the moment you buy a building whose tenants are businesses. Commercial real estate — offices, warehouses, apartment complexes of five or more units, retail centers, hotels, data centers — is valued the way a business is valued: by the income it produces, not by what the house next door sold for. Residential prices are set by emotional buyers with mortgages. CRE prices are set by spreadsheets.</p>
+        <p>The master equation of the entire industry is brutally short: <b>Value = NOI ÷ Cap Rate</b>. Net operating income is what the property earns after operating expenses but before any mortgage payments. The cap rate is the yield the market currently demands for that type of building in that city. A warehouse producing $2M of NOI at a 5% cap rate is worth $40M. Same warehouse, market moves to a 6.25% cap? $32M. Nothing about the building changed — $8M evaporated because the denominator moved 1.25 points. Cap-rate movement, not rent growth, is what makes and breaks most CRE investors.</p>
+        <div class="example-box"><div class="example-label">Worked Example</div><p>A medical office building collects $3.1M rent, loses $150k to vacancy, and spends $950k on taxes, insurance, maintenance and management. NOI = 3.1 − 0.15 − 0.95 = <b>$2.0M</b>. At the market cap rate of 6%, it is worth 2.0 ÷ 0.06 = <b>$33.3M</b>. If interest rates push cap rates to 7%, the same $2.0M is worth <b>$28.6M</b> — a 14% loss with identical tenants paying identical rent.</p></div>
+        <h2>The capital stack: who stands where</h2>
+        <p>No one buys a $50M building with $50M of their own cash. The purchase is financed in layers, and that layered structure — the <b>capital stack</b> — is the single most important diagram in real estate finance. Read it from the bottom of the risk order: <b>senior debt</b> first, then <b>mezzanine debt</b>, then <b>preferred equity</b>, then <b>common equity</b> at the top of the risk (and reward) pile.</p>
+        <div class="fig"><svg viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg">
+<rect x="150" y="30"  width="200" height="120" fill="rgba(157,184,210,0.35)" stroke="#9DB8D2"/>
+<rect x="150" y="150" width="200" height="45"  fill="rgba(224,162,76,0.35)"  stroke="#E0A24C"/>
+<rect x="150" y="195" width="200" height="30"  fill="rgba(224,162,76,0.18)"  stroke="#C9955B"/>
+<rect x="150" y="225" width="200" height="45"  fill="rgba(92,184,138,0.3)"   stroke="#5CB88A"/>
+<text x="250" y="85"  text-anchor="middle" fill="#9DB8D2" font-size="13" font-weight="700">SENIOR DEBT</text>
+<text x="250" y="102" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">0–60% of value · ~6.5%</text>
+<text x="250" y="174" text-anchor="middle" fill="#E0A24C" font-size="12" font-weight="700">MEZZANINE 60–75% · ~11%</text>
+<text x="250" y="215" text-anchor="middle" fill="#C9955B" font-size="11" font-weight="700">PREFERRED EQUITY 75–85% · ~14%</text>
+<text x="250" y="252" text-anchor="middle" fill="#5CB88A" font-size="12" font-weight="700">COMMON EQUITY 85–100%</text>
+<text x="250" y="266" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">all the upside, first loss</text>
+<line x1="390" y1="30" x2="390" y2="270" stroke="rgba(236,226,214,0.25)"/>
+<polygon points="390,30 384,42 396,42" fill="#D9645C"/>
+<polygon points="390,270 384,258 396,258" fill="#5CB88A"/>
+<text x="402" y="45"  fill="#D9645C" font-size="10">paid FIRST</text>
+<text x="402" y="58"  fill="#7d746a" font-size="10">lowest return</text>
+<text x="402" y="250" fill="#5CB88A" font-size="10">paid LAST</text>
+<text x="402" y="263" fill="#7d746a" font-size="10">highest return</text>
+<line x1="110" y1="30" x2="110" y2="270" stroke="rgba(236,226,214,0.25)"/>
+<text x="100" y="35"  text-anchor="end" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">$0</text>
+<text x="100" y="153" text-anchor="end" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">$30M</text>
+<text x="100" y="270" text-anchor="end" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">$50M</text>
+</svg><div class="fig-cap">The capital stack of a $50M acquisition. Position determines everything: payment priority, downside exposure, and expected return.</div></div>
+        <p>Senior debt — usually 55–65% of the purchase price — has a first-priority lien on the building itself. If everything goes wrong, the senior lender forecloses and gets repaid from the sale before anyone else sees a dollar. Because it is protected by everyone below it, it earns the lowest return. Mezzanine debt sits behind it, typically secured not by the building but by a pledge of the ownership entity — a legal detail with sharp teeth, because a mezz lender can seize the company that owns the building in weeks rather than slogging through months of foreclosure. Preferred equity is equity on paper but debt in spirit: a fixed target return, paid before the common, usually with no upside beyond it. Common equity holds whatever is left — unlimited upside, first-loss downside.</p>
+        <h2>Leverage cuts both ways, precisely</h2>
+        <p>The stack is a lever. Suppose the $50M building above carries $30M of senior debt and rises 20% to $60M. The debt is still $30M, so the $20M of equity became $30M — a <b>50% gain on a 20% move</b>. Now run it in reverse: the building falls 20% to $40M. The debt is still $30M. Equity fell from $20M to $10M — down 50%. Fall 40% and the common is a doughnut. Leverage never creates returns; it multiplies whatever the asset does, in both directions, with the layers below absorbing losses in strict reverse order of the stack.</p>
+        <div class="fig"><svg viewBox="0 0 560 210" xmlns="http://www.w3.org/2000/svg">
+<text x="90" y="20" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">Bought: $50M</text>
+<rect x="40" y="30" width="100" height="150" fill="none" stroke="rgba(236,226,214,0.3)"/>
+<rect x="40" y="30" width="100" height="90" fill="rgba(157,184,210,0.3)"/>
+<rect x="40" y="120" width="100" height="22" fill="rgba(224,162,76,0.3)"/>
+<rect x="40" y="142" width="100" height="15" fill="rgba(224,162,76,0.15)"/>
+<rect x="40" y="157" width="100" height="23" fill="rgba(92,184,138,0.3)"/>
+<text x="300" y="20" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">Sold: $40M (−20%)</text>
+<rect x="250" y="60" width="100" height="120" fill="none" stroke="rgba(236,226,214,0.3)"/>
+<rect x="250" y="60" width="100" height="90" fill="rgba(157,184,210,0.3)"/>
+<rect x="250" y="150" width="100" height="22" fill="rgba(224,162,76,0.3)"/>
+<rect x="250" y="172" width="100" height="8" fill="rgba(224,162,76,0.15)"/>
+<text x="480" y="20" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">Who got paid</text>
+<text x="420" y="80"  fill="#9DB8D2" font-size="11">Senior: 100c on the $</text>
+<text x="420" y="105" fill="#E0A24C" font-size="11">Mezz: 100c on the $</text>
+<text x="420" y="130" fill="#C9955B" font-size="11">Pref: 50c on the $</text>
+<text x="420" y="155" fill="#D9645C" font-size="11" font-weight="700">Common: $0 — wiped</text>
+<text x="300" y="205" text-anchor="middle" fill="#7d746a" font-size="10">A 20% drop in the building erased 100% of the common equity.</text>
+</svg><div class="fig-cap">Same building, 20% price decline. Losses eat the stack from the bottom up: common first, then preferred, then mezzanine, and only then the senior lender.</div></div>
+        <div class="key-box"><div class="example-label">The Rule</div><p>Losses climb the stack from the bottom; payments flow down from the top. Before investing in ANY real estate deal, find your position in the stack and ask: how far does the property value have to fall before my layer takes its first dollar of loss? That number — your attachment point — matters more than the projected return.</p></div>
+        <h2>Property types are different businesses</h2>
+        <p>Lumping "CRE" together is like lumping airlines with software. <b>Multifamily</b> has hundreds of small leases that reprice yearly — inflation protection, but management-intensive. <b>Industrial</b> (warehouses, logistics) runs on 5–10 year triple-net leases where the tenant pays taxes, insurance and maintenance — bond-like income with e-commerce tailwinds. <b>Office</b> carries decade-long leases but catastrophic re-tenanting costs and, post-2020, an existential demand question; older towers now trade at fractions of replacement cost. <b>Retail</b> lives and dies by anchor tenants and co-tenancy clauses that let small tenants pay less rent — or leave — if the anchor goes dark. <b>Hotels</b> reprice every single night: the highest beta to the economy, the first to crater in a recession, the fastest to recover.</p>
+        <table class="data-table"><thead><tr><th>Sector</th><th>Lease length</th><th class="num">Cap-rate range*</th><th>The real risk</th></tr></thead><tbody><tr><td>Multifamily</td><td>1 year</td><td class="num">4.5–5.5%</td><td>Oversupply in hot metros</td></tr><tr><td>Industrial</td><td>5–10 yrs</td><td class="num">5–6%</td><td>Tenant concentration</td></tr><tr><td>Office (Class A)</td><td>7–15 yrs</td><td class="num">7–9%+</td><td>Structural demand loss</td></tr><tr><td>Retail (grocery-anchored)</td><td>5–10 yrs</td><td class="num">6–7%</td><td>Anchor departure</td></tr><tr><td>Hotel</td><td>Nightly</td><td class="num">7.5–9%</td><td>Recession, instantly</td></tr></tbody></table>
+        <p><i>*Indicative 2024–25 U.S. ranges; they move with interest rates and city. The point is the ordering, not the decimals.</i></p>
+        <h2>The four risk styles</h2>
+        <p>Institutional investors sort every deal into four buckets that behave like the equity-style boxes of real estate. <b>Core</b>: a full, stabilized building with credit tenants — 90%+ occupied, modest debt, returns of roughly 6–8%, most of it cash flow. <b>Core-plus</b>: mostly stabilized with a fixable flaw — slightly below-market rents, a lease expiring — 8–11%. <b>Value-add</b>: real problems bought at a discount — 30% vacancy, dated interiors, mismanagement — fixed with capital and competence, 11–15%, with meaningful leverage. <b>Opportunistic</b>: development, distress, empty buildings, entitlement bets — 15%+ targets, equity-like risk, and the style where fortunes and bankruptcies are both manufactured. When a deal pitch shows a value-add return with core language, someone is lying to you — usually with leverage.</p>
+        <h2>How the math ties together</h2>
+        <p>Professionals underwrite a deal with three linked numbers. <b>Going-in cap rate</b>: NOI today over price today. <b>Stabilized yield-on-cost</b>: NOI after the renovation over total cost including the renovation — this must be comfortably above the going-in cap of finished buildings, or the project creates no value. <b>Exit cap rate</b>: the yield assumed at sale, and the most abused cell in every model. Underwriting an exit cap <i>lower</i> than today's (values rising forever) inflates returns for free; honest models assume the exit cap 25–50bps <i>above</i> the entry.</p>
+        <div class="example-box"><div class="example-label">Value-Add Underwriting</div><p>Buy a tired apartment complex for $20M at a 5% cap ($1.0M NOI). Spend $4M renovating; rents rise so NOI reaches $1.68M. Yield-on-cost = 1.68 ÷ 24 = <b>7.0%</b>. Sell at a 5.5% exit cap: 1.68 ÷ 0.055 = <b>$30.5M</b>. Profit ≈ $6.5M on $24M of cost — and if the exit cap turns out to be 6.5% instead, sale price is $25.8M and nearly the whole profit is gone. The renovation was real; the profit lived and died on the exit cap.</p></div>
+        <h2>What this means for you</h2>
+        <p>Every REIT you screen, every crowdfunding deal that lands in your inbox, every "12% preferred return!" ad is a position somewhere on this stack attached to one of these property types in one of these risk styles. You now have the three questions that cut through every pitch: Where am I in the stack, and what is my attachment point? What NOI and exit cap does the projection assume, and what happens at a worse one? Is the risk style of the deal consistent with the return being promised? The next two modules go deeper into the two halves of the stack — the debt below you, and the waterfall that splits the equity above.</p>
+
+        <div class="quiz-section">
+            <h3>Check your understanding</h3>
+            <p class="quiz-subtitle">5 questions — expect real numbers. Your score saves to your account.</p>
+            <div class="quiz-q" id="q1" data-why="Value = NOI ÷ cap rate = 1.5 ÷ 0.06 = $25M.">
+                <p>1. A property produces $1.5M of NOI and the market cap rate is 6%. What is it worth?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">$9M</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, true)">$25M</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">$90M</div>
+                </div>
+                <div class="quiz-feedback" id="fb1"></div>
+            </div>
+
+            <div class="quiz-q" id="q2" data-why="1.5 ÷ 0.075 = $20M. Cap-rate expansion destroyed $5M with no change in the building.">
+                <p>2. That same property's cap rate rises from 6% to 7.5% with NOI unchanged. The value…</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">rises 25%, to $31.3M</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, true)">falls 20%, to $20M</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">is unchanged — income didn't move</div>
+                </div>
+                <div class="quiz-feedback" id="fb2"></div>
+            </div>
+
+            <div class="quiz-q" id="q3" data-why="Losses climb from the bottom: the $12M loss consumes all $10M of common, then $2M of the $6M mezz. Senior gets its full $24M.">
+                <p>3. A $40M building has $24M senior debt, $6M mezzanine, and $10M common equity. It sells for $28M. Who is impaired?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">Everyone shares the loss proportionally</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, true)">Common wiped out, mezz loses $2M, senior fully repaid</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">The senior lender takes the first loss</div>
+                </div>
+                <div class="quiz-feedback" id="fb3"></div>
+            </div>
+
+            <div class="quiz-q" id="q4" data-why="Common equity is paid last and takes the first loss — the price of owning all the upside.">
+                <p>4. In the capital stack, which layer sits highest in RISK order?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">Senior debt</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">Preferred equity</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, true)">Common equity</div>
+                </div>
+                <div class="quiz-feedback" id="fb4"></div>
+            </div>
+
+            <div class="quiz-q" id="q5" data-why="Stabilized core assets earn 6–8%. A 16% &quot;core&quot; pitch means hidden leverage, hidden risk, or fiction.">
+                <p>5. A deal claims a 16% target return but describes a fully leased Class A building with 50% leverage. What's wrong?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(5, this, false)">Nothing — the return matches the risk</div>
+                    <div class="quiz-opt" onclick="checkQuiz(5, this, false)">The return is core-style; the risk description is opportunistic</div>
+                    <div class="quiz-opt" onclick="checkQuiz(5, this, true)">The risk is core; a 16% return promise doesn't come from core assets honestly</div>
+                </div>
+                <div class="quiz-feedback" id="fb5"></div>
+            </div>
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; Further Reading</h3>
+            <div class="source-item">NAIOP Research Foundation. <em>Basics of the Capital Stack.</em> <a href="https://www.naiop.org/education-and-career/education/training-courses/basic-real-estate-finance/" target="_blank" rel="noopener">naiop.org/education-and-career/education/training-courses/basic-real-estate-finance/</a></div>
+            <div class="source-item">Investopedia. <em>Capitalization Rate.</em> <a href="https://www.investopedia.com/terms/c/capitalizationrate.asp" target="_blank" rel="noopener">investopedia.com/terms/c/capitalizationrate.asp</a></div>
+            <div class="source-item">Adventures in CRE. <em>The Real Estate Capital Stack Explained.</em> <a href="https://www.adventuresincre.com/capital-stack-real-estate/" target="_blank" rel="noopener">adventuresincre.com/capital-stack-real-estate/</a></div>
+        </div>
+
+        <div class="legal-note" style="margin-top:2rem;padding:0.9rem 1.1rem;border:1px solid rgba(236,226,214,0.1);border-radius:8px;font:500 0.72rem 'Inter',sans-serif;color:#7d746a;line-height:1.6;">Educational content only — nothing here is investment, legal, or tax advice. Markets involve risk, figures are illustrative and may contain errors, and past performance never guarantees future results. Do your own research before investing real money.</div>
+    </article>
+
+    <div class="module-footer">
+        <a href="alternatives-path.html" class="footer-btn footer-btn-back">&larr; Back to Path</a>
+        <a href="alternatives-module-14.html" class="footer-btn footer-btn-next">Next Module →</a>
+    </div>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+            document.getElementById('readingProgress').style.width = Math.min(pct, 100) + '%';
+        });
+        function checkQuiz(num, el, isCorrect) {
+            const q = document.getElementById('q' + num);
+            const fb = document.getElementById('fb' + num);
+            const opts = q.querySelectorAll('.quiz-opt');
+            opts.forEach(o => { o.classList.add('disabled'); o.classList.remove('correct', 'wrong'); });
+            const why = q.dataset.why ? ' ' + q.dataset.why : '';
+            if (isCorrect) {
+                el.classList.add('correct');
+                fb.textContent = 'Correct.' + why;
+                fb.className = 'quiz-feedback show right';
+            } else {
+                el.classList.add('wrong');
+                opts.forEach(o => { if (o.getAttribute('onclick').includes('true')) o.classList.add('correct'); });
+                fb.textContent = 'Not quite — the correct answer is highlighted.' + why;
+                fb.className = 'quiz-feedback show wrong-fb';
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/quiz.js"></script>
+</body>
+</html>

@@ -1,0 +1,2380 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock League - Dashboard</title>
+    <style>
+        /* Add modern font */
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap');
+
+        :root {
+            --primary: #4A6785;
+            --secondary: #6AA08D;
+            --accent: #E0A24C;
+            --success: #5CB88A;
+            --danger: #D9645C;
+            --background: #1A1714;
+            --surface: #241F1B;
+            --text: #F4EEE6;
+            --glow: rgba(236, 226, 214, 0.10);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background);
+            color: #ffffff;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Simple blue background - no screenshots */
+        body::before {
+            display: none;
+        }
+
+        body::after {
+            display: none;
+        }
+
+        /* Ticker Styles */
+        .header-tickers {
+            display: flex;
+            align-items: center;
+            gap: 1.4rem;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .welcome-message { min-width: 340px; }
+
+        .index-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0;
+            border: none;
+            background: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .index-chip .label {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .index-chip.up {
+            color: var(--success);
+            border-color: rgba(92, 184, 138, 0.4);
+        }
+
+        .index-chip.down {
+            color: #ff6666;
+            border-color: rgba(255, 102, 102, 0.35);
+        }
+
+        .ticker-container {
+            position: fixed;
+            top: 80px;
+            width: 100%;
+            height: 80px;
+            background: rgba(36, 31, 27, 0.9);
+            z-index: 998;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ticker-row {
+            height: 40px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .ticker-track {
+            display: flex;
+            animation: ticker 52s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-track.reverse {
+            animation: tickerReverse 52s linear infinite;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        @keyframes tickerReverse {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
+        }
+
+        .ticker {
+            display: flex;
+            padding-right: 50px;
+        }
+
+        .ticker-item {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 1rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .ticker-item.up {
+            color: var(--success);
+        }
+
+        .ticker-item.down {
+            color: #d9645c;
+        }
+
+        .main-content {
+            margin-top: 160px;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Static Green Glowing Lines - Same as Trading Card */
+        /* (Decorative chart-line wallpaper removed for a cleaner, calmer look.) */
+
+        /* Navigation Bar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 999;
+            background: linear-gradient(180deg, #262019 0%, #211C17 100%);
+            height: 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            box-sizing: border-box;
+            border-bottom: 2px solid rgba(92, 184, 138, 0.28);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .welcome-message {
+            font-family: 'Fraunces', Georgia, serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+            text-shadow: none;
+            letter-spacing: 0;
+        }
+
+        .welcome-message #welcomePre, .welcome-message #welcomePost {
+            color: #fff;
+            font-weight: 600;
+        }
+        .welcome-message #username {
+            color: var(--success);
+            font-weight: 700;
+        }
+        .type-caret {
+            color: var(--success);
+            animation: caretBlink 0.9s step-end infinite;
+            transition: opacity 0.4s ease;
+        }
+        @keyframes caretBlink { 50% { opacity: 0; } }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .account-button,
+        .profile-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            line-height: 1;
+            margin: 0;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .account-button:hover,
+        .profile-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .profile-button {
+            gap: 8px;
+        }
+
+        .profile-icon {
+            width: 16px;
+            height: 16px;
+            fill: #ffffff;
+            opacity: 0.9;
+        }
+
+        /* Main Content */
+        .hero-art {
+            position: absolute;
+            top: 130px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(1120px, 96vw);
+            height: 640px;
+            background: url('dash-hero.png') center top / contain no-repeat;
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero-art-trace {
+            position: absolute;
+            top: 130px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(1120px, 96vw);
+            height: 640px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero-art-trace path { opacity: 0; }
+        .dashboard-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 20px;
+            min-height: calc(100vh - 200px);
+            background: var(--background);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 120px; /* Space for bottom panels */
+        }
+
+        /* Make the button area glow more visible */
+        .button-area {
+            grid-column: 1 / -1;
+            margin: -20px -20px 20px -20px;
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: var(--surface);
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+        }
+
+        /* Update buttons with distinct colors */
+        .dashboard-button {
+            padding: 15px 40px;
+            font-size: 24px;
+            font-weight: 900;
+            font-family: 'Poppins', 'Inter', sans-serif;
+            background: var(--surface);
+            border: 2px solid #5CB88A;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: none;
+        }
+
+        /* Trading button - Neon Green */
+        #tradingButton {
+            color: #FF0000;
+        }
+        #tradingButton:hover {
+            background: rgba(236, 226, 214, 0.1);
+        }
+
+        /* Learn button - Neon Cyan */
+        #learnButton {
+            color: #FFFF00;
+        }
+        #learnButton:hover {
+            background: rgba(0, 255, 255, 0.1);
+        }
+
+        /* Rankings button - Neon Pink */
+        #rankingsButton {
+            color: #00FF00;
+        }
+        #rankingsButton:hover {
+            background: rgba(255, 0, 255, 0.1);
+        }
+
+        /* Profile button - Neon Orange */
+        #profileButton {
+            color: #00FFFF;
+        }
+        #profileButton:hover {
+            background: rgba(255, 153, 0, 0.1);
+        }
+
+        /* Update containers with stronger glow */
+        .news-container, .portfolio-container, .watchlist-container {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid rgba(92, 184, 138, 0.3);
+            box-shadow: 0 0 25px rgba(236, 226, 214, 0.2);
+        }
+
+        /* Update scrollbar for news container */
+        .news-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .news-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .news-container::-webkit-scrollbar-thumb {
+            background: rgba(92, 184, 138, 0.3);
+            border-radius: 4px;
+        }
+
+        .news-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(92, 184, 138, 0.5);
+        }
+
+        /* Event styles */
+        .event-item {
+            cursor: pointer;
+            padding: 0.8rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .event-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            cursor: pointer;
+            color: var(--accent);
+        }
+
+        /* Stats section */
+        .stats-item {
+            font-size: 0.9rem;
+            padding: 8px 0;
+        }
+
+        .stats-value {
+            font-weight: 500;
+        }
+
+        /* Keep ticker styles but adjust font */
+        .ticker-item {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Ensure proper spacing for content */
+        .main-content {
+            margin-top: 100px;
+            padding: 20px;
+        }
+
+        /* Make bottom panels more compact */
+        .bottom-panels {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        /* Add these to your existing styles */
+        /* Learn button highlighting completely disabled */
+
+        @keyframes pulse {
+            0% { box-shadow: 0 2px 10px rgba(0,0,0,0.18); }
+            70% { box-shadow: 0 2px 10px rgba(0,0,0,0.18); }
+            100% { box-shadow: 0 2px 10px rgba(0,0,0,0.18); }
+        }
+
+        .panel-section ul li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Update panel sections styling */
+        .panel-sections {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: grid;
+            grid-template-columns: 0.85fr 1.7fr 1.15fr 0.6fr;
+            padding: 0.4rem 1.1rem;
+            background: rgba(36, 31, 27, 0.95);
+            gap: 0.8rem;
+            border-top: 1px solid rgba(236, 226, 214, 0.1);
+            height: auto;
+            padding-top: 0.35rem;
+            padding-bottom: 0.35rem;
+            /* same layout, just a touch quieter */
+            filter: saturate(0.82) brightness(0.9);
+        }
+        .panel-sections:hover { filter: saturate(0.95) brightness(0.97); transition: filter 0.25s ease; }
+
+        .panel-section {
+            overflow: hidden;
+            min-width: 0;
+            background: #221E1A;
+            border-radius: 0;
+            height: 74px;
+            padding: 0.32rem 0.6rem 0.38rem;
+            border: 1px solid rgba(236, 226, 214, 0.1);
+            border-top: 2px solid rgba(236, 226, 214, 0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .panel-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+        }
+        .panel-sections .panel-section:nth-child(1) { border-top-color: #5CB88A; }
+        .panel-sections .panel-section:nth-child(2) { border-top-color: #E0A24C; }
+        .panel-sections .panel-section:nth-child(3) { border-top-color: #9DB8D2; }
+        .panel-sections .panel-section:nth-child(4) { border-top-color: #D9645C; }
+        .panel-sections .panel-section:nth-child(1):hover { border-color: rgba(92,184,138,0.5); }
+        .panel-sections .panel-section:nth-child(2):hover { border-color: rgba(224,162,76,0.5); }
+        .panel-sections .panel-section:nth-child(3):hover { border-color: rgba(157,184,210,0.5); }
+        .panel-sections .panel-section:nth-child(4):hover { border-color: rgba(217,100,92,0.5); }
+
+        .panel-section h3 {
+            color: rgba(255, 255, 255, 0.55);
+            margin: 0 0 0.22rem 0;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .news-ico { width: 15px; height: 15px; vertical-align: -2px; margin-right: 3px; color: #E0A24C; }
+        .news-cta-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-top: 0.15rem; }
+        .news-src { color: rgba(255,255,255,0.45); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .news-open-btn {
+            flex-shrink: 0; background: none; border: none;
+            color: #E0A24C; font: 600 0.72rem 'Inter', sans-serif; padding: 0;
+            text-decoration: none;
+        }
+        .news-open-btn:hover { text-decoration: underline; text-underline-offset: 3px; }
+        .panel-section.market-news { position: relative; }
+        .news-flash { display: block !important; min-width: 0; }
+        .nf-left { min-width: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 0.2rem; padding-right: 124px; }
+        .news-thumb {
+            position: absolute; top: 6px; right: 6px; bottom: 6px;
+            width: 112px; margin: 0; border-radius: 10px;
+            border: 1px solid rgba(236, 226, 214, 0.18);
+            background: rgba(236,226,214,0.06) center/cover no-repeat; display: none;
+        }
+        .news-thumb.has-img { display: block; }
+        .news-flash-body { min-width: 0; }
+        .news-flash .panel-text {
+            min-width: 0; font-weight: 600; line-height: 1.28; font-size: 0.8rem;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+
+        .panel-header-row {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .panel-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .panel-text {
+            font-size: 0.76rem;
+            color: rgba(255, 255, 255, 0.88);
+            line-height: 1.35;
+        }
+
+        .panel-link {
+            color: var(--success);
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .panel-link:hover {
+            text-decoration: underline;
+        }
+
+        .market-news {
+            background: rgba(236, 226, 214, 0.12);
+            border-color: rgba(92, 184, 138, 0.35);
+        }
+
+        .events-list {
+            display: grid;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .events-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.6rem;
+        }
+        .ann-item { display: flex; gap: 0.5rem; align-items: center; padding: 0.14rem 0.25rem; border-radius: 6px; min-width: 0; }
+        .ann-item:hover { background: rgba(236,226,214,0.04); }
+        /* Announcements panel reads like a banner */
+        .panel-sections .panel-section:nth-child(3) {
+            background: linear-gradient(90deg, rgba(224, 162, 76, 0.14) 0%, #221E1A 45%) !important;
+            border: 1px solid rgba(224, 162, 76, 0.45) !important;
+            border-top: 2px solid #E0A24C !important;
+        }
+        .race-title {
+            font-family: 'Fraunces', Georgia, serif !important;
+            font-size: 0.92rem !important;
+            letter-spacing: 0.05em;
+            background: linear-gradient(90deg, #E7BE6B, #E0A24C);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        @keyframes racePulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(224, 162, 76, 0); } 50% { box-shadow: 0 0 14px 0 rgba(224, 162, 76, 0.25); } }
+        .panel-sections .panel-section:nth-child(3) { animation: racePulse 3.5s ease-in-out infinite; }
+        .ann-modal {
+            display: none; position: fixed; inset: 0; z-index: 3000;
+            background: rgba(10, 8, 6, 0.62);
+            align-items: center; justify-content: center; padding: 1.5rem;
+        }
+        .ann-modal.open { display: flex; }
+        .ann-modal-card {
+            width: min(520px, 100%); max-height: 80vh; overflow-y: auto;
+            background: #221E1A; border: 1px solid rgba(224, 162, 76, 0.35);
+            border-top: 3px solid #E0A24C; padding: 1.75rem 2rem;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+        }
+        .ann-modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
+        .ann-modal-head h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 1.4rem; }
+        .ann-modal-close { background: none; border: none; color: #B7ADA1; font-size: 1.2rem; cursor: pointer; }
+        .ann-modal-close:hover { color: #fff; }
+        .ann-modal-item { padding: 1.1rem 0; border-bottom: 1px solid rgba(236, 226, 214, 0.08); }
+        .ann-modal-item:last-child { border-bottom: none; }
+        .ann-modal-title { font: 700 1.02rem 'Inter', sans-serif; margin-bottom: 0.4rem; }
+        .ann-modal-item p { color: #B7ADA1; font-size: 0.88rem; line-height: 1.6; }
+        .ann-modal-item p b { color: #5CB88A; }
+        .ann-bar { width: 3px; border-radius: 2px; flex-shrink: 0; align-self: stretch; }
+        .ann-bar.gold { background: #E0A24C; }
+        .ann-bar.blue { background: #9DB8D2; }
+        .ann-carousel { display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0.4rem; flex: 1; }
+        .ann-carousel .ann-item { flex: 1; min-width: 0; }
+        .ann-next {
+            flex-shrink: 0; width: 26px; height: 26px; background: none;
+            border: 1px solid rgba(236, 226, 214, 0.2); border-radius: 0;
+            color: #B7ADA1; font-size: 1rem; line-height: 1; cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .ann-next:hover { color: #F4EEE6; border-color: rgba(236, 226, 214, 0.45); }
+        .ann-text { display: block; line-height: 1.3; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ann-text b { font-size: 0.78rem; color: #F4EEE6; }
+        .ann-text small { font-size: 0.7rem; color: rgba(255,255,255,0.55); margin-left: 6px; }
+
+        .events-time {
+            color: rgba(255, 255, 255, 0.65);
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .inbox-bubble {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+            padding: 0.45rem 1rem;
+        }
+
+        .inbox-bubble::after { display: none; }
+
+        .mail-icon-large {
+            width: 22px;
+            height: 22px;
+            fill: var(--accent);
+        }
+
+        .inbox-badge {
+            background: var(--accent);
+            color: #1A1714;
+            font-size: 0.7rem;
+            font-weight: 800;
+            border-radius: 999px;
+            padding: 0.1rem 0.45rem;
+        }
+
+        .learn-book {
+            width: 16px;
+            height: 16px;
+            fill: var(--accent);
+        }
+
+        .learn-go {
+            align-self: flex-start;
+            padding: 0.2rem 0.7rem;
+            border-radius: 999px;
+            border: 1px solid rgba(224, 162, 76, 0.5);
+            background: rgba(224,162,76,0.28);
+            color: #fff;
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            text-decoration: none;
+        }
+
+        /* Adjust main actions to not overlap */
+        .main-actions {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2.2rem;
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto 2.4rem auto;
+            padding-top: 8px;
+        }
+
+        /* Funds & Careers Section - move up */
+        .funds-careers-section {
+            text-align: center;
+            margin: 1rem 0 2rem 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Action buttons — editorial cards: sharp corners, left-aligned serif
+           titles, a crisp small icon and index, arrow in the corner. */
+        .action-button {
+            --ab: #5CB88A;
+            width: 200px;
+            height: 200px;
+            /* mostly solid, a hint of the trace behind */
+            background: linear-gradient(170deg, rgba(36, 31, 27, 0.88) 0%, rgba(30, 26, 22, 0.92) 100%);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            border: 2px solid color-mix(in srgb, var(--ab) 72%, transparent);
+            border-radius: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: stretch;
+            padding: 1.05rem 1.15rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+        }
+
+        /* Compete card - larger, honey-ruled, center */
+        .action-button.league {
+            --ab: #E0A24C;
+            width: 245px;
+            height: 245px;
+            order: 2;
+        }
+        .action-button.learn { order: 1; }
+        .action-button.practice { --ab: #9DB8D2; order: 3; }
+
+        .ab-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        .ab-top svg {
+            width: 44px; height: 44px; color: var(--ab); flex-shrink: 0;
+            filter: drop-shadow(0 0 8px color-mix(in srgb, var(--ab) 55%, transparent));
+            transition: transform 0.3s ease;
+        }
+        .action-button.league .ab-top svg { width: 58px; height: 58px; }
+        .action-button:hover .ab-top svg { transform: translateY(-2px) scale(1.06); }
+        .ab-idx {
+            font: 700 0.66rem 'Inter', sans-serif;
+            font-style: normal;
+            letter-spacing: 0.18em;
+            color: rgba(236, 226, 214, 0.35);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .ab-body { display: flex; flex-direction: column; gap: 0.25rem; }
+        .ab-kick {
+            font: 700 0.6rem 'Inter', sans-serif;
+            font-style: normal;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            color: var(--ab);
+        }
+        .ab-name {
+            font-family: 'Poppins', 'Inter', sans-serif;
+            font-size: 1.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            color: #F4EEE6;
+            line-height: 1;
+            white-space: nowrap;   /* never wraps — COMPETE stays one clean word */
+        }
+        .action-button.league .ab-name { font-size: 1.95rem; }
+        .ab-sub { display: none; }
+        .ab-idx { display: none; }
+
+        /* Learn earns more presence — it's half the product */
+        .action-button.learn { width: 222px; height: 222px; }
+        .action-button.learn .ab-top svg { width: 52px; height: 52px; }
+        .ab-arrow {
+            position: absolute;
+            right: 1rem;
+            bottom: 0.85rem;
+            font: 600 1rem 'Inter', sans-serif;
+            color: rgba(236, 226, 214, 0.3);
+            transition: transform 0.25s ease, color 0.25s ease;
+        }
+
+        /* one thin rule in the card's colour — the only decoration */
+        .action-button::after {
+            content: '';
+            position: absolute;
+            left: 1.15rem;
+            right: 1.15rem;
+            bottom: 3rem;
+            height: 1px;
+            background: rgba(236, 226, 214, 0.1);
+        }
+        .action-button.league::after { background: rgba(224, 162, 76, 0.3); }
+
+        .action-button:hover {
+            transform: translateY(-3px);
+            border-color: var(--ab);
+        }
+        .action-button:hover .ab-arrow { transform: translateX(4px); color: var(--ab); }
+
+        .career-center-button {
+            width: 300px;
+            height: 80px;
+            background: rgba(36, 31, 27, 0.95);
+            border: 2px solid rgba(92, 184, 138, 0.3);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            margin: 0 auto;
+            gap: 0.8rem;
+        }
+
+        .career-center-button:hover {
+            transform: translateY(-5px);
+            border-color: #5CB88A;
+            box-shadow: 0 8px 25px rgba(236, 226, 214, 0.2);
+        }
+
+        .career-icon {
+            width: 24px;
+            height: 24px;
+            fill: #E0A24C;
+        }
+
+        .career-center-button span {
+            color: #ffffff;
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .career-center-button::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 30%;
+            opacity: 0.15;
+            transition: all 0.3s ease;
+        }
+
+        .career-center-button:hover::before {
+            opacity: 0.25;
+            transform: scale(1.1);
+        }
+
+        .career-center-button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(236, 226, 214, 0.05);
+            z-index: 1;
+        }
+
+        /* Center title section vertically */
+        .title-section {
+            text-align: center;
+            margin: 220px 0 50px 0;
+            position: relative;
+            z-index: 2;
+            padding: 0 20px;
+        }
+
+        .main-title {
+            font-size: 5.1rem;
+            font-weight: 800;
+            margin: 0;
+            color: #F4EEE6;
+            letter-spacing: -1px;
+            line-height: 1.2;
+            margin-bottom: 1rem; /* Add space below title */
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin: 0;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Update leaderboard button styles */
+        .leaderboard-button {
+            position: fixed;
+            top: 10px;
+            right: 200px;
+            background: rgba(224, 162, 76, 0.15);
+            border: 1px solid rgba(224, 162, 76, 0.5);
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            z-index: 1000;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            line-height: 1;
+            margin: 0;
+            transform: translateY(0); /* Ensure no transform affecting alignment */
+        }
+
+        .leaderboard-button:hover {
+            background: rgba(224, 162, 76, 0.25);
+            border-color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        /* News button integrated into bottom panels */
+        .news-button {
+            background: rgba(236, 226, 214, 0.15); /* Green background */
+            border: 1px solid rgba(92, 184, 138, 0.5);
+            color: var(--success);
+            padding: 0.8rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+        }
+
+        .news-button:hover {
+            background: rgba(236, 226, 214, 0.25); /* Brighter green on hover */
+            border-color: var(--success);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18); /* Green glow on hover */
+        }
+
+        /* Leaderboard modal styles */
+        .leaderboard-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .leaderboard-content {
+            background: var(--surface);
+            border: 1px solid rgba(236, 226, 214, 0.2);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .modal-title {
+            color: var(--success);
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .leaderboard-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .leaderboard-tab {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(236, 226, 214, 0.2);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-tab.active {
+            background: rgba(236, 226, 214, 0.1);
+            color: var(--success);
+            border-color: var(--success);
+        }
+
+        .leaderboard-section {
+            display: none;
+        }
+
+        .leaderboard-section.active {
+            display: block;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .rank {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.2rem;
+            min-width: 40px;
+        }
+
+        .player-info {
+            flex: 1;
+            margin-left: 1rem;
+        }
+
+        .player-name {
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .player-stats {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .performance {
+            text-align: right;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .performance.positive {
+            color: var(--success);
+        }
+
+        .performance.negative {
+            color: #d9645c;
+        }
+
+        /* Top performers section */
+        .top-performers {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .top-performers h3 {
+            color: var(--accent);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .performers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .performer-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(236, 226, 214, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .performer-title {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .performer-value {
+            color: var(--success);
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* Remove the old consolidated news access */
+        .news-access {
+            display: none;
+        }
+
+        /* First-time user learn button highlight - DISABLED */
+        /* Removed all highlighting styles */
+
+        /* Learning module modal */
+        .learning-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1002;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .learning-content {
+            background: var(--surface);
+            border: 2px solid var(--accent);
+            border-radius: 15px;
+            padding: 2.5rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        .learning-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .learning-title {
+            color: var(--accent);
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .learning-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .learning-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(224, 162, 76, 0.2);
+        }
+
+        .learning-section h3 {
+            color: var(--success);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .learning-section p {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .learning-tip {
+            background: rgba(224, 162, 76, 0.1);
+            border: 1px solid rgba(224, 162, 76, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .learning-tip strong {
+            color: var(--accent);
+        }
+
+        .learning-button {
+            background: var(--accent);
+            color: var(--background);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 2rem auto 0 auto;
+        }
+
+        .learning-button:hover {
+            background: #e6a800;
+            transform: translateY(-2px);
+        }
+
+        /* First trade guidance modal */
+        .first-trade-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1003;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .first-trade-content {
+            background: var(--surface);
+            border: 2px solid var(--success);
+            border-radius: 15px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        .first-trade-title {
+            color: var(--success);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .first-trade-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin-bottom: 2rem;
+        }
+
+        .first-trade-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .first-trade-btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .first-trade-btn.yes {
+            background: var(--success);
+            color: var(--background);
+        }
+
+        .first-trade-btn.yes:hover {
+            background: #4fa87b;
+            transform: translateY(-2px);
+        }
+
+        .first-trade-btn.no {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .first-trade-btn.no:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Trading guidance highlights */
+        .trading-highlight {
+            animation: tradingPulse 2s infinite;
+            border-color: var(--success) !important;
+            box-shadow: 0 0 25px var(--success) !important;
+        }
+
+        @keyframes tradingPulse {
+            0% {
+                box-shadow: 0 0 25px var(--success);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 35px var(--success), 0 0 50px var(--success);
+                transform: scale(1.05);
+            }
+            100% {
+                box-shadow: 0 0 25px var(--success);
+                transform: scale(1);
+            }
+        }
+
+        /* ── Spotlight Tutorial ── */
+        .tut-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+        }
+        .tut-backdrop.active {
+            display: block;
+        }
+
+        /* SVG overlay handles the dark mask with a clean rectangular cutout */
+        .tut-overlay-svg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5000;
+            pointer-events: auto;
+        }
+
+        .tut-highlight-border {
+            display: none;
+        }
+
+        .tut-tooltip {
+            position: fixed;
+            z-index: 5002;
+            background: #241f1b;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 1.25rem 1.4rem;
+            width: 300px;
+            pointer-events: auto;
+            opacity: 0;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04);
+        }
+
+        .tut-tooltip.visible {
+            animation: tutFadeIn 0.3s ease forwards;
+        }
+
+        @keyframes tutFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tut-tooltip-step {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: rgba(92, 184, 138, 0.7);
+            margin-bottom: 0.5rem;
+            font-family: 'Poppins', 'Inter', sans-serif;
+        }
+
+        .tut-tooltip-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.4rem;
+            font-family: 'Poppins', 'Inter', sans-serif;
+            letter-spacing: -0.3px;
+        }
+
+        .tut-tooltip-desc {
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.65);
+            line-height: 1.55;
+            margin-bottom: 1.1rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .tut-tooltip-progress {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 1rem;
+        }
+        .tut-tooltip-pip {
+            height: 3px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            flex: 1;
+            transition: background 0.3s ease;
+        }
+        .tut-tooltip-pip.done {
+            background: rgba(92, 184, 138, 0.5);
+        }
+        .tut-tooltip-pip.active {
+            background: #5CB88A;
+        }
+
+        .tut-tooltip-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tut-skip-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0.3rem 0;
+            font-family: 'Inter', sans-serif;
+            transition: color 0.2s;
+        }
+        .tut-skip-btn:hover { color: rgba(255, 255, 255, 0.55); }
+
+        .tut-next-btn {
+            background: #5CB88A;
+            color: #1A1714;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Poppins', 'Inter', sans-serif;
+            transition: all 0.2s ease;
+            letter-spacing: -0.2px;
+        }
+        .tut-next-btn:hover {
+            background: #54b082;
+            box-shadow: 0 4px 14px rgba(236, 226, 214, 0.25);
+        }
+            .ft-profile {
+            display: inline-flex !important; align-items: center; gap: 9px;
+            text-decoration: none !important;
+            background: #221E1A !important; border: 1px solid rgba(236, 226, 214, 0.14) !important;
+            border-radius: 12px !important; padding: 0.55rem 1.2rem 0.55rem 0.85rem !important;
+            font: 600 0.85rem 'Inter', sans-serif !important; color: #F4EEE6 !important;
+            transition: border-color 0.15s ease, transform 0.15s ease !important;
+            box-shadow: none !important; text-shadow: none !important;
+        }
+        .ft-profile:hover { border-color: rgba(92, 184, 138, 0.5) !important; transform: translateY(-1px); text-decoration: none !important; }
+        .ft-profile span { text-decoration: none !important; }
+        .ft-mark { height: 22px; width: auto; display: block; }
+        .inbox-simple { align-items: center; justify-content: center; flex: 1; }
+                .inbox-word {
+            position: absolute; left: 50%; top: 68%; transform: translate(-50%, -50%);
+            font: 800 0.62rem 'Inter', sans-serif; letter-spacing: 0.18em;
+            color: #221E1A; pointer-events: none; z-index: 2;
+        }
+        .inbox-icon-wrap { position: relative; color: #B7ADA1; display: inline-flex; padding: 0; margin-top: -4px; transition: color 0.15s ease; }
+        .inbox-icon-wrap:hover { color: #F4EEE6; }
+        .inbox-badge-mini {
+            position: absolute; top: -2px; right: -4px; min-width: 19px; height: 19px;
+            background: #D9645C; color: #fff; border-radius: 999px;
+            font: 700 0.62rem 'Inter', sans-serif; display: flex; align-items: center; justify-content: center;
+            padding: 0 4px;
+        }
+        .serif-h {
+            font-family: 'Fraunces', Georgia, serif !important;
+            font-size: 0.98rem !important; font-weight: 600 !important;
+            text-transform: none !important; letter-spacing: 0 !important;
+            color: #F4EEE6 !important;
+        }
+        .panel-go {
+            display: inline-block; background: none;
+            border: 1px solid #5CB88A; border-radius: 0;
+            color: #5CB88A; font: 700 0.7rem 'Inter', sans-serif; letter-spacing: 0.09em;
+            text-transform: uppercase; padding: 0.4rem 1.05rem; text-decoration: none;
+            transition: all 0.15s ease;
+        }
+        .panel-go:hover { background: #5CB88A; color: #14110E; }
+        .panel-sections .panel-section:nth-child(4) {
+            background: none !important; border: none !important; box-shadow: none !important;
+        }
+        .clock-chip {
+            display: inline-flex; align-items: center; gap: 9px;
+            background: none; border: none; padding: 0; margin-right: 1.1rem; white-space: nowrap;
+            font: 500 0.9rem 'Inter', sans-serif; color: #B7ADA1;
+        }
+        .clock-chip #navClock { color: #F4EEE6; font-weight: 700; font-size: 1.05rem; letter-spacing: 0.01em; }
+        .mkt-dot { width: 7px; height: 7px; border-radius: 50%; background: #7d746a; }
+        .mkt-dot.open { background: #5CB88A; }
+        .mkt-dot.closed { background: #D9645C; }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        /* Dashboard keeps its bold sans headings (opt out of the global serif). */
+        html body h1, html body h2, html body h3,
+        html body .main-title, html body .section-title, html body .panel-title {
+            font-family: 'Poppins', 'Inter', system-ui, sans-serif !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.02em !important;
+        }
+        html body .main-title { font-weight: 800 !important; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="stock-data.js"></script>
+    <script src="js/guard.js"></script>
+    <style>
+        /* Floating main action buttons — subtle, professional */
+        @keyframes ftFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .action-button {
+            animation: ftFloat 5.5s ease-in-out infinite;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35) !important;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease !important;
+        }
+        .action-button:nth-of-type(2) { animation-delay: 1.4s; }
+        .action-button:nth-of-type(3) { animation-delay: 2.8s; }
+        .action-button:hover {
+            animation-play-state: paused;
+            transform: translateY(-9px) !important;
+            box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5) !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Ticker -->
+    <div class="ticker-container">
+        <!-- First row -->
+        <div class="ticker-row">
+            <div class="ticker-track">
+                <div class="ticker" id="ticker1"></div>
+                <div class="ticker" id="ticker1-duplicate"></div>
+            </div>
+        </div>
+        <!-- Second row -->
+        <div class="ticker-row">
+            <div class="ticker-track reverse">
+                <div class="ticker" id="ticker2"></div>
+                <div class="ticker" id="ticker2-duplicate"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navbar">
+        <span class="welcome-message" id="welcomeMsg"><span id="welcomePre"></span><span id="username"></span><span id="welcomePost"></span><span class="type-caret" id="typeCaret">|</span></span>
+        <div class="header-tickers">
+            <div class="index-chip up" id="idxSP">
+                <span class="label">S&P 500</span>
+                <span>—</span>
+            </div>
+            <div class="index-chip up" id="idxDOW">
+                <span class="label">DOW</span>
+                <span>—</span>
+            </div>
+            <div class="index-chip down" id="idxNAS">
+                <span class="label">NASDAQ</span>
+                <span>—</span>
+            </div>
+
+        </div>
+        <div class="header-actions">
+            <div class="clock-chip" id="clockChip">
+                <span id="navClock">—</span>
+                <span class="mkt-dot" id="mktDot"></span>
+                <span id="mktStatus">—</span>
+            </div>
+            <a class="profile-button ft-profile" href="profile.html">
+                <img src="ft-logo-mark.png" alt="" class="ft-mark">
+                <span>Profile</span>
+            </a>
+        </div>
+    </div>
+
+
+    <!-- Main Content -->
+    <div class="dashboard-container">
+        <div class="hero-art" aria-hidden="true"></div>
+        <div class="hero-art-trace" aria-hidden="true">
+            <svg viewBox="0 0 1438 830" preserveAspectRatio="xMidYMin meet" style="width:100%;height:100%;overflow:visible;">
+                <defs>
+                    <filter id="ftGlow" x="-40%" y="-40%" width="180%" height="180%">
+                        <feGaussianBlur stdDeviation="6" result="b"/>
+                        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                </defs>
+                <path id="traceBull" d="M788,109 L641,179 L640,199 L643,209 L655,223 L676,239 L669,251 L651,242 L631,223 L623,207 L622,181 L561,139 L207,436 L178,529 L134,530 L136,604 L196,556 L227,462 L230,458 L287,591 L244,635 L236,648 L288,770 L344,770 L321,696 L317,673 L443,529 L418,435 L418,424 L492,536 L603,541 L657,595 L705,594 L632,490 L555,441 L572,289 L577,289 L602,342 L614,360 L709,414 L765,360 L767,353 L740,239 L700,212 L698,208 Z M414,604 L357,669 L473,769 L519,771 Z" fill="none" stroke="#1AB921" stroke-width="4" stroke-linecap="round" filter="url(#ftGlow)"/>
+                <path id="traceBear" d="M857,276 L839,322 L777,389 L781,422 L730,481 L784,520 L791,522 L852,490 L907,487 L931,450 L941,440 L926,509 L921,515 L773,614 L737,685 L898,619 L989,618 L1048,569 L1019,633 L1067,725 L1024,768 L1025,770 L1147,770 L1148,696 L1208,618 L1207,628 L1183,690 L1184,695 L1214,733 L1193,769 L1283,769 L1292,724 L1251,674 L1248,594 L1239,488 L972,224 L891,286 Z M996,648 L991,644 L900,643 L830,769 L912,770 L1000,660 Z" fill="none" stroke="#C40D10" stroke-width="4" stroke-linecap="round" filter="url(#ftGlow)"/>
+            </svg>
+        </div>
+
+        <div class="title-section">
+            <h1 class="main-title">FantasyTrader</h1>
+            <p class="tagline">Compete. Learn. Win.</p>
+        </div>
+        
+        <div class="main-actions">
+            <a href="league.html" class="action-button league">
+                <span class="ab-top">
+                    <!-- championship trophy -->
+                    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 4h12v7.5a6 6 0 0 1-12 0V4z"/>
+                        <path d="M10 6H5.6v1.8A4.6 4.6 0 0 0 10 12.4"/>
+                        <path d="M22 6h4.4v1.8A4.6 4.6 0 0 1 22 12.4"/>
+                        <path d="M16 17.5v4"/>
+                        <path d="M12.2 25.5c.4-2.4 1.7-4 3.8-4s3.4 1.6 3.8 4"/>
+                        <path d="M10 28h12M11 25.5h10v2.5H11z"/>
+                        <path d="M16 6.8l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3z" fill="currentColor" stroke="none"/>
+                    </svg>
+                    <i class="ab-idx">02</i>
+                </span>
+                <span class="ab-body">
+                    <em class="ab-kick">Leagues</em>
+                    <span class="ab-name">Compete</span>
+                    <span class="ab-sub">Draft a roster, manage your capital, beat your friends week by week.</span>
+                </span>
+                <span class="ab-arrow">→</span>
+            </a>
+            <a href="learn.html" class="action-button learn">
+                <span class="ab-top">
+                    <!-- open book with a rising candle-chart growing out of the pages -->
+                    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 27c-2.2-1.6-5-2.4-8.4-2.4-1.4 0-2.6.1-3.6.4V8.6C5.2 8 6.7 7.8 8.4 7.8c3 0 5.6.8 7.6 2.4 2-1.6 4.6-2.4 7.6-2.4 1.7 0 3.2.2 4.4.8V25c-1-.3-2.2-.4-3.6-.4-3.4 0-6.2.8-8.4 2.4z"/>
+                        <path d="M16 10.2V27"/>
+                        <path d="M7.2 13.4l2.4-2 2 1.6 2-2.4" opacity="0.85"/>
+                        <path d="M20 15.2v-3.6M18.9 12.6h2.2v2h-2.2z" fill="currentColor" stroke="none"/>
+                        <path d="M23.4 13.6V9.4M22.3 10.4h2.2v2.4h-2.2z" fill="currentColor" stroke="none"/>
+                        <path d="M26.8 11.6V7.2M25.7 8.2h2.2v2.2h-2.2z" fill="currentColor" stroke="none"/>
+                    </svg>
+                    <i class="ab-idx">01</i>
+                </span>
+                <span class="ab-body">
+                    <em class="ab-kick">Education</em>
+                    <span class="ab-name">Learn</span>
+                    <span class="ab-sub">Three pathways from first trade to advanced strategy.</span>
+                </span>
+                <span class="ab-arrow">→</span>
+            </a>
+            <a href="practice.html" class="action-button practice">
+                <span class="ab-top">
+                    <!-- target scope with a breakout line punching through the bullseye -->
+                    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="16" cy="16" r="11"/>
+                        <circle cx="16" cy="16" r="6.2" opacity="0.65"/>
+                        <path d="M16 2.2v4M16 25.8v4M2.2 16h4M25.8 16h4"/>
+                        <path d="M8.4 20.8l4-4.4 2.8 2.4 7-8" stroke-width="1.8"/>
+                        <path d="M18.6 10.4l3.6-.4-.4 3.6" stroke-width="1.8"/>
+                        <circle cx="16" cy="16" r="1.4" fill="currentColor" stroke="none"/>
+                    </svg>
+                    <i class="ab-idx">03</i>
+                </span>
+                <span class="ab-body">
+                    <em class="ab-kick">Paper trading</em>
+                    <span class="ab-name">Practice</span>
+                    <span class="ab-sub">Trade real markets with play money.</span>
+                </span>
+                <span class="ab-arrow">→</span>
+            </a>
+        </div>
+
+        <!-- Funds & Careers Section - Hidden for MVP -->
+        <div class="funds-careers-section" style="display: none;">
+            <a href="career.html" class="career-center-button">
+                <svg class="career-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/>
+                </svg>
+                <span>Career Center</span>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Bottom Panels -->
+    <div class="panel-sections">
+        <div class="panel-section">
+            <h3 class="serif-h">Learn the News</h3>
+            <div class="panel-content" style="align-items: flex-start; justify-content: center; flex: 1;">
+                <a class="panel-go" href="beginner-module-6.html">Open Module</a>
+            </div>
+        </div>
+        <div class="panel-section market-news">
+            <h3><svg class="news-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 4h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2z"/></svg> Market News</h3>
+            <div class="panel-content news-flash">
+                <div class="nf-left">
+                    <div class="panel-text" id="dashNewsHeadline">Loading today's biggest headline…</div>
+                    <span class="news-src" id="dashNewsSrc" hidden></span>
+                    <a class="news-open-btn" href="news.html">Open News →</a>
+                </div>
+                <div class="news-thumb" id="dashNewsThumb"></div>
+            </div>
+        </div>
+        <div class="panel-section">
+            <h3>Announcements</h3>
+            <div class="panel-content ann-carousel">
+                <div class="ann-item" id="annItem" onclick="openAnnModal()" style="cursor:pointer;">
+                    <span class="ann-bar gold" id="annBar"></span>
+                    <span class="ann-text" id="annText"><b class="race-title">THE $25 RETURNS RACE</b></span>
+                </div>
+                <button class="ann-next" id="annNext" title="All announcements" onclick="openAnnModal()">›</button>
+            </div>
+        </div>
+        <div class="panel-section">
+            <div class="panel-content inbox-simple">
+                <a href="mail.html" class="inbox-icon-wrap" title="Open your inbox">
+                    <span class="inbox-word">INBOX</span>
+                    <svg viewBox="0 0 24 24" width="84" height="84" aria-hidden="true">
+                        <path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/>
+                    </svg>
+                    <span class="inbox-badge-mini" id="inboxCountBadge" hidden>0</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add modal for events -->
+    <div class="modal" id="eventModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="eventTitle"></h2>
+            <p id="eventDescription"></p>
+            <div id="eventDetails"></div>
+        </div>
+    </div>
+
+    <div class="ambient-bg"></div>
+
+
+
+
+    <!-- Spotlight Tutorial -->
+    <div class="tut-backdrop" id="tutBackdrop">
+        <svg class="tut-overlay-svg" id="tutOverlay">
+            <defs>
+                <mask id="tutMask">
+                    <rect width="100%" height="100%" fill="white"/>
+                    <rect id="tutCutout" rx="10" ry="10" fill="black"/>
+                </mask>
+            </defs>
+            <rect width="100%" height="100%" fill="rgba(0,0,0,0.6)" mask="url(#tutMask)"/>
+        </svg>
+        <div class="tut-highlight-border" id="tutBorder"></div>
+        <div class="tut-tooltip" id="tutTooltip">
+            <div class="tut-tooltip-step" id="tutStepLabel"></div>
+            <div class="tut-tooltip-title" id="tutTitle"></div>
+            <div class="tut-tooltip-desc" id="tutDesc"></div>
+            <div class="tut-tooltip-progress" id="tutProgress"></div>
+            <div class="tut-tooltip-actions">
+                <button class="tut-skip-btn" onclick="endSpotlightTutorial()">Skip tour</button>
+                <button class="tut-next-btn" id="tutNextBtn" onclick="advanceSpotlight()">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Learning modal for first-time users -->
+    <div class="learning-modal">
+        <div class="learning-content">
+            <span class="learning-close">&times;</span>
+            <h1 class="learning-title">Welcome to FantasyTrader</h1>
+            <p class="learning-subtitle">Learn the basics of trading in a safe environment</p>
+            
+            <div class="learning-section">
+                <h3>What is Fantasy Trading?</h3>
+                <p>FantasyTrader is a simulated trading platform where you can practice buying and selling stocks without risking real money. Start with $10,000 and learn trading strategies safely.</p>
+            </div>
+
+            <div class="learning-section">
+                <h3>Basic Trading Strategy</h3>
+                <p><strong>Buy Low, Sell High:</strong> The fundamental principle of trading. Purchase stocks when prices are low and sell when they increase in value.</p>
+                
+                <div class="learning-tip">
+                    <strong>Pro Tip:</strong> Start with small amounts and gradually increase as you gain confidence.
+                </div>
+            </div>
+
+            <div class="learning-section">
+                <h3>Getting Started</h3>
+                <p>1. Use the Trading section to browse available stocks</p>
+                <p>2. Monitor your investments in the Portfolio section</p>
+                <p>3. Join leagues to compete with other traders</p>
+                <p>4. Stay informed with the News & Events section</p>
+            </div>
+
+            <button class="learning-button" onclick="completeTutorial()">Start Trading</button>
+        </div>
+    </div>
+
+    <!-- First trade guidance modal -->
+    <div class="first-trade-modal">
+        <div class="first-trade-content">
+            <h2 class="first-trade-title">Ready to Make Your First Trade?</h2>
+            <p class="first-trade-text">You have $10,000 to start with. Would you like to make your first trade now?</p>
+            <div class="first-trade-buttons">
+                <button class="first-trade-btn yes" onclick="startFirstTrade()">Yes, Let's Trade</button>
+                <button class="first-trade-btn no" onclick="skipFirstTrade()">Not Yet</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Today's biggest headline for the Market News panel
+        (async () => {
+            try {
+                let j = null;
+                if (typeof stockDataService !== 'undefined') {
+                    j = await stockDataService.fetchYahoo('/v1/finance/search?q=' + encodeURIComponent('stock market today') + '&newsCount=8&quotesCount=0').catch(() => null);
+                }
+                if (!j || !j.news || !j.news.length) {
+                    const u = window.SUPABASE_URL + '/functions/v1/market-data?type=search&q=' + encodeURIComponent('stock market today');
+                    const res = await fetch(u, { headers: { apikey: window.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + window.SUPABASE_ANON_KEY } });
+                    j = await res.json();
+                }
+                const news = (j && j.news) || [];
+                if (!news.length) return;
+                const withImg = news.filter(n => n.thumbnail && n.thumbnail.resolutions && n.thumbnail.resolutions.length);
+                const top = withImg[0] || news[0];
+                document.getElementById('dashNewsHeadline').textContent = top.title;
+                document.getElementById('dashNewsSrc').textContent = top.publisher || '';
+                if (withImg[0]) {
+                    const img = top.thumbnail.resolutions.slice().sort((a, b) => (b.width || 0) - (a.width || 0))[0].url;
+                    const t = document.getElementById('dashNewsThumb');
+                    t.style.backgroundImage = "url('" + img + "')";
+                    t.classList.add('has-img');
+                }
+            } catch (e) { /* keep placeholder */ }
+        })();
+
+        // Clock + market open/closed (US market: 9:30–4:00 ET, Mon–Fri)
+        function updateNavClock() {
+            const now = new Date();
+            const el = document.getElementById('navClock');
+            if (el) el.textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            try {
+                const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+                const day = et.getDay(), mins = et.getHours() * 60 + et.getMinutes();
+                const open = day >= 1 && day <= 5 && mins >= 570 && mins < 960;
+                const dot = document.getElementById('mktDot'), st = document.getElementById('mktStatus');
+                if (dot) dot.className = 'mkt-dot ' + (open ? 'open' : 'closed');
+                if (st) st.textContent = open ? 'Market Open' : 'Market Closed';
+            } catch (e) {}
+        }
+        updateNavClock(); setInterval(updateNavClock, 30000);
+
+        // Announcements popup
+        function openAnnModal() { document.getElementById('annModal').classList.add('open'); }
+        function closeAnnModal() { document.getElementById('annModal').classList.remove('open'); }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAnnModal(); });
+
+        // Inbox badge — count written by the mail page on each build
+        (function () {
+            const n = parseInt(localStorage.getItem('inboxCount') || '1', 10);
+            const b = document.getElementById('inboxCountBadge');
+            if (b && n > 0) { b.textContent = n > 99 ? '99+' : n; b.hidden = false; }
+        })();
+
+        // Glowing outline trace: circle the bull in green, then the bear in red, forever.
+        (function () {
+            const bull = document.getElementById('traceBull');
+            const bear = document.getElementById('traceBear');
+            if (!bull || !bear || !bull.getTotalLength) return;
+            function prep(p) {
+                const L = p.getTotalLength();
+                p.style.strokeDasharray = L;
+                p.style.strokeDashoffset = L;
+                p.style.opacity = 0;
+                return L;
+            }
+            const LB = prep(bull), LR = prep(bear);
+            function run(p, L, dur) {
+                return new Promise(res => {
+                    p.style.opacity = 0.5;
+                    const t0 = performance.now();
+                    (function step(t) {
+                        const k = Math.min(1, (t - t0) / dur);
+                        p.style.strokeDashoffset = L * (1 - k);
+                        if (k < 1) requestAnimationFrame(step);
+                        else setTimeout(res, 800);   // linger with the full outline lit
+                    })(t0);
+                });
+            }
+            function fade(p, L) {
+                p.style.transition = 'opacity 0.9s ease';
+                p.style.opacity = 0;
+                setTimeout(() => { p.style.transition = ''; p.style.strokeDashoffset = L; }, 950);
+            }
+            (async function loop() {
+                await new Promise(r => setTimeout(r, 1200));
+                for (;;) {
+                    await run(bull, LB, 3400);          // bull lights up and STAYS lit
+                    await run(bear, LR, 3400);          // bear traces alongside the glowing bull
+                    await new Promise(r => setTimeout(r, 900));   // both fully lit together
+                    fade(bull, LB);
+                    fade(bear, LR);
+                    await new Promise(r => setTimeout(r, 1200));
+                }
+            })();
+        })();
+
+        // Typewriter greeting: "Welcome <username>, let's start trading."
+        (function () {
+            const username = localStorage.getItem('username') || 'Trader';
+            const pre = 'Welcome ';
+            const post = '';
+            const preEl = document.getElementById('welcomePre');
+            const nameEl = document.getElementById('username');
+            const postEl = document.getElementById('welcomePost');
+            const caret = document.getElementById('typeCaret');
+            const parts = [[preEl, pre], [nameEl, username], [postEl, post]];
+            let pi = 0, ci = 0;
+            (function tick() {
+                if (pi >= parts.length) { setTimeout(() => { caret.style.opacity = '0'; }, 1200); return; }
+                const [el, text] = parts[pi];
+                el.textContent = text.slice(0, ++ci);
+                if (ci >= text.length) { pi++; ci = 0; }
+                setTimeout(tick, 45);
+            })();
+        })();
+
+        const row1Data = [
+            {symbol: 'AAPL', price: '192.30', change: '0.64', up: true},
+            {symbol: 'MSFT', price: '417.12', change: '-0.32', up: false},
+            {symbol: 'NVDA', price: '724.08', change: '1.12', up: true},
+            {symbol: 'AMZN', price: '182.94', change: '0.77', up: true},
+            {symbol: 'META', price: '472.10', change: '0.95', up: true},
+            {symbol: 'TSLA', price: '243.55', change: '-1.08', up: false},
+            {symbol: 'NFLX', price: '621.40', change: '0.41', up: true},
+            {symbol: 'JPM', price: '169.44', change: '-0.24', up: false},
+            {symbol: 'WMT', price: '61.28', change: '0.11', up: true},
+            {symbol: 'ORCL', price: '125.09', change: '0.36', up: true}
+        ];
+
+        const row2Data = [
+            {symbol: 'AMD', price: '167.52', change: '-0.52', up: false},
+            {symbol: 'BA', price: '201.18', change: '0.29', up: true},
+            {symbol: 'COST', price: '736.90', change: '0.22', up: true},
+            {symbol: 'KO', price: '62.18', change: '-0.08', up: false},
+            {symbol: 'DIS', price: '110.48', change: '0.14', up: true},
+            {symbol: 'XOM', price: '103.21', change: '-0.12', up: false},
+            {symbol: 'NKE', price: '103.66', change: '0.27', up: true},
+            {symbol: 'PFE', price: '28.04', change: '-0.05', up: false},
+            {symbol: 'INTC', price: '43.10', change: '0.09', up: true},
+            {symbol: 'ADBE', price: '565.22', change: '0.31', up: true}
+        ];
+
+        function createTickerContent(data) {
+            return data.map(stock => {
+                return `
+                    <div class="ticker-item ${stock.up ? 'up' : 'down'}">
+                        ${stock.symbol} $${stock.price} ${stock.up ? '▲' : '▼'}${stock.change}%
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function initializeTickers() {
+            // Set up first row
+            const content1 = createTickerContent(row1Data);
+            document.getElementById('ticker1').innerHTML = content1;
+            document.getElementById('ticker1-duplicate').innerHTML = content1;
+
+            // Set up second row
+            const content2 = createTickerContent(row2Data);
+            document.getElementById('ticker2').innerHTML = content2;
+            document.getElementById('ticker2-duplicate').innerHTML = content2;
+        }
+
+        // Initialize tickers
+        initializeTickers();
+
+        // Live refresh: real prices for ticker rows (Supabase cache) + real index chips (Yahoo via market-data)
+        (async () => {
+            try {
+                const syms = row1Data.concat(row2Data).map(s => s.symbol);
+                const map = await SL.getPrices(syms);
+                const apply = arr => arr.map(s => {
+                    const r = map[s.symbol];
+                    const px = r ? Number(r.price) : 0;
+                    if (!r || !isFinite(px) || px <= 0) return s;   // keep last-close placeholder, never zeros
+                    let ch = Number(r.change_percent != null ? r.change_percent : (r.change_pct != null ? r.change_pct : r.changePercent));
+                    if (!isFinite(ch)) ch = 0;
+                    return { symbol: s.symbol, price: px.toFixed(2), change: Math.abs(ch).toFixed(2), up: ch >= 0 };
+                });
+                const good = Object.values(map).filter(r => r && Number(r.price) > 0).length;
+                if (good < 5) return;   // cache empty/stale -> leave the market-close values alone
+                const c1 = createTickerContent(apply(row1Data));
+                document.getElementById('ticker1').innerHTML = c1;
+                document.getElementById('ticker1-duplicate').innerHTML = c1;
+                const c2 = createTickerContent(apply(row2Data));
+                document.getElementById('ticker2').innerHTML = c2;
+                document.getElementById('ticker2-duplicate').innerHTML = c2;
+            } catch (e) { /* keep placeholders */ }
+        })();
+
+        (async () => {
+            const chips = [['^GSPC', 'idxSP', 'S&P 500'], ['^DJI', 'idxDOW', 'DOW'], ['^IXIC', 'idxNAS', 'NASDAQ']];
+            for (const [sym, id, label] of chips) {
+                try {
+                    const u = window.SUPABASE_URL + '/functions/v1/market-data?symbol=' + encodeURIComponent(sym) + '&range=1d&interval=1d';
+                    const res = await fetch(u, { headers: { apikey: window.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + window.SUPABASE_ANON_KEY } });
+                    const j = await res.json();
+                    const m = j && j.chart && j.chart.result && j.chart.result[0] && j.chart.result[0].meta;
+                    if (!m || m.regularMarketPrice == null) continue;
+                    const price = Number(m.regularMarketPrice);
+                    const prev = Number(m.chartPreviousClose != null ? m.chartPreviousClose : price);
+                    const pct = prev ? ((price - prev) / prev * 100) : 0;
+                    const el = document.getElementById(id);
+                    if (!el) continue;
+                    el.className = 'index-chip ' + (pct >= 0 ? 'up' : 'down');
+                    el.innerHTML = '<span class="label">' + label + '</span><span>' +
+                        price.toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' ' +
+                        (pct >= 0 ? '▲' : '▼') + Math.abs(pct).toFixed(2) + '%</span>';
+                } catch (e) { /* keep */ }
+            }
+        })();
+
+        // Add hover pause functionality
+        document.querySelector('.ticker-container').addEventListener('mouseenter', () => {
+            document.querySelectorAll('.ticker-track').forEach(track => {
+                track.style.animationPlayState = 'paused';
+            });
+        });
+
+        document.querySelector('.ticker-container').addEventListener('mouseleave', () => {
+            document.querySelectorAll('.ticker-track').forEach(track => {
+                track.style.animationPlayState = 'running';
+            });
+        });
+
+        // Event handling
+        const events = document.querySelectorAll('.event-item');
+        const modal = document.getElementById('eventModal');
+        const closeModal = document.querySelector('.close-modal');
+
+        events.forEach(event => {
+            event.addEventListener('click', () => {
+                const title = event.querySelector('strong').textContent;
+                const description = event.getAttribute('data-description');
+                
+                document.getElementById('eventTitle').textContent = title;
+                document.getElementById('eventDescription').textContent = description;
+                modal.style.display = 'block';
+            });
+        });
+
+        closeModal.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const preferences = JSON.parse(localStorage.getItem('userPreferences') || '{}');
+            
+            // If user is a beginner, highlight the learn section - DISABLED
+            if (preferences.experience === 'beginner') {
+                // Learn button highlighting completely disabled
+                const learnButton = document.querySelector('.action-button.learn');
+                if (learnButton) {
+                    learnButton.style.boxShadow = '';
+                    learnButton.style.borderColor = '';
+                }
+                
+                // Add beginner tip - DISABLED
+                // Removed all highlighting
+            }
+
+            // (recommended-stocks injection removed — panels stay clean)
+            if (false && preferences.recommendedStocks && preferences.recommendedStocks.length > 0) {
+                const firstPanel = document.querySelector('.panel-section');
+                const recommendedList = document.createElement('div');
+                recommendedList.innerHTML = `
+                    <h2>Your Recommended Stocks</h2>
+                    <ul>
+                        ${preferences.recommendedStocks.slice(0, 5).map(stock => 
+                            `<li>${stock}</li>`
+                        ).join('')}
+                    </ul>
+                `;
+                firstPanel.appendChild(recommendedList);
+            }
+
+            // Add sectors to stats panel
+            if (false && preferences.sectors && preferences.sectors.length > 0) {
+                const statsPanel = document.querySelector('.panel-section:last-child ul');
+                if (statsPanel) {
+                statsPanel.innerHTML += `
+                    <li>Selected Sectors: ${preferences.sectors.slice(0, 3).join(', ')}${preferences.sectors.length > 3 ? '...' : ''}</li>
+                    <li>Trading Style: ${preferences.tradingStyle || 'Not specified'}</li>
+                `;
+                }
+            }
+        });
+
+        // Add this to your script section
+        console.log('Portfolio Data:', JSON.parse(localStorage.getItem('portfolioData')));
+        console.log('Selected Stocks:', JSON.parse(localStorage.getItem('selectedStocks')));
+
+        // Clear any duplicate data
+        function cleanupStorage() {
+            const portfolioData = JSON.parse(localStorage.getItem('portfolioData')) || {};
+            const selectedStocks = JSON.parse(localStorage.getItem('selectedStocks')) || {};
+            
+            // Remove any duplicate entries
+            Object.keys(selectedStocks).forEach(sector => {
+                const uniqueStocks = [...new Map(selectedStocks[sector].map(stock => 
+                    [stock.symbol, stock])).values()];
+                selectedStocks[sector] = uniqueStocks;
+            });
+            
+            // Update storage
+            localStorage.setItem('selectedStocks', JSON.stringify(selectedStocks));
+            localStorage.setItem('portfolioData', JSON.stringify(portfolioData));
+        }
+
+        // Run cleanup on page load
+        cleanupStorage();
+
+        /* ── Spotlight Tutorial ── */
+        /* ── Multi-Page Spotlight Tutorial ──
+           Steps on dashboard, then navigates to learn, practice, league pages.
+           Each page checks localStorage('tutorialStep') to continue the tour. */
+
+        const tutSteps = [
+            {
+                selector: '.action-button.learn',
+                title: 'Start Learning',
+                desc: 'Your education hub with beginner to advanced paths. Let\'s take a quick look.',
+                action: 'navigate',
+                target: 'learn.html',
+                btnText: 'Go to Learn'
+            },
+            {
+                selector: '.action-button.practice',
+                title: 'Practice Trading',
+                desc: 'Trade with $10,000 in virtual funds — no risk, real experience.',
+                action: 'navigate',
+                target: 'practice.html',
+                btnText: 'Go to Practice'
+            },
+            {
+                selector: '.action-button.league',
+                title: 'Compete in Leagues',
+                desc: 'Draft stocks with friends and see who builds the best portfolio.',
+                action: 'navigate',
+                target: 'league.html',
+                btnText: 'Go to Leagues'
+            },
+            {
+                selector: '.panel-sections',
+                title: 'Your Dashboard Feed',
+                desc: 'Market news, announcements, and your inbox — all in one place at the bottom of your dashboard.',
+                action: null,
+                btnText: 'Finish Tour'
+            }
+        ];
+
+        const TOTAL_GLOBAL_STEPS = 9;
+        let tutCurrent = 0;
+
+        /* Position the SVG cutout, border, and tooltip around a target element */
+        function positionTutorial(el) {
+            const rect = el.getBoundingClientRect();
+            const pad = 8;
+
+            // SVG cutout (clean rectangular hole in the dark overlay)
+            const cutout = document.getElementById('tutCutout');
+            cutout.setAttribute('x', rect.left - pad);
+            cutout.setAttribute('y', rect.top - pad);
+            cutout.setAttribute('width', rect.width + pad * 2);
+            cutout.setAttribute('height', rect.height + pad * 2);
+
+            // Highlight border
+            const border = document.getElementById('tutBorder');
+            border.style.left = (rect.left - pad) + 'px';
+            border.style.top = (rect.top - pad) + 'px';
+            border.style.width = (rect.width + pad * 2) + 'px';
+            border.style.height = (rect.height + pad * 2) + 'px';
+
+            // Tooltip positioning
+            const tip = document.getElementById('tutTooltip');
+            const tipW = 300;
+
+            // First render to get actual height
+            requestAnimationFrame(() => {
+                const tipH = tip.offsetHeight;
+                let top, left;
+
+                // Prefer below, then above, then overlay bottom
+                const spaceBelow = window.innerHeight - rect.bottom - pad;
+                const spaceAbove = rect.top - pad;
+
+                if (spaceBelow >= tipH + 14) {
+                    top = rect.bottom + pad + 12;
+                } else if (spaceAbove >= tipH + 14) {
+                    top = rect.top - pad - 12 - tipH;
+                } else {
+                    // Place at bottom of viewport
+                    top = window.innerHeight - tipH - 16;
+                }
+
+                // Center horizontally on the target, clamped
+                left = rect.left + rect.width / 2 - tipW / 2;
+                left = Math.max(12, Math.min(left, window.innerWidth - tipW - 12));
+
+                tip.style.top = top + 'px';
+                tip.style.left = left + 'px';
+                tip.classList.add('visible');
+            });
+        }
+
+        function getGlobalStep() {
+            // Dashboard steps map to global: Learn=1, Practice=3, League=6, Feed=9
+            const map = [1, 3, 6, 9];
+            return map[tutCurrent] || 1;
+        }
+
+        function renderTutStep() {
+            const step = tutSteps[tutCurrent];
+            const el = document.querySelector(step.selector);
+            if (!el) {
+                tutCurrent++;
+                if (tutCurrent >= tutSteps.length) { endSpotlightTutorial(); return; }
+                renderTutStep();
+                return;
+            }
+
+            const tip = document.getElementById('tutTooltip');
+            tip.classList.remove('visible');
+
+            const globalStep = getGlobalStep();
+            document.getElementById('tutStepLabel').textContent = `${globalStep} of ${TOTAL_GLOBAL_STEPS}`;
+            document.getElementById('tutTitle').textContent = step.title;
+            document.getElementById('tutDesc').textContent = step.desc;
+
+            // Progress pips
+            const pipsHtml = Array.from({ length: TOTAL_GLOBAL_STEPS }, (_, i) => {
+                const cls = i + 1 < globalStep ? 'done' : i + 1 === globalStep ? 'active' : '';
+                return `<div class="tut-tooltip-pip ${cls}"></div>`;
+            }).join('');
+            document.getElementById('tutProgress').innerHTML = pipsHtml;
+
+            document.getElementById('tutNextBtn').textContent = step.btnText || 'Next';
+
+            // Scroll then position
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => positionTutorial(el), 400);
+        }
+
+        function advanceSpotlight() {
+            const step = tutSteps[tutCurrent];
+
+            if (step.action === 'navigate' && step.target) {
+                const nextDashStep = tutCurrent + 1;
+                localStorage.setItem('tutorialStep', String(nextDashStep));
+                // Return global steps: after Learn=2, after Practice=4, after League=7
+                const returnSteps = [2, 4, 7, 8];
+                localStorage.setItem('tutorialReturnStep', String(returnSteps[tutCurrent]));
+                localStorage.setItem('tutorialActive', 'true');
+                window.location.href = step.target + '?tutorial=true';
+                return;
+            }
+
+            // Non-navigation step (dashboard feed) — advance or end
+            tutCurrent++;
+            if (tutCurrent >= tutSteps.length) {
+                endSpotlightTutorial();
+            } else {
+                const tip = document.getElementById('tutTooltip');
+                tip.classList.remove('visible');
+                tip.style.animation = 'none';
+                void tip.offsetHeight;
+                tip.style.animation = '';
+                renderTutStep();
+            }
+        }
+
+        function endSpotlightTutorial() {
+            document.getElementById('tutBackdrop').classList.remove('active');
+            localStorage.removeItem('showTutorial');
+            localStorage.removeItem('tutorialStep');
+            localStorage.removeItem('tutorialActive');
+            localStorage.removeItem('tutorialReturnStep');
+            localStorage.setItem('tutorialCompleted', 'true');
+        }
+
+        function startSpotlightTutorial() {
+            const savedStep = Number(localStorage.getItem('tutorialStep') || '0');
+            tutCurrent = savedStep;
+            if (tutCurrent >= tutSteps.length) {
+                endSpotlightTutorial();
+                return;
+            }
+            document.getElementById('tutBackdrop').classList.add('active');
+            renderTutStep();
+        }
+
+        // Debounced resize
+        let _tutResize;
+        window.addEventListener('resize', () => {
+            clearTimeout(_tutResize);
+            _tutResize = setTimeout(() => {
+                if (!document.getElementById('tutBackdrop').classList.contains('active')) return;
+                if (tutCurrent >= tutSteps.length) return;
+                const el = document.querySelector(tutSteps[tutCurrent]?.selector);
+                if (el) positionTutorial(el);
+            }, 250);
+        });
+
+        // Check on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const isTutorial = localStorage.getItem('showTutorial') === 'true' || localStorage.getItem('tutorialActive') === 'true';
+            if (isTutorial) {
+                setTimeout(startSpotlightTutorial, 600);
+            }
+        });
+    </script>
+    <!-- Announcements popup -->
+    <div id="annModal" class="ann-modal" onclick="if (event.target === this) closeAnnModal()">
+        <div class="ann-modal-card">
+            <div class="ann-modal-head">
+                <h2>Announcements</h2>
+                <button class="ann-modal-close" onclick="closeAnnModal()">✕</button>
+            </div>
+            <div class="ann-modal-item">
+                <div class="ann-modal-title race-title">THE $25 RETURNS RACE</div>
+                <p>Double your portfolio before anyone else in the league does. First trader to hit <b>+100% total returns</b> takes the $25 pot — every trade counts, and the leaderboard doesn't lie.</p>
+            </div>
+            <div class="ann-modal-item">
+                <div class="ann-modal-title">Career Center</div>
+                <p>Coming soon — internships, resume help, and real paths into finance, right from your dashboard.</p>
+            </div>
+            <div class="ann-modal-item">
+                <div class="ann-modal-title">New Pathway: Alternate Investments</div>
+                <p>Crypto, real estate, commodities, private equity — 18 fresh modules are live now in the Learning Hub.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
+

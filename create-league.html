@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create League - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        :root {
+            --background: #1a1714;
+            --success: #5cb88a;
+            --accent: #e0a24c;
+            --text-secondary: #b7ada1;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* ── Top progress bar (same as the survey) ── */
+        .progress-bar { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: rgba(255, 255, 255, 0.06); z-index: 100; }
+        .progress-fill {
+            height: 100%; width: 33%;
+            background: linear-gradient(90deg, var(--success), var(--accent));
+            border-radius: 0 2px 2px 0;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .wrapper { max-width: 620px; margin: 0 auto; padding: 56px 20px 80px; }
+
+        .head { text-align: center; margin-bottom: 1.8rem; }
+        .head .kicker { font-size: 0.7rem; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--success); margin-bottom: 0.6rem; }
+        .head h1 {
+            font-size: 2rem; font-weight: 800; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 30%, var(--success) 100%);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .head p { color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.4rem; }
+
+        /* ── Step dots (same as the survey) ── */
+        .step-indicator { display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; }
+        .step-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(236, 226, 214, 0.08); color: var(--text-secondary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem; font-weight: 700; transition: all 0.3s ease;
+        }
+        .step-dot.active { background: var(--success); color: var(--background); }
+        .step-dot.done { background: rgba(92, 184, 138, 0.25); color: var(--success); }
+        .step-line { width: 46px; height: 2px; background: rgba(255, 255, 255, 0.08); transition: background 0.4s ease; }
+        .step-line.done { background: var(--success); }
+
+        /* ── Cards ── */
+        .step { display: none; animation: fadeUp 0.35s ease; }
+        .step.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+        .survey-card {
+            background: linear-gradient(160deg, rgba(26, 23, 20, 0.9), rgba(30, 26, 22, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.2rem;
+        }
+        .card-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .card-desc { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 1.4rem; }
+
+        .field-group { display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 1.1rem; }
+        .field-label { font-size: 0.7rem; color: rgba(255, 255, 255, 0.5); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; }
+        .field-input, .field-select {
+            width: 100%; padding: 0.9rem 1.1rem; border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff; font: 500 0.95rem 'Inter', sans-serif; outline: none;
+            transition: border-color 0.2s ease;
+        }
+        .field-input:focus, .field-select:focus { border-color: var(--success); }
+        .field-select option { background: #241f1b; }
+
+        /* stepper */
+        .stepper { display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+                   background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
+                   border-radius: 12px; padding: 0.55rem 0.6rem; }
+        .stepper button {
+            width: 40px; height: 40px; border-radius: 10px; border: none; cursor: pointer;
+            background: rgba(236, 226, 214, 0.08); color: #fff; font-size: 1.15rem; font-weight: 700;
+            transition: background 0.15s ease;
+        }
+        .stepper button:hover { background: rgba(92, 184, 138, 0.25); }
+        .stepper .count { font-size: 1.2rem; font-weight: 800; text-align: center; }
+        .stepper .count small { display: block; font-size: 0.66rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* review rows */
+        .review-row { display: flex; justify-content: space-between; padding: 0.85rem 0.2rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); font-size: 0.92rem; }
+        .review-row:last-child { border-bottom: none; }
+        .review-row span:first-child { color: var(--text-secondary); }
+        .review-row span:last-child { font-weight: 700; }
+
+        /* buttons (same as the survey) */
+        .btn-row { display: flex; gap: 0.8rem; margin-top: 1.4rem; }
+        .btn {
+            flex: 1; padding: 0.95rem 1.5rem; border-radius: 14px;
+            font-size: 0.88rem; font-weight: 700; font-family: 'Inter', sans-serif;
+            cursor: pointer; transition: all 0.25s ease; border: none; letter-spacing: 0.5px;
+        }
+        .btn-back { background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .btn-back:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+        .btn-next { background: linear-gradient(135deg, var(--success), #4fa87b); color: var(--background); }
+        .btn-next:hover { transform: translateY(-2px); }
+        .btn-next:disabled { opacity: 0.6; cursor: default; transform: none; }
+        .err { color: #d9645c; font-size: 0.8rem; margin-top: 0.6rem; min-height: 1em; }
+        .cancel-link { display: block; text-align: center; margin-top: 1.3rem; color: var(--text-secondary); font-size: 0.82rem; text-decoration: none; }
+        .cancel-link:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="wrapper">
+        <div class="head">
+            <div class="kicker">New League</div>
+            <h1>Create Your League</h1>
+            <p>Three quick steps and the draft room is yours.</p>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step-dot active" data-step="1">1</div>
+            <div class="step-line" data-line="1"></div>
+            <div class="step-dot" data-step="2">2</div>
+            <div class="step-line" data-line="2"></div>
+            <div class="step-dot" data-step="3">3</div>
+        </div>
+
+        <!-- Step 1: Basics -->
+        <div class="step active" data-step="1">
+            <div class="survey-card">
+                <div class="card-title">League basics</div>
+                <div class="card-desc">Name it, size it. You'll share the join code once it's created.</div>
+                <div class="field-group">
+                    <label class="field-label" for="leagueName">League Name</label>
+                    <input class="field-input" id="leagueName" type="text" maxlength="40" placeholder="e.g. Lemon League" autocomplete="off">
+                </div>
+                <div class="field-group">
+                    <span class="field-label">Players</span>
+                    <div class="stepper">
+                        <button type="button" onclick="bump(-1)">−</button>
+                        <div class="count"><span id="playerCount">6</span><small>players</small></div>
+                        <button type="button" onclick="bump(1)">+</button>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <span class="field-label">Rosters</span>
+                    <div class="field-input" style="cursor: default; color: var(--text-secondary);">
+                        14 stocks per player · 11 in play each week
+                    </div>
+                </div>
+                <div class="err" id="err1"></div>
+                <div class="btn-row">
+                    <button class="btn btn-next" onclick="goStep(2, 1)">Continue</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Money & time -->
+        <div class="step" data-step="2">
+            <div class="survey-card">
+                <div class="card-title">Capital &amp; season length</div>
+                <div class="card-desc">Everyone starts with the same capital and allocates it after the draft.</div>
+                <div class="field-group">
+                    <label class="field-label" for="startingCapital">Starting Capital ($)</label>
+                    <input class="field-input" id="startingCapital" type="number" min="1000" step="1000" value="100000">
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="transferPct">Weekly Capital Transfer</label>
+                    <select class="field-select" id="transferPct">
+                        <option value="2">2% — gentle</option>
+                        <option value="3">3% — easygoing</option>
+                        <option value="5" selected>5% — friendly</option>
+                        <option value="8">8% — spirited</option>
+                        <option value="10">10% — competitive</option>
+                        <option value="15">15% — cutthroat</option>
+                        <option value="20">20% — brutal</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="draftAt">Draft Day &amp; Time</label>
+                    <input class="field-input" id="draftAt" type="datetime-local">
+                    <span style="font-size:0.72rem;color:var(--text-secondary);">Tip: draft on a <b style="color:var(--success);">Sunday</b> — your 24-hour prep window ends right as the market opens Monday. You can still start the draft manually any time.</span>
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="durationWeeks">League Duration</label>
+                    <select class="field-select" id="durationWeeks">
+                        <option value="2">2 weeks — sprint</option>
+                        <option value="4" selected>4 weeks — standard</option>
+                        <option value="8">8 weeks — season</option>
+                        <option value="12">12 weeks — marathon</option>
+                    </select>
+                </div>
+                <div class="err" id="err2"></div>
+                <div class="btn-row">
+                    <button class="btn btn-back" onclick="goStep(1)">Back</button>
+                    <button class="btn btn-next" onclick="goStep(3, 2)">Continue</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Review -->
+        <div class="step" data-step="3">
+            <div class="survey-card">
+                <div class="card-title">Review &amp; create</div>
+                <div class="card-desc">Snake draft, all stocks available, no shorting — see the Rules page for the full book.</div>
+                <div class="review-row"><span>League Name</span><span id="rvName">—</span></div>
+                <div class="review-row"><span>Players</span><span id="rvPlayers">—</span></div>
+                <div class="review-row"><span>Stocks Per Player</span><span id="rvRoster">—</span></div>
+                <div class="review-row"><span>Starting Capital</span><span id="rvCapital">—</span></div>
+                <div class="review-row"><span>Duration</span><span id="rvDuration">—</span></div>
+                <div class="review-row"><span>Draft</span><span id="rvDraft">—</span></div>
+                <div class="review-row"><span>Weekly Capital Transfer</span><span id="rvTransfer">—</span></div>
+                <div class="review-row"><span>Draft Style</span><span>Live snake draft</span></div>
+                <div class="err" id="err3"></div>
+                <div class="btn-row">
+                    <button class="btn btn-back" onclick="goStep(2)">Back</button>
+                    <button class="btn btn-next" id="createBtn" onclick="createLeague()">Create League</button>
+                </div>
+            </div>
+        </div>
+
+        <a class="cancel-link" href="league.html">← Back to Leagues</a>
+    </div>
+
+    <script>
+        let playerCount = 6;
+        function bump(d) {
+            playerCount = Math.max(4, Math.min(12, playerCount + d));
+            document.getElementById('playerCount').textContent = playerCount;
+        }
+
+        function paint(step) {
+            document.querySelectorAll('.step').forEach(s => s.classList.toggle('active', Number(s.dataset.step) === step));
+            document.querySelectorAll('.step-dot').forEach(dd => {
+                const n = Number(dd.dataset.step);
+                dd.classList.toggle('active', n === step);
+                dd.classList.toggle('done', n < step);
+                dd.innerHTML = n < step ? '&#10003;' : n;
+            });
+            document.querySelectorAll('.step-line').forEach(li => li.classList.toggle('done', Number(li.dataset.line) < step));
+            document.getElementById('progressFill').style.width = (step / 3 * 100) + '%';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goStep(step, validateFrom) {
+            if (validateFrom === 1) {
+                const name = document.getElementById('leagueName').value.trim();
+                if (!name) { document.getElementById('err1').textContent = 'Give your league a name.'; return; }
+                document.getElementById('err1').textContent = '';
+            }
+            if (validateFrom === 2) {
+                const cap = parseInt(document.getElementById('startingCapital').value);
+                if (!cap || cap < 1000) { document.getElementById('err2').textContent = 'Starting capital needs to be at least $1,000.'; return; }
+                document.getElementById('err2').textContent = '';
+            }
+            if (step === 3) {
+                document.getElementById('rvName').textContent = document.getElementById('leagueName').value.trim();
+                document.getElementById('rvPlayers').textContent = playerCount;
+                document.getElementById('rvRoster').textContent = '14 stocks · 11 active weekly';
+                document.getElementById('rvTransfer').textContent = document.getElementById('transferPct').value + '% of the loser\'s capital';
+                document.getElementById('rvCapital').textContent = '$' + Number(document.getElementById('startingCapital').value).toLocaleString();
+                document.getElementById('rvDuration').textContent = document.getElementById('durationWeeks').value + ' weeks';
+                const dAt = document.getElementById('draftAt').value;
+                document.getElementById('rvDraft').textContent = dAt ? new Date(dAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'Start manually';
+            }
+            paint(step);
+        }
+
+        async function createLeague() {
+            const name = document.getElementById('leagueName').value.trim();
+            const rosterSize = 14; // fixed: 14 drafted, 11 in play each week
+            const startingCapital = parseInt(document.getElementById('startingCapital').value) || 100000;
+            const durationWeeks = parseInt(document.getElementById('durationWeeks').value) || 4;
+            const transferPct = parseInt(document.getElementById('transferPct').value) || 5;
+            const btn = document.getElementById('createBtn');
+            const err = document.getElementById('err3');
+            err.textContent = '';
+            if (!SL.configured) { err.textContent = 'Connect Supabase to create real leagues.'; return; }
+            btn.disabled = true; btn.textContent = 'Creating…';
+            try {
+                const draftAtRaw = document.getElementById('draftAt').value;
+                const draftAt = draftAtRaw ? new Date(draftAtRaw).toISOString() : null;
+                const league = await SL.createLeague(name, rosterSize, playerCount, startingCapital, durationWeeks, transferPct, draftAt);
+                window.location.href = 'your-league.html?league=' + league.id;
+            } catch (e) {
+                err.textContent = e.message || 'Could not create the league. Are you signed in?';
+                btn.disabled = false; btn.textContent = 'Create League';
+            }
+        }
+    </script>
+</body>
+</html>

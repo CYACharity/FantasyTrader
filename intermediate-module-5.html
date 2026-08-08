@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 5: Earnings & Valuation Models - Stocks League</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #e0a24c; --accent: #e0a24c; --background: #1a1714; --surface: #1e1a16; --border: #2a2420; --text-primary: #e8e8e8; --text-body: #c4c4c4; --text-muted: #888888; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--background); color: var(--text-primary); min-height: 100vh; }
+        .mod-header { background: rgba(20, 20, 20, 0.97); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0.85rem 2rem; position: sticky; top: 0; z-index: 100; }
+        .mod-header-inner { max-width: 820px; margin: 0 auto; display: flex; justify-content: space-between; }
+        .back-link { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
+        .back-link:hover { opacity: 0.75; }
+        .mod-header-meta { font-size: 0.72rem; color: var(--text-muted); }
+        .reading-progress { position: fixed; top: 0; left: 0; height: 2px; width: 0%; background: var(--primary); z-index: 200; }
+        .article { max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+        .module-label { display: inline-block; font-size: 0.62rem; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--primary); background: rgba(236, 226, 214, 0.08); border: 1px solid rgba(224, 162, 76, 0.18); padding: 5px 12px; border-radius: 4px; margin-bottom: 1.2rem; }
+        .article-title { font-family: 'Lora', serif; font-size: 2.4rem; font-weight: 700; color: #ffffff; margin-bottom: 0.8rem; }
+        .article-subtitle { font-family: 'Lora', serif; font-size: 1.15rem; font-weight: 400; color: var(--text-muted); margin-bottom: 1.5rem; }
+        .article-meta { display: flex; align-items: center; gap: 1.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); margin-bottom: 2.5rem; font-size: 0.75rem; color: var(--text-muted); }
+        .meta-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); }
+        .article p { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.85; color: var(--text-body); margin-bottom: 1.5rem; }
+        .article h2 { font-family: 'Inter', sans-serif; font-size: 1.35rem; font-weight: 700; color: #ffffff; margin-top: 3rem; margin-bottom: 1rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+        .article h3 { font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-top: 2rem; margin-bottom: 0.75rem; }
+        .callout { background: var(--surface); border-left: 3px solid var(--primary); padding: 1.25rem 1.5rem; margin: 1.8rem 0; }
+        .callout-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--primary); margin-bottom: 0.5rem; }
+        .callout p { font-size: 0.95rem; line-height: 1.7; margin-bottom: 0; }
+        .figure { margin: 2.2rem 0; text-align: center; }
+        .figure-diagram { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 0.7rem; }
+        .figure-caption { font-size: 0.73rem; color: var(--text-muted); font-style: italic; }
+        .flow-row { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; }
+        .flow-box { background: rgba(236, 226, 214, 0.08); border: 1px solid rgba(224, 162, 76, 0.2); border-radius: 10px; padding: 0.7rem 0.9rem; text-align: center; min-width: 110px; font-size: 0.7rem; }
+        .flow-box-title { font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 0.2rem; }
+        .flow-box-desc { color: var(--text-body); line-height: 1.3; }
+        .flow-arrow { font-size: 1.2rem; color: var(--text-muted); padding: 0 0.4rem; }
+        .comparison-table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 1.8rem 0; font-size: 0.88rem; }
+        .comparison-table thead { background: var(--surface); }
+        .comparison-table th { padding: 0.9rem 1.2rem; text-align: left; font-weight: 700; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+        .comparison-table td { padding: 0.85rem 1.2rem; border-bottom: 1px solid rgba(255, 255, 255, 0.03); color: var(--text-body); font-family: 'Lora', serif; font-size: 0.9rem; }
+        .comparison-table tr:last-child td { border-bottom: none; }
+        .numbered-list { counter-reset: item; margin: 1.2rem 0 1.5rem; padding-left: 0; list-style: none; }
+        .numbered-list li { counter-increment: item; font-family: 'Lora', serif; font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 0.6rem; padding-left: 2.2rem; position: relative; }
+        .numbered-list li::before { content: counter(item) "."; position: absolute; left: 0; font-weight: 700; color: var(--primary); }
+        .quiz-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; margin: 3rem 0 2rem; }
+        .quiz-q { margin-bottom: 1.5rem; }
+        .quiz-q p { font-family: 'Inter', sans-serif; font-size: 0.92rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.7rem; }
+        .quiz-opts { display: flex; flex-direction: column; gap: 0.4rem; }
+        .quiz-opt { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 0.7rem 1rem; font-size: 0.88rem; color: var(--text-body); cursor: pointer; transition: all 0.2s; }
+        .quiz-opt:hover { background: rgba(236, 226, 214, 0.06); border-color: rgba(224, 162, 76, 0.2); }
+        .quiz-opt.correct { background: rgba(224, 162, 76, 0.12); border-color: var(--primary); color: #ffffff; }
+        .quiz-opt.wrong { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); }
+        .quiz-opt.disabled { pointer-events: none; opacity: 0.5; }
+        .quiz-feedback { font-size: 0.82rem; margin-top: 0.5rem; display: none; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.right { color: var(--primary); }
+        .quiz-feedback.wrong-fb { color: #d9645c; }
+        .sources { margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+        .sources h3 { font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem; }
+        .source-item { font-size: 0.82rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 0.6rem; padding-left: 1.2rem; position: relative; }
+        .source-item::before { content: ''; position: absolute; left: 0; top: 0.55rem; width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); }
+        .source-item a { color: var(--primary); text-decoration: none; }
+        .module-footer { max-width: 720px; margin: 0 auto; padding: 0 1.5rem 4rem; display: flex; justify-content: space-between; }
+        .footer-btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.85rem 1.6rem; border-radius: 10px; font-size: 0.85rem; font-weight: 700; text-decoration: none; transition: all 0.2s ease; border: none; cursor: pointer; }
+        .footer-btn-next { background: var(--primary); color: var(--background); }
+        .footer-btn-next:hover { transform: translateY(-2px); box-shadow: 0 2px 10px rgba(0,0,0,0.18); }
+        .footer-btn-back { background: rgba(255, 255, 255, 0.04); color: var(--text-muted); border: 1px solid var(--border); }
+            :root { --level: #e0a24c; }
+
+        /* Unified module chrome (matches all pathway modules) */
+        .quiz-figure {
+            background: rgba(236, 226, 214, 0.03);
+            border: 1px solid var(--border, #2a2420);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }
+        .quiz-figure svg { width: 100%; max-width: 430px; height: auto; display: block; margin: 0 auto; }
+        .module-label { color: var(--level, var(--primary)) !important; }
+        .reading-progress { background: var(--level, var(--primary)) !important; }
+    
+        /* Quiz rework: lettered options, cleaner questions */
+        .quiz-section h3 { font-family: 'Fraunces', Georgia, serif !important; font-size: 1.3rem !important; }
+        .quiz-q { padding-top: 1.2rem; border-top: 1px solid rgba(236, 226, 214, 0.07); }
+        .quiz-q:first-of-type { border-top: none; padding-top: 0; }
+        .quiz-q > p { font-size: 1rem !important; }
+        .quiz-opts { counter-reset: opt; }
+        .quiz-opt { position: relative; padding-left: 2.9rem !important; counter-increment: opt; }
+        .quiz-opt::before {
+            content: counter(opt, upper-alpha);
+            position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%);
+            width: 1.45rem; height: 1.45rem; border: 1px solid rgba(236, 226, 214, 0.25);
+            border-radius: 5px; display: flex; align-items: center; justify-content: center;
+            font: 700 0.68rem 'Inter', sans-serif; color: #8a8178;
+        }
+        .quiz-opt:hover::before { border-color: rgba(236, 226, 214, 0.5); color: #F4EEE6; }
+        .quiz-opt.correct::before { border-color: #5cb88a; color: #5cb88a; content: '✓'; }
+        .quiz-opt.wrong::before { border-color: #d9645c; color: #d9645c; content: '✕'; }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+    <div class="reading-progress" id="readingProgress"></div>
+    <div class="mod-header">
+        <div class="mod-header-inner">
+            <a href="intermediate-path.html" class="back-link"><span>&larr;</span> Intermediate Path</a>
+            <div class="mod-header-meta">MODULE 5 OF 6</div>
+        </div>
+    </div>
+
+    <article class="article">
+        <div class="module-label">Intermediate &middot; Module 5</div>
+        <h1 class="article-title">Earnings & Valuation Models</h1>
+        <p class="article-subtitle">Learn DCF, P/E analysis, and comparable company analysis to value stocks accurately.</p>
+
+        <div class="article-meta">
+            <div class="meta-item">7 min read</div>
+            <div class="meta-dot"></div>
+            <div class="meta-item">Sources: Damodaran, CFA Institute</div>
+            <div class="meta-dot"></div>
+            <div class="meta-item">Last updated Mar 2026</div>
+        </div>
+
+        <h2>Reading Earnings Reports</h2>
+
+        <p>Earnings reports come out quarterly, and traders obsess over them. The market doesn't care about the absolute number—it cares about the surprise. Did the company beat, miss, or meet expectations? Focus on three things: EPS (Earnings Per Share, which is profit divided by number of shares), revenue growth, and forward guidance (management's forecast for next quarter/year). Revenue is the foundation; EPS that beats only through accounting tricks is worthless.</p>
+
+        <div class="callout">
+            <div class="callout-label">Key Insight</div>
+            <p>The stock's reaction depends on surprise and guidance. Beat earnings by 10% but lower forward guidance? Stock drops. Miss earnings by 5% but raise guidance? Stock soars. Traders are betting on the future, not celebrating the past.</p>
+        </div>
+
+        <div style="background: rgba(236, 226, 214, 0.08); border-left: 3px solid rgba(92, 184, 138, 0.3); padding: 1rem 1.2rem; margin: 1.2rem 0; border-radius: 0 6px 6px 0;"><strong>Example:</strong> Apple reports Q3 earnings. Analysts expected $1.20 EPS. Apple reports $1.25 EPS (beat!). But Apple lowers guidance to $1.15 for Q4 (weakness ahead). Stock drops 5% despite beating current quarter. The market looks forward, not backward.</div>
+
+        <h2>P/E Ratio: Deeper Dive</h2>
+
+        <p>P/E is the price tag on earnings. P/E = Stock Price / EPS. A P/E of 25 means investors are willing to pay $25 today for every $1 of profit the company makes per year. A low P/E can mean the stock is cheap (or it could mean the company is broken). A high P/E usually means investors expect fast growth. Always compare P/E to the company's sector average and its own history.</p>
+
+        <div style="background: rgba(236, 226, 214, 0.08); border-left: 3px solid rgba(92, 184, 138, 0.3); padding: 1rem 1.2rem; margin: 1.2rem 0; border-radius: 0 6px 6px 0;"><strong>Example:</strong> Microsoft trades at a P/E of 35. The average tech stock trades at 25. Microsoft is expensive. But Microsoft grows at 15% per year, while the average tech stock grows at 5%. The higher P/E is justified. Conversely, GE trades at P/E of 12 while the market average is 18. GE is cheap, but it's growing slowly, which explains the low valuation.</div>
+
+        <h3>Forward P/E vs Trailing P/E</h3>
+        <ul class="numbered-list">
+            <li><strong>Trailing P/E:</strong> Based on the past 12 months' actual earnings. It's always accurate but backward-looking. Good for mature, stable companies.</li>
+            <li><strong>Forward P/E:</strong> Based on analyst estimates for the next 12 months. It's forward-looking but estimates are often wrong. Useful for growth stocks where earnings are accelerating.</li>
+        </ul>
+
+        <h2>DCF: Discounted Cash Flow (Simplified)</h2>
+
+        <p>DCF is like asking: "How much is this company's future cash worth in today's dollars?" You project the cash the company will generate each year, then "discount" (reduce) each year's value because money today is worth more than money later. If you're confident the company will generate lots of cash, the DCF value is high. If the current stock price is lower, it's a bargain.</p>
+
+        <p>The discount rate is how much you demand as a return to wait for that money (typically 8-12% for stocks). If you run a DCF analysis and get a fair value of $100 per share, but the stock trades at $70, you found a 43% discount. That's potentially a buying opportunity.</p>
+
+        <div style="background: rgba(236, 226, 214, 0.08); border-left: 3px solid rgba(92, 184, 138, 0.3); padding: 1rem 1.2rem; margin: 1.2rem 0; border-radius: 0 6px 6px 0;"><strong>Example:</strong> You project Coca-Cola will generate $1 billion in free cash each year for 10 years. Using a 10% discount rate, your DCF math says Coca-Cola is worth $20 billion. If Coca-Cola's market cap is only $15 billion, it's undervalued. But if it's trading at $30 billion, skip it—even Coca-Cola at 50% premium is expensive.</div>
+
+        <h2>Comparable Company Analysis</h2>
+
+        <p>Comparable company analysis (often called "comps") is the lazy investor's shortcut: Instead of projecting cash flows for years, find similar companies and see what multiples the market pays for them. If Netflix trades at 4x revenue and you're looking at a similar streaming company trading at 1x revenue, maybe it's undervalued. If Netflix trades at 4x revenue and two other competitors do too, 4x is probably fair.</p>
+
+        <div style="background: rgba(236, 226, 214, 0.08); border-left: 3px solid rgba(92, 184, 138, 0.3); padding: 1rem 1.2rem; margin: 1.2rem 0; border-radius: 0 6px 6px 0;"><strong>Example:</strong> You want to value Amazon. You check similar e-commerce and cloud peers: Shopify, Alibaba, Microsoft. They all trade at around 8x revenue. Amazon also trades at 8x revenue. If Amazon dropped to 5x revenue, it looks cheap compared to peers—a potential buying opportunity.</div>
+
+        <div class="figure">
+            <div class="figure-diagram">
+                <div class="flow-row">
+                    <div class="flow-box">
+                        <div class="flow-box-title">Financial Data</div>
+                        <div class="flow-box-desc">EPS, Revenue, EBITDA</div>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-box">
+                        <div class="flow-box-title">Pick Method</div>
+                        <div class="flow-box-desc">DCF, P/E, Comps</div>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-box">
+                        <div class="flow-box-title">Calculate Fair Value</div>
+                        <div class="flow-box-desc">Intrinsic price estimate</div>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-box">
+                        <div class="flow-box-title">Compare to Market</div>
+                        <div class="flow-box-desc">Buy if undervalued</div>
+                    </div>
+                </div>
+            </div>
+            <div class="figure-caption">Fig. 1 &mdash; Valuation process from data to investment decision.</div>
+        </div>
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Pros</th>
+                    <th>Cons</th>
+                    <th>Best For</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>DCF</strong></td>
+                    <td>Theoretically sound; intrinsic value</td>
+                    <td>Highly sensitive to discount rate assumptions</td>
+                    <td>Mature companies with predictable cash flows</td>
+                </tr>
+                <tr>
+                    <td><strong>P/E</strong></td>
+                    <td>Simple, widely understood, comparable</td>
+                    <td>Ignores growth, capital structure</td>
+                    <td>Comparing peers, quick screening</td>
+                </tr>
+                <tr>
+                    <td><strong>Comparables</strong></td>
+                    <td>Market-based, quick, practical</td>
+                    <td>Assumes market is fairly valuing peers</td>
+                    <td>M&A, recent IPOs, peer analysis</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Key Takeaways</h2>
+
+        <ol class="numbered-list">
+            <li>Earnings surprise (beating/missing estimates) drives stock reactions more than absolute earnings.</li>
+            <li>P/E ratio is a quick valuation gauge. Compare to sector average and history for context.</li>
+            <li>DCF is theoretically sound but depends heavily on discount rate and growth assumptions.</li>
+            <li>Comparable company analysis is practical and market-based; useful for peer valuation.</li>
+            <li>Smart investors use all three methods to triangulate fair value and margin of safety.</li>
+        </ol>
+
+        <div class="quiz-section">
+            <h3>Check Your Understanding</h3>
+            <p class="quiz-subtitle" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem;">Test your valuation knowledge.</p>
+
+            <div class="quiz-q" id="q1">
+                <p>1. What does a P/E of 25 mean?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, true)">Investors pay $25 for every $1 of earnings</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">The stock will earn $25 per share</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">The company has 25x more debt than equity</div>
+                </div>
+                <div class="quiz-feedback" id="fb1"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <p>2. Which P/E is forward-looking?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">Trailing P/E</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, true)">Forward P/E</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">Both are backward-looking</div>
+                </div>
+                <div class="quiz-feedback" id="fb2"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <p>3. What is the main risk of DCF analysis?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, true)">Valuation is highly sensitive to discount rate assumptions</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">It ignores competitor pricing</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">It's too simple for complex companies</div>
+                </div>
+                <div class="quiz-feedback" id="fb3"></div>
+            </div>
+
+        
+            <div class="quiz-q" id="q4" data-why="Support is a price where demand has repeatedly absorbed selling. Breaks below it are meaningful.">
+                <p>4. Price keeps bouncing at the dashed line. What is that level called?</p>
+                <div class="quiz-figure"><svg viewBox="0 0 300 130" xmlns="http://www.w3.org/2000/svg"><line x1="30" y1="10" x2="30" y2="105" stroke="rgba(236,226,214,0.25)"/><line x1="30" y1="105" x2="290" y2="105" stroke="rgba(236,226,214,0.25)"/><line x1="30" y1="88" x2="290" y2="88" stroke="#E0A24C" stroke-width="1.5" stroke-dasharray="6,4"/><polyline points="30,40 70,70 95,86 120,55 150,84 175,50 205,87 235,45 265,80 290,60" fill="none" stroke="#5cb88a" stroke-width="2"/></svg></div>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">Resistance — a ceiling</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, true)">Support — a floor where buyers keep stepping in</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">The moving average</div>
+                </div>
+                <div class="quiz-feedback" id="fb4"></div>
+            </div>
+
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; Further Reading</h3>
+            <div class="source-item">Damodaran, Aswath. <em>Damodaran on Valuation</em> (2nd ed.). Wiley, 2006. Chapters 3-5: DCF, P/E, and relative valuation.</div>
+            <div class="source-item">CFA Institute. <em>Equity Valuation</em> curriculum. Level II. Chapters 8-11: Intrinsic value models.</div>
+            <div class="source-item">Greenwald, Bruce &amp; Kahn, Judd. <em>Value Investing: From Graham to Buffett and Beyond</em>. Wiley, 2018. Chapter 3: Valuation frameworks.</div>
+        </div>
+    
+        <div class="legal-note" style="margin-top:2rem;padding:0.9rem 1.1rem;border:1px solid rgba(236,226,214,0.1);border-radius:8px;font:500 0.72rem 'Inter',sans-serif;color:#7d746a;line-height:1.6;">Educational content only — nothing here is investment, legal, or tax advice. Markets involve risk, figures are illustrative and may contain errors, and past performance never guarantees future results. Do your own research before investing real money.</div>
+    </article>
+
+    <div class="module-footer">
+        <a href="intermediate-path.html" class="footer-btn footer-btn-back">&larr; Back to Path</a>
+        <a href="intermediate-module-6.html" class="footer-btn footer-btn-next">Module 6: Market Psychology &rarr;</a>
+    </div>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+            document.getElementById('readingProgress').style.width = Math.min(pct, 100) + '%';
+        });
+        function checkQuiz(num, el, isCorrect) {
+            const q = document.getElementById('q' + num);
+            const fb = document.getElementById('fb' + num);
+            const opts = q.querySelectorAll('.quiz-opt');
+            opts.forEach(o => { o.classList.add('disabled'); o.classList.remove('correct', 'wrong'); });
+            const why = q.dataset.why ? ' ' + q.dataset.why : '';
+            if (isCorrect) {
+                el.classList.add('correct');
+                fb.textContent = 'Correct.' + why;
+                fb.className = 'quiz-feedback show right';
+            } else {
+                el.classList.add('wrong');
+                opts.forEach(o => { if (o.getAttribute('onclick').includes('true')) o.classList.add('correct'); });
+                fb.textContent = 'Not quite. The correct answer is highlighted.';
+                fb.className = 'quiz-feedback show wrong-fb';
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/quiz.js"></script>
+</body>
+</html>

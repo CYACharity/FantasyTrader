@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courses - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1A1714; color: #F4EEE6; font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+        .layout { display: grid; grid-template-columns: 250px 1fr; max-width: 1080px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; gap: 2rem; align-items: start; }
+
+        /* Vertical sidebar — one solid league-style panel, no floating boxes */
+        .side { position: sticky; top: 2rem; }
+        .side .back-link { margin-bottom: 1.25rem; display: inline-flex; }
+        .side-panel {
+            background: #241F1B; border: 2px solid rgba(236, 226, 214, 0.12);
+        }
+        .side-title {
+            font: 700 0.66rem 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.14em;
+            color: #8a8178; padding: 0.9rem 1.05rem 0.7rem;
+            border-bottom: 1px solid rgba(236, 226, 214, 0.1); margin: 0;
+        }
+        .track-btn {
+            display: block; width: 100%; text-align: left; cursor: pointer;
+            background: none; border: none; color: #B7ADA1;
+            padding: 0.85rem 1.05rem; border-radius: 0; margin: 0;
+            border-bottom: 1px solid rgba(236, 226, 214, 0.07);
+            font: 500 0.9rem 'Inter', sans-serif;
+            box-shadow: inset 3px 0 0 transparent;
+            transition: all 0.15s ease;
+        }
+        .track-btn:hover { color: #F4EEE6; background: rgba(236, 226, 214, 0.03); }
+        .track-btn.active {
+            color: #F4EEE6; background: rgba(92, 184, 138, 0.06);
+            box-shadow: inset 3px 0 0 #5CB88A; font-weight: 700;
+        }
+        .track-btn.active small { color: #5CB88A; }
+        .track-btn small { display: block; color: #7d746a; font-size: 0.7rem; margin-top: 0.18rem; font-weight: 500; }
+
+        /* Content pane */
+        .pane h1 { font-family: 'Poppins', 'Inter', sans-serif !important; font-weight: 700 !important; font-size: 1.7rem; margin-bottom: 0.4rem; }
+        .pane .desc { color: #B7ADA1; font-size: 0.92rem; margin-bottom: 1.75rem; max-width: 60ch; }
+        .group { margin-bottom: 1.6rem; }
+        .group h2 { font: 600 0.75rem 'Inter', sans-serif !important; text-transform: uppercase; letter-spacing: 0.07em; color: #E0A24C; margin-bottom: 0.6rem; }
+        .mod {
+            display: flex; align-items: center; gap: 0.9rem; padding: 0.95rem 1.1rem; margin-bottom: 0.5rem;
+            background: #221E1A; border: 1px solid rgba(236,226,214,0.08); border-radius: 12px;
+            text-decoration: none; color: inherit; transition: border-color 0.15s ease;
+        }
+        .mod:hover { border-color: rgba(236,226,214,0.22); }
+        .num { width: 26px; height: 26px; border-radius: 50%; background: rgba(236,226,214,0.06); flex-shrink: 0;
+               display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; color: #5CB88A; }
+        .mt { font-weight: 600; font-size: 0.92rem; }
+        .done { margin-left: auto; color: #5CB88A; font-weight: 700; font-size: 0.85rem; }
+        @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .side { position: static; } }
+        /* Grid cards + sidebar search */
+        .cgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 0.8rem; }
+        .ccard {
+            display: flex; flex-direction: column; gap: 0.4rem; min-height: 96px;
+            padding: 1rem 1.1rem; background: #221E1A;
+            border: 1px solid rgba(236, 226, 214, 0.09); border-radius: 12px;
+            text-decoration: none; color: inherit; transition: all 0.15s ease;
+        }
+        .ccard:hover { border-color: #5CB88A; transform: translateY(-2px); }
+        .ccard .num {
+            width: 24px; height: 24px; border-radius: 50%; background: rgba(92, 184, 138, 0.12);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 700; color: #5CB88A;
+        }
+        .ccard .mt { font-weight: 600; font-size: 0.9rem; line-height: 1.35; }
+        .ccard .done { margin-top: auto; color: #5CB88A; font-weight: 700; font-size: 0.78rem; }
+        .ccard .crumb { color: #7d746a; font-size: 0.66rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+        .side-search { padding: 0.9rem 1.05rem 1.05rem; }
+        .side-search-label { font: 700 0.62rem 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.14em; color: #8a8178; margin-bottom: 0.5rem; }
+        .side-search input {
+            width: 100%; padding: 0.6rem 0.9rem; border-radius: 0;
+            background: #1E1A16; border: 1px solid rgba(236, 226, 214, 0.16);
+            color: #F4EEE6; font: 500 0.85rem 'Inter', sans-serif; outline: none;
+            transition: border-color 0.15s ease;
+        }
+        .side-search input:focus { border-color: #5CB88A; }
+
+        /* ── Search results, league-style ── */
+        .sr-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.4rem; flex-wrap: wrap; }
+        .sr-head h1 { font-family: 'Fraunces', Georgia, serif !important; font-weight: 600 !important; }
+        .sr-meta { color: #B7ADA1; font-size: 0.88rem; margin-top: 0.3rem; }
+        .sr-meta b { color: #5CB88A; }
+        .view-all-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: none; border: 1px solid rgba(92, 184, 138, 0.45); color: #5CB88A;
+            font: 700 0.72rem 'Inter', sans-serif; letter-spacing: 0.1em; text-transform: uppercase;
+            padding: 0.6rem 1.1rem; cursor: pointer; transition: all 0.15s ease; text-decoration: none;
+        }
+        .view-all-btn:hover { background: rgba(92, 184, 138, 0.12); }
+        .sr-tracks { display: flex; gap: 0.5rem; margin-bottom: 1.3rem; flex-wrap: wrap; }
+        .sr-chip {
+            background: #221E1A; border: 2px solid rgba(236, 226, 214, 0.1); color: #B7ADA1;
+            font: 600 0.78rem 'Inter', sans-serif; padding: 0.45rem 0.95rem; cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .sr-chip:hover { border-color: rgba(236, 226, 214, 0.3); color: #F4EEE6; }
+        .sr-chip.on { border-color: #5CB88A; color: #5CB88A; background: rgba(92, 184, 138, 0.08); }
+        .sr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.9rem; }
+        .sr-card {
+            display: flex; flex-direction: column; gap: 0.45rem; min-height: 118px;
+            padding: 1.1rem 1.2rem; background: #241F1B;
+            border: 2px solid rgba(236, 226, 214, 0.12); border-radius: 12px;
+            border-top: 3px solid var(--lv, #5CB88A);
+            text-decoration: none; color: inherit; transition: all 0.15s ease;
+        }
+        .sr-card:hover { border-color: var(--lv, #5CB88A); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+        .sr-card.lv-b { --lv: #5CB88A; } .sr-card.lv-i { --lv: #E0A24C; } .sr-card.lv-a { --lv: #D9645C; }
+        .sr-card .crumb { color: #7d746a; font-size: 0.64rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+        .sr-card .crumb i { font-style: normal; color: var(--lv); }
+        .sr-card .mt { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 1.02rem; line-height: 1.3; }
+        .sr-card .hit { color: #B7ADA1; font-size: 0.74rem; line-height: 1.45; }
+        .sr-card .hit mark { background: rgba(92, 184, 138, 0.22); color: #F4EEE6; padding: 0 2px; }
+        .sr-card .done { margin-top: auto; color: #5CB88A; font-weight: 700; font-size: 0.76rem; }
+        .sr-empty { padding: 2.5rem 1rem; text-align: center; color: #7d746a; background: #241F1B; border: 2px dashed rgba(236,226,214,0.1); border-radius: 12px; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="layout">
+        <aside class="side">
+            <a href="learn.html" class="back-link">← Learning Hub</a>
+            <div class="side-panel">
+                <div class="side-title">Education Paths</div>
+                <button class="track-btn active" data-t="trading">Short-Term Trading<small>Beginner → Advanced — 18 modules</small></button>
+                <button class="track-btn" data-t="investing">Mid &amp; Long-Term<small>Valuation, quality, M&amp;A — 18 modules</small></button>
+                <button class="track-btn" data-t="alternatives">Alternate Investments<small>Crypto, real estate, PE — 18 modules</small></button>
+                <div class="side-search">
+                    <div class="side-search-label">Search for a topic</div>
+                    <input type="text" id="courseSearch" placeholder="e.g. cap rate, waterfall…" autocomplete="off">
+                </div>
+            </div>
+        </aside>
+        <main class="pane">
+            <h1 id="paneTitle"></h1>
+            <p class="desc" id="paneDesc"></p>
+            <div id="paneBody"></div>
+        </main>
+    </div>
+
+    <script>
+        // Common topics people search for, mapped to words that appear in module titles.
+        const TOPIC_ALIASES = {
+            'pe ratio': 'valuation', 'p/e': 'valuation', 'p/e ratio': 'valuation', 'pe': 'valuation',
+            'fed': 'cycles', 'interest rates': 'bonds', 'rates': 'bonds',
+            'stop loss': 'risk', 'stops': 'risk', 'hedge': 'hedge',
+            'reit': 'reits', 'real estate': 'real estate', 'property': 'real estate',
+            'bitcoin': 'crypto', 'ethereum': 'crypto', 'blockchain': 'crypto',
+            'retirement': 'retirement', '401k': 'retirement', 'ira': 'retirement',
+            'compounding': 'long-term', 'compound': 'long-term',
+            'chart': 'charts', 'candlestick': 'charts', 'candlesticks': 'charts',
+            'technical': 'technical', 'fundamental': 'fundamental',
+            'diversify': 'diversification', 'etf': 'index funds', 'etfs': 'index funds',
+            'news': 'news', 'psychology': 'behavioral', 'emotions': 'behavioral',
+            'shorting': 'strategies', 'short selling': 'strategies', 'options': 'strategies',
+        };
+        // Per-module keywords so searches hit CONTENT, not just title words.
+        const KEYWORDS = {
+            'investing-module-7': 'income statement balance sheet cash flow margins interest coverage free cash flow fcf enron',
+            'investing-module-8': 'pe ratio price earnings multiple ev ebitda peg price sales earnings yield expectations',
+            'investing-module-9': 'value growth graham buffett value trap multiple collapse quality garp',
+            'investing-module-10': 'moat competitive advantage roic network effects switching costs brand pricing power',
+            'investing-module-11': 'position sizing concentration rebalancing drift bands employer stock risk',
+            'investing-module-12': 'business cycle recession yield curve inversion sector rotation credit spreads',
+            'investing-module-13': 'capital allocation dividends buybacks share repurchase roic payout ratio shareholder yield',
+            'investing-module-14': 'merger acquisition m&a arbitrage deal spread spinoff tender offer corporate actions',
+            'investing-module-15': 'dcf discounted cash flow wacc terminal value intrinsic value reverse dcf capm',
+            'investing-module-16': 'special situations spinoffs post bankruptcy closed end fund odd lot tender forced sellers',
+            'investing-module-17': 'international emerging markets currency hedging home bias fx dollar',
+            'investing-module-18': 'income retirement dividends bond ladder tips annuity withdrawal rate 4% rule buckets',
+            'investing-module-1': 'compounding long term time in market why invest snowball',
+            'investing-module-2': 'index funds etf diversification expense ratio passive',
+            'investing-module-4': 'retirement 401k ira roth employer match tax',
+            'investing-module-5': 'bonds fixed income treasury yield coupon duration',
+            'alternatives-module-2': 'bitcoin crypto blockchain wallet halving',
+            'alternatives-module-3': 'real estate home rental reit landlord mortgage property',
+            'alternatives-module-4': 'gold silver precious metals miners etf inflation hedge safe haven',
+            'alternatives-module-5': 'collectibles art watches cards grading auction',
+            'alternatives-module-6': 'gold bitcoin store of value inflation scarcity',
+            'alternatives-module-7': 'rental property noi cap rate cash on cash dscr landlord real estate math',
+            'alternatives-module-8': 'reit ffo affo nav dividends payout real estate investment trust sectors',
+            'alternatives-module-9': 'stablecoin usdc tether ethereum smart contracts defi staking yield crypto',
+            'alternatives-module-10': 'crowdfunding fractional real estate fundrise sponsor fees syndication illiquidity',
+            'alternatives-module-11': 'commodities futures oil contango backwardation roll yield energy agriculture margin',
+            'alternatives-module-12': 'multi asset portfolio diversification correlation rebalancing risk allocation',
+            'alternatives-module-13': 'commercial real estate cre capital stack senior debt mezzanine preferred equity cap rate noi',
+            'alternatives-module-14': 'real estate debt lending ltv dscr debt yield cmbs mortgage foreclosure recourse',
+            'alternatives-module-15': 'waterfall promote preferred return hurdle catch-up carried interest gp lp clawback',
+            'alternatives-module-16': 'private equity venture capital lbo leveraged buyout j curve dpi tvpi irr fund',
+            'alternatives-module-17': 'hedge fund long short merger arbitrage leverage gross net exposure ltcm',
+            'alternatives-module-18': 'risk parity illiquidity volatility laundering denominator effect portfolio design',
+            'beginner-module-2': 'charts candlestick support resistance volume trend',
+            'intermediate-module-1': 'technical indicators rsi macd moving average momentum',
+            'intermediate-module-2': 'options calls puts strike premium expiration',
+            'advanced-module-1': 'derivatives futures swaps leverage complex instruments',
+            'advanced-module-5': 'risk management value at risk var drawdown stop loss',
+            'advanced-module-6': 'algorithmic trading systems backtesting quant',
+        };
+
+        let query = '', trackFilter = null;   // null = all paths while searching
+
+        function findHits(q) {
+            q = q.toLowerCase().trim();
+            const words = q.split(/\s+/).filter(Boolean);
+            const aliasTerms = [];
+            if (TOPIC_ALIASES[q]) aliasTerms.push(TOPIC_ALIASES[q].toLowerCase());
+            words.forEach(w => { if (TOPIC_ALIASES[w]) aliasTerms.push(TOPIC_ALIASES[w].toLowerCase()); });
+            const hits = [];
+            for (const [key, track] of Object.entries(CATALOG)) {
+                track.groups.forEach(([lvl, mods]) => mods.forEach(([href, title]) => {
+                    const id = href.replace('.html', '');
+                    const hay = (title + ' ' + (KEYWORDS[id] || '')).toLowerCase();
+                    const wordHit = words.length && words.every(w => hay.includes(w));
+                    const aliasHit = aliasTerms.some(t => hay.includes(t));
+                    if (wordHit || aliasHit) {
+                        const kw = (KEYWORDS[id] || '').toLowerCase();
+                        const matched = words.filter(w => kw.includes(w) && w.length > 2);
+                        hits.push({ href, title, lvl, trackKey: key, track: track.title, matched });
+                    }
+                }));
+            }
+            return hits;
+        }
+
+        function renderSearch() {
+            const all = findHits(query);
+            let hits = trackFilter ? all.filter(h => h.trackKey === trackFilter) : all;
+            const lvClass = l => l === 'Beginner' ? 'lv-b' : l === 'Intermediate' ? 'lv-i' : 'lv-a';
+            const counts = {};
+            all.forEach(h => { counts[h.trackKey] = (counts[h.trackKey] || 0) + 1; });
+
+            document.getElementById('paneTitle').textContent = '';
+            document.getElementById('paneDesc').textContent = '';
+            document.getElementById('paneBody').innerHTML =
+                '<div class="sr-head"><div>' +
+                    '<h1 style="font-size:1.7rem;margin:0;font-family:Fraunces,Georgia,serif;font-weight:600;">Search results</h1>' +
+                    '<div class="sr-meta"><b>' + hits.length + '</b> module' + (hits.length === 1 ? '' : 's') +
+                        (trackFilter ? ' in ' + CATALOG[trackFilter].title : '') +
+                        ' matching “' + query + '”' +
+                        (trackFilter && all.length !== hits.length ? ' · ' + all.length + ' across all paths' : '') + '</div>' +
+                '</div>' +
+                '<button class="view-all-btn" onclick="clearSearch()">View all modules →</button></div>' +
+                '<div class="sr-tracks">' +
+                    '<button class="sr-chip ' + (!trackFilter ? 'on' : '') + '" onclick="setTrackFilter(null)">All paths (' + all.length + ')</button>' +
+                    Object.entries(CATALOG).map(([k, t]) =>
+                        '<button class="sr-chip ' + (trackFilter === k ? 'on' : '') + '" onclick="setTrackFilter(&quot;' + k + '&quot;)">' + t.title + ' (' + (counts[k] || 0) + ')</button>').join('') +
+                '</div>' +
+                (hits.length
+                    ? '<div class="sr-grid">' + hits.map(h => {
+                        const id = h.href.replace('.html', '');
+                        const done = progress[id] && progress[id].completed;
+                        const why = h.matched.length ? '<span class="hit">covers ' + h.matched.map(m => '<mark>' + m + '</mark>').join(', ') + '</span>' : '';
+                        return '<a class="sr-card ' + lvClass(h.lvl) + '" href="' + h.href + '">' +
+                            '<span class="crumb">' + h.track + ' · <i>' + h.lvl + '</i></span>' +
+                            '<span class="mt">' + h.title + '</span>' + why +
+                            (done ? '<span class="done">✓ Completed</span>' : '') + '</a>';
+                    }).join('') + '</div>'
+                    : '<div class="sr-empty">Nothing matches “' + query + '”' + (trackFilter ? ' in this path — try All paths.' : ' — try “cap rate”, “waterfall” or “dividends”.') + '</div>');
+        }
+
+        window.setTrackFilter = function (k) { trackFilter = k; renderSearch(); };
+        window.clearSearch = function () {
+            const dest = trackFilter || current;
+            query = ''; trackFilter = null;
+            document.getElementById('courseSearch').value = '';
+            show(dest);
+        };
+        function searchAll(q) { query = q; renderSearch(); }
+
+
+        const CATALOG = {
+            trading: {
+                title: 'Short-Term Trading',
+                desc: 'Active trading from the ground up — market mechanics, charts and order types, then strategy and risk.',
+                groups: [
+                    ['Beginner',     [['beginner-module-1.html','Introduction to Financial Markets'],['beginner-module-2.html','Reading Stock Charts'],['beginner-module-3.html','Building Your Portfolio'],['beginner-module-4.html','Fundamental Analysis'],['beginner-module-5.html','Trading Strategies'],['beginner-module-6.html','Learn the News']]],
+                    ['Intermediate', [['intermediate-module-1.html','Technical Indicators'],['intermediate-module-2.html','Options Basics'],['intermediate-module-3.html','Sector Analysis'],['intermediate-module-4.html','Advanced Portfolio Management'],['intermediate-module-5.html','Earnings & Valuation Models'],['intermediate-module-6.html','Market Psychology']]],
+                    ['Advanced',     [['advanced-module-1.html','Derivatives & Complex Instruments'],['advanced-module-2.html','Quantitative Analysis'],['advanced-module-3.html','Alternative Investments'],['advanced-module-4.html','Global Markets & Macroeconomics'],['advanced-module-5.html','Risk Management & Value at Risk'],['advanced-module-6.html','Algorithmic Trading & Systems']]],
+                ],
+            },
+            investing: {
+                title: 'Mid & Long-Term Investing',
+                desc: 'Build wealth patiently — compounding, index funds, financial statements, valuation, quality businesses, and M&A.',
+                groups: [
+                    ['Beginner',     [['investing-module-1.html','Why Long-Term Investing Works'],['investing-module-2.html','Index Funds & Diversification'],['investing-module-3.html','Setting Goals & Risk Tolerance'],['investing-module-4.html','Retirement Accounts & the Free Money'],['investing-module-5.html','Bonds & Fixed Income Basics'],['investing-module-6.html','Behavioral Traps of New Investors']]],
+                    ['Intermediate', [['investing-module-7.html','Reading Financial Statements'],['investing-module-8.html','Valuation: What a Company Is Worth'],['investing-module-9.html','Growth vs. Value Investing'],['investing-module-10.html','Moats: Durable Competitive Advantage'],['investing-module-11.html','Position Sizing & Rebalancing'],['investing-module-12.html','Economic Cycles & Sector Rotation']]],
+                    ['Advanced',     [['investing-module-13.html','Capital Allocation: Dividends, Buybacks & ROIC'],['investing-module-14.html','M&A, Deal Math & Corporate Actions'],['investing-module-15.html','DCF in Practice: Valuing a Real Business'],['investing-module-16.html','Special Situations: Spinoffs, Arbitrage & Forced Sellers'],['investing-module-17.html','International & Currency Risk'],['investing-module-18.html','Building an Income Portfolio That Survives']]],
+                ],
+            },
+            alternatives: {
+                title: 'Alternate Investments',
+                desc: 'Beyond stocks — crypto, real estate and REITs, commodities and gold, private equity, and multi-asset portfolios.',
+                groups: [
+                    ['Beginner',     [['alternatives-module-1.html','What Are Alternative Investments?'],['alternatives-module-2.html','Crypto Fundamentals'],['alternatives-module-3.html','Real Estate for Beginners: Rent, Own, or REIT'],['alternatives-module-4.html','Gold & Precious Metals Basics'],['alternatives-module-5.html','Collectibles: Art, Watches & Cards'],['alternatives-module-6.html','Gold vs. Bitcoin']]],
+                    ['Intermediate', [['alternatives-module-7.html','Rental Property Math, All the Way Down'],['alternatives-module-8.html','Analyzing REITs Like a Professional'],['alternatives-module-9.html','Stablecoins, Ethereum & Crypto\'s Plumbing'],['alternatives-module-10.html','Fractional Real Estate & Crowdfunding Deals'],['alternatives-module-11.html','Commodities & Futures: Trading the Physical World'],['alternatives-module-12.html','Building a Multi-Asset Portfolio']]],
+                    ['Advanced',     [['alternatives-module-13.html','Commercial Real Estate & the Capital Stack'],['alternatives-module-14.html','Real Estate Debt: How Lending Really Works'],['alternatives-module-15.html','Equity Waterfalls & the Promote'],['alternatives-module-16.html','Private Equity & Venture: Fund Mechanics'],['alternatives-module-17.html','Hedge Fund Strategies & Leverage Math'],['alternatives-module-18.html','Risk Parity, Illiquidity & Portfolio Design']]],
+                ],
+            },
+        };
+
+        let progress = {};
+
+        let current = 'trading';
+        function show(key) {
+            current = key;
+            const c = CATALOG[key];
+            document.getElementById('paneTitle').textContent = c.title;
+            document.getElementById('paneDesc').textContent = c.desc;
+            document.getElementById('paneBody').innerHTML = c.groups.map(([g, mods]) =>
+                '<div class="group"><h2>' + g + '</h2><div class="cgrid">' +
+                mods.map(([href, label], i) => {
+                    const id = href.replace('.html', '');
+                    const done = progress[id] && progress[id].completed;
+                    return '<a class="ccard" href="' + href + '"><span class="num">' + (i + 1) + '</span>' +
+                        '<span class="mt">' + label + '</span>' + (done ? '<span class="done">✓ Done</span>' : '') + '</a>';
+                }).join('') + '</div></div>'
+            ).join('');
+            document.querySelectorAll('.track-btn').forEach(b => b.classList.toggle('active', b.dataset.t === key));
+        }
+
+        document.querySelectorAll('.track-btn').forEach(b => b.addEventListener('click', () => {
+            if (query) { current = b.dataset.t; setTrackFilter(b.dataset.t); document.querySelectorAll('.track-btn').forEach(x => x.classList.toggle('active', x.dataset.t === b.dataset.t)); }
+            else show(b.dataset.t);
+        }));
+
+        (async () => {
+            try { progress = await SL.getLessonProgress(); } catch (e) { progress = {}; }
+        document.getElementById('courseSearch').addEventListener('input', (e) => {
+            const q = e.target.value.trim();
+            if (q) { searchAll(q); }
+            else { show(current); }
+        });
+        const urlQ = new URLSearchParams(location.search).get('q');
+        if (urlQ) {
+            document.getElementById('courseSearch').value = urlQ;
+            searchAll(urlQ);
+        } else {
+
+
+            show('trading');
+        }
+        })();
+    </script>
+</body>
+</html>

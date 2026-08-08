@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trader Profile - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="stock-data.js"></script>
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1A1714; color: #F4EEE6; font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+        .wrap { max-width: 1000px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+        .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+        .top h1 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 1.7rem; }
+
+        /* ── Hero: the player card ── */
+        .hero {
+            display: grid; grid-template-columns: auto 1fr; gap: 2rem; align-items: center;
+            background: #221E1A; border: 1px solid rgba(236,226,214,0.1);
+            border-radius: 18px; padding: 2rem 2.25rem; margin-bottom: 1.5rem;
+        }
+        .avatar-ring { position: relative; width: 118px; height: 118px; }
+        .avatar-ring svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+        .avatar {
+            position: absolute; inset: 9px; border-radius: 50%;
+            background: rgba(92,184,138,0.12); color: #5CB88A;
+            display: flex; align-items: center; justify-content: center;
+            font: 800 2.1rem 'Inter', sans-serif;
+        }
+        .lvl-badge {
+            position: absolute; bottom: -4px; right: -4px;
+            background: #5CB88A; color: #14110E; font: 800 0.78rem 'Inter', sans-serif;
+            padding: 0.25rem 0.6rem; border-radius: 999px; border: 3px solid #221E1A;
+        }
+        .hero-name { font: 700 1.5rem 'Inter', sans-serif; }
+        .hero-rank { color: #E0A24C; font: 700 0.8rem 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.08em; margin: 0.25rem 0 0.9rem; }
+        .xp-row { display: flex; align-items: center; gap: 0.75rem; max-width: 460px; }
+        .xp-bar { flex: 1; height: 10px; background: rgba(236,226,214,0.08); border-radius: 999px; overflow: hidden; }
+        .xp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #5CB88A, #7ACCA3); border-radius: 999px; transition: width 0.8s ease; }
+        .xp-num { font: 600 0.75rem 'Inter', sans-serif; color: #B7ADA1; white-space: nowrap; }
+        .hero-meta { display: flex; gap: 1.5rem; margin-top: 0.9rem; color: #7d746a; font-size: 0.78rem; flex-wrap: wrap; }
+        .hero-meta strong { color: #B7ADA1; font-weight: 600; }
+
+        /* ── Stats ── */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.9rem; margin-bottom: 1.5rem; }
+        .stat {
+            background: #221E1A; border: 1px solid rgba(236,226,214,0.08);
+            border-radius: 14px; padding: 1.15rem 1.25rem;
+        }
+        .stat .v { font: 800 1.45rem 'Inter', sans-serif; }
+        .stat .v.pos { color: #5CB88A; } .stat .v.neg { color: #D9645C; }
+        .stat .l { color: #7d746a; font: 600 0.68rem 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.07em; margin-top: 0.25rem; }
+
+        /* ── Badges ── */
+        .panel { background: #221E1A; border: 1px solid rgba(236,226,214,0.08); border-radius: 16px; padding: 1.5rem 1.75rem; margin-bottom: 1.5rem; }
+        .panel h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 1.15rem; margin-bottom: 1.1rem; }
+        .badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.8rem; }
+        .badge {
+            display: flex; gap: 0.8rem; align-items: center; padding: 0.85rem 1rem;
+            background: rgba(236,226,214,0.03); border: 1px solid rgba(236,226,214,0.08); border-radius: 12px;
+        }
+        .badge.earned { border-color: rgba(92,184,138,0.4); background: rgba(92,184,138,0.06); }
+        .badge .dot { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; background: rgba(236,226,214,0.06); color: #7d746a; }
+        .badge.earned .dot { background: rgba(92,184,138,0.18); color: #5CB88A; }
+        .badge .bt { font: 700 0.82rem 'Inter', sans-serif; }
+        .badge .bd { color: #7d746a; font-size: 0.7rem; margin-top: 0.1rem; line-height: 1.35; }
+        .badge:not(.earned) { opacity: 0.55; }
+
+        /* ── Account ── */
+        .acct { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.9rem; }
+        .acct .item { padding: 0.9rem 1rem; background: rgba(236,226,214,0.03); border: 1px solid rgba(236,226,214,0.07); border-radius: 10px; }
+        .acct .item span { display: block; color: #7d746a; font: 600 0.66rem 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.3rem; }
+        .acct .item strong { font-size: 0.9rem; font-weight: 600; word-break: break-all; }
+        .signout { margin-top: 1.25rem; background: none; border: 1px solid rgba(217,100,92,0.4); color: #D9645C; padding: 0.6rem 1.3rem; border-radius: 10px; font: 600 0.85rem 'Inter', sans-serif; cursor: pointer; }
+        .signout:hover { background: rgba(217,100,92,0.1); }
+        @media (max-width: 640px) { .hero { grid-template-columns: 1fr; text-align: center; } .avatar-ring { margin: 0 auto; } .xp-row { margin: 0 auto; } .hero-meta { justify-content: center; } }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="top">
+            <h1>Trader Profile</h1>
+            <a href="dashboard.html" class="back-link">← Dashboard</a>
+        </div>
+
+        <div class="hero">
+            <div class="avatar-ring">
+                <svg viewBox="0 0 118 118" width="118" height="118">
+                    <circle cx="59" cy="59" r="55" fill="none" stroke="rgba(236,226,214,0.08)" stroke-width="6"/>
+                    <circle id="lvlRing" cx="59" cy="59" r="55" fill="none" stroke="#5CB88A" stroke-width="6"
+                            stroke-linecap="round" stroke-dasharray="345.6" stroke-dashoffset="345.6"/>
+                </svg>
+                <div class="avatar" id="avatar">–</div>
+                <div class="lvl-badge" id="lvlBadge">LV 1</div>
+            </div>
+            <div>
+                <div class="hero-name" id="heroName">Trader</div>
+                <div class="hero-rank" id="heroRank">Rookie Trader</div>
+                <div class="xp-row">
+                    <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+                    <div class="xp-num" id="xpNum">0 XP</div>
+                </div>
+                <div class="hero-meta">
+                    <div>Member since <strong id="joined">—</strong></div>
+                    <div><strong id="emailMeta">—</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat"><div class="v" id="stPortfolio">$0</div><div class="l">Portfolio Value</div></div>
+            <div class="stat"><div class="v" id="stReturn">—</div><div class="l">Total Return</div></div>
+            <div class="stat"><div class="v" id="stTrades">0</div><div class="l">Trades Made</div></div>
+            <div class="stat"><div class="v" id="stModules">0</div><div class="l">Modules Completed</div></div>
+            <div class="stat"><div class="v" id="stLeagues">0</div><div class="l">Leagues Joined</div></div>
+            <div class="stat"><div class="v" id="stWatch">0</div><div class="l">Watchlist Stocks</div></div>
+        </div>
+
+        <div class="panel">
+            <h2>Achievements</h2>
+            <div class="badges" id="badges"></div>
+        </div>
+
+        <div class="panel">
+            <h2>Account</h2>
+            <div class="acct">
+                <div class="item"><span>Username</span><strong id="acUser">—</strong></div>
+                <div class="item"><span>Email</span><strong id="acEmail">—</strong></div>
+                <div class="item"><span>Member Since</span><strong id="acJoined">—</strong></div>
+                <div class="item"><span>Status</span><strong style="color:#5CB88A">Active</strong></div>
+            </div>
+            <button class="signout" onclick="SL.signOut().then(() => location.href = 'index.html')">Sign Out</button>
+        </div>
+    </div>
+
+    <script>
+        const RANKS = ['Rookie Trader', 'Market Apprentice', 'Chart Reader', 'Junior Analyst', 'Analyst',
+                       'Strategist', 'Portfolio Manager', 'Fund Manager', 'Market Master', 'Wall Street Legend'];
+
+        const money = v => '$' + Number(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        function localCount(prefix) {
+            let n = 0;
+            for (let i = 0; i < localStorage.length; i++) {
+                if (localStorage.key(i).startsWith(prefix)) n++;
+            }
+            return n;
+        }
+
+        (async () => {
+            // ---- gather real data ----
+            const user = await SL.currentUser().catch(() => null);
+            const [portfolio, trades, progress, leagues, watchlist] = await Promise.all([
+                SL.loadPortfolio().catch(() => ({ cash: 0, stocks: {} })),
+                SL.recentTrades(500).catch(() => []),
+                SL.getLessonProgress().catch(() => ({})),
+                SL.myLeagues().catch(() => []),
+                SL.getWatchlist().catch(() => []),
+            ]);
+
+            const symbols = Object.keys(portfolio.stocks || {});
+            const prices = symbols.length ? await SL.getPrices(symbols).catch(() => ({})) : {};
+
+            let holdingsValue = 0, costBasis = 0;
+            symbols.forEach(sym => {
+                const pos = portfolio.stocks[sym];
+                if (!pos || !pos.shares) return;
+                const live = prices[sym] && prices[sym].price != null ? Number(prices[sym].price) : (pos.avgPrice || 0);
+                holdingsValue += pos.shares * live;
+                costBasis += pos.shares * (pos.avgPrice || live);
+            });
+            const totalValue = holdingsValue + (Number(portfolio.cash) || 0);
+            const totalReturn = holdingsValue - costBasis;
+
+            const modulesDone = Object.values(progress).filter(r => r && r.completed).length;
+            const tradeCount = trades.length;
+            const leagueCount = leagues.length;
+            const watchCount = watchlist.length;
+            // Experiences: saved locally as 'exp-*' AND to the account as
+            // 'experience-*' lesson progress — count whichever is greater.
+            const expFromAccount = Object.keys(progress).filter(k => k.startsWith('experience-')).length;
+            const experiences = Math.max(localCount('exp-'), expFromAccount, localCount('experience-'));
+            const assessments = localCount('assessment-');
+
+            // ---- identity ----
+            const username = localStorage.getItem('username') ||
+                (user && (user.user_metadata && (user.user_metadata.username || user.user_metadata.full_name))) ||
+                (user && user.email ? user.email.split('@')[0] : 'Trader');
+            const email = user && user.email ? user.email : '—';
+            const joined = user && user.created_at ? new Date(user.created_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
+
+            document.getElementById('heroName').textContent = username;
+            document.getElementById('avatar').textContent = username.slice(0, 2).toUpperCase();
+            document.getElementById('emailMeta').textContent = email;
+            document.getElementById('joined').textContent = joined;
+            document.getElementById('acUser').textContent = username;
+            document.getElementById('acEmail').textContent = email;
+            document.getElementById('acJoined').textContent = joined;
+
+            // ---- XP + level (earned from real actions only) ----
+            const xp = modulesDone * 120 + tradeCount * 25 + leagueCount * 200 +
+                       watchCount * 10 + experiences * 80 + assessments * 80;
+            const level = Math.min(10, 1 + Math.floor(Math.sqrt(xp / 150)));
+            const currFloor = 150 * Math.pow(level - 1, 2);
+            const nextFloor = 150 * Math.pow(level, 2);
+            const pctInto = level >= 10 ? 100 : Math.max(0, Math.min(100, ((xp - currFloor) / (nextFloor - currFloor)) * 100));
+
+            document.getElementById('lvlBadge').textContent = 'LV ' + level;
+            document.getElementById('heroRank').textContent = RANKS[level - 1];
+            document.getElementById('xpFill').style.width = pctInto + '%';
+            document.getElementById('xpNum').textContent = xp.toLocaleString() + ' XP' + (level < 10 ? ' · ' + (nextFloor - xp).toLocaleString() + ' to LV ' + (level + 1) : ' · MAX');
+            const ring = document.getElementById('lvlRing');
+            ring.style.strokeDashoffset = String(345.6 - (345.6 * pctInto / 100));
+
+            // ---- stats ----
+            document.getElementById('stPortfolio').textContent = money(totalValue);
+            const rEl = document.getElementById('stReturn');
+            if (symbols.length) {
+                rEl.textContent = (totalReturn >= 0 ? '+' : '−') + money(Math.abs(totalReturn)).slice(1);
+                rEl.textContent = (totalReturn >= 0 ? '+$' : '−$') + Math.abs(totalReturn).toLocaleString(undefined, { maximumFractionDigits: 2 });
+                rEl.className = 'v ' + (totalReturn >= 0 ? 'pos' : 'neg');
+            } else {
+                rEl.textContent = '—';
+            }
+            document.getElementById('stTrades').textContent = tradeCount;
+            document.getElementById('stModules').textContent = modulesDone;
+            document.getElementById('stLeagues').textContent = leagueCount;
+            document.getElementById('stWatch').textContent = watchCount;
+
+            // ---- achievements (unlocked only when actually done) ----
+            const buys = trades.filter(t => (t.side || t.type) === 'buy').length;
+            const BADGES = [
+                ['First Trade', 'Buy or sell your first stock', tradeCount >= 1],
+                ['Deal Maker', 'Complete 10 trades', tradeCount >= 10],
+                ['High Roller', 'Complete 50 trades', tradeCount >= 50],
+                ['Student of the Game', 'Finish your first module', modulesDone >= 1],
+                ['Scholar', 'Finish 6 modules', modulesDone >= 6],
+                ['Professor', 'Finish 18 modules', modulesDone >= 18],
+                ['League Player', 'Join your first league', leagueCount >= 1],
+                ['Commissioner', 'Be in 3 leagues at once', leagueCount >= 3],
+                ['Scout', 'Track 5 stocks on your watchlist', watchCount >= 5],
+                ['Diversified', 'Hold 3+ different stocks', symbols.length >= 3],
+                ['Simulation Survivor', 'Complete a market experience', experiences >= 1],
+                ['Self-Aware', 'Take a knowledge assessment', assessments >= 1],
+            ];
+            document.getElementById('badges').innerHTML = BADGES.map(([t, d, ok]) =>
+                '<div class="badge' + (ok ? ' earned' : '') + '">' +
+                    '<div class="dot">' + (ok ? '✓' : '·') + '</div>' +
+                    '<div><div class="bt">' + t + '</div><div class="bd">' + d + '</div></div>' +
+                '</div>').join('');
+        })();
+    </script>
+</body>
+</html>

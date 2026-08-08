@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alternative Investments - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --background: #1a1714; --text-primary: #f4eee6; --text-secondary: #b7ada1; }
+        body { background: var(--background); color: var(--text-primary); font-family: 'Inter', system-ui, sans-serif; }
+        .wrap { max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+        .crumbs { margin-bottom: 2.5rem; }
+        .kicker { color: #D9645C; font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .5rem; }
+        h1 { font-size: 2.2rem; margin-bottom: .5rem; }
+        .sub { color: var(--text-secondary); margin-bottom: 2.5rem; font-size: .98rem; }
+        .level { margin-bottom: 3.5rem; }
+        .level-title { font-size: 1.6rem; margin-bottom: 1.5rem; text-align: center; }
+        #level-beginner .level-title, #level-foundations .level-title { color: #5cb88a; }
+        #level-intermediate .level-title, #level-core .level-title { color: #E0A24C; }
+        #level-advanced .level-title { color: #D9645C; }
+
+        /* Verbatim card styles from the trading pathway (beginner-path.html),
+           with the accent color scoped per level. */
+        .level { --primary: #5cb88a; --secondary: #4a9e73; --primary-soft: rgba(92, 184, 138, 0.3); }
+        #level-intermediate, #level-core { --primary: #e0a24c; --secondary: #d97706; --primary-soft: rgba(224, 162, 76, 0.3); }
+        #level-advanced { --primary: #d9645c; --secondary: #dc2626; --primary-soft: rgba(217, 100, 92, 0.3); }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .module-card {
+            background: rgba(26, 26, 26, 0.95);
+            border: 1px solid rgba(236, 226, 214, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .module-card:hover::before {
+            opacity: 1;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 15px 35px rgba(236, 226, 214, 0.1);
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .module-number {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: var(--background);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+
+        .module-status {
+            background: rgba(236, 226, 214, 0.1);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .module-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .module-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .module-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .module-features li {
+            color: var(--text-secondary);
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .module-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .module-progress {
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .module-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .module-btn {
+            background: rgba(236, 226, 214, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary-soft);
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+            flex: 1;
+        }
+
+        .module-btn:hover {
+            background: rgba(236, 226, 214, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .start-btn:hover {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        .show-all { display: none; margin: -1.25rem 0 1.75rem; }
+        .show-all a { color: var(--text-secondary); font: 600 .85rem 'Inter',sans-serif; text-decoration: none; }
+        .show-all a:hover { color: var(--text-primary); }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="crumbs"><a href="learn.html" class="back-link">← Learning Hub</a></div>
+        <div class="kicker">Learning Path</div>
+        <h1>Alternative Investments</h1>
+        <p class="sub">Beyond stocks — crypto, real estate, commodities, and private markets.</p>
+        <div class="show-all" id="showAllRow"><a href="#" onclick="history.replaceState(null,'',location.pathname); applyLevelFilter(); return false;">← Show all levels</a></div>
+
+        <div class="level" id="level-beginner">
+            <h2 class="level-title">Beginner</h2>
+            <div class="modules-grid">
+                <div class="module-card lv-beginner" data-module="alternatives-module-1" onclick="location.href='alternatives-module-1.html'">
+                    <div class="module-header">
+                        <div class="module-number">1</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">What Are Alternative Investments?</h3>
+                    <p class="module-description">"Alternatives" is the umbrella for everything outside public stocks and bonds: real estate, cryptocurrencies, commodities like gold and oil,</p>
+                    <ul class="module-features">
+                        <li>Beyond stocks and bonds</li>
+                        <li>The price of admission: liquidity and opacity</li>
+                        <li>How much belongs in a portfolio?</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-beginner" data-module="alternatives-module-2" onclick="location.href='alternatives-module-2.html'">
+                    <div class="module-header">
+                        <div class="module-number">2</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Crypto Fundamentals</h3>
+                    <p class="module-description">A blockchain is a shared ledger no single party controls — thousands of computers hold identical copies and agree on every new entry.</p>
+                    <ul class="module-features">
+                        <li>What a blockchain actually is</li>
+                        <li>Volatility, cycles, and position sizing</li>
+                        <li>Custody: not your keys, not your coins</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-beginner" data-module="alternatives-module-3" onclick="location.href='alternatives-module-3.html'">
+                    <div class="module-header">
+                        <div class="module-number">3</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Real Estate for Beginners: Rent, Own, or REIT</h3>
+                    <p class="module-description">Real estate is the world's largest asset class, and you can touch it three ways: live in what you own, own what others rent, or buy shares of companies that own buildings for you.…</p>
+                    <ul class="module-features">
+                        <li>The three doors into property</li>
+                        <li>Being the landlord</li>
+                        <li>REITs: property without keys</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-beginner" data-module="alternatives-module-4" onclick="location.href='alternatives-module-4.html'">
+                    <div class="module-header">
+                        <div class="module-number">4</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Gold & Precious Metals Basics</h3>
+                    <p class="module-description">Gold has been money, jewelry, and crisis insurance for five thousand years. It pays no dividend, earns no interest, and builds nothing — so why does every central bank on Earth…</p>
+                    <ul class="module-features">
+                        <li>Why people still buy rocks</li>
+                        <li>What actually moves the price</li>
+                        <li>How to actually own it</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-beginner" data-module="alternatives-module-5" onclick="location.href='alternatives-module-5.html'">
+                    <div class="module-header">
+                        <div class="module-number">5</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Collectibles: Art, Watches & Cards</h3>
+                    <p class="module-description">Art, watches, wine, sneakers, and trading cards have all minted spectacular headlines — a LeBron card selling for $5M, Rolexes doubling in a</p>
+                    <ul class="module-features">
+                        <li>Passion assets with price tags</li>
+                        <li>The brutal economics under the romance</li>
+                        <li>If you still want in</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-beginner" data-module="alternatives-module-6" onclick="location.href='alternatives-module-6.html'">
+                    <div class="module-header">
+                        <div class="module-number">6</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Gold vs. Bitcoin: The Store-of-Value Debate</h3>
+                    <p class="module-description">Gold has 4,000 years of trust, near-zero correlation with stocks, central banks as permanent buyers, and no dependence on electricity or cod</p>
+                    <ul class="module-features">
+                        <li>The case for the old rock</li>
+                        <li>The case for the new code</li>
+                        <li>The grown-up answer</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="level" id="level-intermediate">
+            <h2 class="level-title">Intermediate</h2>
+            <div class="modules-grid">
+                <div class="module-card lv-intermediate" data-module="alternatives-module-7" onclick="location.href='alternatives-module-7.html'">
+                    <div class="module-header">
+                        <div class="module-number">7</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Rental Property Math, All the Way Down</h3>
+                    <p class="module-description">The beginner module gave you the half-expense rule of thumb. This module replaces thumbs with the four numbers professional rental investors actually compute before making an…</p>
+                    <ul class="module-features">
+                        <li>From daydream to spreadsheet</li>
+                        <li>Cap rate: the property's yield</li>
+                        <li>Cash-on-cash: YOUR yield</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-intermediate" data-module="alternatives-module-8" onclick="location.href='alternatives-module-8.html'">
+                    <div class="module-header">
+                        <div class="module-number">8</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Analyzing REITs Like a Professional</h3>
+                    <p class="module-description">Look up any REIT's P/E ratio and you'll see something absurd — 60, 80, sometimes no earnings at all — for a company collecting rent from a thousand tenants. The culprit is…</p>
+                    <ul class="module-features">
+                        <li>Why REIT earnings are fake (legally)</li>
+                        <li>The dividend: test it, don't trust it</li>
+                        <li>Balance sheet and NAV</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-intermediate" data-module="alternatives-module-9" onclick="location.href='alternatives-module-9.html'">
+                    <div class="module-header">
+                        <div class="module-number">9</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Stablecoins, Ethereum & Crypto's Plumbing</h3>
+                    <p class="module-description">Bitcoin gets the headlines, but the workhorses of crypto are stablecoins — tokens engineered to always be worth $1. Tether (USDT) and USD Coin (USDC) settle more daily volume than…</p>
+                    <ul class="module-features">
+                        <li>The dollar that lives on a blockchain</li>
+                        <li>Ethereum: the world computer</li>
+                        <li>Where the yield comes from (and when it's fake)</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-intermediate" data-module="alternatives-module-10" onclick="location.href='alternatives-module-10.html'">
+                    <div class="module-header">
+                        <div class="module-number">10</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Fractional Real Estate & Crowdfunding Deals</h3>
+                    <p class="module-description">Crowdfunding platforms promise the previously impossible: a slice of an apartment complex for the price of dinner. Since the 2012 JOBS Act legalized online private offerings,…</p>
+                    <ul class="module-features">
+                        <li>The $100 building, honestly examined</li>
+                        <li>The three questions that filter 90% of deals</li>
+                        <li>Illiquidity is a feature and a sentence</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-intermediate" data-module="alternatives-module-11" onclick="location.href='alternatives-module-11.html'">
+                    <div class="module-header">
+                        <div class="module-number">11</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Commodities & Futures: Trading the Physical World</h3>
+                    <p class="module-description">Commodities are the rawest asset class — oil, gas, copper, corn, coffee — and the only one you can't sensibly hold in a drawer. Nearly all commodity investing runs through…</p>
+                    <ul class="module-features">
+                        <li>You can't buy a barrel (and you don't want to)</li>
+                        <li>The curve is the strategy</li>
+                        <li>Energy and agriculture have different physics</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-intermediate" data-module="alternatives-module-12" onclick="location.href='alternatives-module-12.html'">
+                    <div class="module-header">
+                        <div class="module-number">12</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Building a Multi-Asset Portfolio</h3>
+                    <p class="module-description">You now hold the pieces: real estate, REITs, gold, commodities, crypto, and the traditional core of stocks and bonds. The intermediate capstone is assembling them — and the first,…</p>
+                    <ul class="module-features">
+                        <li>Collecting assets isn't diversifying</li>
+                        <li>The correlation numbers that matter</li>
+                        <li>A build sequence that survives contact</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="level" id="level-advanced">
+            <h2 class="level-title">Advanced</h2>
+            <div class="modules-grid">
+                <div class="module-card lv-advanced" data-module="alternatives-module-13" onclick="location.href='alternatives-module-13.html'">
+                    <div class="module-header">
+                        <div class="module-number">13</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Commercial Real Estate & the Capital Stack</h3>
+                    <p class="module-description">Everything you learned about houses stops working the moment you buy a building whose tenants are businesses. Commercial real estate — offices, warehouses, apartment complexes of…</p>
+                    <ul class="module-features">
+                        <li>CRE is a different sport</li>
+                        <li>The capital stack: who stands where</li>
+                        <li>Leverage cuts both ways, precisely</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-advanced" data-module="alternatives-module-14" onclick="location.href='alternatives-module-14.html'">
+                    <div class="module-header">
+                        <div class="module-number">14</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Real Estate Debt: How Lending Really Works</h3>
+                    <p class="module-description">Most investors only ever meet real estate debt as borrowers. But debt is a place to invest, an engine that sets property prices, and — when it goes wrong — the mechanism by which…</p>
+                    <ul class="module-features">
+                        <li>The other side of the table</li>
+                        <li>The three numbers that size every loan</li>
+                        <li>Fixed vs. floating, and the 2022 object lesson</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-advanced" data-module="alternatives-module-15" onclick="location.href='alternatives-module-15.html'">
+                    <div class="module-header">
+                        <div class="module-number">15</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Equity Waterfalls & the Promote</h3>
+                    <p class="module-description">The last two modules built the stack and priced the debt. This one answers the question every private real estate deal, private equity fund, and syndication ultimately turns on:…</p>
+                    <ul class="module-features">
+                        <li>Where the equity's money actually goes</li>
+                        <li>The four classic tiers</li>
+                        <li>A full worked waterfall</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-advanced" data-module="alternatives-module-16" onclick="location.href='alternatives-module-16.html'">
+                    <div class="module-header">
+                        <div class="module-number">16</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Private Equity & Venture: Fund Mechanics</h3>
+                    <p class="module-description">Module 15 gave you the waterfall. This module bolts it onto the two fund types that dominate private markets — buyout (PE) and venture (VC) — and gives you the numbers…</p>
+                    <ul class="module-features">
+                        <li>The machine behind the logos</li>
+                        <li>The J-curve and the three report cards</li>
+                        <li>Anatomy of a leveraged buyout</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-advanced" data-module="alternatives-module-17" onclick="location.href='alternatives-module-17.html'">
+                    <div class="module-header">
+                        <div class="module-number">17</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Hedge Fund Strategies & Leverage Math</h3>
+                    <p class="module-description">Strip the mystique: a hedge fund is a lightly regulated private pool that can short, use leverage and derivatives, and charge performance fees — the same "2 and 20" waterfall you…</p>
+                    <ul class="module-features">
+                        <li>What a hedge fund actually is</li>
+                        <li>Long/short and the exposure ledger</li>
+                        <li>Merger arbitrage: pricing deal risk</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-advanced" data-module="alternatives-module-18" onclick="location.href='alternatives-module-18.html'">
+                    <div class="module-header">
+                        <div class="module-number">18</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Risk Parity, Illiquidity & Portfolio Design</h3>
+                    <p class="module-description">Seventeen modules of instruments; this one is about assembly. The question that separates institutional portfolios from retail collections isn't "what should I buy?" — it's "where…</p>
+                    <ul class="module-features">
+                        <li>The capstone question</li>
+                        <li>Dollars lie; volatility doesn't</li>
+                        <li>The illiquidity premium — real, and routinely overpaid for</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show only the level in the URL hash (e.g. #beginner); otherwise show all.
+        function applyLevelFilter() {
+            const secs = Array.from(document.querySelectorAll('.level'));
+            const h = location.hash.replace('#', '').toLowerCase();
+            const row = document.getElementById('showAllRow');
+            const active = secs.some(s => s.id === 'level-' + h);
+            secs.forEach(s => { s.style.display = (!active || s.id === 'level-' + h) ? '' : 'none'; });
+            // Single-level view matches the trading path pages: no level heading.
+            document.querySelectorAll('.level-title').forEach(t => { t.style.display = active ? 'none' : ''; });
+            if (row) row.style.display = active ? 'block' : 'none';
+        }
+        window.addEventListener('hashchange', applyLevelFilter);
+        applyLevelFilter();
+        // Open at the top — never scrolled down to the hash anchor.
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        window.scrollTo(0, 0);
+        setTimeout(() => window.scrollTo(0, 0), 0);
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <script>
+        // Mark completed modules (from Supabase, falling back to local progress).
+        (async () => {
+            try {
+                const progress = await SL.getLessonProgress();
+                document.querySelectorAll('.module-card').forEach(card => {
+                    const rec = progress[card.dataset.module];
+                    if (rec && rec.completed) {
+                        card.querySelector('.module-status').textContent = 'Completed';
+                        card.querySelector('.module-status').classList.add('done');
+                        card.querySelector('.progress-fill').style.width = '100%';
+                        card.querySelector('.progress-text').textContent = '100% Complete';
+                        card.querySelector('.module-btn').textContent = 'Review Module';
+                    }
+                });
+            } catch (e) { /* fine */ }
+        })();
+    </script>
+</body>
+</html>

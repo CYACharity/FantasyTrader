@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Your Stocks</title>
+    <style>
+        :root {
+            --primary: #4a6785;
+            --secondary: #6aa08d;
+            --accent: #e0a24c;
+            --background: #1a1714;
+            --surface: #241f1b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--background) 0%, #0A1128 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .picker-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .sector-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .sector-title {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .sector-description {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 1.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            margin: 1rem 0;
+            border-radius: 2px;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .stocks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stock-card {
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .stock-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .stock-card.selected {
+            border-color: var(--secondary);
+            background: rgba(71,169,146,0.2);
+        }
+
+        .sp-ident { display: flex; align-items: center; gap: 10px; min-width: 0; }
+
+        .stock-symbol {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        .stock-name {
+            color: rgba(255,255,255,0.7);
+            margin: 0.5rem 0;
+        }
+
+        .stock-price {
+            font-size: 1.2rem;
+            margin: 0.5rem 0;
+        }
+
+        .stock-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-button {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .next-button {
+            background: var(--accent);
+            color: black;
+        }
+
+        .back-button {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .selection-count {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--surface);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/stock-logo.js"></script>
+</head>
+<body>
+    <div class="picker-container">
+        <div class="sector-header">
+            <h1 class="sector-title" id="currentSector">Loading...</h1>
+            <p class="sector-description">Select stocks to add to your paper trading portfolio watchlist. These suggestions will help you build a diversified portfolio for practice trading.</p>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+        </div>
+
+        <div class="stocks-grid" id="stocksGrid"></div>
+
+        <div class="selection-count">
+            Selected: <span id="selectionCount">0</span>/5
+        </div>
+
+        <div class="navigation">
+            <button class="nav-button back-button" id="backButton">Back</button>
+            <button class="nav-button next-button" id="nextButton">Next Sector</button>
+        </div>
+    </div>
+
+    <script>
+        const sectorStocks = {
+            FINANCE: ['JPM', 'BAC', 'WFC', 'C', 'GS', 'MS', 'BLK', 'SCHW', 'AXP', 'V'],
+            TECHNOLOGY: ['AAPL', 'MSFT', 'NVDA', 'GOOGL', 'META', 'AVGO', 'CRM', 'ADBE', 'ORCL', 'CSCO'],
+            HEALTHCARE: ['JNJ', 'UNH', 'LLY', 'PFE', 'ABT', 'TMO', 'DHR', 'BMY', 'ABBV', 'MRK'],
+            CONSUMER: ['AMZN', 'WMT', 'PG', 'KO', 'PEP', 'COST', 'MCD', 'NKE', 'DIS', 'HD'],
+            INDUSTRIAL: ['CAT', 'GE', 'HON', 'UPS', 'BA', 'MMM', 'DE', 'LMT', 'RTX', 'UNP'],
+            ENERGY: ['XOM', 'CVX', 'COP', 'SLB', 'EOG', 'PXD', 'MPC', 'PSX', 'VLO', 'OXY'],
+            MATERIALS: ['LIN', 'APD', 'ECL', 'SHW', 'FCX', 'NEM', 'NUE', 'DOW', 'DD', 'ALB'],
+            UTILITIES: ['NEE', 'DUK', 'SO', 'AEP', 'SRE', 'D', 'EXC', 'XEL', 'PCG', 'ED'],
+            REAL_ESTATE: ['PLD', 'AMT', 'EQIX', 'CCI', 'PSA', 'WELL', 'SPG', 'O', 'DLR', 'VICI'],
+            TELECOM: ['T', 'VZ', 'TMUS', 'CMCSA', 'CHTR', 'NFLX', 'ATVI', 'EA', 'WBD', 'PARA'],
+            AI: ['AI', 'PLTR', 'SNPS', 'CDNS', 'PATH', 'U', 'CRWD', 'DDOG', 'MDB', 'SNOW'],
+            BIOTECH: ['MRNA', 'BNTX', 'REGN', 'VRTX', 'INCY', 'BGNE', 'SRPT', 'SGEN', 'IONS', 'ALNY'],
+            CRYPTO: ['COIN', 'MSTR', 'RIOT', 'MARA', 'HUT', 'BITF', 'HIVE', 'SI', 'NCTY', 'BTBT'],
+            GREEN: ['ENPH', 'SEDG', 'RUN', 'FSLR', 'SPWR', 'BE', 'PLUG', 'NOVA', 'DQ', 'JKS'],
+            AEROSPACE: ['LMT', 'NOC', 'RTX', 'GD', 'TDG', 'HEI', 'SPR', 'AJRD', 'SPCE', 'ASTR'],
+            AGRICULTURE: ['NTR', 'CF', 'MOS', 'ADM', 'BG', 'FMC', 'CTVA', 'IPI', 'AGCO', 'DE'],
+            ENTERTAINMENT: ['DIS', 'NFLX', 'LYV', 'SONY', 'WBD', 'PARA', 'CMCSA', 'SPOT', 'IMAX', 'MSG'],
+            RETAIL: ['AMZN', 'WMT', 'TGT', 'COST', 'HD', 'LOW', 'DG', 'DLTR', 'BBY', 'KR'],
+            AUTOMOTIVE: ['TSLA', 'F', 'GM', 'TM', 'STLA', 'HMC', 'NIO', 'RIVN', 'LCID', 'LI'],
+            GAMING: ['ATVI', 'EA', 'TTWO', 'RBLX', 'UNITY', 'ZNGA', 'SKLZ', 'PLTK', 'SCPL', 'GRVY']
+        };
+
+        let currentSectorIndex = 0;
+        let selectedStocks = {};
+        const preferences = JSON.parse(localStorage.getItem('userPreferences') || '{}');
+        const sectors = preferences.sectors || [];
+
+        function updateProgress() {
+            const progress = ((currentSectorIndex + 1) / sectors.length) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+        }
+
+        // First, let's create a map of stock details
+        const stockDetails = {
+            // FINANCE
+            JPM: { name: 'JPMorgan Chase', price: 167.42, marketCap: '492B', pe: '15.2' },
+            BAC: { name: 'Bank of America', price: 35.88, marketCap: '285B', pe: '11.3' },
+            WFC: { name: 'Wells Fargo', price: 48.12, marketCap: '175B', pe: '12.5' },
+            C: { name: 'Citigroup', price: 55.31, marketCap: '107B', pe: '8.9' },
+            GS: { name: 'Goldman Sachs', price: 385.45, marketCap: '126B', pe: '17.2' },
+            MS: { name: 'Morgan Stanley', price: 87.23, marketCap: '143B', pe: '16.8' },
+            BLK: { name: 'BlackRock', price: 762.34, marketCap: '113B', pe: '21.4' },
+            SCHW: { name: 'Charles Schwab', price: 67.54, marketCap: '120B', pe: '18.2' },
+            AXP: { name: 'American Express', price: 189.12, marketCap: '138B', pe: '17.5' },
+            V: { name: 'Visa', price: 272.45, marketCap: '558B', pe: '31.2' },
+
+            // TECHNOLOGY
+            AAPL: { name: 'Apple', price: 172.62, marketCap: '2.7T', pe: '28.5' },
+            MSFT: { name: 'Microsoft', price: 417.88, marketCap: '3.1T', pe: '37.2' },
+            NVDA: { name: 'NVIDIA', price: 881.65, marketCap: '2.2T', pe: '73.8' },
+            GOOGL: { name: 'Alphabet', price: 147.60, marketCap: '1.8T', pe: '25.1' },
+            META: { name: 'Meta Platforms', price: 505.95, marketCap: '1.3T', pe: '33.9' },
+            AVGO: { name: 'Broadcom', price: 1235.50, marketCap: '572B', pe: '45.8' },
+            CRM: { name: 'Salesforce', price: 294.33, marketCap: '285B', pe: '140.2' },
+            ADBE: { name: 'Adobe', price: 492.56, marketCap: '222B', pe: '47.1' },
+            ORCL: { name: 'Oracle', price: 127.79, marketCap: '351B', pe: '42.2' },
+            CSCO: { name: 'Cisco Systems', price: 49.78, marketCap: '201B', pe: '15.1' },
+
+            // HEALTHCARE
+            JNJ: { name: 'Johnson & Johnson', price: 157.89, marketCap: '380B', pe: '31.2' },
+            UNH: { name: 'UnitedHealth', price: 490.82, marketCap: '452B', pe: '23.1' },
+            LLY: { name: 'Eli Lilly', price: 770.61, marketCap: '731B', pe: '132.5' },
+            PFE: { name: 'Pfizer', price: 27.76, marketCap: '157B', pe: '73.1' },
+            ABT: { name: 'Abbott Labs', price: 110.57, marketCap: '192B', pe: '34.2' },
+            TMO: { name: 'Thermo Fisher', price: 573.83, marketCap: '219B', pe: '37.1' },
+            DHR: { name: 'Danaher', price: 249.72, marketCap: '184B', pe: '39.2' },
+            BMY: { name: 'Bristol Myers', price: 51.32, marketCap: '104B', pe: '13.3' },
+            ABBV: { name: 'AbbVie', price: 177.88, marketCap: '314B', pe: '46.2' },
+            MRK: { name: 'Merck', price: 125.45, marketCap: '318B', pe: '887.8' },
+
+            // AI
+            AI: { name: 'C3.ai', price: 28.45, marketCap: '3.4B', pe: 'N/A' },
+            PLTR: { name: 'Palantir', price: 24.89, marketCap: '54B', pe: '278.5' },
+            SNPS: { name: 'Synopsys', price: 567.32, marketCap: '86B', pe: '73.8' },
+            CDNS: { name: 'Cadence Design', price: 305.45, marketCap: '82B', pe: '89.4' },
+            PATH: { name: 'UiPath', price: 23.45, marketCap: '13B', pe: 'N/A' },
+            U: { name: 'Unity Software', price: 31.24, marketCap: '12B', pe: 'N/A' },
+            CRWD: { name: 'CrowdStrike', price: 318.56, marketCap: '76B', pe: '879.2' },
+            DDOG: { name: 'Datadog', price: 127.89, marketCap: '42B', pe: '938.4' },
+            MDB: { name: 'MongoDB', price: 436.78, marketCap: '31B', pe: 'N/A' },
+            SNOW: { name: 'Snowflake', price: 188.45, marketCap: '62B', pe: 'N/A' },
+
+            // BIOTECH
+            MRNA: { name: 'Moderna', price: 101.23, marketCap: '39B', pe: '6.5' },
+            BNTX: { name: 'BioNTech', price: 95.67, marketCap: '23B', pe: '4.8' },
+            REGN: { name: 'Regeneron', price: 945.67, marketCap: '103B', pe: '25.1' },
+            VRTX: { name: 'Vertex Pharma', price: 418.23, marketCap: '108B', pe: '29.8' },
+            INCY: { name: 'Incyte', price: 57.89, marketCap: '13B', pe: '32.4' },
+            BGNE: { name: 'BeiGene', price: 156.78, marketCap: '20B', pe: 'N/A' },
+            SRPT: { name: 'Sarepta', price: 124.56, marketCap: '11B', pe: 'N/A' },
+            SGEN: { name: 'Seagen', price: 228.90, marketCap: '43B', pe: 'N/A' },
+            IONS: { name: 'Ionis Pharma', price: 43.21, marketCap: '6B', pe: 'N/A' },
+            ALNY: { name: 'Alnylam', price: 147.89, marketCap: '19B', pe: 'N/A' },
+
+            // CONSUMER
+            AMZN: { name: 'Amazon', price: 178.75, marketCap: '1.9T', pe: '61.2' },
+            WMT: { name: 'Walmart', price: 60.82, marketCap: '466B', pe: '31.5' },
+            PG: { name: 'Procter & Gamble', price: 162.25, marketCap: '382B', pe: '26.1' },
+            KO: { name: 'Coca-Cola', price: 59.48, marketCap: '257B', pe: '24.2' },
+            PEP: { name: 'PepsiCo', price: 172.73, marketCap: '237B', pe: '26.4' },
+            COST: { name: 'Costco', price: 731.31, marketCap: '324B', pe: '47.8' },
+            MCD: { name: 'McDonald\'s', price: 281.95, marketCap: '205B', pe: '24.3' },
+            NKE: { name: 'Nike', price: 93.77, marketCap: '142B', pe: '27.8' },
+            DIS: { name: 'Disney', price: 111.95, marketCap: '205B', pe: '69.2' },
+            HD: { name: 'Home Depot', price: 371.89, marketCap: '371B', pe: '24.7' },
+
+            // INDUSTRIAL
+            CAT: { name: 'Caterpillar', price: 346.78, marketCap: '173B', pe: '17.4' },
+            GE: { name: 'General Electric', price: 175.45, marketCap: '191B', pe: '21.6' },
+            HON: { name: 'Honeywell', price: 198.73, marketCap: '130B', pe: '23.5' },
+            UPS: { name: 'United Parcel Service', price: 148.63, marketCap: '127B', pe: '19.2' },
+            BA: { name: 'Boeing', price: 201.05, marketCap: '122B', pe: 'N/A' },
+            MMM: { name: '3M Company', price: 91.77, marketCap: '50B', pe: '18.4' },
+            DE: { name: 'Deere & Co', price: 385.27, marketCap: '113B', pe: '11.2' },
+            LMT: { name: 'Lockheed Martin', price: 435.82, marketCap: '105B', pe: '15.8' },
+            RTX: { name: 'RTX Corp', price: 95.53, marketCap: '127B', pe: '35.7' },
+            UNP: { name: 'Union Pacific', price: 245.62, marketCap: '149B', pe: '23.4' },
+
+            // ENERGY
+            XOM: { name: 'ExxonMobil', price: 113.49, marketCap: '452B', pe: '13.5' },
+            CVX: { name: 'Chevron', price: 155.55, marketCap: '289B', pe: '13.7' },
+            COP: { name: 'ConocoPhillips', price: 115.97, marketCap: '136B', pe: '12.8' },
+            SLB: { name: 'Schlumberger', price: 51.42, marketCap: '73B', pe: '17.5' },
+            EOG: { name: 'EOG Resources', price: 119.75, marketCap: '69B', pe: '11.4' },
+            PXD: { name: 'Pioneer Natural', price: 241.79, marketCap: '56B', pe: '11.9' },
+            MPC: { name: 'Marathon Petroleum', price: 189.87, marketCap: '72B', pe: '8.1' },
+            PSX: { name: 'Phillips 66', price: 156.48, marketCap: '67B', pe: '10.1' },
+            VLO: { name: 'Valero Energy', price: 167.32, marketCap: '55B', pe: '6.7' },
+            OXY: { name: 'Occidental', price: 62.95, marketCap: '55B', pe: '15.8' },
+
+            // MATERIALS
+            LIN: { name: 'Linde', price: 462.75, marketCap: '223B', pe: '36.8' },
+            APD: { name: 'Air Products', price: 236.71, marketCap: '52B', pe: '28.4' },
+            ECL: { name: 'Ecolab', price: 226.37, marketCap: '64B', pe: '47.2' },
+            SHW: { name: 'Sherwin-Williams', price: 328.37, marketCap: '83B', pe: '35.1' },
+            FCX: { name: 'Freeport-McMoRan', price: 39.45, marketCap: '56B', pe: '31.1' },
+            NEM: { name: 'Newmont', price: 34.12, marketCap: '39B', pe: 'N/A' },
+            NUE: { name: 'Nucor', price: 190.85, marketCap: '46B', pe: '10.5' },
+            DOW: { name: 'Dow Inc', price: 55.98, marketCap: '39B', pe: '11.4' },
+            DD: { name: 'DuPont', price: 73.82, marketCap: '31B', pe: '51.3' },
+            ALB: { name: 'Albemarle', price: 123.92, marketCap: '14B', pe: '9.3' },
+
+            // UTILITIES
+            NEE: { name: 'NextEra Energy', price: 56.98, marketCap: '117B', pe: '15.2' },
+            DUK: { name: 'Duke Energy', price: 94.12, marketCap: '72B', pe: '17.8' },
+            SO: { name: 'Southern Company', price: 69.87, marketCap: '76B', pe: '19.4' },
+            AEP: { name: 'American Electric', price: 82.45, marketCap: '43B', pe: '18.7' },
+            SRE: { name: 'Sempra', price: 70.89, marketCap: '44B', pe: '16.5' },
+            D: { name: 'Dominion Energy', price: 47.12, marketCap: '39B', pe: '20.3' },
+            EXC: { name: 'Exelon', price: 36.75, marketCap: '36B', pe: '17.9' },
+            XEL: { name: 'Xcel Energy', price: 61.23, marketCap: '34B', pe: '19.1' },
+            PCG: { name: 'PG&E Corp', price: 16.89, marketCap: '36B', pe: '15.8' },
+            ED: { name: 'Consolidated Edison', price: 89.45, marketCap: '31B', pe: '13.2' },
+
+            // REAL_ESTATE
+            PLD: { name: 'Prologis', price: 132.45, marketCap: '122B', pe: '40.8' },
+            AMT: { name: 'American Tower', price: 193.82, marketCap: '90B', pe: '61.2' },
+            EQIX: { name: 'Equinix', price: 780.54, marketCap: '74B', pe: '84.7' },
+            CCI: { name: 'Crown Castle', price: 105.67, marketCap: '46B', pe: '29.8' },
+            PSA: { name: 'Public Storage', price: 283.45, marketCap: '50B', pe: '25.7' },
+            WELL: { name: 'Welltower', price: 92.78, marketCap: '52B', pe: '72.4' },
+            SPG: { name: 'Simon Property', price: 149.87, marketCap: '49B', pe: '21.3' },
+            O: { name: 'Realty Income', price: 52.34, marketCap: '45B', pe: '39.8' },
+            DLR: { name: 'Digital Realty', price: 142.56, marketCap: '44B', pe: '118.2' },
+            VICI: { name: 'VICI Properties', price: 29.87, marketCap: '31B', pe: '13.4' },
+
+            // TELECOM
+            T: { name: 'AT&T', price: 17.15, marketCap: '123B', pe: '7.2' },
+            VZ: { name: 'Verizon', price: 40.87, marketCap: '172B', pe: '14.8' },
+            TMUS: { name: 'T-Mobile US', price: 162.34, marketCap: '192B', pe: '23.4' },
+            CMCSA: { name: 'Comcast', price: 42.78, marketCap: '170B', pe: '11.4' },
+            CHTR: { name: 'Charter Comm', price: 283.45, marketCap: '41B', pe: '9.4' },
+            NFLX: { name: 'Netflix', price: 605.88, marketCap: '262B', pe: '50.7' },
+            ATVI: { name: 'Activision', price: 94.42, marketCap: '75B', pe: '33.2' },
+            EA: { name: 'Electronic Arts', price: 135.67, marketCap: '36B', pe: '32.4' },
+            WBD: { name: 'Warner Bros Discovery', price: 8.92, marketCap: '22B', pe: 'N/A' },
+            PARA: { name: 'Paramount Global', price: 11.45, marketCap: '7B', pe: 'N/A' },
+
+            // CRYPTO
+            COIN: { name: 'Coinbase', price: 242.34, marketCap: '57B', pe: 'N/A' },
+            MSTR: { name: 'MicroStrategy', price: 1467.89, marketCap: '25B', pe: 'N/A' },
+            RIOT: { name: 'Riot Platforms', price: 12.45, marketCap: '3B', pe: 'N/A' },
+            MARA: { name: 'Marathon Digital', price: 22.34, marketCap: '5B', pe: 'N/A' },
+            HUT: { name: 'Hut 8 Mining', price: 9.87, marketCap: '2B', pe: 'N/A' },
+            BITF: { name: 'Bitfarms', price: 2.45, marketCap: '800M', pe: 'N/A' },
+            HIVE: { name: 'HIVE Digital', price: 3.67, marketCap: '900M', pe: 'N/A' },
+            SI: { name: 'Silvergate Capital', price: 0.01, marketCap: '1M', pe: 'N/A' },
+            NCTY: { name: 'The9 Limited', price: 0.56, marketCap: '20M', pe: 'N/A' },
+            BTBT: { name: 'Bit Digital', price: 2.34, marketCap: '200M', pe: 'N/A' },
+
+            // GREEN
+            ENPH: { name: 'Enphase', price: 116.78, marketCap: '16B', pe: '38.2' },
+            SEDG: { name: 'SolarEdge', price: 67.89, marketCap: '4B', pe: '22.1' },
+            RUN: { name: 'Sunrun', price: 11.23, marketCap: '2.5B', pe: 'N/A' },
+            FSLR: { name: 'First Solar', price: 161.45, marketCap: '17B', pe: '38.4' },
+            SPWR: { name: 'SunPower', price: 3.45, marketCap: '600M', pe: 'N/A' },
+            BE: { name: 'Bloom Energy', price: 9.87, marketCap: '2.2B', pe: 'N/A' },
+            PLUG: { name: 'Plug Power', price: 3.89, marketCap: '2.4B', pe: 'N/A' },
+            NOVA: { name: 'Sunnova', price: 6.78, marketCap: '800M', pe: 'N/A' },
+            DQ: { name: 'Daqo New Energy', price: 23.45, marketCap: '1.8B', pe: '2.1' },
+            JKS: { name: 'JinkoSolar', price: 27.89, marketCap: '1.4B', pe: '3.8' },
+
+            // AEROSPACE
+            LMT: { name: 'Lockheed Martin', price: 435.82, marketCap: '105B', pe: '15.8' },
+            NOC: { name: 'Northrop Grumman', price: 463.24, marketCap: '68B', pe: '21.4' },
+            RTX: { name: 'RTX Corp', price: 95.53, marketCap: '127B', pe: '35.7' },
+            GD: { name: 'General Dynamics', price: 271.45, marketCap: '74B', pe: '20.3' },
+            TDG: { name: 'TransDigm', price: 1187.89, marketCap: '66B', pe: '48.2' },
+            HEI: { name: 'HEICO', price: 184.56, marketCap: '25B', pe: '63.4' },
+            SPR: { name: 'Spirit AeroSystems', price: 34.23, marketCap: '3.8B', pe: 'N/A' },
+            AJRD: { name: 'Aerojet Rocketdyne', price: 57.89, marketCap: '4.7B', pe: '65.8' },
+            SPCE: { name: 'Virgin Galactic', price: 1.89, marketCap: '800M', pe: 'N/A' },
+            ASTR: { name: 'Astra Space', price: 0.34, marketCap: '100M', pe: 'N/A' },
+
+            // AGRICULTURE
+            NTR: { name: 'Nutrien', price: 51.23, marketCap: '25B', pe: '12.4' },
+            CF: { name: 'CF Industries', price: 78.90, marketCap: '15B', pe: '9.8' },
+            MOS: { name: 'Mosaic', price: 31.45, marketCap: '10B', pe: '7.8' },
+            ADM: { name: 'ADM', price: 55.67, marketCap: '28B', pe: '9.8' },
+            BG: { name: 'Bunge', price: 92.34, marketCap: '13B', pe: '7.2' },
+            FMC: { name: 'FMC Corp', price: 58.90, marketCap: '7B', pe: '12.4' },
+            CTVA: { name: 'Corteva', price: 54.23, marketCap: '38B', pe: '52.8' },
+            IPI: { name: 'Intrepid Potash', price: 22.45, marketCap: '300M', pe: '4.5' },
+            AGCO: { name: 'AGCO Corp', price: 121.78, marketCap: '9B', pe: '7.8' },
+            DE: { name: 'Deere & Co', price: 385.27, marketCap: '113B', pe: '11.2' },
+
+            // ENTERTAINMENT
+            DIS: { name: 'Disney', price: 111.95, marketCap: '205B', pe: '69.2' },
+            NFLX: { name: 'Netflix', price: 605.88, marketCap: '262B', pe: '50.7' },
+            LYV: { name: 'Live Nation', price: 87.45, marketCap: '20B', pe: '67.8' },
+            SONY: { name: 'Sony Group', price: 86.78, marketCap: '107B', pe: '16.7' },
+            WBD: { name: 'Warner Bros Discovery', price: 8.92, marketCap: '22B', pe: 'N/A' },
+            PARA: { name: 'Paramount Global', price: 11.45, marketCap: '7B', pe: 'N/A' },
+            CMCSA: { name: 'Comcast', price: 42.78, marketCap: '170B', pe: '11.4' },
+            SPOT: { name: 'Spotify', price: 289.67, marketCap: '57B', pe: 'N/A' },
+            IMAX: { name: 'IMAX Corp', price: 15.67, marketCap: '900M', pe: '35.6' },
+            MSG: { name: 'MSG Entertainment', price: 35.67, marketCap: '1.7B', pe: 'N/A' },
+
+            // RETAIL
+            AMZN: { name: 'Amazon', price: 178.75, marketCap: '1.9T', pe: '61.2' },
+            WMT: { name: 'Walmart', price: 60.82, marketCap: '466B', pe: '31.5' },
+            TGT: { name: 'Target', price: 168.90, marketCap: '78B', pe: '18.7' },
+            COST: { name: 'Costco', price: 731.31, marketCap: '324B', pe: '47.8' },
+            HD: { name: 'Home Depot', price: 371.89, marketCap: '371B', pe: '24.7' },
+            LOW: { name: 'Lowe\'s', price: 244.73, marketCap: '140B', pe: '18.4' },
+            DG: { name: 'Dollar General', price: 151.95, marketCap: '33B', pe: '14.2' },
+            DLTR: { name: 'Dollar Tree', price: 146.79, marketCap: '32B', pe: '13.8' },
+            BBY: { name: 'Best Buy', price: 77.34, marketCap: '17B', pe: '13.5' },
+            KR: { name: 'Kroger', price: 56.78, marketCap: '41B', pe: '17.2' },
+
+            // AUTOMOTIVE
+            TSLA: { name: 'Tesla', price: 172.82, marketCap: '548B', pe: '50.2' },
+            F: { name: 'Ford', price: 12.45, marketCap: '50B', pe: '7.8' },
+            GM: { name: 'General Motors', price: 45.67, marketCap: '61B', pe: '5.6' },
+            TM: { name: 'Toyota', price: 234.56, marketCap: '318B', pe: '10.2' },
+            STLA: { name: 'Stellantis', price: 23.45, marketCap: '73B', pe: '4.8' },
+            HMC: { name: 'Honda', price: 31.23, marketCap: '54B', pe: '8.9' },
+            NIO: { name: 'NIO Inc', price: 5.67, marketCap: '9B', pe: 'N/A' },
+            RIVN: { name: 'Rivian', price: 8.90, marketCap: '8B', pe: 'N/A' },
+            LCID: { name: 'Lucid Group', price: 2.78, marketCap: '6B', pe: 'N/A' },
+            LI: { name: 'Li Auto', price: 34.56, marketCap: '34B', pe: '42.3' },
+
+            // GAMING
+            ATVI: { name: 'Activision', price: 94.42, marketCap: '75B', pe: '33.2' },
+            EA: { name: 'Electronic Arts', price: 135.67, marketCap: '36B', pe: '32.4' },
+            TTWO: { name: 'Take-Two', price: 147.89, marketCap: '25B', pe: 'N/A' },
+            RBLX: { name: 'Roblox', price: 37.89, marketCap: '24B', pe: 'N/A' },
+            UNITY: { name: 'Unity Software', price: 31.24, marketCap: '12B', pe: 'N/A' },
+            ZNGA: { name: 'Zynga', price: 8.45, marketCap: '9B', pe: 'N/A' },
+            SKLZ: { name: 'Skillz', price: 0.45, marketCap: '200M', pe: 'N/A' },
+            PLTK: { name: 'Playtika', price: 7.89, marketCap: '3B', pe: '10.4' },
+            SCPL: { name: 'SciPlay', price: 22.34, marketCap: '2B', pe: '17.8' },
+            GRVY: { name: 'Gravity', price: 67.89, marketCap: '500M', pe: '8.9' }
+        };
+
+        function displaySectorStocks(sector) {
+            console.log('Current sector:', sector);
+            console.log('Available stocks:', sectorStocks[sector]);
+            
+            document.getElementById('currentSector').textContent = 
+                `Select stocks from ${sector.replace('_', ' ')} (${currentSectorIndex + 1}/${sectors.length})`;
+            
+            const stocksGrid = document.getElementById('stocksGrid');
+            stocksGrid.innerHTML = '';
+            
+            if (!sectorStocks[sector]) {
+                console.error(`No stocks found for sector: ${sector}`);
+                return;
+            }
+            
+            sectorStocks[sector].forEach(symbol => {
+                const details = stockDetails[symbol] || { 
+                    name: 'Unknown',
+                    price: 0,
+                    marketCap: 'N/A',
+                    pe: 'N/A'
+                };
+                
+                const card = document.createElement('div');
+                card.className = `stock-card ${selectedStocks[sector]?.some(s => s.symbol === symbol) ? 'selected' : ''}`;
+                card.innerHTML = `
+                    <div class="sp-ident">
+                        ${window.logoHtml ? window.logoHtml(symbol, sector) : ''}
+                        <div class="stock-symbol">${symbol}</div>
+                    </div>
+                    <div class="stock-name">${details.name}</div>
+                    <div class="stock-price">$${details.price.toFixed(2)}</div>
+                    <div class="stock-stats">
+                        <div>Market Cap: ${details.marketCap}</div>
+                        <div>P/E: ${details.pe}</div>
+                    </div>
+                `;
+                card.onclick = () => toggleStock(sector, { symbol, ...details });
+                stocksGrid.appendChild(card);
+            });
+            
+            updateSelectionCount();
+            updateProgress();
+        }
+
+        function toggleStock(sector, stock) {
+            if (!selectedStocks[sector]) selectedStocks[sector] = [];
+            const index = selectedStocks[sector].findIndex(s => s.symbol === stock.symbol);
+            
+            if (index === -1 && selectedStocks[sector].length < 5) {
+                selectedStocks[sector].push({
+                    symbol: stock.symbol,
+                    name: stock.name,
+                    price: stock.price,
+                    marketCap: stock.marketCap,
+                    pe: stock.pe,
+                    sector: sector,
+                    shares: 0
+                });
+            } else if (index !== -1) {
+                selectedStocks[sector].splice(index, 1);
+            }
+            
+            updateSelectionCount();
+            document.querySelectorAll('.stock-card').forEach(card => {
+                const symbol = card.querySelector('.stock-symbol').textContent;
+                card.classList.toggle('selected', 
+                    selectedStocks[sectors[currentSectorIndex]]?.some(s => s.symbol === symbol));
+            });
+
+            localStorage.setItem('selectedStocks', JSON.stringify(selectedStocks));
+        }
+
+        function updateSelectionCount() {
+            const currentSector = sectors[currentSectorIndex];
+            document.getElementById('selectionCount').textContent = 
+                selectedStocks[currentSector]?.length || 0;
+        }
+
+        document.getElementById('nextButton').onclick = () => {
+            if (currentSectorIndex < sectors.length - 1) {
+                currentSectorIndex++;
+                displaySectorStocks(sectors[currentSectorIndex]);
+            } else {
+                // Add all selected stocks to watchlist
+                const watchlist = [];
+                Object.keys(selectedStocks).forEach(sector => {
+                    selectedStocks[sector].forEach(stock => {
+                        watchlist.push({
+                            symbol: stock.symbol,
+                            name: stock.name,
+                            price: stock.price,
+                            sector: sector,
+                            addedDate: new Date().toISOString()
+                        });
+                    });
+                });
+                localStorage.setItem('watchlist', JSON.stringify(watchlist));
+                
+                const portfolioData = {
+                    stocks: selectedStocks,
+                    cash: 100000,
+                    totalValue: 100000,
+                    lastUpdated: new Date().toISOString()
+                };
+                
+                localStorage.setItem('portfolioData', JSON.stringify(portfolioData));
+                
+                // Check if user wants tutorial
+                const showTutorial = localStorage.getItem('showTutorial') === 'true';
+                if (showTutorial) {
+                    localStorage.removeItem('showTutorial'); // Clear the flag
+                    window.location.href = 'tutorial.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
+            }
+        };
+
+        document.getElementById('backButton').onclick = () => {
+            if (currentSectorIndex > 0) {
+                currentSectorIndex--;
+                displaySectorStocks(sectors[currentSectorIndex]);
+            }
+        };
+
+        // Initialize with first sector
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Loaded preferences:', preferences);
+            console.log('Available sectors:', sectors);
+            
+            if (sectors && sectors.length > 0) {
+                displaySectorStocks(sectors[0]);
+            } else {
+                document.getElementById('currentSector').textContent = 'No sectors selected';
+            }
+        });
+
+        function saveChosenStock(stock) {
+            const chosenStocks = JSON.parse(localStorage.getItem('chosenStocks')) || [];
+            // Check if stock is already chosen
+            if (!chosenStocks.some(s => s.symbol === stock.symbol)) {
+                chosenStocks.push({
+                    symbol: stock.symbol,
+                    name: stock.name,
+                    price: stock.price
+                });
+                localStorage.setItem('chosenStocks', JSON.stringify(chosenStocks));
+            }
+        }
+    </script>
+</body>
+</html>

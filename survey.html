@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Investment Survey - Fantasy Trader</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap');
+
+        :root {
+            --primary: #4a6785;
+            --secondary: #6aa08d;
+            --accent: #e0a24c;
+            --background: #1a1714;
+            --surface: #1a1714;
+            --surface-2: #241f1b;
+            --success: #5cb88a;
+            --danger: #d9645c;
+            --text-primary: #ffffff;
+            --text-secondary: #8899aa;
+            --glow-green: rgba(236, 226, 214, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Animated Background ── */
+        .animated-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image:
+                linear-gradient(rgba(236, 226, 214, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(236, 226, 214, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridMove 30s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        .bg-glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.12;
+            animation: pulseGlow 8s ease-in-out infinite alternate;
+        }
+        .bg-glow-1 { width: 500px; height: 500px; background: var(--success); top: -10%; left: -5%; }
+        .bg-glow-2 { width: 400px; height: 400px; background: var(--primary); bottom: -10%; right: -5%; animation-delay: 4s; }
+        .bg-glow-3 { width: 300px; height: 300px; background: var(--accent); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: 2s; opacity: 0.06; }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1); opacity: 0.1; }
+            100% { transform: scale(1.15); opacity: 0.18; }
+        }
+
+        /* ── Progress Bar ── */
+        .progress-track {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.06);
+            z-index: 100;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--success), var(--accent));
+            border-radius: 0 2px 2px 0;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        /* ── Step Indicator ── */
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 2rem;
+        }
+        .step-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.3);
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 2;
+        }
+        .step-dot.active {
+            border-color: var(--success);
+            background: rgba(236, 226, 214, 0.15);
+            color: var(--success);
+            box-shadow: 0 0 20px rgba(236, 226, 214, 0.25);
+        }
+        .step-dot.done {
+            border-color: var(--success);
+            background: var(--success);
+            color: var(--background);
+        }
+        .step-line {
+            width: 36px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.08);
+            transition: background 0.4s ease;
+        }
+        .step-line.done {
+            background: var(--success);
+        }
+
+        /* ── Survey Wrapper ── */
+        .survey-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 50px 24px 80px;
+        }
+
+        .survey-header {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .survey-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--success);
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            margin-bottom: 0.6rem;
+            background: rgba(236, 226, 214, 0.08);
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(236, 226, 214, 0.15);
+        }
+
+        .survey-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ffffff 30%, var(--success) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .survey-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            line-height: 1.5;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* ── Steps (Slides) ── */
+        .survey-step {
+            display: none;
+            animation: fadeSlideIn 0.45s ease;
+        }
+        .survey-step.active {
+            display: block;
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Cards ── */
+        .survey-card {
+            background: linear-gradient(160deg, rgba(26, 23, 20, 0.9), rgba(6, 11, 17, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            margin-bottom: 1.2rem;
+        }
+
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(236, 226, 214, 0.15), rgba(236, 226, 214, 0.05));
+            border: 1px solid rgba(236, 226, 214, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        .card-icon svg {
+            width: 22px;
+            height: 22px;
+            fill: var(--success);
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.25rem;
+        }
+        .card-desc {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.4rem;
+        }
+
+        /* ── Field Inputs ── */
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            margin-bottom: 1.1rem;
+        }
+
+        .field-label {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .field-input,
+        .field-select {
+            width: 100%;
+            padding: 0.9rem 1.1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.25s ease;
+        }
+
+        .field-input:focus {
+            outline: none;
+            border-color: var(--success);
+            background: rgba(236, 226, 214, 0.04);
+            box-shadow: 0 0 0 3px rgba(236, 226, 214, 0.1);
+        }
+
+        .field-input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* ── Pill Selectors (Gender) ── */
+        .pill-group {
+            display: flex;
+            gap: 0.6rem;
+        }
+
+        .pill-option {
+            position: relative;
+            flex: 1;
+        }
+
+        .pill-option input { position: absolute; opacity: 0; }
+
+        .pill-option span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03);
+            color: rgba(255, 255, 255, 0.55);
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .pill-option:hover span {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .pill-option input:checked + span {
+            border-color: var(--success);
+            background: rgba(236, 226, 214, 0.12);
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(236, 226, 214, 0.15);
+        }
+
+        /* ── Option Cards (Investor Type + new questions) ── */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.7rem;
+        }
+
+        .option-card {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .option-card input { position: absolute; opacity: 0; }
+
+        .option-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 1.1rem;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.025);
+            transition: all 0.25s ease;
+        }
+
+        .option-card:hover .option-content {
+            border-color: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .option-card input:checked + .option-content {
+            border-color: var(--success);
+            background: rgba(236, 226, 214, 0.1);
+            box-shadow: 0 0 24px rgba(236, 226, 214, 0.12);
+        }
+
+        .option-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.6rem;
+            transition: all 0.25s ease;
+        }
+        .option-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: rgba(255, 255, 255, 0.5);
+            fill: none;
+            stroke-width: 1.8;
+            transition: stroke 0.25s ease;
+        }
+        .option-card input:checked + .option-content .option-icon {
+            background: rgba(236, 226, 214, 0.1);
+            border-color: rgba(236, 226, 214, 0.25);
+        }
+        .option-card input:checked + .option-content .option-icon svg {
+            stroke: var(--success);
+        }
+
+        .option-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.2rem;
+        }
+
+        .option-text {
+            color: var(--text-secondary);
+            font-size: 0.72rem;
+            line-height: 1.4;
+        }
+
+        /* ── Clean Sliders ── */
+        .slider-group {
+            margin-bottom: 1.5rem;
+        }
+        .slider-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .slider-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.7rem;
+        }
+
+        .slider-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .slider-value-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: color 0.25s ease;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            outline: none;
+            cursor: pointer;
+            position: relative;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            height: 6px;
+            border-radius: 999px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+            cursor: grab;
+            margin-top: -7px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            border-color: var(--success);
+            box-shadow: 0 0 0 4px rgba(236, 226, 214, 0.1), 0 1px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        input[type="range"]::-webkit-slider-thumb:active {
+            cursor: grabbing;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+            cursor: grab;
+        }
+
+        input[type="range"]::-moz-range-progress {
+            background: var(--success);
+            height: 6px;
+            border-radius: 999px;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+        }
+        .slider-labels span {
+            font-size: 0.62rem;
+            color: rgba(255, 255, 255, 0.2);
+            font-weight: 500;
+        }
+
+        /* ── Navigation Buttons ── */
+        .nav-buttons {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.95rem 1.5rem;
+            border-radius: 14px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: none;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, var(--success), #4fa87b);
+            color: var(--background);
+            box-shadow: 0 6px 20px rgba(236, 226, 214, 0.25);
+        }
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+        .btn-next:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: var(--danger);
+            text-align: center;
+            margin-top: 0.8rem;
+            font-size: 0.82rem;
+            font-weight: 500;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .survey-wrapper { padding: 40px 16px 60px; }
+            .survey-title { font-size: 1.7rem; }
+            .options-grid { grid-template-columns: 1fr; }
+            .survey-card { padding: 1.5rem; }
+            .step-line { width: 20px; }
+            .step-dot { width: 28px; height: 28px; font-size: 0.62rem; }
+        }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <style>
+        body { background-image: none !important; }
+        body::before, body::after { display: none !important; }
+        .bg-glow-1, .bg-glow-2, .bg-glow-3, .grid-overlay { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="animated-bg">
+        <div class="grid-overlay"></div>
+        <div class="bg-glow bg-glow-1"></div>
+        <div class="bg-glow bg-glow-2"></div>
+        <div class="bg-glow bg-glow-3"></div>
+    </div>
+
+    <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="survey-wrapper">
+        <div class="survey-header">
+            <div class="survey-kicker">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26z"/></svg>
+                Quick Profile Setup
+            </div>
+            <h1 class="survey-title">Build Your Investor Profile</h1>
+            <p class="survey-subtitle">Answer a few quick questions so we can tailor your experience to your style.</p>
+        </div>
+
+        <div class="step-indicator" id="stepIndicator">
+            <div class="step-dot active" data-step="1">1</div>
+            <div class="step-line"></div>
+            <div class="step-dot" data-step="2">2</div>
+            <div class="step-line"></div>
+            <div class="step-dot" data-step="3">3</div>
+            <div class="step-line"></div>
+            <div class="step-dot" data-step="4">4</div>
+            <div class="step-line"></div>
+            <div class="step-dot" data-step="5">5</div>
+        </div>
+
+        <form id="surveyForm">
+            <!-- Step 1: Profile -->
+            <div class="survey-step active" data-step="1">
+                <div class="survey-card">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    </div>
+                    <div class="card-title">About You</div>
+                    <div class="card-desc">Let's start with the basics.</div>
+
+                    <div class="field-group">
+                        <label class="field-label" for="ageInput">Your Age</label>
+                        <input id="ageInput" class="field-input" type="number" min="13" max="100" placeholder="e.g. 21" required>
+                    </div>
+                    <div class="field-group">
+                        <span class="field-label">Gender</span>
+                        <div class="pill-group">
+                            <label class="pill-option">
+                                <input type="radio" name="gender" value="male" required>
+                                <span>Male</span>
+                            </label>
+                            <label class="pill-option">
+                                <input type="radio" name="gender" value="female" required>
+                                <span>Female</span>
+                            </label>
+                            <label class="pill-option">
+                                <input type="radio" name="gender" value="other" required>
+                                <span>Other</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="nav-buttons">
+                    <button type="button" class="btn btn-next" onclick="nextStep(1)">Continue</button>
+                </div>
+                <div class="error-message" id="error1"></div>
+            </div>
+
+            <!-- Step 2: Investor Type -->
+            <div class="survey-step" data-step="2">
+                <div class="survey-card">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
+                    </div>
+                    <div class="card-title">What kind of investor are you?</div>
+                    <div class="card-desc">Pick the style that sounds most like you.</div>
+
+                    <div class="options-grid">
+                        <label class="option-card">
+                            <input type="radio" name="investorType" value="long-term" required>
+                            <span class="option-content">
+                                <div class="option-icon">
+                                    <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg>
+                                </div>
+                                <span class="option-title">Long-Term</span>
+                                <span class="option-text">Buy and hold with steady growth over time.</span>
+                            </span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="investorType" value="day-trader" required>
+                            <span class="option-content">
+                                <div class="option-icon">
+                                    <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                                </div>
+                                <span class="option-title">Day Trader</span>
+                                <span class="option-text">Fast-paced trades with short holding times.</span>
+                            </span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="investorType" value="swing-trader" required>
+                            <span class="option-content">
+                                <div class="option-icon">
+                                    <svg viewBox="0 0 24 24"><path d="M2 12c2-4 6-4 8 0s6 4 8 0"/><path d="M2 6c2-4 6-4 8 0s6 4 8 0"/><path d="M2 18c2-4 6-4 8 0s6 4 8 0"/></svg>
+                                </div>
+                                <span class="option-title">Swing Trader</span>
+                                <span class="option-text">Ride short to medium-term momentum waves.</span>
+                            </span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="investorType" value="passive" required>
+                            <span class="option-content">
+                                <div class="option-icon">
+                                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                </div>
+                                <span class="option-title">Passive</span>
+                                <span class="option-text">Index funds, ETFs, and chill diversification.</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                <div class="nav-buttons">
+                    <button type="button" class="btn btn-back" onclick="prevStep(2)">Back</button>
+                    <button type="button" class="btn btn-next" onclick="nextStep(2)">Continue</button>
+                </div>
+                <div class="error-message" id="error2"></div>
+            </div>
+
+            <!-- Step 3: Why Are You Here? -->
+            <div class="survey-step" data-step="3">
+                <div class="survey-card">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                    </div>
+                    <div class="card-title">Why are you using FantasyTrader?</div>
+                    <div class="card-desc">Select the option that best describes your main goal.</div>
+
+                    <div class="options-grid">
+                        <label class="option-card">
+                            <input type="radio" name="motivation" value="learn-basics" required>
+                            <span class="option-content">
+                                <div class="option-icon">
+                                    <svg viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3z"/></svg>
+                                </div>
+                                <span class="option-title">Learn the Basics</span>
+                                <span class="option-text">I'm new to investing and want to build foundational knowledge.</span>
+                            </span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="motivation" value="compete-social" required>
+                            <span class="option-content">
+                                <div class="option-icon">
+                                    <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                                </div>
+                                <span class="option-title">Compete with Others</span>
+                                <span class="option-text">I want to challenge friends or classmates in a trading league.</span>
+                            </span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="motivation" value="finance-career" required>
+                            <span class="option-content">
+                                <div class="option-icon">
+                                    <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-2 .89-2 2v11c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
+                                </div>
+                                <span class="option-title">Explore Finance Careers</span>
+                                <span class="option-text">I'm considering a career in finance or investing.</span>
+                            </span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="motivation" value="practice-skills" required>
+                            <span class="option-content">
+                                <div class="option-icon">
+                                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                                </div>
+                                <span class="option-title">Practice Before Real Money</span>
+                                <span class="option-text">I want to build confidence before investing real funds.</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                <div class="nav-buttons">
+                    <button type="button" class="btn btn-back" onclick="prevStep(3)">Back</button>
+                    <button type="button" class="btn btn-next" onclick="nextStep(3)">Continue</button>
+                </div>
+                <div class="error-message" id="error3"></div>
+            </div>
+
+            <!-- Step 4: Your Relationship with Investing -->
+            <div class="survey-step" data-step="4">
+                <div class="survey-card">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                    </div>
+                    <div class="card-title">What best describes your situation?</div>
+                    <div class="card-desc">Select the one that fits you most right now.</div>
+
+                    <div class="options-grid">
+                        <label class="option-card">
+                            <input type="radio" name="investingStatus" value="already-invest" required>
+                            <span class="option-content">
+                                <div class="option-icon">
+                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                                </div>
+                                <span class="option-title">I Already Invest</span>
+                                <span class="option-text">I currently invest real money and want to sharpen my skills.</span>
+                            </span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="investingStatus" value="want-to-start" required>
+                            <span class="option-content">
+                                <div class="option-icon">
+                                    <svg viewBox="0 0 24 24"><path d="M9 11.75c-.69 0-1.25.56-1.25 1.25s.56 1.25 1.25 1.25 1.25-.56 1.25-1.25-.56-1.25-1.25-1.25zm6 0c-.69 0-1.25.56-1.25 1.25s.56 1.25 1.25 1.25 1.25-.56 1.25-1.25-.56-1.25-1.25-1.25zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-.29.02-.58.05-.86 2.36-1.05 4.23-2.98 5.21-5.37C11.07 8.33 14.05 10 17.42 10c.78 0 1.53-.09 2.25-.26.21.71.33 1.47.33 2.26 0 4.41-3.59 8-8 8z"/></svg>
+                                </div>
+                                <span class="option-title">I Want to Start</span>
+                                <span class="option-text">I'm interested in investing but haven't taken the first step yet.</span>
+                            </span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="investingStatus" value="not-enough-knowledge" required>
+                            <span class="option-content">
+                                <div class="option-icon">
+                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+                                </div>
+                                <span class="option-title">I Lack the Knowledge</span>
+                                <span class="option-text">I don't understand enough about investing to feel comfortable starting.</span>
+                            </span>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="investingStatus" value="feels-too-risky" required>
+                            <span class="option-content">
+                                <div class="option-icon">
+                                    <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                                </div>
+                                <span class="option-title">It Feels Too Risky</span>
+                                <span class="option-text">I'm worried about losing money and don't know how to manage risk.</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                <div class="nav-buttons">
+                    <button type="button" class="btn btn-back" onclick="prevStep(4)">Back</button>
+                    <button type="button" class="btn btn-next" onclick="nextStep(4)">Continue</button>
+                </div>
+                <div class="error-message" id="error4"></div>
+            </div>
+
+            <!-- Step 5: Skills & Confidence -->
+            <div class="survey-step" data-step="5">
+                <div class="survey-card">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                    </div>
+                    <div class="card-title">Rate Your Experience</div>
+                    <div class="card-desc">Be honest — we'll match you with the right content.</div>
+
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span class="slider-label">Skill Level</span>
+                            <span class="slider-value-text" id="skillText">Developing</span>
+                        </div>
+                        <input type="range" id="skillSlider" min="1" max="7" value="4">
+                        <div class="slider-labels"><span>Beginner</span><span>Expert</span></div>
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span class="slider-label">Confidence</span>
+                            <span class="slider-value-text" id="confidenceText">Moderate</span>
+                        </div>
+                        <input type="range" id="confidenceSlider" min="1" max="7" value="4">
+                        <div class="slider-labels"><span>Unsure</span><span>Very Sure</span></div>
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span class="slider-label">Knowledge of Investing</span>
+                            <span class="slider-value-text" id="knowledgeText">Moderate</span>
+                        </div>
+                        <input type="range" id="knowledgeSlider" min="1" max="7" value="4">
+                        <div class="slider-labels"><span>None</span><span>Deep</span></div>
+                    </div>
+                </div>
+                <div class="nav-buttons">
+                    <button type="button" class="btn btn-back" onclick="prevStep(5)">Back</button>
+                    <button type="submit" class="btn btn-next">Finish Setup</button>
+                </div>
+                <div class="error-message" id="error5"></div>
+            </div>
+        
+        </form>
+    </div>
+
+    <script>
+        /* ── Step Navigation ── */
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        function updateProgress() {
+            const pct = (currentStep / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = pct + '%';
+
+            document.querySelectorAll('.step-dot').forEach(dot => {
+                const s = Number(dot.dataset.step);
+                dot.classList.remove('active', 'done');
+                if (s < currentStep) dot.classList.add('done'), dot.innerHTML = '&#10003;';
+                else if (s === currentStep) dot.classList.add('active');
+                else dot.textContent = s;
+            });
+            document.querySelectorAll('.step-line').forEach((line, i) => {
+                line.classList.toggle('done', i + 1 < currentStep);
+            });
+        }
+
+        function showStep(n) {
+            document.querySelectorAll('.survey-step').forEach(s => s.classList.remove('active'));
+            document.querySelector(`.survey-step[data-step="${n}"]`).classList.add('active');
+            currentStep = n;
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function nextStep(from) {
+            // Clear previous error
+            const errEl = document.getElementById('error' + from);
+            if (errEl) errEl.textContent = '';
+
+            if (from === 1) {
+                const age = document.getElementById('ageInput').value;
+                const gender = document.querySelector('input[name="gender"]:checked');
+                if (!age || !gender) {
+                    document.getElementById('error1').textContent = 'Please fill in all fields.';
+                    return;
+                }
+            }
+            if (from === 2) {
+                const type = document.querySelector('input[name="investorType"]:checked');
+                if (!type) {
+                    document.getElementById('error2').textContent = 'Please select an investor type.';
+                    return;
+                }
+            }
+            if (from === 3) {
+                const motivation = document.querySelector('input[name="motivation"]:checked');
+                if (!motivation) {
+                    document.getElementById('error3').textContent = 'Please select your main goal.';
+                    return;
+                }
+            }
+            if (from === 4) {
+                const status = document.querySelector('input[name="investingStatus"]:checked');
+                if (!status) {
+                    document.getElementById('error4').textContent = 'Please select the option that fits you best.';
+                    return;
+                }
+            }
+            showStep(from + 1);
+        }
+
+        function prevStep(from) {
+            showStep(from - 1);
+        }
+
+        /* ── Clean Sliders (1-7 scale) ── */
+        const sliderConfig = {
+            skill: {
+                id: 'skillSlider', text: 'skillText',
+                labels: ['Beginner', 'Novice', 'Developing', 'Intermediate', 'Proficient', 'Advanced', 'Expert']
+            },
+            confidence: {
+                id: 'confidenceSlider', text: 'confidenceText',
+                labels: ['Very Low', 'Low', 'Cautious', 'Moderate', 'Confident', 'High', 'Very High']
+            },
+            knowledge: {
+                id: 'knowledgeSlider', text: 'knowledgeText',
+                labels: ['None', 'Minimal', 'Basic', 'Moderate', 'Good', 'Strong', 'Deep']
+            }
+        };
+
+        function updateSlider(key) {
+            const cfg = sliderConfig[key];
+            const slider = document.getElementById(cfg.id);
+            const textEl = document.getElementById(cfg.text);
+            const val = Number(slider.value);
+            const pct = ((val - 1) / 6) * 100;
+
+            textEl.textContent = cfg.labels[val - 1];
+            textEl.style.color = val <= 3 ? 'rgba(255,255,255,0.45)' : val >= 6 ? '#5cb88a' : 'rgba(255,255,255,0.7)';
+            slider.style.background = `linear-gradient(90deg, #5cb88a 0%, #5cb88a ${pct}%, rgba(255,255,255,0.08) ${pct}%)`;
+        }
+
+        function initSliders() {
+            Object.keys(sliderConfig).forEach(key => {
+                const slider = document.getElementById(sliderConfig[key].id);
+                updateSlider(key);
+                slider.addEventListener('input', () => updateSlider(key));
+            });
+        }
+
+        /* ── Form Submit ── */
+        document.getElementById('surveyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const preferences = {
+                age: Number(document.getElementById('ageInput').value),
+                gender: document.querySelector('input[name="gender"]:checked').value,
+                investorType: document.querySelector('input[name="investorType"]:checked').value,
+                motivation: document.querySelector('input[name="motivation"]:checked').value,
+                investingStatus: document.querySelector('input[name="investingStatus"]:checked').value,
+                skillLevel: Number(document.getElementById('skillSlider').value),
+                confidenceLevel: Number(document.getElementById('confidenceSlider').value),
+                knowledgeLevel: Number(document.getElementById('knowledgeSlider').value)
+            };
+
+            localStorage.setItem('userPreferences', JSON.stringify(preferences));
+            localStorage.setItem('showTutorial', 'true');
+            // Survey done -> dashboard, where the tutorial picks up.
+            window.location.href = 'dashboard.html';
+        });
+
+        /* ── Init ── */
+        document.addEventListener('DOMContentLoaded', () => {
+            initSliders();
+            updateProgress();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="stock-data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #1A1714; color: #F4EEE6; font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            padding: 2.5rem 1rem;
+        }
+        .room-back { position: fixed; top: 1.5rem; left: 1.75rem; z-index: 10; }
+
+        /* ── The phone ── */
+        .phone {
+            width: 392px; height: 800px; flex-shrink: 0;
+            background: #0C0A08; border-radius: 56px; padding: 13px;
+            box-shadow: 0 40px 90px rgba(0,0,0,0.65), 0 0 0 2px rgba(236,226,214,0.09),
+                        inset 0 0 4px rgba(0,0,0,0.9);
+            position: relative;
+        }
+        .phone::before { /* side button */
+            content: ''; position: absolute; right: -3px; top: 190px; width: 3px; height: 72px;
+            background: #2a2420; border-radius: 0 3px 3px 0;
+        }
+        .phone::after { /* volume */
+            content: ''; position: absolute; left: -3px; top: 160px; width: 3px; height: 110px;
+            background: #2a2420; border-radius: 3px 0 0 3px;
+        }
+        .screen {
+            background: #17130F; border-radius: 44px; height: 100%;
+            overflow: hidden; display: flex; flex-direction: column; position: relative;
+        }
+        .island {
+            position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+            width: 118px; height: 30px; background: #0C0A08; border-radius: 999px; z-index: 6;
+        }
+        .status-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 30px 2px; font: 600 0.82rem 'Inter', sans-serif; color: #F4EEE6;
+        }
+        .sb-right { display: flex; align-items: center; gap: 6px; font-size: 0.7rem; }
+        .battery { width: 22px; height: 11px; border: 1px solid rgba(244,238,230,0.6); border-radius: 3px; position: relative; }
+        .battery::before { content: ''; position: absolute; inset: 1.5px; right: 30%; background: #5CB88A; border-radius: 1px; }
+        .battery::after { content: ''; position: absolute; right: -3px; top: 3px; width: 2px; height: 5px; background: rgba(244,238,230,0.6); border-radius: 0 1px 1px 0; }
+
+        /* ── Mail app ── */
+        .app-bar { padding: 12px 22px 2px; }
+        .app-title { font: 600 1.55rem 'Fraunces', Georgia, serif; }
+        .sub { color: #B7ADA1; font-size: 0.74rem; margin-top: 2px; }
+        .search-pill {
+            margin: 10px 16px 4px; padding: 0.55rem 1rem; border-radius: 999px;
+            background: rgba(236,226,214,0.06); color: #7d746a; font-size: 0.8rem;
+        }
+        .filters { display: flex; gap: 6px; padding: 8px 16px 6px; }
+        .chip {
+            padding: 0.32rem 0.85rem; border-radius: 999px; cursor: pointer;
+            background: rgba(236,226,214,0.05); border: 1px solid rgba(236,226,214,0.08);
+            color: #B7ADA1; font-size: 0.74rem; font-weight: 600;
+        }
+        .chip.active { background: rgba(92,184,138,0.14); border-color: rgba(92,184,138,0.45); color: #5CB88A; }
+
+        .mail-scroll { flex: 1; overflow-y: auto; padding: 2px 8px 8px; scrollbar-width: none; }
+        .mail-scroll::-webkit-scrollbar { display: none; }
+
+        .msg {
+            display: flex; gap: 12px; padding: 12px 12px; border-radius: 16px;
+            text-decoration: none; color: inherit; transition: background 0.15s ease;
+        }
+        .msg:hover { background: rgba(236,226,214,0.05); }
+        .av {
+            width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font: 700 1.05rem 'Inter', sans-serif; color: #17130F;
+        }
+        .av.up   { background: #5CB88A; }
+        .av.down { background: #D9645C; }
+        .av.news { background: #E0A24C; }
+        .av.lg   { background: #9DB8D2; }
+        .body { flex: 1; min-width: 0; }
+        .mrow { display: flex; align-items: baseline; gap: 8px; }
+        .mtitle {
+            flex: 1; font-weight: 700; font-size: 0.85rem; line-height: 1.35;
+            overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+        }
+        .mtime { color: #7d746a; font-size: 0.68rem; white-space: nowrap; }
+        .mdesc {
+            color: #B7ADA1; font-size: 0.76rem; margin-top: 2px; line-height: 1.4;
+            overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        }
+        .msg { position: relative; }
+        .msg .msg-x {
+            position: absolute; top: 8px; right: 8px;
+            background: none; border: none; color: rgba(236,226,214,0.25);
+            font-size: 0.7rem; cursor: pointer; padding: 4px; line-height: 1;
+        }
+        .msg:hover .msg-x { color: #8a8178; }
+        .msg .msg-x:hover { color: #D9645C; }
+        .state { text-align: center; color: #B7ADA1; padding: 3rem 1.5rem; font-size: 0.85rem; line-height: 1.6; }
+        .state a { color: #5CB88A; }
+        .home-bar { width: 128px; height: 5px; border-radius: 999px; background: rgba(236,226,214,0.28); margin: 6px auto 10px; flex-shrink: 0; }
+
+        @media (max-height: 880px) { .phone { transform: scale(0.92); } }
+        @media (max-height: 800px) { .phone { transform: scale(0.84); } }
+    </style>
+</head>
+<body>
+    <a href="dashboard.html" class="room-back back-link">← Dashboard</a>
+    <div class="phone">
+        <div class="screen">
+            <div class="island"></div>
+            <div class="status-bar">
+                <span id="clock">9:41</span>
+                <span class="sb-right">5G <span class="battery"></span></span>
+            </div>
+            <div class="app-bar">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div class="app-title">Inbox</div>
+                    <button id="clearAllBtn" onclick="clearAllMail()" style="background:none;border:1px solid rgba(236,226,214,0.2);color:#8a8178;font:600 0.68rem 'Inter',sans-serif;padding:0.3rem 0.7rem;border-radius:999px;cursor:pointer;">Clear all</button>
+                </div>
+                <div class="sub" id="sub">Updates about your portfolio and leagues</div>
+            </div>
+            <div class="search-pill"><input id="mailSearch" type="text" placeholder="Search in mail" autocomplete="off"
+     style="width:100%;background:none;border:none;outline:none;color:#F4EEE6;font:inherit;"></div>
+            <div class="filters">
+                <div class="chip active" data-f="all">All</div>
+                <div class="chip" data-f="portfolio">Portfolio</div>
+                <div class="chip" data-f="news">News</div>
+                <div class="chip" data-f="league">Leagues</div>
+            </div>
+            <div class="mail-scroll"><div id="list"><div class="state">Checking your portfolio and leagues…</div></div></div>
+            <div class="home-bar"></div>
+        </div>
+    </div>
+
+    <script>
+        const list = document.getElementById('list');
+        let items = [];   // {type, icon, title, desc, time, link}
+
+        // Dismissed messages persist locally — cleared mail stays cleared.
+        const DISMISSED = new Set(JSON.parse(localStorage.getItem('mailDismissed') || '[]'));
+        const mailKey = i => (i.title + '|' + i.desc).slice(0, 120);
+        function saveDismissed() {
+            localStorage.setItem('mailDismissed', JSON.stringify([...DISMISSED].slice(-400)));
+            syncBadge();
+        }
+        // Dashboard badge = messages you can still see, not everything ever sent.
+        function syncBadge() {
+            try {
+                const n = items.filter(i => !DISMISSED.has(mailKey(i))).length;
+                localStorage.setItem('inboxCount', String(n));
+            } catch (e) {}
+        }
+        window.dismissMail = function (ev, key) {
+            ev.preventDefault(); ev.stopPropagation();
+            DISMISSED.add(key); saveDismissed();
+            render(activeFilter);
+        };
+        window.clearAllMail = function () {
+            items.forEach(i => DISMISSED.add(mailKey(i)));
+            saveDismissed();
+            render(activeFilter);
+        };
+
+        function esc(s){ return String(s || '').replace(/</g,'&lt;'); }
+
+        let activeFilter = 'all';
+        function render(filter) {
+            activeFilter = filter;
+            const q = (document.getElementById('mailSearch').value || '').trim().toLowerCase();
+            const rows = items.filter(i =>
+                !DISMISSED.has(mailKey(i)) &&
+                (filter === 'all' || i.type === filter) &&
+                (!q || (i.title + ' ' + i.desc).toLowerCase().includes(q)));
+            if (!rows.length) {
+                const q = (document.getElementById('mailSearch').value || '').trim();
+                list.innerHTML = q
+                    ? '<div class="state">No mail matching “' + esc(q) + '”.</div>'
+                    : '<div class="state">Nothing here yet — buy a stock on the <a href="trading.html">trading floor</a> or join a <a href="league.html">league</a> and updates will appear.</div>';
+                return;
+            }
+            list.innerHTML = rows.map(i => {
+                const tag = i.link ? 'a' : 'div';
+                const href = i.link ? ' href="' + i.link + '"' + (i.link.startsWith('http') ? ' target="_blank" rel="noopener"' : '') : '';
+                const letter = (i.title || '?').replace(/[^A-Za-z0-9]/g, '').charAt(0).toUpperCase() || '?';
+                const key = mailKey(i).replace(/'/g, '');
+                return '<' + tag + ' class="msg"' + href + '>' +
+                    '<div class="av ' + i.icon + '">' + letter + '</div>' +
+                    '<div class="body"><div class="mrow"><div class="mtitle">' + i.title + '</div>' +
+                    '<div class="mtime">' + i.time + '</div></div>' +
+                    '<div class="mdesc">' + i.desc + '</div></div>' +
+                    '<button class="msg-x" onclick="dismissMail(event, \'' + key + '\')" title="Clear">✕</button></' + tag + '>';
+            }).join('');
+        }
+
+        document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+            document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+            c.classList.add('active');
+            render(c.dataset.f);
+        }));
+
+        async function build() {
+            try {
+                // ---- Portfolio: price moves on your actual holdings ----
+                const pf = await SL.loadPortfolio();
+                const syms = Object.keys(pf.stocks || {});
+                if (syms.length) {
+                    const quotes = await stockDataService.getQuotes(syms.slice(0, 8));
+                    for (const sym of Object.keys(quotes)) {
+                        const q = quotes[sym];
+                        const pos = pf.stocks[sym];
+                        if (q.price == null || !pos) continue;
+                        const pct = q.change_pct || 0;
+                        const pl = (q.price - (pos.avgPrice || q.price)) * pos.shares;
+                        if (Math.abs(pct) >= 1) {
+                            items.push({
+                                type: 'portfolio', icon: pct >= 0 ? 'up' : 'down',
+                                fa: pct >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down',
+                                title: sym + ' ' + (pct >= 0 ? 'jumped' : 'fell') + ' ' + Math.abs(pct).toFixed(1) + '% today',
+                                desc: 'Now $' + q.price.toFixed(2) + ' · your ' + pos.shares + ' share' + (pos.shares === 1 ? '' : 's') + ' are ' +
+                                      (pl >= 0 ? 'up $' + pl.toFixed(2) : 'down $' + Math.abs(pl).toFixed(2)) + ' overall.',
+                                time: 'Today', link: 'trading.html?symbol=' + sym
+                            });
+                        }
+                        items.push({
+                            type: 'portfolio', icon: pl >= 0 ? 'up' : 'down', fa: 'fa-briefcase',
+                            title: 'Position update: ' + sym,
+                            desc: pos.shares + ' shares · avg cost $' + (pos.avgPrice || 0).toFixed(2) + ' · last $' + q.price.toFixed(2) +
+                                  ' (' + (pl >= 0 ? '+' : '−') + '$' + Math.abs(pl).toFixed(2) + ')',
+                            time: 'Today', link: 'portfolio.html'
+                        });
+                    }
+                    // ---- News about your top holdings ----
+                    for (const sym of syms.slice(0, 3)) {
+                        try {
+                            const news = await SL.getStockNews(sym);
+                            (news || []).slice(0, 2).forEach(n => items.push({
+                                type: 'news', icon: 'news', fa: 'fa-newspaper',
+                                title: esc(n.title),
+                                desc: sym + ' · ' + (n.source || 'Yahoo Finance'),
+                                time: n.pubDate ? new Date(n.pubDate).toLocaleDateString() : 'Recent',
+                                link: n.link
+                            }));
+                        } catch (e) { /* skip */ }
+                    }
+                }
+
+                // ---- Leagues: lobby status, drafts, your standings ----
+                const leagues = await SL.myLeagues();
+                for (const row of (leagues || [])) {
+                    const l = row.leagues; if (!l) continue;
+                    if (l.status === 'lobby') {
+                        items.push({ type: 'league', icon: 'lg', fa: 'fa-users',
+                            title: '“' + esc(l.name) + '” is waiting to draft',
+                            desc: 'Share code ' + l.join_code + ' with friends — the draft starts when the host begins.',
+                            time: 'League', link: 'your-league.html?league=' + l.id });
+                    } else if (l.status === 'drafting') {
+                        items.push({ type: 'league', icon: 'lg', fa: 'fa-bolt',
+                            title: 'Draft in progress in “' + esc(l.name) + '”',
+                            desc: 'Get in there — picks are happening right now.',
+                            time: 'League', link: 'your-league.html?league=' + l.id });
+                    } else {
+                        try {
+                            const standings = await SL.leagueStandings(l.id);
+                            const me = await SL.currentUser();
+                            const idx = standings.findIndex(s => s.user_id === (me && me.id));
+                            if (idx >= 0) {
+                                const s = standings[idx];
+                                items.push({ type: 'league', icon: idx === 0 ? 'up' : 'lg', fa: idx === 0 ? 'fa-trophy' : 'fa-ranking-star',
+                                    title: (idx === 0 ? 'You lead “' : 'You are #' + (idx + 1) + ' in “') + esc(l.name) + '”',
+                                    desc: 'Roster value $' + s.value.toFixed(2) + ' · return ' + (s.returnPct >= 0 ? '+' : '') + s.returnPct.toFixed(2) + '%',
+                                    time: 'League', link: 'your-league.html?league=' + l.id });
+                            }
+                        } catch (e) { /* skip */ }
+                    }
+                }
+            } catch (e) { /* show whatever we have */ }
+
+            document.getElementById('sub').textContent =
+                items.length ? items.length + ' updates from your portfolio and leagues' : 'Updates about your portfolio and leagues';
+            syncBadge();
+            render('all');
+        }
+
+        // live clock in the status bar
+        function tickClock() {
+            document.getElementById('clock').textContent =
+                new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).replace(/\s?[AP]M/i, '');
+        }
+        tickClock(); setInterval(tickClock, 30000);
+
+        document.getElementById('mailSearch').addEventListener('input', () => render(activeFilter));
+
+        build();
+    </script>
+</body>
+</html>

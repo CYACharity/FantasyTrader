@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Economic Cycles & Sector Rotation - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        :root {
+            --primary: #5cb88a;
+            --accent: #e0a24c;
+            --level: #e0a24c;
+            --background: #1a1714;
+            --surface: #1e1a16;
+            --surface-2: #241f1b;
+            --border: #2a2420;
+            --text-primary: #e8e8e8;
+            --text-body: #c4c4c4;
+            --text-muted: #888888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .mod-header {
+            background: rgba(20, 20, 20, 0.97);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .mod-header-inner {
+            max-width: 820px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .back-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover { opacity: 0.75; }
+        .mod-header-meta {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            width: 0%;
+            background: var(--level);
+            z-index: 200;
+            transition: width 0.15s linear;
+        }
+
+        .article {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 5rem;
+        }
+
+        .module-label {
+            display: inline-block;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--level);
+            background: rgba(236, 226, 214, 0.08);
+            border: 1px solid rgba(236, 226, 214, 0.18);
+            padding: 5px 12px;
+            border-radius: 4px;
+            margin-bottom: 1.2rem;
+        }
+
+        .article-title {
+            font-family: 'Lora', serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #ffffff;
+            margin-bottom: 0.8rem;
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .meta-item { display: flex; align-items: center; gap: 5px; }
+        .meta-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); }
+
+        .article p {
+            font-family: 'Lora', serif;
+            font-size: 1.05rem;
+            line-height: 1.85;
+            color: var(--text-body);
+            margin-bottom: 1.5rem;
+        }
+
+        .article h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+        .article h2:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+
+        .sources {
+            margin-top: 3.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+        .sources h3 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            margin-top: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        .source-item {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 0.6rem;
+            font-family: 'Inter', sans-serif;
+        }
+        .source-item a { color: #5cb88a; text-decoration: none; overflow-wrap: anywhere; }
+        .source-item a:hover { text-decoration: underline; }
+                .example-box { background: rgba(236, 226, 214, 0.04); border: 1px solid rgba(224, 162, 76, 0.12); border-radius: 10px; padding: 1.5rem; margin: 1.8rem 0; }
+        .example-label { font-family: 'Inter', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
+        .example-box p { font-size: 0.95rem; margin-bottom: 0; }
+
+        .fig { background: rgba(236, 226, 214, 0.03); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem 1rem 0.9rem; margin: 1.8rem 0; }
+        .fig svg { width: 100%; max-width: 560px; height: auto; display: block; margin: 0 auto; }
+        .fig-cap { font: 500 0.75rem 'Inter', sans-serif; color: var(--text-muted); text-align: center; margin-top: 0.7rem; line-height: 1.5; }
+        .data-table { width: 100%; border-collapse: collapse; margin: 1.6rem 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; }
+        .data-table th { text-align: left; font-size: 0.66rem; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-muted); padding: 0.5rem 0.7rem; border-bottom: 1px solid rgba(236,226,214,0.18); }
+        .data-table td { padding: 0.55rem 0.7rem; border-bottom: 1px solid rgba(236,226,214,0.07); color: var(--text-body); }
+        .data-table td:first-child { color: var(--text-primary); font-weight: 600; }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table th.num { text-align: right; }
+        .key-box { background: rgba(92,184,138,0.06); border: 1px solid rgba(92,184,138,0.2); border-radius: 10px; padding: 1.2rem 1.4rem; margin: 1.8rem 0; }
+        .key-box .example-label { color: #5cb88a; }
+        .key-box p { font-size: 0.95rem; margin-bottom: 0; }
+        .quiz-section {
+            margin-top: 3.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.75rem;
+        }
+        .quiz-section h3 { font-family: 'Inter', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 0.3rem; color: #ffffff; }
+        .quiz-subtitle { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; font-family: 'Inter', sans-serif !important; }
+        .quiz-q { margin-bottom: 1.75rem; }
+
+        /* Quiz rework: lettered options, cleaner questions */
+        .quiz-section h3 { font-family: 'Fraunces', Georgia, serif !important; font-size: 1.3rem !important; }
+        .quiz-q { padding-top: 1.2rem; border-top: 1px solid rgba(236, 226, 214, 0.07); }
+        .quiz-q:first-of-type { border-top: none; padding-top: 0; }
+        .quiz-q > p { font-size: 1rem !important; }
+        .quiz-opts { counter-reset: opt; }
+        .quiz-opt { position: relative; padding-left: 2.9rem !important; counter-increment: opt; }
+        .quiz-opt::before {
+            content: counter(opt, upper-alpha);
+            position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%);
+            width: 1.45rem; height: 1.45rem; border: 1px solid rgba(236, 226, 214, 0.25);
+            border-radius: 5px; display: flex; align-items: center; justify-content: center;
+            font: 700 0.68rem 'Inter', sans-serif; color: #8a8178;
+        }
+        .quiz-opt:hover::before { border-color: rgba(236, 226, 214, 0.5); color: #F4EEE6; }
+        .quiz-opt.correct::before { border-color: #5cb88a; color: #5cb88a; content: '✓'; }
+        .quiz-opt.wrong::before { border-color: #d9645c; color: #d9645c; content: '✕'; }
+
+        .quiz-figure {
+            background: rgba(236, 226, 214, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }
+        .quiz-figure svg { width: 100%; max-width: 430px; height: auto; display: block; margin: 0 auto; }
+        .quiz-q p { font-family: 'Inter', sans-serif; font-weight: 600; margin-bottom: 0.7rem; font-size: 0.95rem; line-height: 1.5; color: var(--text-primary); }
+        .quiz-opts { display: flex; flex-direction: column; gap: 0.5rem; }
+        .quiz-opt { padding: 0.7rem 0.95rem; background: rgba(236,226,214,0.04); border: 1px solid rgba(236,226,214,0.1); border-radius: 10px; cursor: pointer; font-size: 0.9rem; transition: all 0.15s ease; }
+        .quiz-opt:hover { border-color: rgba(236,226,214,0.25); }
+        .quiz-opt.correct { border-color: #5cb88a; background: rgba(92,184,138,0.12); }
+        .quiz-opt.wrong { border-color: #d9645c; background: rgba(217,100,92,0.12); }
+        .quiz-opt.disabled { pointer-events: none; }
+        .quiz-feedback { display: none; font-size: 0.82rem; margin-top: 0.5rem; font-family: 'Inter', sans-serif; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.right { color: #5cb88a; }
+        .quiz-feedback.wrong-fb { color: #d9645c; }
+
+        .module-footer { max-width: 720px; margin: 0 auto; padding: 0 1.5rem 4rem; display: flex; justify-content: space-between; align-items: center; }
+        .footer-btn {
+            display: inline-flex; align-items: center; gap: 8px; padding: 0.85rem 1.6rem;
+            border-radius: 10px; font-size: 0.85rem; font-weight: 700; text-decoration: none;
+            transition: all 0.2s ease; font-family: 'Inter', sans-serif; border: none; cursor: pointer;
+        }
+        .footer-btn-next { background: var(--primary); color: var(--background); }
+        .footer-btn-next:hover { transform: translateY(-2px); box-shadow: 0 2px 10px rgba(0,0,0,0.18); }
+        .footer-btn-back { background: rgba(255, 255, 255, 0.04); color: var(--text-muted); }
+        .footer-btn-back:hover { background: rgba(255, 255, 255, 0.09); color: var(--text-primary); }
+    </style>
+</head>
+<body>
+    <div class="reading-progress" id="readingProgress"></div>
+    <header class="mod-header">
+        <div class="mod-header-inner">
+            <a href="investing-path.html" class="back-link">← Long-Term Investing</a>
+            <span class="mod-header-meta">MODULE 12 OF 18 · INTERMEDIATE</span>
+        </div>
+    </header>
+
+    <article class="article">
+        <span class="module-label">Intermediate · Module 12</span>
+        <h1 class="article-title">Economic Cycles & Sector Rotation</h1>
+        <div class="article-meta">
+            <span class="meta-item">Long-Term Investing</span>
+            <span class="meta-dot"></span>
+            <span class="meta-item">Intermediate</span>
+            <span class="meta-dot"></span>
+            <span class="meta-item">3 min read</span>
+        </div>
+
+        <h2>The economy breathes</h2>
+        <p>Expansion, peak, contraction, recovery — the business cycle has repeated a dozen times since WWII, averaging five to seven years, and each phase reliably favors different corners of the market. <b>Early recovery</b>: banks (steepening yield curves fatten lending margins), consumer discretionary, small caps — the beaten-down and economically sensitive. <b>Mid expansion</b>: technology and industrials, as confidence funds investment. <b>Late cycle</b>: energy and materials, as demand strains capacity and inflation stirs. <b>Recession</b>: staples, utilities, healthcare — people medicate, refrigerate and pay power bills in any economy.</p>
+        <div class="fig"><svg viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg">
+<path d="M40,110 C110,30 210,30 280,110 C350,190 450,190 520,110" fill="none" stroke="#B7ADA1" stroke-width="2"/>
+<text x="110" y="55" text-anchor="middle" fill="#5CB88A" font-size="10" font-weight="700">EXPANSION</text>
+<text x="110" y="70" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">tech · industrials</text>
+<text x="280" y="95" text-anchor="middle" fill="#E0A24C" font-size="10" font-weight="700">PEAK</text>
+<text x="280" y="80" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">energy · materials</text>
+<text x="390" y="185" text-anchor="middle" fill="#D9645C" font-size="10" font-weight="700">RECESSION</text>
+<text x="390" y="200" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">staples · utilities · health</text>
+<text x="510" y="90" text-anchor="middle" fill="#9DB8D2" font-size="10" font-weight="700">RECOVERY</text>
+<text x="510" y="75" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">banks · discretionary</text>
+<text x="280" y="30" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">The rotation clock — obvious in hindsight, humbling in real time</text>
+</svg><div class="fig-cap">The classic sector rotation map across one full cycle.</div></div>
+        <p>The market moves 6-12 months BEFORE the economy: stocks bottom mid-recession while headlines are apocalyptic (March 2009, March 2020) and often peak while data still looks fine. That lead time is why rotating on published economic data is systematically late — by the time the recession is official, recovery sectors have already run.</p>
+        <h2>Signals worth respecting (and their failure rate)</h2>
+        <p>The <b>yield curve</b>: when 10-year Treasury yields fall below 2-year yields (inversion), recession has followed within ~6-24 months for nearly every case in 60 years — though 2022's inversion took so long to "work" that many declared it broken. <b>Credit spreads</b>: junk-bond spreads over Treasuries blowing past ~5% signal genuine stress; spreads are often earlier and more honest than equity indexes. <b>Leading indicators</b>: new manufacturing orders, jobless claims trend, housing permits. None of these times the market precisely; collectively they tell you which THIRD of the cycle you're probably in — which is genuinely useful, and all you get.</p>
+        <div class="example-box"><div class="example-label">The Humility File</div><p>An investor correctly foresaw the 2023 recession consensus… which never arrived; staying defensive cost 25% of upside. Another correctly predicted 2020's crash cause was unforecastable, rotated to staples in February by luck, then missed the fastest recovery ever by waiting for "confirmation." Even RIGHT macro calls routinely lose money on timing. This is the base case, not the exception.</p></div>
+        <h2>Using cycles without becoming a forecaster</h2>
+        <p>The evidence-based middle path: <b>tilt, don't time</b>. Keep the diversified core untouched; if you act on cycle reads at all, shade 5-10% toward favored sectors — never flip the whole book. <b>Rebalance into recessions</b>: your existing rule already buys cyclicals when they're hated; that's cycle investing without forecasts. <b>Use cycle awareness defensively</b>: late-cycle euphoria (2021's everything-rally) is when you enforce position limits and trim leverage, not when you invent new theses. And know the sectors' characters permanently: staples and healthcare are ballast, energy is an inflation hedge, banks are a rate bet, tech is a duration bet. Owning all of them on purpose — weighted to your risk, rebalanced mechanically — beats guessing which inning it is, because nobody reliably knows the inning until the game is over.</p>
+        <div class="key-box"><div class="example-label">The One Reliable Rotation</div><p>The only rotation with a century of evidence: from euphoria to fear and back, harvested mechanically by rebalancing. Sector prediction is a bonus skill few possess; rebalancing is a discipline anyone can hold. Build on the second, dabble in the first.</p></div>
+
+        <div class="quiz-section">
+            <h3>Check your understanding</h3>
+            <p class="quiz-subtitle">4 questions — expect real numbers. Your score saves to your account.</p>
+            <div class="quiz-q" id="q1" data-why="Markets price the future 6-12 months out: March 2009 and March 2020 bottoms arrived amid the worst headlines.">
+                <p>1. Stocks typically bottom…</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">after the recession officially ends</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, true)">mid-recession, while news is darkest</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">the day GDP turns positive</div>
+                </div>
+                <div class="quiz-feedback" id="fb1"></div>
+            </div>
+
+            <div class="quiz-q" id="q2" data-why="Nearly every post-1960 recession was preceded by inversion — with long, variable, trade-unfriendly lags.">
+                <p>2. A 10yr/2yr yield-curve inversion historically signals…</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">guaranteed crash within a month</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, true)">elevated recession odds in the following ~6-24 months</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">nothing at all</div>
+                </div>
+                <div class="quiz-feedback" id="fb2"></div>
+            </div>
+
+            <div class="quiz-q" id="q3" data-why="Demand for food, power and medicine doesn't track GDP.">
+                <p>3. Which set is the classic RECESSION shelter?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">energy, materials, small caps</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, true)">staples, utilities, healthcare</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">banks and airlines</div>
+                </div>
+                <div class="quiz-feedback" id="fb3"></div>
+            </div>
+
+            <div class="quiz-q" id="q4" data-why="Small expressed views cap the damage of wrong macro calls — which are the majority of macro calls.">
+                <p>4. "Tilt, don't time" means…</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, true)">shade 5-10% toward cycle views while the diversified core stays put</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">sell everything at the peak</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">only buy tilted charts</div>
+                </div>
+                <div class="quiz-feedback" id="fb4"></div>
+            </div>
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; Further Reading</h3>
+            <div class="source-item">Fidelity. <em>The Business Cycle Approach to Sector Investing.</em> <a href="https://institutional.fidelity.com/app/item/RD_13569_40890/business-cycle-update.html" target="_blank" rel="noopener">institutional.fidelity.com/app/item/RD_13569_40890/business-cycle-update.html</a></div>
+            <div class="source-item">Federal Reserve Bank of San Francisco. <em>Economic Forecasts with the Yield Curve.</em> <a href="https://www.frbsf.org/economic-research/publications/economic-letter/2018/march/economic-forecasts-with-yield-curve/" target="_blank" rel="noopener">frbsf.org/economic-research/publications/economic-letter/2018/march/economic-forecasts-with-yield-curve/</a></div>
+        </div>
+
+        <div class="legal-note" style="margin-top:2rem;padding:0.9rem 1.1rem;border:1px solid rgba(236,226,214,0.1);border-radius:8px;font:500 0.72rem 'Inter',sans-serif;color:#7d746a;line-height:1.6;">Educational content only — nothing here is investment, legal, or tax advice. Markets involve risk, figures are illustrative and may contain errors, and past performance never guarantees future results. Do your own research before investing real money.</div>
+    </article>
+
+    <div class="module-footer">
+        <a href="investing-path.html" class="footer-btn footer-btn-back">&larr; Back to Path</a>
+        <a href="investing-module-13.html" class="footer-btn footer-btn-next">Next Module →</a>
+    </div>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+            document.getElementById('readingProgress').style.width = Math.min(pct, 100) + '%';
+        });
+        function checkQuiz(num, el, isCorrect) {
+            const q = document.getElementById('q' + num);
+            const fb = document.getElementById('fb' + num);
+            const opts = q.querySelectorAll('.quiz-opt');
+            opts.forEach(o => { o.classList.add('disabled'); o.classList.remove('correct', 'wrong'); });
+            const why = q.dataset.why ? ' ' + q.dataset.why : '';
+            if (isCorrect) {
+                el.classList.add('correct');
+                fb.textContent = 'Correct.' + why;
+                fb.className = 'quiz-feedback show right';
+            } else {
+                el.classList.add('wrong');
+                opts.forEach(o => { if (o.getAttribute('onclick').includes('true')) o.classList.add('correct'); });
+                fb.textContent = 'Not quite — the correct answer is highlighted.' + why;
+                fb.className = 'quiz-feedback show wrong-fb';
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/quiz.js"></script>
+</body>
+</html>

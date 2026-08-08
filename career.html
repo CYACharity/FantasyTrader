@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Center - Stock League</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4a6785;
+            --secondary: #6aa08d;
+            --accent: #e0a24c;
+            --success: #5cb88a;
+            --background: #1a1714;
+            --surface: #241f1b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background);
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: rgba(36, 31, 27, 0.95);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(236, 226, 214, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(236, 226, 214, 0.2);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: rgba(236, 226, 214, 0.1);
+            border-color: var(--success);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--success);
+            margin: 0;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .intro-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: rgba(36, 31, 27, 0.5);
+            border-radius: 12px;
+            border: 1px solid rgba(236, 226, 214, 0.1);
+        }
+
+        .intro-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--success);
+            margin-bottom: 1rem;
+        }
+
+        .intro-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1.5rem;
+        }
+
+        .recruitment-message {
+            background: rgba(236, 226, 214, 0.1);
+            border: 1px solid rgba(236, 226, 214, 0.2);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .recruitment-message h3 {
+            color: var(--success);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .career-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .career-card {
+            background: rgba(36, 31, 27, 0.8);
+            border: 1px solid rgba(236, 226, 214, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .career-card:hover {
+            border-color: var(--success);
+            transform: translateY(-2px);
+        }
+
+        .career-card h2 {
+            color: var(--accent);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .career-card p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--success);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .company-list {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .company-list h4 {
+            color: var(--accent);
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .company-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .company-list li {
+            color: rgba(255, 255, 255, 0.7);
+            padding: 0.3rem 0;
+            font-size: 0.9rem;
+        }
+
+        .performance-indicator {
+            background: rgba(236, 226, 214, 0.1);
+            border: 1px solid rgba(236, 226, 214, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .performance-indicator strong {
+            color: var(--success);
+        }
+
+        .career-path {
+            margin-top: 1.5rem;
+        }
+
+        .career-path h4 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .path-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .path-step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+        }
+
+        .step-number {
+            background: var(--success);
+            color: var(--background);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .step-duration {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(236, 226, 214, 0.2);
+            padding-bottom: 1rem;
+        }
+
+        .nav-tab {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            background: rgba(236, 226, 214, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(92, 184, 138, 0.3);
+        }
+
+        .nav-tab:hover {
+            background: rgba(236, 226, 214, 0.05);
+            color: #fff;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Fantasy Trader Firms */
+        .firms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .firm-card {
+            background: rgba(36, 31, 27, 0.8);
+            border: 1px solid rgba(236, 226, 214, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .firm-card:hover {
+            border-color: var(--success);
+            transform: translateY(-2px);
+        }
+
+        .firm-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .firm-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .firm-type {
+            background: rgba(236, 226, 214, 0.1);
+            color: var(--success);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .firm-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+
+        .firm-stat {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 0.8rem;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .firm-stat-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .firm-stat-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 0.2rem;
+        }
+
+        .apply-button {
+            background: linear-gradient(135deg, var(--success), var(--accent));
+            color: var(--background);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .apply-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        .apply-button:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            cursor: not-allowed;
+        }
+
+        /* Top Groups Section */
+        .groups-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .group-card {
+            background: rgba(36, 31, 27, 0.8);
+            border: 1px solid rgba(236, 226, 214, 0.1);
+            border-radius: 10px;
+            padding: 1.2rem;
+        }
+
+        .group-rank {
+            background: var(--accent);
+            color: var(--background);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+        }
+
+        .group-name {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .group-performance {
+            color: var(--success);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .group-members {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        /* Page Title */
+        .page-main-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--success);
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--success), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Your Groups Section */
+        .your-groups-section {
+            background: rgba(36, 31, 27, 0.8);
+            border: 1px solid rgba(236, 226, 214, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .your-groups-title {
+            color: var(--accent);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .your-groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .your-group-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid rgba(236, 226, 214, 0.1);
+        }
+
+        .your-group-name {
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .your-group-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+
+        .your-group-performance {
+            color: var(--success);
+        }
+
+        .your-group-rank {
+            color: var(--accent);
+        }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+</head>
+<body>
+    <div class="header">
+        <a href="dashboard.html" class="back-button">← Back to Dashboard</a>
+        <h1 class="page-title">Career Center</h1>
+        <div></div>
+    </div>
+
+    <div class="main-container">
+        <h1 class="page-main-title">Career Center</h1>
+
+        <!-- Your Groups Section -->
+        <div class="your-groups-section">
+            <h2 class="your-groups-title">Your Groups</h2>
+            <div class="your-groups-grid">
+                <div class="your-group-card">
+                    <div class="your-group-name">Elite Traders Collective</div>
+                    <div class="your-group-stats">
+                        <span class="your-group-performance">+45% YTD</span>
+                        <span class="your-group-rank">Rank #3</span>
+                    </div>
+                </div>
+                <div class="your-group-card">
+                    <div class="your-group-name">Alpha Capital Partners</div>
+                    <div class="your-group-stats">
+                        <span class="your-group-performance">+28% YTD</span>
+                        <span class="your-group-rank">Rank #7</span>
+                    </div>
+                </div>
+                <div class="your-group-card">
+                    <div class="your-group-name">Phoenix Trading Group</div>
+                    <div class="your-group-stats">
+                        <span class="your-group-performance">+52% YTD</span>
+                        <span class="your-group-rank">Rank #2</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="intro-section">
+            <h2 class="intro-title">Get Recruited by Top Firms</h2>
+            <p class="intro-subtitle">Your trading performance on FantasyTrader can lead to real career opportunities</p>
+            
+            <div class="recruitment-message">
+                <h3>How It Works</h3>
+                <p>Top performing traders on our platform are regularly scouted by leading financial institutions. 
+                Your simulated trading results, risk management skills, and market analysis capabilities are evaluated 
+                by recruiters from hedge funds, private equity firms, and investment banks.</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('firms')">Fantasy Trader Firms</button>
+            <button class="nav-tab" onclick="showSection('careers')">Career Paths</button>
+            <button class="nav-tab" onclick="showSection('groups')">Top Groups</button>
+        </div>
+
+        <!-- Fantasy Trader Firms Section -->
+        <div id="firms-section" class="content-section active">
+            <h2 style="color: var(--accent); margin-bottom: 1.5rem;">Available Positions</h2>
+            <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 2rem;">
+                Apply to join these prestigious Fantasy Trader firms based on your in-game performance and statistics.
+            </p>
+            
+            <div class="firms-grid">
+                <div class="firm-card">
+                    <div class="firm-header">
+                        <div class="firm-name">Quantum Capital</div>
+                        <div class="firm-type">Hedge Fund</div>
+                    </div>
+                    <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 1rem;">
+                        Elite quantitative trading firm seeking top performers with strong risk management skills.
+                    </p>
+                    <div class="firm-stats">
+                        <div class="firm-stat">
+                            <div class="firm-stat-value">$50M</div>
+                            <div class="firm-stat-label">Fund Size</div>
+                        </div>
+                        <div class="firm-stat">
+                            <div class="firm-stat-value">25%</div>
+                            <div class="firm-stat-label">Performance</div>
+                        </div>
+                        <div class="firm-stat">
+                            <div class="firm-stat-value">15</div>
+                            <div class="firm-stat-label">Members</div>
+                        </div>
+                        <div class="firm-stat">
+                            <div class="firm-stat-value">Top 5%</div>
+                            <div class="firm-stat-label">Required Rank</div>
+                        </div>
+                    </div>
+                    <button class="apply-button" onclick="applyToFirm('quantum')">Apply Now</button>
+                </div>
+
+                <div class="firm-card">
+                    <div class="firm-header">
+                        <div class="firm-name">Phoenix Ventures</div>
+                        <div class="firm-type">Private Equity</div>
+                    </div>
+                    <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 1rem;">
+                        Growth-focused PE firm looking for analysts with strong valuation and deal analysis skills.
+                    </p>
+                    <div class="firm-stats">
+                        <div class="firm-stat">
+                            <div class="firm-stat-value">$200M</div>
+                            <div class="firm-stat-label">AUM</div>
+                        </div>
+                        <div class="firm-stat">
+                            <div class="firm-stat-value">18%</div>
+                            <div class="firm-stat-label">IRR</div>
+                        </div>
+                        <div class="firm-stat">
+                            <div class="firm-stat-value">8</div>
+                            <div class="firm-stat-label">Members</div>
+                        </div>
+                        <div class="firm-stat">
+                            <div class="firm-stat-value">Top 10%</div>
+                            <div class="firm-stat-label">Required Rank</div>
+                        </div>
+                    </div>
+                    <button class="apply-button" onclick="applyToFirm('phoenix')">Apply Now</button>
+                </div>
+
+                <div class="firm-card">
+                    <div class="firm-header">
+                        <div class="firm-name">Meridian Advisors</div>
+                        <div class="firm-type">M&A Advisory</div>
+                    </div>
+                    <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 1rem;">
+                        Boutique M&A firm specializing in tech and healthcare deals. Seeking strategic thinkers.
+                    </p>
+                    <div class="firm-stats">
+                        <div class="firm-stat">
+                            <div class="firm-stat-value">$2.5B</div>
+                            <div class="firm-stat-label">Deals Closed</div>
+                        </div>
+                        <div class="firm-stat">
+                            <div class="firm-stat-value">95%</div>
+                            <div class="firm-stat-label">Success Rate</div>
+                        </div>
+                        <div class="firm-stat">
+                            <div class="firm-stat-value">12</div>
+                            <div class="firm-stat-label">Members</div>
+                        </div>
+                        <div class="firm-stat">
+                            <div class="firm-stat-value">Top 15%</div>
+                            <div class="firm-stat-label">Required Rank</div>
+                        </div>
+                    </div>
+                    <button class="apply-button" onclick="applyToFirm('meridian')">Apply Now</button>
+                </div>
+
+                <div class="firm-card">
+                    <div class="firm-header">
+                        <div class="firm-name">Apex Trading</div>
+                        <div class="firm-type">Proprietary Trading</div>
+                    </div>
+                    <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 1rem;">
+                        High-frequency trading firm using advanced algorithms and market microstructure analysis.
+                    </p>
+                    <div class="firm-stats">
+                        <div class="firm-stat">
+                            <div class="firm-stat-value">$100M</div>
+                            <div class="firm-stat-label">Capital</div>
+                        </div>
+                        <div class="firm-stat">
+                            <div class="firm-stat-value">32%</div>
+                            <div class="firm-stat-label">ROI</div>
+                        </div>
+                        <div class="firm-stat">
+                            <div class="firm-stat-value">20</div>
+                            <div class="firm-stat-label">Members</div>
+                        </div>
+                        <div class="firm-stat">
+                            <div class="firm-stat-value">Top 3%</div>
+                            <div class="firm-stat-label">Required Rank</div>
+                        </div>
+                    </div>
+                    <button class="apply-button" onclick="applyToFirm('apex')">Apply Now</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Career Paths Section -->
+        <div id="careers-section" class="content-section">
+            <h2 style="color: var(--accent); margin-bottom: 1.5rem;">Learn About Career Paths</h2>
+            <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 2rem;">
+                Explore different career opportunities in finance and understand what each path entails.
+            </p>
+
+        <div class="career-grid">
+            <!-- Private Equity -->
+            <div class="career-card">
+                <h2>Private Equity</h2>
+                <p>Your analytical skills and market understanding make you an ideal candidate for private equity roles. 
+                PE firms value traders who can evaluate companies, understand market dynamics, and make strategic investment decisions.</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">$500M</div>
+                        <div class="stat-label">Avg Deal Size</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">25%</div>
+                        <div class="stat-label">Carried Interest</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">$200K</div>
+                        <div class="stat-label">Base Salary</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">5-7</div>
+                        <div class="stat-label">Years to Partner</div>
+                    </div>
+                </div>
+
+                <div class="company-list">
+                    <h4>Top PE Firms</h4>
+                    <ul>
+                        <li>Blackstone Group</li>
+                        <li>KKR & Co.</li>
+                        <li>Apollo Global Management</li>
+                        <li>Carlyle Group</li>
+                        <li>Bain Capital</li>
+                    </ul>
+                </div>
+
+                <div class="performance-indicator">
+                    <strong>Your Deal Analysis Score: 92/100</strong>
+                </div>
+            </div>
+
+            <!-- Hedge Fund -->
+            <div class="career-card">
+                <h2>Hedge Fund</h2>
+                <p>Your trading performance demonstrates the skills needed for hedge fund positions. 
+                Hedge funds look for traders who can generate consistent returns while managing risk effectively.</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">$2.5M</div>
+                        <div class="stat-label">Avg Fund Size</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">15%</div>
+                        <div class="stat-label">Performance Fee</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">$150K</div>
+                        <div class="stat-label">Base Salary</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">85%</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                </div>
+
+                <div class="company-list">
+                    <h4>Leading Hedge Funds</h4>
+                    <ul>
+                        <li>Bridgewater Associates</li>
+                        <li>Renaissance Technologies</li>
+                        <li>Two Sigma</li>
+                        <li>Citadel</li>
+                        <li>Point72 Asset Management</li>
+                    </ul>
+                </div>
+
+                <div class="performance-indicator">
+                    <strong>Your Trading Performance: Top 15%</strong>
+                </div>
+            </div>
+
+            <!-- M&A -->
+            <div class="career-card">
+                <h2>Mergers & Acquisitions</h2>
+                <p>Your strategic thinking and market analysis skills are perfect for M&A roles. 
+                Investment banks value traders who understand market dynamics and can evaluate company valuations.</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">$1.2B</div>
+                        <div class="stat-label">Avg Deal Value</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">2.5%</div>
+                        <div class="stat-label">Transaction Fee</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">$180K</div>
+                        <div class="stat-label">Base Salary</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">$500K</div>
+                        <div class="stat-label">Bonus Potential</div>
+                    </div>
+                </div>
+
+                <div class="company-list">
+                    <h4>Investment Banks</h4>
+                    <ul>
+                        <li>Goldman Sachs</li>
+                        <li>Morgan Stanley</li>
+                        <li>JPMorgan Chase</li>
+                        <li>Bank of America</li>
+                        <li>Credit Suisse</li>
+                    </ul>
+                </div>
+
+                <div class="performance-indicator">
+                    <strong>Your Valuation Accuracy: 94%</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Career Path Section -->
+        <div class="career-card" style="margin-top: 2rem;">
+            <h2>Career Development Path</h2>
+            <p>Based on your current performance, here's your recommended career progression:</p>
+            
+            <div class="career-path">
+                <div class="path-steps">
+                    <div class="path-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-title">Junior Trader/Analyst</div>
+                            <div class="step-duration">Years 1-2</div>
+                        </div>
+                    </div>
+                    <div class="path-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-title">Senior Trader/Associate</div>
+                            <div class="step-duration">Years 3-5</div>
+                        </div>
+                    </div>
+                    <div class="path-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-title">Portfolio Manager/Vice President</div>
+                            <div class="step-duration">Years 6-8</div>
+                        </div>
+                    </div>
+                    <div class="path-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <div class="step-title">Fund Partner/Director</div>
+                            <div class="step-duration">Years 9+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="performance-indicator" style="margin-top: 1.5rem;">
+                <strong>Career Readiness Score: 88/100</strong><br>
+                <small>Next Steps: Complete advanced trading courses, build your professional network, and maintain top performance</small>
+            </div>
+        </div>
+        </div>
+
+        <!-- Top Groups Section -->
+        <div id="groups-section" class="content-section">
+            <h2 style="color: var(--accent); margin-bottom: 1.5rem;">Top Performing Groups</h2>
+            <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 2rem;">
+                Discover the most successful trading groups and teams on FantasyTrader.
+            </p>
+            
+            <div class="groups-list">
+                <div class="group-card">
+                    <div class="group-rank">1</div>
+                    <div class="group-name">Elite Traders Collective</div>
+                    <div class="group-performance">+156% YTD</div>
+                    <div class="group-members">25 members</div>
+                </div>
+                
+                <div class="group-card">
+                    <div class="group-rank">2</div>
+                    <div class="group-name">Quantum Alpha Group</div>
+                    <div class="group-performance">+142% YTD</div>
+                    <div class="group-members">18 members</div>
+                </div>
+                
+                <div class="group-card">
+                    <div class="group-rank">3</div>
+                    <div class="group-name">Phoenix Capital Partners</div>
+                    <div class="group-performance">+128% YTD</div>
+                    <div class="group-members">32 members</div>
+                </div>
+                
+                <div class="group-card">
+                    <div class="group-rank">4</div>
+                    <div class="group-name">Meridian Trading Co.</div>
+                    <div class="group-performance">+115% YTD</div>
+                    <div class="group-members">22 members</div>
+                </div>
+                
+                <div class="group-card">
+                    <div class="group-rank">5</div>
+                    <div class="group-name">Apex Investment Group</div>
+                    <div class="group-performance">+103% YTD</div>
+                    <div class="group-members">28 members</div>
+                </div>
+                
+                <div class="group-card">
+                    <div class="group-rank">6</div>
+                    <div class="group-name">Strategic Capital Fund</div>
+                    <div class="group-performance">+98% YTD</div>
+                    <div class="group-members">15 members</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionName + '-section').classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        function applyToFirm(firmName) {
+            const userRank = getUserRank(); // This would get the user's actual rank
+            const firmRequirements = {
+                'quantum': 'Top 5%',
+                'phoenix': 'Top 10%',
+                'meridian': 'Top 15%',
+                'apex': 'Top 3%'
+            };
+            
+            const requiredRank = firmRequirements[firmName];
+            
+            if (userRank <= 5) { // Assuming user is in top 5%
+                alert('Application submitted successfully! You will be contacted within 48 hours.');
+            } else {
+                alert('You need to reach ' + requiredRank + ' to apply to this firm. Keep improving your performance!');
+            }
+        }
+
+        function getUserRank() {
+            // This would get the user's actual rank from localStorage or API
+            // For now, return a random rank for demonstration
+            return Math.floor(Math.random() * 20) + 1;
+        }
+    </script>
+</body>
+</html> 

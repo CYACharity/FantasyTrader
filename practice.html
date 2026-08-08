@@ -2,16 +2,16 @@
 <html>
 <head>
     <title>Practice Trading - Stock League</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1E3888;
-            --secondary: #47A992;
-            --accent: #FFB100;
-            --background: #0B1622;
-            --surface: #162A3D;
-            --success: #00FF88;
-            --danger: #FF4444;
+            --primary: #4a6785;
+            --secondary: #6aa08d;
+            --accent: #e0a24c;
+            --background: #1a1714;
+            --surface: #241f1b;
+            --success: #5cb88a;
+            --danger: #d9645c;
             --text-primary: #ffffff;
             --text-secondary: #b2b5be;
         }
@@ -47,8 +47,8 @@
             width: 100%;
             height: 100%;
             background-image: 
-                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+                linear-gradient(rgba(236, 226, 214, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(236, 226, 214, 0.03) 1px, transparent 1px);
             background-size: 50px 50px;
             animation: gridMove 20s linear infinite;
         }
@@ -151,9 +151,10 @@
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, rgba(11, 22, 34, 0.95) 0%, rgba(22, 42, 61, 0.95) 100%);
-            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
-            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, rgba(26, 23, 20, 0.95) 0%, rgba(36, 31, 27, 0.95) 100%);
+            border-bottom: 1px solid rgba(236, 226, 214, 0.2);
+            padding: 0 2rem;
+            height: 84px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -173,8 +174,8 @@
         }
 
         .back-button {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(0, 255, 136, 0.15));
-            border: 1px solid rgba(0, 255, 136, 0.3);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(236, 226, 214, 0.15));
+            border: 1px solid rgba(92, 184, 138, 0.3);
             color: white;
             padding: 0.8rem 1.5rem;
             border-radius: 10px;
@@ -190,18 +191,19 @@
         }
 
         .back-button:hover {
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.25), rgba(255, 177, 0, 0.25));
+            background: linear-gradient(135deg, rgba(236, 226, 214, 0.25), rgba(224, 162, 76, 0.25));
             border-color: var(--accent);
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
         }
 
         .page-title {
             font-size: 2rem;
             font-weight: 800;
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #ffffff 0%, var(--success) 50%, var(--accent) 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -0.5px;
         }
@@ -209,68 +211,129 @@
         /* Main Content */
         .main-content {
             margin-top: 90px;
-            padding: 3rem 2rem;
+            padding: 1.5rem 2rem;
             position: relative;
             z-index: 1;
-            min-height: calc(100vh - 90px);
+            min-height: calc(100vh - 60px);
         }
 
         .hero-section {
             text-align: center;
-            margin-bottom: 4rem;
-            max-width: 1200px;
+            margin-bottom: 2rem;
+            max-width: 900px;
             margin-left: auto;
             margin-right: auto;
         }
 
         .hero-title {
-            font-size: 4.5rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            font-family: 'Space Grotesk', sans-serif;
-            margin-bottom: 1rem;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 0.5rem;
             line-height: 1.1;
             background: linear-gradient(135deg, #ffffff 0%, var(--success) 50%, var(--accent) 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 40px rgba(0, 255, 136, 0.3);
-            letter-spacing: -2px;
+            text-shadow: 0 0 40px rgba(92, 184, 138, 0.3);
+            letter-spacing: -1px;
         }
 
         .hero-subtitle {
-            font-size: 1.4rem;
+            font-size: 1rem;
             color: var(--text-secondary);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
             font-weight: 500;
         }
 
         .hero-tagline {
-            font-size: 1rem;
+            font-size: 0.85rem;
             color: rgba(255, 255, 255, 0.6);
             font-style: italic;
         }
 
         .practice-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 2.5rem;
-            max-width: 1200px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            max-width: 900px;
             margin: 0 auto;
-            padding: 2rem 0;
+            padding: 1rem 0;
         }
 
         .practice-card {
-            background: linear-gradient(135deg, rgba(22, 42, 61, 0.8) 0%, rgba(11, 22, 34, 0.9) 100%);
-            border: 2px solid rgba(0, 255, 136, 0.2);
-            border-radius: 24px;
-            padding: 3rem;
+            background: linear-gradient(135deg, rgba(36, 31, 27, 0.8) 0%, rgba(26, 23, 20, 0.9) 100%);
+            border: 2px solid rgba(236, 226, 214, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             overflow: hidden;
             text-decoration: none;
-            display: block;
+            display: flex;
+            flex-direction: column;
+            min-height: 450px;
             backdrop-filter: blur(20px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Background decorative elements */
+        .practice-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Chart icon background for trading card */
+        .practice-card.trading-card::after {
+            background-image: 
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Cpath d='M10 250 L50 220 L90 200 L130 180 L150 160 L170 140 L190 120 L210 100 L230 85 L250 70 L270 60 L290 50 L310 45 L330 40 L350 35 L370 30 L390 25' stroke='%2300FF88' stroke-width='3' fill='none' stroke-linecap='round' opacity='0.15'/%3E%3Cpath d='M20 240 L60 210 L100 190 L140 170 L160 150 L180 130 L200 110 L220 95 L240 80 L260 70 L280 60 L300 55 L320 50 L340 45 L360 40 L380 35' stroke='%2300FF88' stroke-width='2.5' fill='none' stroke-linecap='round' opacity='0.12'/%3E%3Cpath d='M15 260 L55 230 L95 210 L135 190 L155 170 L175 150 L195 130 L215 115 L235 100 L255 90 L275 80 L295 75 L315 70 L335 65 L355 60 L375 55 L395 50' stroke='%2300FF88' stroke-width='2' fill='none' stroke-linecap='round' opacity='0.1'/%3E%3Cpath d='M30 230 L70 200 L110 180 L150 160 L170 140 L190 120 L210 105 L230 90 L250 80 L270 70 L290 65 L310 60 L330 55 L350 50 L370 45 L390 40' stroke='%2300FF88' stroke-width='2' fill='none' stroke-linecap='round' opacity='0.13'/%3E%3Cpath d='M25 245 L65 215 L105 195 L145 175 L165 155 L185 135 L205 115 L225 100 L245 85 L265 75 L285 65 L305 60 L325 55 L345 50 L365 45 L385 40' stroke='%2300FF88' stroke-width='2.5' fill='none' stroke-linecap='round' opacity='0.11'/%3E%3Cpath d='M5 270 L45 240 L85 220 L125 200 L145 180 L165 160 L185 140 L205 120 L225 105 L245 90 L265 80 L285 70 L305 65 L325 60 L345 55 L365 50 L385 45' stroke='%2300FF88' stroke-width='2' fill='none' stroke-linecap='round' opacity='0.09'/%3E%3Cpath d='M10 250 L10 280 M50 220 L50 280 M90 200 L90 280 M130 180 L130 280 M150 160 L150 280 M170 140 L170 280 M190 120 L190 280 M210 100 L210 280 M230 85 L230 280 M250 70 L250 280 M270 60 L270 280 M290 50 L290 280 M310 45 L310 280 M330 40 L330 280 M350 35 L350 280 M370 30 L370 280 M390 25 L390 280' stroke='%2300FF88' stroke-width='1' opacity='0.08'/%3E%3Cpath d='M0 250 L400 250 M0 220 L400 220 M0 190 L400 190 M0 160 L400 160 M0 130 L400 130 M0 100 L400 100 M0 70 L400 70 M0 40 L400 40' stroke='%2300FF88' stroke-width='1' opacity='0.06'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Cpath d='M10 100 L30 85 L50 70 L70 60 L90 55 L110 50 L130 45 L150 40 L170 35 L190 30' stroke='%2300FF88' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M10 100 L30 90 L50 75 L70 65 L90 58 L110 52 L130 48 L150 42 L170 38 L190 32' stroke='%2300FF88' stroke-width='2' fill='none' stroke-linecap='round' opacity='0.6'/%3E%3Ccircle cx='190' cy='30' r='4' fill='%2300FF88'/%3E%3Cpath d='M10 100 L10 110 M30 85 L30 110 M50 70 L50 110 M70 60 L70 110 M90 55 L90 110 M110 50 L110 110 M130 45 L130 110 M150 40 L150 110 M170 35 L170 110 M190 30 L190 110' stroke='%2300FF88' stroke-width='1' opacity='0.3'/%3E%3C/svg%3E");
+            background-size: 100% 100%, 180px 120px;
+            background-position: center, right -20px bottom -20px;
+            background-repeat: no-repeat, no-repeat;
+        }
+
+        /* Numbers background for portfolio card */
+        .practice-card.portfolio-card::after {
+            background-image: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(236, 226, 214, 0.03) 40px,
+                    rgba(236, 226, 214, 0.03) 41px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(236, 226, 214, 0.03) 40px,
+                    rgba(236, 226, 214, 0.03) 41px
+                );
+        }
+
+        .practice-card.portfolio-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Ctext x='20' y='40' font-family='Courier New' font-size='14' fill='%2300FF88' opacity='0.12'%3E+24.5%%3C/text%3E%3Ctext x='180' y='60' font-family='Courier New' font-size='12' fill='%2300FF88' opacity='0.1'%3E$1,234,567%3C/text%3E%3Ctext x='30' y='100' font-family='Courier New' font-size='13' fill='%2300FF88' opacity='0.11'%3E$89.45%3C/text%3E%3Ctext x='200' y='120' font-family='Courier New' font-size='14' fill='%2300FF88' opacity='0.13'%3E+$12.34%3C/text%3E%3Ctext x='50' y='160' font-family='Courier New' font-size='12' fill='%2300FF88' opacity='0.1'%3E-2.1%%3C/text%3E%3Ctext x='220' y='180' font-family='Courier New' font-size='13' fill='%2300FF88' opacity='0.12'%3E$456,789%3C/text%3E%3Ctext x='80' y='220' font-family='Courier New' font-size='14' fill='%2300FF88' opacity='0.11'%3E+18.2%%3C/text%3E%3Ctext x='250' y='240' font-family='Courier New' font-size='12' fill='%2300FF88' opacity='0.1'%3E$2,891,234%3C/text%3E%3Ctext x='120' y='280' font-family='Courier New' font-size='13' fill='%2300FF88' opacity='0.12'%3E$156.78%3C/text%3E%3C/svg%3E");
+            background-size: 100% 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 0;
+            pointer-events: none;
         }
 
         .practice-card::before {
@@ -280,8 +343,9 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.1), transparent);
+            background: linear-gradient(90deg, transparent, rgba(236, 226, 214, 0.1), transparent);
             transition: left 0.5s;
+            z-index: 1;
         }
 
         .practice-card:hover::before {
@@ -291,50 +355,55 @@
         .practice-card:hover {
             transform: translateY(-10px) scale(1.02);
             border-color: var(--success);
-            box-shadow: 0 20px 60px rgba(0, 255, 136, 0.3), 0 0 40px rgba(0, 255, 136, 0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
         }
 
         .card-icon {
             width: 80px;
             height: 80px;
             margin: 0 auto 2rem;
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 255, 136, 0.05));
+            background: linear-gradient(135deg, rgba(236, 226, 214, 0.2), rgba(236, 226, 214, 0.05));
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             transition: all 0.4s ease;
+            z-index: 2;
         }
 
         .practice-card:hover .card-icon {
             transform: scale(1.1) rotate(5deg);
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.3), rgba(0, 255, 136, 0.15));
-            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+            background: linear-gradient(135deg, rgba(92, 184, 138, 0.3), rgba(236, 226, 214, 0.15));
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
         }
 
         .card-icon svg {
             width: 45px;
             height: 45px;
             fill: var(--success);
-            filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.5));
+            filter: drop-shadow(0 0 10px rgba(92, 184, 138, 0.5));
         }
 
         .card-title {
-            font-size: 2.2rem;
+            font-size: 1.6rem;
             font-weight: 700;
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: 'Poppins', sans-serif;
             color: #ffffff;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             text-align: center;
+            position: relative;
+            z-index: 2;
         }
 
         .card-description {
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             color: var(--text-secondary);
-            line-height: 1.7;
+            line-height: 1.5;
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
         }
 
         .card-features {
@@ -343,16 +412,29 @@
             margin: 0;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 0.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .portfolio-card .card-features {
+            margin-top: 0.5rem;
+        }
+        
+        .card-features {
+            margin-top: 0.5rem;
         }
 
         .card-features li {
             color: rgba(255, 255, 255, 0.8);
-            font-size: 0.95rem;
-            padding-left: 2rem;
+            font-size: 0.9rem;
+            font-family: 'Poppins', sans-serif;
+            padding-left: 1.5rem;
             position: relative;
             display: flex;
+            margin-bottom: 0.75rem;
             align-items: center;
+            line-height: 1.6;
         }
 
         .card-features li::before {
@@ -364,7 +446,7 @@
             font-size: 1.2rem;
             width: 24px;
             height: 24px;
-            background: rgba(0, 255, 136, 0.15);
+            background: rgba(236, 226, 214, 0.15);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -374,29 +456,101 @@
         .card-cta {
             margin-top: 2rem;
             text-align: center;
-            padding: 1rem;
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 255, 136, 0.05));
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            border-radius: 12px;
-            color: var(--success);
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s ease;
+            padding: 1.2rem 2rem;
+            background: linear-gradient(135deg, var(--success) 0%, #54b082 100%);
+            border: 3px solid var(--success);
+            border-radius: 20px;
+            color: #1a1714;
+            font-weight: 900;
+            font-size: 1.3rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            z-index: 2;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+            transform-style: preserve-3d;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            clip-path: polygon(
+                0% 0%,
+                100% 0%,
+                100% calc(100% - 8px),
+                calc(100% - 8px) 100%,
+                8px 100%,
+                0% calc(100% - 8px)
+            );
+        }
+
+        .card-cta::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: -4px;
+            bottom: -4px;
+            background: linear-gradient(135deg, rgba(92, 184, 138, 0.4), rgba(236, 226, 214, 0.2));
+            border-radius: 16px;
+            z-index: -1;
+            filter: blur(8px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card-cta::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 3px,
+                    rgba(0, 0, 0, 0.08) 3px,
+                    rgba(0, 0, 0, 0.08) 6px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 3px,
+                    rgba(255, 255, 255, 0.1) 3px,
+                    rgba(255, 255, 255, 0.1) 6px
+                );
+            border-radius: 20px;
+            pointer-events: none;
+            opacity: 0.4;
+            mix-blend-mode: overlay;
         }
 
         .practice-card:hover .card-cta {
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.25), rgba(0, 255, 136, 0.15));
-            border-color: var(--success);
-            transform: scale(1.05);
+            background: linear-gradient(135deg, #5cb88a 0%, var(--success) 100%);
+            transform: translateY(-6px) scale(1.08);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+            border-color: #5cb88a;
+            clip-path: polygon(
+                0% 0%,
+                100% 0%,
+                100% calc(100% - 10px),
+                calc(100% - 10px) 100%,
+                10px 100%,
+                0% calc(100% - 10px)
+            );
+        }
+
+        .practice-card:hover .card-cta::before {
+            opacity: 1;
         }
 
         .stats-bar {
-            max-width: 1200px;
-            margin: 4rem auto 0;
-            padding: 2rem;
-            background: linear-gradient(135deg, rgba(22, 42, 61, 0.6), rgba(11, 22, 34, 0.8));
-            border: 1px solid rgba(0, 255, 136, 0.2);
-            border-radius: 20px;
+            max-width: 900px;
+            margin: 2rem auto 0;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(36, 31, 27, 0.6), rgba(26, 23, 20, 0.8));
+            border: 1px solid rgba(236, 226, 214, 0.2);
+            border-radius: 16px;
             backdrop-filter: blur(20px);
             display: flex;
             justify-content: space-around;
@@ -411,9 +565,10 @@
         .stat-value {
             font-size: 2.5rem;
             font-weight: 800;
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, var(--success), var(--accent));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             display: block;
             margin-bottom: 0.5rem;
@@ -424,6 +579,124 @@
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        /* Sector prompt modal */
+        .sector-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(8, 14, 20, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 1.5rem;
+        }
+
+        .sector-modal.active {
+            display: flex;
+        }
+
+        .sector-modal-content {
+            max-width: 900px;
+            width: 100%;
+            background: linear-gradient(135deg, rgba(36, 31, 27, 0.95), rgba(26, 23, 20, 0.98));
+            border: 2px solid rgba(92, 184, 138, 0.3);
+            border-radius: 18px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .sector-modal-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .sector-modal-title {
+            font-size: 2rem;
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, var(--success) 60%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.4rem;
+        }
+
+        .sector-modal-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .sector-count {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .sectors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .sector-button {
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            padding: 0.7rem 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .sector-button:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        .sector-button.selected {
+            border-color: var(--success);
+            background: rgba(236, 226, 214, 0.18);
+            color: var(--success);
+            box-shadow: 0 0 15px rgba(236, 226, 214, 0.25);
+        }
+
+        .sector-modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .sector-save {
+            padding: 0.9rem 2.2rem;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--success), #54b082);
+            color: #1a1714;
+            font-weight: 800;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
+
+        .sector-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        .sector-error {
+            text-align: center;
+            margin-top: 0.8rem;
+            color: var(--danger);
+            font-size: 0.9rem;
         }
 
         /* Responsive Design */
@@ -463,10 +736,139 @@
                 font-size: 1.8rem;
             }
             
+            .card-cta {
+                padding: 1rem 1.5rem;
+                font-size: 1.1rem;
+                letter-spacing: 1px;
+            }
+            
+            .practice-card {
+                min-height: 400px;
+            }
+            
             .stats-bar {
                 flex-direction: column;
                 gap: 1.5rem;
             }
+        }
+
+        /* ── Tutorial Overlay ── */
+        .tut-backdrop { display: none; position: fixed; inset: 0; z-index: 5000; pointer-events: none; }
+        .tut-backdrop.active { display: block; }
+        .tut-backdrop-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.55); pointer-events: auto; }
+        /* ── Tutorial ── */
+        .tut-backdrop { display:none; position:fixed; inset:0; z-index:5000; }
+        .tut-backdrop.active { display:block; }
+        .tut-overlay-svg { position:fixed; inset:0; width:100%; height:100%; z-index:5000; pointer-events:auto; }
+        .tut-highlight-border { display:none; }
+        .tut-tooltip { position:fixed; z-index:5002; background:#241f1b; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:1.25rem 1.4rem; width:300px; pointer-events:auto; opacity:0; box-shadow:0 16px 48px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.04); }
+        .tut-tooltip.visible { animation:tutFadeIn 0.3s ease forwards; }
+        @keyframes tutFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+        .tut-tooltip-step { font-size:0.7rem; font-weight:600; letter-spacing:0.5px; color:rgba(92,184,138,0.7); margin-bottom:0.5rem; font-family:'Poppins','Inter',sans-serif; }
+        .tut-tooltip-title { font-size:1.05rem; font-weight:700; color:#fff; margin-bottom:0.4rem; font-family:'Poppins','Inter',sans-serif; letter-spacing:-0.3px; }
+        .tut-tooltip-desc { font-size:0.82rem; color:rgba(255,255,255,0.65); line-height:1.55; margin-bottom:1.1rem; font-family:'Inter',sans-serif; }
+        .tut-tooltip-progress { display:flex; gap:4px; margin-bottom:1rem; }
+        .tut-tooltip-pip { height:3px; border-radius:2px; background:rgba(255,255,255,0.1); flex:1; transition:background 0.3s ease; }
+        .tut-tooltip-pip.done { background:rgba(92,184,138,0.5); }
+        .tut-tooltip-pip.active { background:#5cb88a; }
+        .tut-tooltip-actions { display:flex; justify-content:space-between; align-items:center; }
+        .tut-skip-btn { background:none; border:none; color:rgba(255,255,255,0.3); font-size:0.78rem; font-weight:500; cursor:pointer; padding:0.3rem 0; font-family:'Inter',sans-serif; transition:color 0.2s; }
+        .tut-skip-btn:hover { color:rgba(255,255,255,0.55); }
+        .tut-next-btn { background:#5cb88a; color:#1a1714; border:none; padding:0.5rem 1.2rem; border-radius:8px; font-size:0.8rem; font-weight:600; cursor:pointer; font-family:'Poppins','Inter',sans-serif; transition:all 0.2s ease; letter-spacing:-0.2px; }
+        .tut-next-btn:hover { background:#54b082; box-shadow:0 4px 14px rgba(236, 226, 214, 0.25); }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <style>
+        /* League-style clean theme for Practice */
+        .animated-bg, .grid-overlay, .floating-shapes, .chart-lines { display: none !important; }
+        body { background: #1A1714 !important; }
+        .hero-title {
+            background: none !important; -webkit-text-fill-color: #F4EEE6 !important;
+            text-shadow: none !important; font-family: 'Poppins','Inter',sans-serif !important; font-weight: 800 !important;
+        }
+        .hero-subtitle, .hero-tagline { color: #B7ADA1 !important; text-shadow: none !important; }
+        .practice-card, .practice-cards > div {
+            background: #221E1A !important;
+            border: 1px solid rgba(236,226,214,0.08) !important;
+            border-radius: 16px !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+        }
+        .practice-card::before, .practice-card::after { display: none !important; }
+        .practice-card:hover { transform: translateY(-3px) !important; border-color: rgba(236,226,214,0.22) !important;
+            box-shadow: 0 8px 22px rgba(0,0,0,0.3) !important; }
+        .card-cta {
+            background: #5CB88A !important; color: #14110E !important;
+            border: none !important; box-shadow: none !important; text-shadow: none !important;
+            border-radius: 10px !important; font-weight: 700 !important;
+        }
+        .card-icon { background: rgba(92,184,138,0.1) !important; border: 1px solid rgba(92,184,138,0.25) !important;
+            box-shadow: none !important; border-radius: 12px !important; }
+
+        /* Sleek stats strip */
+        .stats-bar {
+            background: #221E1A !important;
+            border: 1px solid rgba(236,226,214,0.08) !important;
+            border-radius: 14px !important;
+            box-shadow: none !important;
+            padding: 1.1rem 1.5rem !important;
+            display: flex !important; justify-content: space-around !important; align-items: center !important;
+            gap: 1rem !important; max-width: 760px !important; margin: 2rem auto 3rem !important;
+        }
+        .stat-item { text-align: center !important; }
+        .stat-value {
+            font: 700 1.25rem 'Poppins','Inter',sans-serif !important;
+            color: #5CB88A !important; text-shadow: none !important; display: block !important;
+        }
+        .stat-label {
+            font: 500 0.68rem 'Inter',sans-serif !important; text-transform: uppercase !important;
+            letter-spacing: 0.07em !important; color: #B7ADA1 !important;
+        }
+    </style>
+    <style>
+        .header { position: relative !important; }
+        .page-title {
+            font: 600 3.1rem 'Fraunces', Georgia, serif !important;
+            position: absolute !important; left: 50% !important; top: 50% !important;
+            transform: translate(-50%, -50%) !important; margin: 0 !important;
+            letter-spacing: -0.01em;
+        }
+        .hero-title { font-size: 2.6rem !important; }
+    </style>
+    <style>
+        .fact-rotator { max-width: 340px; text-align: right; z-index: 2; position: absolute; right: 2.25rem; top: 50%; transform: translateY(-50%); }
+        .fact-kicker {
+            font: 700 0.7rem 'Inter', sans-serif; text-transform: uppercase;
+            letter-spacing: 0.12em; color: #E0A24C; margin-bottom: 0.35rem;
+        }
+        .fact-line {
+            font: 500 0.84rem/1.55 'Inter', sans-serif; color: #D8CFC2;
+            transition: opacity 0.45s ease;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        @media (max-width: 900px) { .fact-rotator { display: none; } }
+    </style>
+    <style>
+        html, body { overflow: hidden !important; height: 100vh !important; }
+        .main-content { min-height: 0 !important; }
+    </style>
+    <style>
+        .header .back-button {
+            display: inline-flex !important; align-items: center !important; gap: 0.5rem !important;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(236, 226, 214, 0.15)) !important;
+            border: 1px solid rgba(92, 184, 138, 0.3) !important;
+            color: #ffffff !important; padding: 0.8rem 1.5rem !important; border-radius: 10px !important;
+            font: 600 0.9rem 'Inter', sans-serif !important;
+            text-decoration: none !important; cursor: pointer !important;
+            transition: all 0.3s ease !important; box-shadow: none !important; text-shadow: none !important;
+        }
+        .header .back-button:hover {
+            background: linear-gradient(135deg, rgba(236, 226, 214, 0.25), rgba(224, 162, 76, 0.25)) !important;
+            border-color: #E0A24C !important; transform: translateY(-2px) !important;
         }
     </style>
 </head>
@@ -495,18 +897,23 @@
             </a>
             <h1 class="page-title">Practice</h1>
         </div>
+        <div class="fact-rotator">
+            <div class="fact-kicker">Why practice matters</div>
+            <div class="fact-line" id="factLine">Studies find that up to 95% of day traders lose money over time.</div>
+        </div>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
-        <div class="hero-section">
-            <h1 class="hero-title">Master the Markets</h1>
-            <p class="hero-subtitle">Practice trading with real-time data, zero risk</p>
-            <p class="hero-tagline">Build confidence before you invest real capital</p>
+                <div class="practice-banner">
+            <div class="pb-text">
+                <div class="pb-kicker">The Practice Floor</div>
+                <div class="pb-line">Where you blow up the account that doesn't matter</div>
+            </div>
         </div>
 
         <div class="practice-cards">
-            <a href="trading.html" class="practice-card">
+            <a href="trading.html" class="practice-card trading-card">
                 <div class="card-icon">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
@@ -518,14 +925,13 @@
                 </p>
                 <ul class="card-features">
                     <li>Real-time market prices</li>
-                    <li>Advanced order types</li>
                     <li>Performance analytics</li>
                     <li>Risk-free environment</li>
                 </ul>
-                <div class="card-cta">Start Trading →</div>
+                <div class="card-cta">Start Trading</div>
             </a>
 
-            <a href="portfolio.html" class="practice-card">
+            <a href="portfolio.html" class="practice-card portfolio-card">
                 <div class="card-icon">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4V6h11v12zm5 0h-3V6h3v12z"/>
@@ -537,33 +943,321 @@
                     Construct and manage a diversified portfolio. Track performance, analyze holdings, and optimize your strategy.
                 </p>
                 <ul class="card-features">
-                    <li>Multi-asset portfolio</li>
                     <li>Performance tracking</li>
                     <li>Diversification analysis</li>
                     <li>Historical insights</li>
                 </ul>
-                <div class="card-cta">View Portfolio →</div>
-            </a>
+                <div class="card-cta">View Portfolio</div>
+                </a>
+            </div>
+            
         </div>
+    </div>
 
-        <div class="stats-bar">
-            <div class="stat-item">
-                <span class="stat-value">100%</span>
-                <span class="stat-label">Risk Free</span>
+    <p class="practice-footnote"><b>Real market data</b> · zero risk · unlimited practice time</p>
+
+    <div class="sector-modal" id="sectorModal">
+        <div class="sector-modal-content">
+            <div class="sector-modal-header">
+                <h2 class="sector-modal-title">Pick Your Sectors</h2>
+                <p class="sector-modal-subtitle">Choose up to 5 sectors to personalize your practice experience.</p>
             </div>
-            <div class="stat-item">
-                <span class="stat-value">24/7</span>
-                <span class="stat-label">Market Access</span>
+            <div class="sector-count">Selected: <span id="sectorCount">0</span>/5</div>
+            <div class="sectors-grid" id="sectorsGrid">
+                <div class="sector-button" data-value="FINANCE">Finance</div>
+                <div class="sector-button" data-value="TECHNOLOGY">Technology</div>
+                <div class="sector-button" data-value="HEALTHCARE">Healthcare</div>
+                <div class="sector-button" data-value="CONSUMER">Consumer</div>
+                <div class="sector-button" data-value="INDUSTRIAL">Industrial</div>
+                <div class="sector-button" data-value="ENERGY">Energy</div>
+                <div class="sector-button" data-value="MATERIALS">Materials</div>
+                <div class="sector-button" data-value="UTILITIES">Utilities</div>
+                <div class="sector-button" data-value="REAL_ESTATE">Real Estate</div>
+                <div class="sector-button" data-value="TELECOM">Telecom</div>
+                <div class="sector-button" data-value="AI">AI</div>
+                <div class="sector-button" data-value="BIOTECH">Biotech</div>
+                <div class="sector-button" data-value="CRYPTO">Crypto</div>
+                <div class="sector-button" data-value="GREEN">Green Energy</div>
+                <div class="sector-button" data-value="AEROSPACE">Aerospace</div>
+                <div class="sector-button" data-value="AGRICULTURE">Agriculture</div>
+                <div class="sector-button" data-value="ENTERTAINMENT">Entertainment</div>
+                <div class="sector-button" data-value="RETAIL">Retail</div>
+                <div class="sector-button" data-value="AUTOMOTIVE">Automotive</div>
+                <div class="sector-button" data-value="GAMING">Gaming</div>
             </div>
-            <div class="stat-item">
-                <span class="stat-value">Real</span>
-                <span class="stat-label">Market Data</span>
+            <div class="sector-modal-actions">
+                <button class="sector-save" id="sectorSave">Save & Continue</button>
             </div>
-            <div class="stat-item">
-                <span class="stat-value">∞</span>
-                <span class="stat-label">Practice Time</span>
+            <div class="sector-error" id="sectorError"></div>
+        </div>
+    </div>
+
+    <script>
+        const sectorModal = document.getElementById('sectorModal');
+        const sectorsGrid = document.getElementById('sectorsGrid');
+        const sectorCount = document.getElementById('sectorCount');
+        const sectorError = document.getElementById('sectorError');
+        const sectorSave = document.getElementById('sectorSave');
+        const maxSectors = 5;
+        let selectedSectors = [];
+
+        function updateSectorCount() {
+            sectorCount.textContent = selectedSectors.length;
+        }
+
+        function loadExistingSectors() {
+            const preferences = JSON.parse(localStorage.getItem('userPreferences') || '{}');
+            if (Array.isArray(preferences.sectors)) {
+                selectedSectors = [...preferences.sectors];
+            }
+
+            document.querySelectorAll('.sector-button').forEach(button => {
+                if (selectedSectors.includes(button.dataset.value)) {
+                    button.classList.add('selected');
+                }
+            });
+            updateSectorCount();
+        }
+
+        function openSectorModal() {
+            sectorModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSectorModal() {
+            sectorModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function bindSectorButtons() {
+            document.querySelectorAll('.sector-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const sector = button.dataset.value;
+                    const index = selectedSectors.indexOf(sector);
+
+                    if (index === -1) {
+                        if (selectedSectors.length >= maxSectors) {
+                            sectorError.textContent = 'Please select no more than 5 sectors.';
+                            return;
+                        }
+                        selectedSectors.push(sector);
+                        button.classList.add('selected');
+                    } else {
+                        selectedSectors.splice(index, 1);
+                        button.classList.remove('selected');
+                    }
+
+                    sectorError.textContent = '';
+                    updateSectorCount();
+                });
+            });
+        }
+
+        function saveSectors() {
+            if (selectedSectors.length === 0) {
+                sectorError.textContent = 'Please select at least one sector to continue.';
+                return;
+            }
+
+            const preferences = JSON.parse(localStorage.getItem('userPreferences') || '{}');
+            preferences.sectors = selectedSectors;
+            localStorage.setItem('userPreferences', JSON.stringify(preferences));
+            localStorage.setItem('sectorPreferencesComplete', 'true');
+            closeSectorModal();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            bindSectorButtons();
+            loadExistingSectors();
+
+            if (!localStorage.getItem('sectorPreferencesComplete')) {
+                openSectorModal();
+            }
+        });
+
+        sectorSave.addEventListener('click', saveSectors);
+    </script>
+
+    <div class="tut-backdrop" id="tutBackdrop">
+        <svg class="tut-overlay-svg" id="tutOverlay">
+            <defs><mask id="tutMask"><rect width="100%" height="100%" fill="white"/><rect id="tutCutout" rx="10" ry="10" fill="black"/></mask></defs>
+            <rect width="100%" height="100%" fill="rgba(0,0,0,0.6)" mask="url(#tutMask)"/>
+        </svg>
+        <div class="tut-highlight-border" id="tutBorder"></div>
+        <div class="tut-tooltip" id="tutTooltip">
+            <div class="tut-tooltip-step" id="tutStepLabel"></div>
+            <div class="tut-tooltip-title" id="tutTitle"></div>
+            <div class="tut-tooltip-desc" id="tutDesc"></div>
+            <div class="tut-tooltip-progress" id="tutProgress"></div>
+            <div class="tut-tooltip-actions">
+                <button class="tut-skip-btn" onclick="endTutorial()">Skip tour</button>
+                <button class="tut-next-btn" id="tutNextBtn" onclick="tutNext()">Next</button>
             </div>
         </div>
     </div>
+
+    <script>
+    (function() {
+        if (!window.location.search.includes('tutorial')) return;
+
+        const practiceSteps = [
+            { selector: '.practice-card.trading-card', title: 'Trading Platform', desc: 'Buy and sell stocks in real-time with your virtual portfolio.' },
+            { selector: '.practice-card.portfolio-card', title: 'Your Portfolio', desc: 'Track your holdings, performance, and risk analysis here.' }
+        ];
+
+        let step = 0;
+        const TOTAL = 9;
+        const returnStep = Number(localStorage.getItem('tutorialReturnStep') || '4');
+
+        function position(target) {
+            const rect = target.getBoundingClientRect();
+            const pad = 8;
+
+            const cutout = document.getElementById('tutCutout');
+            cutout.setAttribute('x', rect.left - pad);
+            cutout.setAttribute('y', rect.top - pad);
+            cutout.setAttribute('width', rect.width + pad * 2);
+            cutout.setAttribute('height', rect.height + pad * 2);
+
+            const border = document.getElementById('tutBorder');
+            border.style.left = (rect.left - pad) + 'px';
+            border.style.top = (rect.top - pad) + 'px';
+            border.style.width = (rect.width + pad * 2) + 'px';
+            border.style.height = (rect.height + pad * 2) + 'px';
+
+            const tip = document.getElementById('tutTooltip');
+            requestAnimationFrame(() => {
+                const tipH = tip.offsetHeight;
+                const spaceBelow = window.innerHeight - rect.bottom - pad;
+                let top = spaceBelow >= tipH + 14 ? rect.bottom + pad + 12 : Math.max(12, rect.top - pad - 12 - tipH);
+                if (top + tipH > window.innerHeight - 12) top = window.innerHeight - tipH - 12;
+                let left = rect.left + rect.width / 2 - 150;
+                left = Math.max(12, Math.min(left, window.innerWidth - 312));
+                tip.style.top = top + 'px';
+                tip.style.left = left + 'px';
+                tip.classList.add('visible');
+            });
+        }
+
+        function showStep() {
+            document.getElementById('tutTooltip').classList.remove('visible');
+            const s = practiceSteps[step];
+            const el = document.querySelector(s.selector);
+            if (!el) return;
+
+            const globalStep = returnStep + step;
+            document.getElementById('tutStepLabel').textContent = globalStep + ' of ' + TOTAL;
+            document.getElementById('tutTitle').textContent = s.title;
+            document.getElementById('tutDesc').textContent = s.desc;
+            document.getElementById('tutNextBtn').textContent = step < practiceSteps.length - 1 ? 'Next' : 'Back to Dashboard';
+
+            const pipsHtml = Array.from({length: TOTAL}, (_, i) => {
+                const cls = i + 1 < globalStep ? 'done' : i + 1 === globalStep ? 'active' : '';
+                return '<div class="tut-tooltip-pip ' + cls + '"></div>';
+            }).join('');
+            document.getElementById('tutProgress').innerHTML = pipsHtml;
+
+            el.scrollIntoView({behavior: 'smooth', block: 'center'});
+            setTimeout(() => position(el), 400);
+        }
+
+        window.tutNext = function() {
+            step++;
+            if (step >= practiceSteps.length) {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            const tip = document.getElementById('tutTooltip');
+            tip.classList.remove('visible');
+            showStep();
+        };
+
+        window.endTutorial = function() {
+            localStorage.removeItem('showTutorial');
+            localStorage.removeItem('tutorialStep');
+            localStorage.removeItem('tutorialActive');
+            localStorage.removeItem('tutorialReturnStep');
+            window.location.href = 'dashboard.html';
+        };
+
+        setTimeout(() => {
+            document.getElementById('tutBackdrop').classList.add('active');
+            showStep();
+        }, 600);
+
+        let rt;
+        window.addEventListener('resize', () => {
+            clearTimeout(rt);
+            rt = setTimeout(() => {
+                if (step < practiceSteps.length) {
+                    const el = document.querySelector(practiceSteps[step].selector);
+                    if (el) position(el);
+                }
+            }, 250);
+        });
+    })();
+    </script>
+<style>
+    .main-content { padding-top: 0 !important; margin-top: 84px !important; }
+    .practice-cards { margin-top: 0.5rem !important; gap: 2.5rem !important; }
+    .practice-card { min-height: min(340px, 46vh) !important; padding: 2rem 2.5rem !important; }
+    .practice-card .card-icon svg { width: 64px !important; height: 64px !important; }
+    .stats-bar { display: none !important; }
+
+    /* ── Candlestick banner ── */
+    .practice-banner {
+        max-width: 1200px; margin: 0.4rem auto 0.9rem; height: 138px;
+        background:
+            linear-gradient(90deg, rgba(26, 23, 20, 0.55) 0%, rgba(26, 23, 20, 0.78) 50%, rgba(26, 23, 20, 0.55) 100%),
+            url('practice-banner.png') center 30% / cover no-repeat;
+        border: 1px solid rgba(236, 226, 214, 0.14);
+        display: flex; align-items: center; justify-content: center;
+        text-align: center; padding: 0 2.25rem;
+        position: relative; z-index: 1;
+    }
+    .pb-kicker {
+        font: 700 0.7rem 'Inter', sans-serif; letter-spacing: 0.14em;
+        text-transform: uppercase; color: #5CB88A; margin-bottom: 0.45rem;
+    }
+    .pb-line { font: 600 1.35rem 'Fraunces', Georgia, serif; color: #F4EEE6; }
+
+    .practice-footnote {
+        text-align: center; color: #7d746a; font: 500 0.85rem 'Inter', sans-serif;
+        letter-spacing: 0.04em; margin-top: 0.6rem;
+    }
+    .practice-footnote b { color: #B7ADA1; font-weight: 600; }
+</style>
+
+
+    <script>
+    // Rotating real-world stats: trading risk, long-term investing, financial literacy.
+    (function () {
+        const FACTS = [
+            'Studies find that up to 95% of day traders lose money over time.',
+            'Only about 1 in 3 adults worldwide can pass a basic financial literacy test.',
+            'Missing just the 10 best market days over 20 years can cut your returns roughly in half.',
+            'The S&P 500 has never lost money over any 20-year holding period in its history.',
+            'The average investor underperforms their own funds — mostly by buying high and selling low.',
+            'Nearly 60% of Americans could not cover a surprise $1,000 expense from savings.',
+            'A dollar invested in the S&P 500 in 1980 is worth over $100 today with dividends reinvested.',
+            'Over 15-year periods, roughly 90% of professional fund managers fail to beat the index.',
+            'Leverage cuts both ways: a 2x levered position loses 100% on a 50% drawdown.',
+            'People who check their portfolio daily trade more and earn less than those who check monthly.',
+            'Inflation at just 3% halves your purchasing power in about 24 years.',
+            'The best-performing retail accounts in several studies belonged to people who forgot they had them.',
+        ];
+        const el = document.getElementById('factLine');
+        if (!el) return;
+        let i = 0;
+        setInterval(() => {
+            el.style.opacity = 0;
+            setTimeout(() => {
+                i = (i + 1) % FACTS.length;
+                el.textContent = FACTS[i];
+                el.style.opacity = 1;
+            }, 450);
+        }, 6500);
+    })();
+    </script>
 </body>
 </html>

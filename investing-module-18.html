@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building an Income Portfolio That Survives - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        :root {
+            --primary: #5cb88a;
+            --accent: #e0a24c;
+            --level: #d9645c;
+            --background: #1a1714;
+            --surface: #1e1a16;
+            --surface-2: #241f1b;
+            --border: #2a2420;
+            --text-primary: #e8e8e8;
+            --text-body: #c4c4c4;
+            --text-muted: #888888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .mod-header {
+            background: rgba(20, 20, 20, 0.97);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .mod-header-inner {
+            max-width: 820px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .back-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover { opacity: 0.75; }
+        .mod-header-meta {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            width: 0%;
+            background: var(--level);
+            z-index: 200;
+            transition: width 0.15s linear;
+        }
+
+        .article {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 5rem;
+        }
+
+        .module-label {
+            display: inline-block;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--level);
+            background: rgba(236, 226, 214, 0.08);
+            border: 1px solid rgba(236, 226, 214, 0.18);
+            padding: 5px 12px;
+            border-radius: 4px;
+            margin-bottom: 1.2rem;
+        }
+
+        .article-title {
+            font-family: 'Lora', serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #ffffff;
+            margin-bottom: 0.8rem;
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .meta-item { display: flex; align-items: center; gap: 5px; }
+        .meta-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); }
+
+        .article p {
+            font-family: 'Lora', serif;
+            font-size: 1.05rem;
+            line-height: 1.85;
+            color: var(--text-body);
+            margin-bottom: 1.5rem;
+        }
+
+        .article h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+        .article h2:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+
+        .sources {
+            margin-top: 3.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+        .sources h3 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            margin-top: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        .source-item {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 0.6rem;
+            font-family: 'Inter', sans-serif;
+        }
+        .source-item a { color: #5cb88a; text-decoration: none; overflow-wrap: anywhere; }
+        .source-item a:hover { text-decoration: underline; }
+                .example-box { background: rgba(236, 226, 214, 0.04); border: 1px solid rgba(224, 162, 76, 0.12); border-radius: 10px; padding: 1.5rem; margin: 1.8rem 0; }
+        .example-label { font-family: 'Inter', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
+        .example-box p { font-size: 0.95rem; margin-bottom: 0; }
+
+        .fig { background: rgba(236, 226, 214, 0.03); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem 1rem 0.9rem; margin: 1.8rem 0; }
+        .fig svg { width: 100%; max-width: 560px; height: auto; display: block; margin: 0 auto; }
+        .fig-cap { font: 500 0.75rem 'Inter', sans-serif; color: var(--text-muted); text-align: center; margin-top: 0.7rem; line-height: 1.5; }
+        .data-table { width: 100%; border-collapse: collapse; margin: 1.6rem 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; }
+        .data-table th { text-align: left; font-size: 0.66rem; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-muted); padding: 0.5rem 0.7rem; border-bottom: 1px solid rgba(236,226,214,0.18); }
+        .data-table td { padding: 0.55rem 0.7rem; border-bottom: 1px solid rgba(236,226,214,0.07); color: var(--text-body); }
+        .data-table td:first-child { color: var(--text-primary); font-weight: 600; }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table th.num { text-align: right; }
+        .key-box { background: rgba(92,184,138,0.06); border: 1px solid rgba(92,184,138,0.2); border-radius: 10px; padding: 1.2rem 1.4rem; margin: 1.8rem 0; }
+        .key-box .example-label { color: #5cb88a; }
+        .key-box p { font-size: 0.95rem; margin-bottom: 0; }
+        .quiz-section {
+            margin-top: 3.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.75rem;
+        }
+        .quiz-section h3 { font-family: 'Inter', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 0.3rem; color: #ffffff; }
+        .quiz-subtitle { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; font-family: 'Inter', sans-serif !important; }
+        .quiz-q { margin-bottom: 1.75rem; }
+
+        /* Quiz rework: lettered options, cleaner questions */
+        .quiz-section h3 { font-family: 'Fraunces', Georgia, serif !important; font-size: 1.3rem !important; }
+        .quiz-q { padding-top: 1.2rem; border-top: 1px solid rgba(236, 226, 214, 0.07); }
+        .quiz-q:first-of-type { border-top: none; padding-top: 0; }
+        .quiz-q > p { font-size: 1rem !important; }
+        .quiz-opts { counter-reset: opt; }
+        .quiz-opt { position: relative; padding-left: 2.9rem !important; counter-increment: opt; }
+        .quiz-opt::before {
+            content: counter(opt, upper-alpha);
+            position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%);
+            width: 1.45rem; height: 1.45rem; border: 1px solid rgba(236, 226, 214, 0.25);
+            border-radius: 5px; display: flex; align-items: center; justify-content: center;
+            font: 700 0.68rem 'Inter', sans-serif; color: #8a8178;
+        }
+        .quiz-opt:hover::before { border-color: rgba(236, 226, 214, 0.5); color: #F4EEE6; }
+        .quiz-opt.correct::before { border-color: #5cb88a; color: #5cb88a; content: '✓'; }
+        .quiz-opt.wrong::before { border-color: #d9645c; color: #d9645c; content: '✕'; }
+
+        .quiz-figure {
+            background: rgba(236, 226, 214, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }
+        .quiz-figure svg { width: 100%; max-width: 430px; height: auto; display: block; margin: 0 auto; }
+        .quiz-q p { font-family: 'Inter', sans-serif; font-weight: 600; margin-bottom: 0.7rem; font-size: 0.95rem; line-height: 1.5; color: var(--text-primary); }
+        .quiz-opts { display: flex; flex-direction: column; gap: 0.5rem; }
+        .quiz-opt { padding: 0.7rem 0.95rem; background: rgba(236,226,214,0.04); border: 1px solid rgba(236,226,214,0.1); border-radius: 10px; cursor: pointer; font-size: 0.9rem; transition: all 0.15s ease; }
+        .quiz-opt:hover { border-color: rgba(236,226,214,0.25); }
+        .quiz-opt.correct { border-color: #5cb88a; background: rgba(92,184,138,0.12); }
+        .quiz-opt.wrong { border-color: #d9645c; background: rgba(217,100,92,0.12); }
+        .quiz-opt.disabled { pointer-events: none; }
+        .quiz-feedback { display: none; font-size: 0.82rem; margin-top: 0.5rem; font-family: 'Inter', sans-serif; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.right { color: #5cb88a; }
+        .quiz-feedback.wrong-fb { color: #d9645c; }
+
+        .module-footer { max-width: 720px; margin: 0 auto; padding: 0 1.5rem 4rem; display: flex; justify-content: space-between; align-items: center; }
+        .footer-btn {
+            display: inline-flex; align-items: center; gap: 8px; padding: 0.85rem 1.6rem;
+            border-radius: 10px; font-size: 0.85rem; font-weight: 700; text-decoration: none;
+            transition: all 0.2s ease; font-family: 'Inter', sans-serif; border: none; cursor: pointer;
+        }
+        .footer-btn-next { background: var(--primary); color: var(--background); }
+        .footer-btn-next:hover { transform: translateY(-2px); box-shadow: 0 2px 10px rgba(0,0,0,0.18); }
+        .footer-btn-back { background: rgba(255, 255, 255, 0.04); color: var(--text-muted); }
+        .footer-btn-back:hover { background: rgba(255, 255, 255, 0.09); color: var(--text-primary); }
+    </style>
+</head>
+<body>
+    <div class="reading-progress" id="readingProgress"></div>
+    <header class="mod-header">
+        <div class="mod-header-inner">
+            <a href="investing-path.html" class="back-link">← Long-Term Investing</a>
+            <span class="mod-header-meta">MODULE 18 OF 18 · ADVANCED</span>
+        </div>
+    </header>
+
+    <article class="article">
+        <span class="module-label">Advanced · Module 18</span>
+        <h1 class="article-title">Building an Income Portfolio That Survives</h1>
+        <div class="article-meta">
+            <span class="meta-item">Long-Term Investing</span>
+            <span class="meta-dot"></span>
+            <span class="meta-item">Advanced</span>
+            <span class="meta-dot"></span>
+            <span class="meta-item">5 min read</span>
+        </div>
+
+        <h2>Income is an engineering problem</h2>
+        <p>The capstone question of long-term investing eventually becomes: how does a pile of capital pay a reliable monthly bill — through crashes, inflation, and three decades of retirement — without being spent to zero? The naive answer ("buy the highest yields") fails on schedule every cycle. The engineering answer assembles four different income machines, each with a named failure mode, plus the one rule that beats them all in the research.</p>
+        <p>Machine one: <b>dividend growth equities</b> — the S&P's dividend aristocrats and their kin, yielding a modest 2-3% but RAISING payouts 6-10% annually. Their superpower is inflation: a 2.5% yield growing 8% yearly doubles your income in nine years while bond coupons sit frozen. Failure mode: they're still stocks — 2008 cut even aristocrat prices 40%, and banks that had raised dividends for decades (BAC, GE) cut to near zero. The yield-trap discipline from the REIT and capital-allocation modules applies verbatim: payout ratio vs FCF, balance sheet, and history under fire — never the yield ranking alone.</p>
+        <h2>Bonds: ladders beat guesses</h2>
+        <div class="fig"><svg viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg">
+<line x1="60" y1="180" x2="530" y2="180" stroke="rgba(236,226,214,0.25)"/>
+<rect x="90"  y="140" width="60" height="40"  fill="rgba(92,184,138,0.5)"/><text x="120" y="198" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">1yr</text>
+<rect x="175" y="120" width="60" height="60"  fill="rgba(92,184,138,0.42)"/><text x="205" y="198" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">2yr</text>
+<rect x="260" y="100" width="60" height="80"  fill="rgba(92,184,138,0.34)"/><text x="290" y="198" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">3yr</text>
+<rect x="345" y="80"  width="60" height="100" fill="rgba(92,184,138,0.26)"/><text x="375" y="198" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">4yr</text>
+<rect x="430" y="60"  width="60" height="120" fill="rgba(92,184,138,0.2)"/><text x="460" y="198" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">5yr</text>
+<text x="290" y="40" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">Each year a rung matures → spend it, or re-buy a new 5-year at CURRENT rates</text>
+<text x="290" y="215" text-anchor="middle" fill="#7d746a" font-size="10">No guessing where rates go: the ladder averages you across them.</text>
+</svg><div class="fig-cap">The bond ladder: equal rungs maturing each year convert interest-rate uncertainty into a rolling average.</div></div>
+        <p>Machine two: <b>the bond ladder</b> — equal amounts maturing in years 1 through 5 (or 10). Each maturing rung either pays the year's bills or re-buys the long rung at whatever rates then are. Rates rise? Your ladder rolls into the higher yields annually. Rates fall? Your longer rungs appreciated. You've replaced the unanswerable question ("where are rates going?") with a mechanism that doesn't care. Treasuries and CDs make the cleanest rungs; individual investment-grade bonds work; bond FUNDS don't ladder (no maturity date, so no rung ever "comes due"). For the inflation rung specifically: <b>TIPS</b>, whose principal indexes to CPI — a real 30-year TIPS yield above 2% (available recently for the first time in over a decade) locks a guaranteed after-inflation income floor, which is the closest thing to a free lunch in retirement finance.</p>
+        <div class="example-box"><div class="example-label">Ladder in Action</div><p>$250k across five $50k rungs, years 1-5, average yield 4.6%. Year one: $11.5k of coupons + the $50k maturing rung. Spend the coupons, roll the $50k into a new 5-year at market. Repeat annually. In the 2022 rate spike this portfolio's market value dipped ~7% on paper — and its INCOME went up every year as rungs rolled into 5% yields. The volatility that mattered (income) was negative-correlated with the volatility that didn't (price).</p></div>
+        <h2>The seductive machines, priced honestly</h2>
+        <p>Machine three: the <b>high-yield tier</b> — junk bonds (6-9%), covered-call funds (8-12% "distribution yields"), mREITs (10%+), BDCs. Every one of these is selling something to pay that yield: junk sells default risk (spreads compensate on average, brutally in recessions), covered-call funds sell your upside (fine in flat markets, they lag badly in rallies AND fall in crashes — check whether "yield" includes return of your own capital), mREITs sell leverage on rate spreads (halved in 2020). Rule: the high-yield tier is seasoning — capped at 10-20% of the income sleeve — never the base. Machine four: <b>annuitized floors</b> — a single-premium immediate annuity converting a capital slug into a guaranteed lifetime paycheck. Academically underused (the "annuity puzzle"), practically riddled with bad products; the clean version (SPIA, no riders, purchased competitively) is worth knowing about for the years when guaranteed-floor psychology beats spreadsheet optimality.</p>
+        <h2>The rule that beats all of them: total return</h2>
+        <p>The research verdict (Vanguard, Morningstar, and the entire safe-withdrawal literature): a portfolio built for TOTAL return — global stocks plus a bond ladder — funding withdrawals by selling whatever is overweight, sustainably supports ~3.5-4% initial spending indexed to inflation over 30 years, and does it more reliably than any yield-maximizing construction. Chasing 7% "income" to avoid selling shares is an accounting illusion that concentrates you in the exact assets (high payout, low growth, hidden leverage) that fail together. The psychological trick that makes total-return livable is the <b>bucket structure</b>: 1-2 years of spending in cash, 5+ years in the bond ladder, the rest in growth assets — so no crash ever forces selling stocks at the bottom, and no headline ever forces a panic decision. Income isn't a yield you find; it's a system you build.</p>
+        <div class="key-box"><div class="example-label">The Assembly</div><p>A complete income architecture: cash bucket (2 yrs) → TIPS/Treasury ladder (5-8 yrs of spending) → dividend-growth core + total-market equities (the growth engine) → optional 10-15% high-yield seasoning → optional SPIA floor for non-negotiable expenses. Withdraw 3.5-4%, rebalance annually, raise spending with CPI. Every module in this pathway — statements, valuation, moats, sizing, cycles, allocation — was training for running this machine for fifty years.</p></div>
+
+        <div class="quiz-section">
+            <h3>Check your understanding</h3>
+            <p class="quiz-subtitle">5 questions — expect real numbers. Your score saves to your account.</p>
+            <div class="quiz-q" id="q1" data-why="Dividends double in eight years at 9% growth (rule of 72): 2.4% → ~4.8% on your original cost — inflation protection bonds can't match.">
+                <p>1. A stock yields 2.4% with dividends growing 9% annually. Your yield-on-cost after 8 years is roughly…</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">2.4%</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, true)">~4.8%</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">9%</div>
+                </div>
+                <div class="quiz-feedback" id="fb1"></div>
+            </div>
+
+            <div class="quiz-q" id="q2" data-why="Rising rates raise your reinvestment; falling rates appreciate your long rungs. Either way the mechanism works.">
+                <p>2. A bond LADDER solves the rate-direction problem by…</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">predicting rates with AI</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, true)">rolling maturing rungs at current rates each year, averaging across environments</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">never buying bonds under 5%</div>
+                </div>
+                <div class="quiz-feedback" id="fb2"></div>
+            </div>
+
+            <div class="quiz-q" id="q3" data-why="Many such funds pay you with your own principal while capping rallies — the yield is real cash flow but not real income.">
+                <p>3. A covered-call fund advertising a 11% "distribution yield" most importantly requires checking…</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">the fund's logo</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, true)">how much of the distribution is return of YOUR capital, and what upside was sold</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">the manager's alma mater</div>
+                </div>
+                <div class="quiz-feedback" id="fb3"></div>
+            </div>
+
+            <div class="quiz-q" id="q4" data-why="The 4%-rule literature (Bengen, Trinity, updated by Morningstar/Vanguard) lands at 3.5-4% for 30-year horizons.">
+                <p>4. The safe-withdrawal research supports an initial withdrawal rate near…</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">8%</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, true)">3.5-4% indexed to inflation</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">1%</div>
+                </div>
+                <div class="quiz-feedback" id="fb4"></div>
+            </div>
+
+            <div class="quiz-q" id="q5" data-why="With 7+ years of spending outside equities, no bear market ever dictates your sell decisions. The buckets buy time, and time is what equities need.">
+                <p>5. The bucket structure exists primarily to…</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(5, this, false)">maximize yield</div>
+                    <div class="quiz-opt" onclick="checkQuiz(5, this, true)">prevent being forced to sell stocks during crashes — solving sequence-of-returns risk</div>
+                    <div class="quiz-opt" onclick="checkQuiz(5, this, false)">avoid all taxes</div>
+                </div>
+                <div class="quiz-feedback" id="fb5"></div>
+            </div>
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; Further Reading</h3>
+            <div class="source-item">Bengen, W. <em>Determining Withdrawal Rates Using Historical Data</em> (the original 4% study). <a href="https://www.financialplanningassociation.org/sites/default/files/2020-05/MAR04%20Determining%20Withdrawal%20Rates%20Using%20Historical%20Data.pdf" target="_blank" rel="noopener">financialplanningassociation.org/sites/default/files/2020-05/MAR04%20Determining%20Withdrawal%20Rates%20Using%20Historical%20Data.pdf</a></div>
+            <div class="source-item">Morningstar. <em>The State of Retirement Income.</em> <a href="https://www.morningstar.com/retirement/state-retirement-income-2023" target="_blank" rel="noopener">morningstar.com/retirement/state-retirement-income-2023</a></div>
+            <div class="source-item">TreasuryDirect. <em>Treasury Inflation-Protected Securities (TIPS).</em> <a href="https://www.treasurydirect.gov/marketable-securities/tips/" target="_blank" rel="noopener">treasurydirect.gov/marketable-securities/tips/</a></div>
+        </div>
+
+        <div class="legal-note" style="margin-top:2rem;padding:0.9rem 1.1rem;border:1px solid rgba(236,226,214,0.1);border-radius:8px;font:500 0.72rem 'Inter',sans-serif;color:#7d746a;line-height:1.6;">Educational content only — nothing here is investment, legal, or tax advice. Markets involve risk, figures are illustrative and may contain errors, and past performance never guarantees future results. Do your own research before investing real money.</div>
+    </article>
+
+    <div class="module-footer">
+        <a href="investing-path.html" class="footer-btn footer-btn-back">&larr; Back to Path</a>
+        <a href="investing-path.html" class="footer-btn footer-btn-next">Finish Path →</a>
+    </div>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+            document.getElementById('readingProgress').style.width = Math.min(pct, 100) + '%';
+        });
+        function checkQuiz(num, el, isCorrect) {
+            const q = document.getElementById('q' + num);
+            const fb = document.getElementById('fb' + num);
+            const opts = q.querySelectorAll('.quiz-opt');
+            opts.forEach(o => { o.classList.add('disabled'); o.classList.remove('correct', 'wrong'); });
+            const why = q.dataset.why ? ' ' + q.dataset.why : '';
+            if (isCorrect) {
+                el.classList.add('correct');
+                fb.textContent = 'Correct.' + why;
+                fb.className = 'quiz-feedback show right';
+            } else {
+                el.classList.add('wrong');
+                opts.forEach(o => { if (o.getAttribute('onclick').includes('true')) o.classList.add('correct'); });
+                fb.textContent = 'Not quite — the correct answer is highlighted.' + why;
+                fb.className = 'quiz-feedback show wrong-fb';
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/quiz.js"></script>
+</body>
+</html>

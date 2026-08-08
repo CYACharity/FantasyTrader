@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 1: Introduction to Financial Markets - FantasyTrader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5cb88a;
+            --accent: #e0a24c;
+            --background: #1a1714;
+            --surface: #1e1a16;
+            --surface-2: #241f1b;
+            --border: #2a2420;
+            --text-primary: #e8e8e8;
+            --text-body: #c4c4c4;
+            --text-muted: #888888;
+            --success: #5cb88a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Header ── */
+        .mod-header {
+            background: rgba(20, 20, 20, 0.97);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .mod-header-inner {
+            max-width: 820px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover { opacity: 0.75; }
+
+        .mod-header-meta {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── Reading Progress ── */
+        .reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            width: 0%;
+            background: var(--primary);
+            z-index: 200;
+            transition: width 0.15s linear;
+        }
+
+        /* ── Article Layout ── */
+        .article {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 5rem;
+        }
+
+        /* ── Module Label ── */
+        .module-label {
+            display: inline-block;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--primary);
+            background: rgba(236, 226, 214, 0.08);
+            border: 1px solid rgba(236, 226, 214, 0.18);
+            padding: 5px 12px;
+            border-radius: 4px;
+            margin-bottom: 1.2rem;
+        }
+
+        .article-title {
+            font-family: 'Lora', serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #ffffff;
+            margin-bottom: 0.8rem;
+        }
+
+        .article-subtitle {
+            font-family: 'Lora', serif;
+            font-size: 1.15rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .meta-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        /* ── Body Text ── */
+        .article p {
+            font-family: 'Lora', serif;
+            font-size: 1.05rem;
+            line-height: 1.85;
+            color: var(--text-body);
+            margin-bottom: 1.5rem;
+        }
+
+        .article h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .article h3 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* ── Callout Box ── */
+        .callout {
+            background: var(--surface);
+            border-left: 3px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+            padding: 1.25rem 1.5rem;
+            margin: 1.8rem 0;
+        }
+
+        .callout-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .callout p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 0;
+        }
+
+        /* ── Example Box ── */
+        .example-box {
+            background: rgba(236, 226, 214, 0.04);
+            border: 1px solid rgba(224, 162, 76, 0.12);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.8rem 0;
+        }
+
+        .example-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.6rem;
+        }
+
+        .example-box p {
+            font-size: 0.95rem;
+            margin-bottom: 0.8rem;
+        }
+        .example-box p:last-child { margin-bottom: 0; }
+
+        /* ── Diagram / Figure ── */
+        .figure {
+            margin: 2.2rem 0;
+            text-align: center;
+        }
+
+        .figure-diagram {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            margin-bottom: 0.7rem;
+        }
+
+        .figure-caption {
+            font-size: 0.73rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* ── Flow Diagram ── */
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-box {
+            background: rgba(236, 226, 214, 0.08);
+            border: 1px solid rgba(236, 226, 214, 0.2);
+            border-radius: 10px;
+            padding: 0.9rem 1.2rem;
+            text-align: center;
+            min-width: 130px;
+        }
+
+        .flow-box-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+        }
+
+        .flow-box-desc {
+            font-size: 0.72rem;
+            color: var(--text-body);
+            line-height: 1.4;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .flow-arrow {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            padding: 0 0.6rem;
+        }
+
+        /* ── Comparison Table ── */
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1.8rem 0;
+            font-size: 0.88rem;
+        }
+
+        .comparison-table thead {
+            background: var(--surface);
+        }
+
+        .comparison-table th {
+            padding: 0.9rem 1.2rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table td {
+            padding: 0.85rem 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text-body);
+            font-family: 'Lora', serif;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ── Bar Chart (CSS-only) ── */
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 1.2rem;
+            height: 160px;
+            padding: 0 1rem;
+            justify-content: center;
+        }
+
+        .bar-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .bar {
+            width: 48px;
+            border-radius: 6px 6px 0 0;
+            transition: height 0.5s ease;
+        }
+
+        .bar-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-align: center;
+            max-width: 60px;
+        }
+
+        .bar-value {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* ── Inline List ── */
+        .numbered-list {
+            counter-reset: item;
+            margin: 1.2rem 0 1.5rem;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .numbered-list li {
+            counter-increment: item;
+            font-family: 'Lora', serif;
+            font-size: 1rem;
+            line-height: 1.8;
+            color: var(--text-body);
+            margin-bottom: 0.6rem;
+            padding-left: 2.2rem;
+            position: relative;
+        }
+
+        .numbered-list li::before {
+            content: counter(item) ".";
+            position: absolute;
+            left: 0;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+        }
+
+        /* ── Quiz Section ── */
+        .quiz-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 3rem 0 2rem;
+        }
+
+        .quiz-section h3 {
+            margin-top: 0;
+            margin-bottom: 0.3rem;
+        }
+
+        .quiz-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-q {
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-q p {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.7rem;
+        }
+
+        .quiz-opts {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .quiz-opt {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 0.7rem 1rem;
+            font-size: 0.88rem;
+            color: var(--text-body);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .quiz-opt:hover {
+            background: rgba(236, 226, 214, 0.06);
+            border-color: rgba(236, 226, 214, 0.2);
+        }
+
+        .quiz-opt.correct {
+            background: rgba(236, 226, 214, 0.12);
+            border-color: var(--primary);
+            color: #ffffff;
+        }
+
+        .quiz-opt.wrong {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .quiz-opt.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .quiz-feedback {
+            font-size: 0.82rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.right { color: var(--primary); }
+        .quiz-feedback.wrong-fb { color: #d9645c; }
+
+        /* ── Sources ── */
+        .sources {
+            margin-top: 3.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .sources h3 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            margin-top: 0;
+        }
+
+        .source-item {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 0.6rem;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .source-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.55rem;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .source-item a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .source-item a:hover { text-decoration: underline; }
+
+        /* ── Footer Nav ── */
+        .module-footer {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.85rem 1.6rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            border: none;
+            cursor: pointer;
+        }
+
+        .footer-btn-next {
+            background: var(--primary);
+            color: var(--background);
+        }
+        .footer-btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        .footer-btn-back {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+        .footer-btn-back:hover {
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .article { padding: 2rem 1.1rem 4rem; }
+            .article-title { font-size: 1.8rem; }
+            .flow-row { flex-direction: column; gap: 0.5rem; }
+            .flow-arrow { transform: rotate(90deg); padding: 0.2rem 0; }
+            .comparison-table { font-size: 0.8rem; }
+            .comparison-table th, .comparison-table td { padding: 0.65rem 0.8rem; }
+        }
+            :root { --level: #5cb88a; }
+
+        /* Unified module chrome (matches all pathway modules) */
+        .quiz-figure {
+            background: rgba(236, 226, 214, 0.03);
+            border: 1px solid var(--border, #2a2420);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }
+        .quiz-figure svg { width: 100%; max-width: 430px; height: auto; display: block; margin: 0 auto; }
+        .module-label { color: var(--level, var(--primary)) !important; }
+        .reading-progress { background: var(--level, var(--primary)) !important; }
+    
+        /* Quiz rework: lettered options, cleaner questions */
+        .quiz-section h3 { font-family: 'Fraunces', Georgia, serif !important; font-size: 1.3rem !important; }
+        .quiz-q { padding-top: 1.2rem; border-top: 1px solid rgba(236, 226, 214, 0.07); }
+        .quiz-q:first-of-type { border-top: none; padding-top: 0; }
+        .quiz-q > p { font-size: 1rem !important; }
+        .quiz-opts { counter-reset: opt; }
+        .quiz-opt { position: relative; padding-left: 2.9rem !important; counter-increment: opt; }
+        .quiz-opt::before {
+            content: counter(opt, upper-alpha);
+            position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%);
+            width: 1.45rem; height: 1.45rem; border: 1px solid rgba(236, 226, 214, 0.25);
+            border-radius: 5px; display: flex; align-items: center; justify-content: center;
+            font: 700 0.68rem 'Inter', sans-serif; color: #8a8178;
+        }
+        .quiz-opt:hover::before { border-color: rgba(236, 226, 214, 0.5); color: #F4EEE6; }
+        .quiz-opt.correct::before { border-color: #5cb88a; color: #5cb88a; content: '✓'; }
+        .quiz-opt.wrong::before { border-color: #d9645c; color: #d9645c; content: '✕'; }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+    <div class="reading-progress" id="readingProgress"></div>
+
+    <div class="mod-header">
+        <div class="mod-header-inner">
+            <a href="beginner-path.html" class="back-link">
+                <span>&larr;</span> Beginner Path
+            </a>
+            <div class="mod-header-meta">MODULE 1 OF 6</div>
+        </div>
+    </div>
+
+    <article class="article">
+        <div class="module-label">Beginner &middot; Module 1</div>
+        <h1 class="article-title">Introduction to Financial Markets</h1>
+        <p class="article-subtitle">What markets are, why they exist, and how stocks fit into the larger financial system.</p>
+
+        <div class="article-meta">
+            <div class="meta-item">12 min read</div>
+            <div class="meta-dot"></div>
+            <div class="meta-item">Sources: MIT 15.401, Rice University</div>
+            <div class="meta-dot"></div>
+            <div class="meta-item">Last updated Mar 2026</div>
+        </div>
+
+        <!-- ─── Section 1 ─── -->
+        <p>If you have ever wondered where your money goes when you invest in a stock, or why prices on the news seem to move every second, this module will give you a grounded understanding of how financial markets actually work. Before learning to trade, it is important to understand the system you are trading <em>within</em>.</p>
+
+        <p>Financial markets exist to solve a fundamental economic problem: connecting people who have capital with people who need it. A startup founder needs money to build a product. A retiree needs their savings to generate income. Financial markets are the mechanism that brings these two parties together, and they do so on a massive scale every single day.</p>
+
+        <h2>What Is a Financial Market?</h2>
+
+        <p>A financial market is any marketplace where buyers and sellers participate in the trade of financial assets such as stocks, bonds, currencies, and derivatives. These markets facilitate the flow of money from those who save it to those who put it to productive use. In doing so, they perform several essential functions for the economy.</p>
+
+        <p>Professor Andrew Lo of MIT Sloan identifies this as the central role of finance: the study of how resources are allocated over time under conditions of uncertainty. Markets provide the infrastructure for that allocation. They give companies access to funding, give investors access to returns, and give both parties a transparent way to discover prices.</p>
+
+        <div class="callout">
+            <div class="callout-label">Key Concept</div>
+            <p>Financial markets serve three primary functions: <strong>price discovery</strong> (determining what an asset is worth based on supply and demand), <strong>liquidity</strong> (the ability to buy or sell quickly without significantly affecting the price), and <strong>risk transfer</strong> (allowing participants to shift risk to those more willing to bear it).</p>
+        </div>
+
+        <h2>Real Assets vs. Financial Assets</h2>
+
+        <p>One of the first distinctions you will encounter in formal finance education is the difference between real assets and financial assets. This distinction comes from the introductory material of Rice University's Global Financial Markets and Instruments course, and it is a useful framework for understanding what you are actually buying when you invest.</p>
+
+        <p><strong>Real assets</strong> are tangible things that produce goods and services: factories, land, machinery, intellectual property, and human capital. These are the productive assets of the economy. <strong>Financial assets</strong>, on the other hand, are claims on those real assets. A stock certificate does not give you a factory, but it gives you a legal right to a share of the profits that factory generates.</p>
+
+        <div class="figure">
+            <div class="figure-diagram">
+                <div class="flow-row">
+                    <div class="flow-box">
+                        <div class="flow-box-title">Real Assets</div>
+                        <div class="flow-box-desc">Factories, land, equipment, patents</div>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-box">
+                        <div class="flow-box-title">Companies</div>
+                        <div class="flow-box-desc">Use real assets to generate revenue</div>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-box">
+                        <div class="flow-box-title">Financial Assets</div>
+                        <div class="flow-box-desc">Stocks &amp; bonds represent claims on that revenue</div>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-box">
+                        <div class="flow-box-title">Investors</div>
+                        <div class="flow-box-desc">Buy financial assets to earn returns</div>
+                    </div>
+                </div>
+            </div>
+            <div class="figure-caption">Fig. 1 &mdash; The relationship between real assets, companies, financial assets, and investors.</div>
+        </div>
+
+        <p>This distinction matters because when you buy a share of Apple stock, you are not buying an iPhone or an Apple Store. You are buying a financial claim that entitles you to a fraction of the profits Apple earns from those real assets. The value of that claim depends on how well Apple uses its real assets to make money.</p>
+
+        <h2>The Three Major Types of Financial Instruments</h2>
+
+        <p>Both the MIT and Rice curricula introduce three core categories of financial instruments early on. Each one represents a different kind of relationship between the investor and the entity that issued the instrument.</p>
+
+        <h3>Equity (Stocks)</h3>
+        <p>When you buy equity in a company, you become a part-owner. You have a residual claim on the company's earnings, which means you get paid after the company meets all its other obligations (like paying employees, suppliers, and lenders). The upside is theoretically unlimited: if the company does well, the stock price rises and you profit. The downside is that you can lose your entire investment if the company fails. Stockholders are last in line during a bankruptcy.</p>
+
+        <h3>Fixed Income (Bonds)</h3>
+        <p>A bond is essentially a loan. When you buy a bond, you are lending money to a company or government in exchange for periodic interest payments and the return of your original investment at maturity. Bonds are generally considered less risky than stocks because the interest payments are contractually guaranteed (unless the issuer defaults). However, the returns are also lower.</p>
+
+        <h3>Derivatives</h3>
+        <p>Derivatives are financial contracts whose value is derived from the price of another asset (like a stock or a commodity). Options and futures are the most common types. These are more complex instruments that are typically used for hedging risk or speculation, and we will cover them in later modules.</p>
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Stocks (Equity)</th>
+                    <th>Bonds (Fixed Income)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>What you own</td>
+                    <td>Partial ownership in a company</td>
+                    <td>A loan to a company or government</td>
+                </tr>
+                <tr>
+                    <td>Income type</td>
+                    <td>Dividends (not guaranteed)</td>
+                    <td>Interest payments (contractual)</td>
+                </tr>
+                <tr>
+                    <td>Risk level</td>
+                    <td>Higher &mdash; prices fluctuate widely</td>
+                    <td>Lower &mdash; returns are more predictable</td>
+                </tr>
+                <tr>
+                    <td>Return potential</td>
+                    <td>Higher over the long term</td>
+                    <td>Lower but more stable</td>
+                </tr>
+                <tr>
+                    <td>In bankruptcy</td>
+                    <td>Last to be paid</td>
+                    <td>Paid before stockholders</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Why Stock Prices Move</h2>
+
+        <p>This is one of the most intuitive but also most misunderstood aspects of financial markets. At the most basic level, stock prices are determined by supply and demand. When more people want to buy a stock than sell it, the price goes up. When more want to sell than buy, the price goes down. But <em>what drives</em> that demand?</p>
+
+        <p>MIT's Finance Theory I frames this through what Professor Lo calls one of the six principles of finance: <strong>financial market prices shift to equalize supply and demand</strong>. Prices are not arbitrary numbers. They represent the market's collective judgment about the future earnings potential of a company, adjusted for risk and the time value of money.</p>
+
+        <div class="example-box">
+            <div class="example-label">Example &mdash; How News Affects Price</div>
+            <p>Suppose a pharmaceutical company announces that its new drug received FDA approval. Investors immediately recognize that the company will generate billions in new revenue. Demand for the stock surges as buyers rush in, and the price rises sharply — sometimes within seconds.</p>
+            <p>Conversely, if a company reports earnings that fall short of analysts' expectations, investors may sell their shares, increasing supply relative to demand. The price drops. This is price discovery in action: the market is constantly processing new information and adjusting prices to reflect it.</p>
+        </div>
+
+        <h2>Risk and Return: The Fundamental Tradeoff</h2>
+
+        <p>Perhaps the most important concept in all of finance is the relationship between risk and return. Both the MIT and Rice courses emphasize this from the very beginning because it governs almost every investment decision you will ever make.</p>
+
+        <p>The principle is straightforward: higher potential returns come with higher risk. If you put your money in a U.S. Treasury bond, your return is nearly guaranteed — but it will be low. If you invest in a small startup's stock, you might earn extraordinary returns, but you also might lose everything. There is no way to earn high returns without accepting higher risk. MIT's framework calls this the "no free lunch" principle.</p>
+
+        <div class="figure">
+            <div class="figure-diagram">
+                <div class="bar-chart">
+                    <div class="bar-col">
+                        <div class="bar-value">~2%</div>
+                        <div class="bar" style="height: 25px; background: rgba(236, 226, 214, 0.25); border: 1px solid rgba(92, 184, 138, 0.4);"></div>
+                        <div class="bar-label">Savings Account</div>
+                    </div>
+                    <div class="bar-col">
+                        <div class="bar-value">~4%</div>
+                        <div class="bar" style="height: 50px; background: rgba(92, 184, 138, 0.35); border: 1px solid rgba(92, 184, 138, 0.5);"></div>
+                        <div class="bar-label">Treasury Bonds</div>
+                    </div>
+                    <div class="bar-col">
+                        <div class="bar-value">~6%</div>
+                        <div class="bar" style="height: 75px; background: rgba(224, 162, 76, 0.3); border: 1px solid rgba(224, 162, 76, 0.5);"></div>
+                        <div class="bar-label">Corporate Bonds</div>
+                    </div>
+                    <div class="bar-col">
+                        <div class="bar-value">~10%</div>
+                        <div class="bar" style="height: 120px; background: rgba(224, 162, 76, 0.45); border: 1px solid rgba(224, 162, 76, 0.6);"></div>
+                        <div class="bar-label">S&amp;P 500 Stocks</div>
+                    </div>
+                    <div class="bar-col">
+                        <div class="bar-value">???</div>
+                        <div class="bar" style="height: 145px; background: rgba(239, 68, 68, 0.3); border: 1px solid rgba(239, 68, 68, 0.5);"></div>
+                        <div class="bar-label">Startup Equity</div>
+                    </div>
+                </div>
+            </div>
+            <div class="figure-caption">Fig. 2 &mdash; Historical average annual returns by asset class. Higher return = higher risk. The S&amp;P 500 figure reflects a long-term average since 1957.</div>
+        </div>
+
+        <h2>How Stocks Are Traded</h2>
+
+        <p>Understanding where and how trading happens is essential before you start making trades yourself. Stocks are bought and sold on exchanges — organized marketplaces with rules and technology that match buyers with sellers.</p>
+
+        <p>The two largest stock exchanges in the world are the <strong>New York Stock Exchange (NYSE)</strong> and the <strong>NASDAQ</strong>. When you place an order to buy a share of Tesla, your brokerage routes that order to an exchange where it is matched with someone willing to sell at your price. This entire process takes milliseconds.</p>
+
+        <p>Rice University's course also introduces the concept of <strong>market orders</strong> (buy or sell immediately at the best available price) versus <strong>limit orders</strong> (buy or sell only at a specific price or better). Understanding this distinction is practical knowledge you will use every time you make a trade in FantasyTrader's practice environment.</p>
+
+        <div class="callout">
+            <div class="callout-label">Remember</div>
+            <p>You do not need to understand every technical detail before you start practicing. The purpose of this module is to give you enough context so that when you buy your first stock in the practice portfolio, you understand <em>what</em> you are buying, <em>where</em> it is being traded, and <em>why</em> the price changes.</p>
+        </div>
+
+        <h2>Key Takeaways</h2>
+
+        <ol class="numbered-list">
+            <li>Financial markets connect savers with borrowers and perform price discovery, provide liquidity, and enable risk transfer.</li>
+            <li>Financial assets (stocks, bonds) are claims on real assets (factories, equipment). When you buy a stock, you own a claim on the company's future profits.</li>
+            <li>Stocks offer higher potential returns than bonds, but come with greater risk. Bondholders are paid before stockholders.</li>
+            <li>Stock prices are determined by supply and demand, which in turn are driven by new information about a company's expected future earnings.</li>
+            <li>Higher expected returns always come with higher risk. This is the most fundamental principle in investing.</li>
+        </ol>
+
+        <!-- ─── Quiz ─── -->
+        <div class="quiz-section">
+            <h3>Check Your Understanding</h3>
+            <p class="quiz-subtitle">Answer these questions before moving on to Module 2.</p>
+
+            <div class="quiz-q" id="q1">
+                <p>1. What is the primary function of a financial market?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">To make stock prices go up over time</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, true)">To connect those who have capital with those who need it</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">To regulate how much money companies can earn</div>
+                </div>
+                <div class="quiz-feedback" id="fb1"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <p>2. What is the key difference between a stock and a bond?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">Stocks are safer than bonds</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">Bonds give you ownership in a company</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, true)">A stock represents ownership; a bond represents a loan</div>
+                </div>
+                <div class="quiz-feedback" id="fb2"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <p>3. According to MIT's finance principles, why can't you earn high returns without taking risk?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, true)">Because there is no such thing as a free lunch — higher returns require accepting more uncertainty</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">Because the government limits safe investment returns</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">Because brokerages charge higher fees on safe investments</div>
+                </div>
+                <div class="quiz-feedback" id="fb3"></div>
+            </div>
+
+        
+            <div class="quiz-q" id="q4" data-why="Support is a price where demand has repeatedly absorbed selling. Breaks below it are meaningful.">
+                <p>4. Price keeps bouncing at the dashed line. What is that level called?</p>
+                <div class="quiz-figure"><svg viewBox="0 0 300 130" xmlns="http://www.w3.org/2000/svg"><line x1="30" y1="10" x2="30" y2="105" stroke="rgba(236,226,214,0.25)"/><line x1="30" y1="105" x2="290" y2="105" stroke="rgba(236,226,214,0.25)"/><line x1="30" y1="88" x2="290" y2="88" stroke="#E0A24C" stroke-width="1.5" stroke-dasharray="6,4"/><polyline points="30,40 70,70 95,86 120,55 150,84 175,50 205,87 235,45 265,80 290,60" fill="none" stroke="#5cb88a" stroke-width="2"/></svg></div>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">Resistance — a ceiling</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, true)">Support — a floor where buyers keep stepping in</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">The moving average</div>
+                </div>
+                <div class="quiz-feedback" id="fb4"></div>
+            </div>
+
+        </div>
+
+        <!-- ─── Sources ─── -->
+        <div class="sources">
+            <h3>Sources &amp; Further Reading</h3>
+            <div class="source-item">Lo, Andrew. <em>Finance Theory I</em> (MIT 15.401), Fall 2008. Lecture 1: Introduction and Course Overview. MIT OpenCourseWare. <a href="https://ocw.mit.edu/courses/15-401-finance-theory-i-fall-2008/" target="_blank">ocw.mit.edu/courses/15-401-finance-theory-i-fall-2008</a></div>
+            <div class="source-item">Lo, Andrew. <em>Finance Theory I</em>, Lecture 1 Slides (Slides 1&ndash;20): Six principles of finance, role of financial markets. <a href="https://ocw.mit.edu/courses/15-401-finance-theory-i-fall-2008/resources/mit15_401f08_lec01/" target="_blank">Lecture 1 Slides</a></div>
+            <div class="source-item">Ozoguz, Arzu &amp; Foote, Jill. <em>Global Financial Markets and Instruments</em>, Rice University (Jesse H. Jones Graduate School of Business). Coursera. Module 1: Introduction &amp; Review of Elementary Finance Tools; Module 2: Financial Instruments overview, real vs. financial assets. <a href="https://www.coursera.org/learn/global-financial-markets-instruments" target="_blank">coursera.org/learn/global-financial-markets-instruments</a></div>
+            <div class="source-item">Rice University. <em>Investment and Portfolio Management Specialization</em>. Course 1 syllabus: financial systems, equity vs. fixed income, trading venues. <a href="https://www.coursera.org/specializations/investment-portolio-management" target="_blank">coursera.org/specializations/investment-portolio-management</a></div>
+            <div class="source-item">Historical S&amp;P 500 returns figure (10.7% average annual return since 1957) is a widely cited statistic derived from publicly available index data.</div>
+        </div>
+    
+        <div class="legal-note" style="margin-top:2rem;padding:0.9rem 1.1rem;border:1px solid rgba(236,226,214,0.1);border-radius:8px;font:500 0.72rem 'Inter',sans-serif;color:#7d746a;line-height:1.6;">Educational content only — nothing here is investment, legal, or tax advice. Markets involve risk, figures are illustrative and may contain errors, and past performance never guarantees future results. Do your own research before investing real money.</div>
+    </article>
+
+    <div class="module-footer">
+        <a href="beginner-path.html" class="footer-btn footer-btn-back">&larr; Back to Path</a>
+        <a href="beginner-module-2.html" class="footer-btn footer-btn-next">Module 2: Reading Stock Charts &rarr;</a>
+    </div>
+
+    <script>
+        // Reading progress
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+            document.getElementById('readingProgress').style.width = Math.min(pct, 100) + '%';
+        });
+
+        // Quiz logic
+        function checkQuiz(num, el, isCorrect) {
+            const q = document.getElementById('q' + num);
+            const fb = document.getElementById('fb' + num);
+            const opts = q.querySelectorAll('.quiz-opt');
+
+            opts.forEach(o => {
+                o.classList.add('disabled');
+                o.classList.remove('correct', 'wrong');
+            });
+
+            const why = q.dataset.why ? ' ' + q.dataset.why : '';
+            if (isCorrect) {
+                el.classList.add('correct');
+                fb.textContent = 'Correct.' + why;
+                fb.className = 'quiz-feedback show right';
+            } else {
+                el.classList.add('wrong');
+                // Highlight correct answer
+                opts.forEach(o => {
+                    if (o.getAttribute('onclick') && o.getAttribute('onclick').includes('true')) {
+                        o.classList.add('correct');
+                    }
+                });
+                fb.textContent = 'Not quite. The correct answer is highlighted above.' + why;
+                fb.className = 'quiz-feedback show wrong-fb';
+            }
+
+            // Track progress
+            updateModuleProgress();
+        }
+
+        function updateModuleProgress() {
+            const answered = document.querySelectorAll('.quiz-opt.correct').length;
+            const total = 3;
+            if (answered >= total) {
+                const progress = JSON.parse(localStorage.getItem('learningProgress') || '{}');
+                progress.beginner = progress.beginner || {};
+                progress.beginner.module1 = true;
+                localStorage.setItem('learningProgress', JSON.stringify(progress));
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/quiz.js"></script>
+</body>
+</html>

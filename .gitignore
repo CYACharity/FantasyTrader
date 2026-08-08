@@ -1,0 +1,10 @@
+.DS_Store
+**/.DS_Store
+node_modules/
+*.log
+.vscode/
+.idea/
+
+# personal files — not for the public repo
+TSG_123_Skills_Ave_Model.xlsx
+Screenshots/

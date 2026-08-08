@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moats: Durable Competitive Advantage - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        :root {
+            --primary: #5cb88a;
+            --accent: #e0a24c;
+            --level: #e0a24c;
+            --background: #1a1714;
+            --surface: #1e1a16;
+            --surface-2: #241f1b;
+            --border: #2a2420;
+            --text-primary: #e8e8e8;
+            --text-body: #c4c4c4;
+            --text-muted: #888888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .mod-header {
+            background: rgba(20, 20, 20, 0.97);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .mod-header-inner {
+            max-width: 820px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .back-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover { opacity: 0.75; }
+        .mod-header-meta {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            width: 0%;
+            background: var(--level);
+            z-index: 200;
+            transition: width 0.15s linear;
+        }
+
+        .article {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 5rem;
+        }
+
+        .module-label {
+            display: inline-block;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--level);
+            background: rgba(236, 226, 214, 0.08);
+            border: 1px solid rgba(236, 226, 214, 0.18);
+            padding: 5px 12px;
+            border-radius: 4px;
+            margin-bottom: 1.2rem;
+        }
+
+        .article-title {
+            font-family: 'Lora', serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #ffffff;
+            margin-bottom: 0.8rem;
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .meta-item { display: flex; align-items: center; gap: 5px; }
+        .meta-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); }
+
+        .article p {
+            font-family: 'Lora', serif;
+            font-size: 1.05rem;
+            line-height: 1.85;
+            color: var(--text-body);
+            margin-bottom: 1.5rem;
+        }
+
+        .article h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+        .article h2:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+
+        .sources {
+            margin-top: 3.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+        .sources h3 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            margin-top: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        .source-item {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 0.6rem;
+            font-family: 'Inter', sans-serif;
+        }
+        .source-item a { color: #5cb88a; text-decoration: none; overflow-wrap: anywhere; }
+        .source-item a:hover { text-decoration: underline; }
+                .example-box { background: rgba(236, 226, 214, 0.04); border: 1px solid rgba(224, 162, 76, 0.12); border-radius: 10px; padding: 1.5rem; margin: 1.8rem 0; }
+        .example-label { font-family: 'Inter', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
+        .example-box p { font-size: 0.95rem; margin-bottom: 0; }
+
+        .fig { background: rgba(236, 226, 214, 0.03); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem 1rem 0.9rem; margin: 1.8rem 0; }
+        .fig svg { width: 100%; max-width: 560px; height: auto; display: block; margin: 0 auto; }
+        .fig-cap { font: 500 0.75rem 'Inter', sans-serif; color: var(--text-muted); text-align: center; margin-top: 0.7rem; line-height: 1.5; }
+        .data-table { width: 100%; border-collapse: collapse; margin: 1.6rem 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; }
+        .data-table th { text-align: left; font-size: 0.66rem; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-muted); padding: 0.5rem 0.7rem; border-bottom: 1px solid rgba(236,226,214,0.18); }
+        .data-table td { padding: 0.55rem 0.7rem; border-bottom: 1px solid rgba(236,226,214,0.07); color: var(--text-body); }
+        .data-table td:first-child { color: var(--text-primary); font-weight: 600; }
+        .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table th.num { text-align: right; }
+        .key-box { background: rgba(92,184,138,0.06); border: 1px solid rgba(92,184,138,0.2); border-radius: 10px; padding: 1.2rem 1.4rem; margin: 1.8rem 0; }
+        .key-box .example-label { color: #5cb88a; }
+        .key-box p { font-size: 0.95rem; margin-bottom: 0; }
+        .quiz-section {
+            margin-top: 3.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.75rem;
+        }
+        .quiz-section h3 { font-family: 'Inter', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 0.3rem; color: #ffffff; }
+        .quiz-subtitle { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; font-family: 'Inter', sans-serif !important; }
+        .quiz-q { margin-bottom: 1.75rem; }
+
+        /* Quiz rework: lettered options, cleaner questions */
+        .quiz-section h3 { font-family: 'Fraunces', Georgia, serif !important; font-size: 1.3rem !important; }
+        .quiz-q { padding-top: 1.2rem; border-top: 1px solid rgba(236, 226, 214, 0.07); }
+        .quiz-q:first-of-type { border-top: none; padding-top: 0; }
+        .quiz-q > p { font-size: 1rem !important; }
+        .quiz-opts { counter-reset: opt; }
+        .quiz-opt { position: relative; padding-left: 2.9rem !important; counter-increment: opt; }
+        .quiz-opt::before {
+            content: counter(opt, upper-alpha);
+            position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%);
+            width: 1.45rem; height: 1.45rem; border: 1px solid rgba(236, 226, 214, 0.25);
+            border-radius: 5px; display: flex; align-items: center; justify-content: center;
+            font: 700 0.68rem 'Inter', sans-serif; color: #8a8178;
+        }
+        .quiz-opt:hover::before { border-color: rgba(236, 226, 214, 0.5); color: #F4EEE6; }
+        .quiz-opt.correct::before { border-color: #5cb88a; color: #5cb88a; content: '✓'; }
+        .quiz-opt.wrong::before { border-color: #d9645c; color: #d9645c; content: '✕'; }
+
+        .quiz-figure {
+            background: rgba(236, 226, 214, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }
+        .quiz-figure svg { width: 100%; max-width: 430px; height: auto; display: block; margin: 0 auto; }
+        .quiz-q p { font-family: 'Inter', sans-serif; font-weight: 600; margin-bottom: 0.7rem; font-size: 0.95rem; line-height: 1.5; color: var(--text-primary); }
+        .quiz-opts { display: flex; flex-direction: column; gap: 0.5rem; }
+        .quiz-opt { padding: 0.7rem 0.95rem; background: rgba(236,226,214,0.04); border: 1px solid rgba(236,226,214,0.1); border-radius: 10px; cursor: pointer; font-size: 0.9rem; transition: all 0.15s ease; }
+        .quiz-opt:hover { border-color: rgba(236,226,214,0.25); }
+        .quiz-opt.correct { border-color: #5cb88a; background: rgba(92,184,138,0.12); }
+        .quiz-opt.wrong { border-color: #d9645c; background: rgba(217,100,92,0.12); }
+        .quiz-opt.disabled { pointer-events: none; }
+        .quiz-feedback { display: none; font-size: 0.82rem; margin-top: 0.5rem; font-family: 'Inter', sans-serif; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.right { color: #5cb88a; }
+        .quiz-feedback.wrong-fb { color: #d9645c; }
+
+        .module-footer { max-width: 720px; margin: 0 auto; padding: 0 1.5rem 4rem; display: flex; justify-content: space-between; align-items: center; }
+        .footer-btn {
+            display: inline-flex; align-items: center; gap: 8px; padding: 0.85rem 1.6rem;
+            border-radius: 10px; font-size: 0.85rem; font-weight: 700; text-decoration: none;
+            transition: all 0.2s ease; font-family: 'Inter', sans-serif; border: none; cursor: pointer;
+        }
+        .footer-btn-next { background: var(--primary); color: var(--background); }
+        .footer-btn-next:hover { transform: translateY(-2px); box-shadow: 0 2px 10px rgba(0,0,0,0.18); }
+        .footer-btn-back { background: rgba(255, 255, 255, 0.04); color: var(--text-muted); }
+        .footer-btn-back:hover { background: rgba(255, 255, 255, 0.09); color: var(--text-primary); }
+    </style>
+</head>
+<body>
+    <div class="reading-progress" id="readingProgress"></div>
+    <header class="mod-header">
+        <div class="mod-header-inner">
+            <a href="investing-path.html" class="back-link">← Long-Term Investing</a>
+            <span class="mod-header-meta">MODULE 10 OF 18 · INTERMEDIATE</span>
+        </div>
+    </header>
+
+    <article class="article">
+        <span class="module-label">Intermediate · Module 10</span>
+        <h1 class="article-title">Moats: Durable Competitive Advantage</h1>
+        <div class="article-meta">
+            <span class="meta-item">Long-Term Investing</span>
+            <span class="meta-dot"></span>
+            <span class="meta-item">Intermediate</span>
+            <span class="meta-dot"></span>
+            <span class="meta-item">3 min read</span>
+        </div>
+
+        <h2>Why great businesses stay great</h2>
+        <p>Capitalism's default setting is erosion: any business earning fat profits attracts competitors until the profits are ordinary. A <b>moat</b> is whatever breaks that gravity — a structural reason competitors can't replicate the economics even when everyone can see them. Buffett's framing: he buys castles, but he pays for the moat. The word to underline is <i>structural</i>. Great products, hot growth and beloved CEOs are not moats; they're outcomes that moats protect.</p>
+        <div class="fig"><svg viewBox="0 0 560 210" xmlns="http://www.w3.org/2000/svg">
+<rect x="40"  y="40" width="90" height="120" rx="4" fill="rgba(92,184,138,0.12)" stroke="#5CB88A"/>
+<text x="85" y="66" text-anchor="middle" fill="#5CB88A" font-size="10" font-weight="700">NETWORK</text>
+<text x="85" y="80" text-anchor="middle" fill="#5CB88A" font-size="10" font-weight="700">EFFECTS</text>
+<text x="85" y="100" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">Visa, Meta</text>
+<rect x="145" y="40" width="90" height="120" rx="4" fill="rgba(224,162,76,0.12)" stroke="#E0A24C"/>
+<text x="190" y="66" text-anchor="middle" fill="#E0A24C" font-size="10" font-weight="700">SWITCHING</text>
+<text x="190" y="80" text-anchor="middle" fill="#E0A24C" font-size="10" font-weight="700">COSTS</text>
+<text x="190" y="100" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">banks' core IT,</text>
+<text x="190" y="114" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">Apple ecosystem</text>
+<rect x="250" y="40" width="90" height="120" rx="4" fill="rgba(157,184,210,0.12)" stroke="#9DB8D2"/>
+<text x="295" y="66" text-anchor="middle" fill="#9DB8D2" font-size="10" font-weight="700">COST</text>
+<text x="295" y="80" text-anchor="middle" fill="#9DB8D2" font-size="10" font-weight="700">ADVANTAGE</text>
+<text x="295" y="100" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">Costco, TSMC</text>
+<rect x="355" y="40" width="90" height="120" rx="4" fill="rgba(217,100,92,0.12)" stroke="#D9645C"/>
+<text x="400" y="66" text-anchor="middle" fill="#D9645C" font-size="10" font-weight="700">INTANGIBLES</text>
+<text x="400" y="86" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">brands, patents,</text>
+<text x="400" y="100" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">licenses</text>
+<rect x="460" y="40" width="90" height="120" rx="4" fill="rgba(236,226,214,0.08)" stroke="#B7ADA1"/>
+<text x="505" y="66" text-anchor="middle" fill="#F4EEE6" font-size="10" font-weight="700">EFFICIENT</text>
+<text x="505" y="80" text-anchor="middle" fill="#F4EEE6" font-size="10" font-weight="700">SCALE</text>
+<text x="505" y="100" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">rails, pipelines</text>
+<text x="280" y="190" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">Morningstar's five moat sources. The proof is in one number: ROIC that stays high for a decade.</text>
+</svg><div class="fig-cap">The five moat sources — and the single metric that proves one exists.</div></div>
+        <p><b>Network effects</b>: each user makes the product better for every other user (Visa's merchants↔cardholders loop) — the strongest moat and the most winner-take-all. <b>Switching costs</b>: leaving hurts more than staying (a bank replacing its core software risks its existence; your photo library keeps you in an ecosystem). <b>Cost advantage</b>: structurally lower unit costs via scale or process (Costco's buying power, TSMC's yield curve). <b>Intangibles</b>: brands that command price premiums (people pay double for the red can), patents, regulatory licenses. <b>Efficient scale</b>: markets that profitably support only one or two players (a second freight railroad between two cities would bankrupt both).</p>
+        <h2>The proof is ROIC, not the story</h2>
+        <p>Every annual report claims a moat; arithmetic settles it. <b>Return on invested capital</b> — after-tax operating profit ÷ (debt + equity capital employed) — measures what the business earns on the money inside it. No moat: competition drags ROIC toward the ~8-10% cost of capital. Real moat: ROIC holds at 15-30%+ for a decade THROUGH recessions and attack (Apple, Visa, Moody's run 25%+). The pattern to demand is high AND stable. One great year is a cycle; ten is a structure. Pair it with gross-margin stability: pricing power you can see in the P&L is the moat's fingerprint.</p>
+        <div class="example-box"><div class="example-label">Moat Math</div><p>Company A reinvests $1B at 25% ROIC → $250M of new annual profit, compounding. Company B reinvests $1B at 7% (below its 9% cost of capital) → it destroyed $20M of value by growing. Growth is only good when ROIC beats the cost of the capital funding it. This single sentence separates compounders from empire-builders.</p></div>
+        <h2>Moats die — watch the drawbridge</h2>
+        <p>Kodak had the century's best brand moat; digital didn't care. Newspapers owned local-ad monopolies; Craigslist ate them in five years. Intel's process lead — a cost moat measured in physics — slipped to TSMC. Moat investing therefore isn't buy-and-forget; it's buy-and-verify: recheck ROIC trend, gross margin trend, and market share annually. The dangerous moment is when management stops widening the moat and starts harvesting it — cutting R&D, raising prices without adding value, financializing. That's the drawbridge creaking. The best operators (Amazon for two decades) do the opposite: torch reported profits to dig the moat deeper while Wall Street complains.</p>
+        <div class="key-box"><div class="example-label">The Two-Question Filter</div><p>Before calling anything a moat: (1) If a competent rival spent $10B to take this market, WHY exactly would they fail? (2) Does a decade of ROIC comfortably above 15% confirm the story? A convincing answer to #1 without #2 is a narrative. #2 without #1 might be a cycle. Demand both.</p></div>
+
+        <div class="quiz-section">
+            <h3>Check your understanding</h3>
+            <p class="quiz-subtitle">4 questions — expect real numbers. Your score saves to your account.</p>
+            <div class="quiz-q" id="q1" data-why="Stories claim moats; a decade of superior returns on capital proves competitors tried and failed.">
+                <p>1. The strongest evidence a moat actually exists is…</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">a famous brand</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, true)">ROIC held well above the cost of capital for a decade through stress</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">rapid revenue growth</div>
+                </div>
+                <div class="quiz-feedback" id="fb1"></div>
+            </div>
+
+            <div class="quiz-q" id="q2" data-why="Two-sided network loops are near-impossible to bootstrap against.">
+                <p>2. Visa's primary moat source is…</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, true)">network effects — more merchants make cards more valuable and vice versa</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">patents</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">cheap fees</div>
+                </div>
+                <div class="quiz-feedback" id="fb2"></div>
+            </div>
+
+            <div class="quiz-q" id="q3" data-why="Earning 6% on capital that costs 9% loses 3 points on every reinvested dollar. Empire-building, not compounding.">
+                <p>3. A company reinvests $2B at 6% ROIC while its cost of capital is 9%. This growth…</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">creates value — growth is always good</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, true)">destroys roughly $60M of value per year</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">is neutral</div>
+                </div>
+                <div class="quiz-feedback" id="fb3"></div>
+            </div>
+
+            <div class="quiz-q" id="q4" data-why="Harvesting inflates today's numbers by spending the future — margins peak right before the erosion shows.">
+                <p>4. The classic sign a moat is being harvested rather than widened is…</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">heavy R&D spending</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, true)">price hikes + R&D cuts + flat innovation while margins temporarily bloom</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">a stock split</div>
+                </div>
+                <div class="quiz-feedback" id="fb4"></div>
+            </div>
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; Further Reading</h3>
+            <div class="source-item">Morningstar. <em>Economic Moats: The Five Sources.</em> <a href="https://www.morningstar.com/investing-definitions/economic-moat" target="_blank" rel="noopener">morningstar.com/investing-definitions/economic-moat</a></div>
+            <div class="source-item">Investopedia. <em>Return on Invested Capital (ROIC).</em> <a href="https://www.investopedia.com/terms/r/returnoninvestmentcapital.asp" target="_blank" rel="noopener">investopedia.com/terms/r/returnoninvestmentcapital.asp</a></div>
+        </div>
+
+        <div class="legal-note" style="margin-top:2rem;padding:0.9rem 1.1rem;border:1px solid rgba(236,226,214,0.1);border-radius:8px;font:500 0.72rem 'Inter',sans-serif;color:#7d746a;line-height:1.6;">Educational content only — nothing here is investment, legal, or tax advice. Markets involve risk, figures are illustrative and may contain errors, and past performance never guarantees future results. Do your own research before investing real money.</div>
+    </article>
+
+    <div class="module-footer">
+        <a href="investing-path.html" class="footer-btn footer-btn-back">&larr; Back to Path</a>
+        <a href="investing-module-11.html" class="footer-btn footer-btn-next">Next Module →</a>
+    </div>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+            document.getElementById('readingProgress').style.width = Math.min(pct, 100) + '%';
+        });
+        function checkQuiz(num, el, isCorrect) {
+            const q = document.getElementById('q' + num);
+            const fb = document.getElementById('fb' + num);
+            const opts = q.querySelectorAll('.quiz-opt');
+            opts.forEach(o => { o.classList.add('disabled'); o.classList.remove('correct', 'wrong'); });
+            const why = q.dataset.why ? ' ' + q.dataset.why : '';
+            if (isCorrect) {
+                el.classList.add('correct');
+                fb.textContent = 'Correct.' + why;
+                fb.className = 'quiz-feedback show right';
+            } else {
+                el.classList.add('wrong');
+                opts.forEach(o => { if (o.getAttribute('onclick').includes('true')) o.classList.add('correct'); });
+                fb.textContent = 'Not quite — the correct answer is highlighted.' + why;
+                fb.className = 'quiz-feedback show wrong-fb';
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/quiz.js"></script>
+</body>
+</html>

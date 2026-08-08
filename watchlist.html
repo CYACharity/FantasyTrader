@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Watchlist - Fantasy Trader</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="stock-data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/stock-logo.js"></script>
+    <style>
+        /* Import modern fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@500;600;700&display=swap');
+
+        :root {
+            --primary: #5cb88a;
+            --secondary: #4a9e73;
+            --accent: #e0a24c;
+            --success: #5cb88a;
+            --danger: #d9645c;
+            --background: #1a1714;
+            --surface: #241f1b;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --glow: rgba(92, 184, 138, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1714 0%, #1a1714 25%, #1a1714 50%, #1a1714 75%, #1a1714 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Floating Tickers Background */
+        .floating-tickers {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .ticker {
+            position: absolute;
+            font-family: 'Poppins', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            opacity: 0.1;
+            white-space: nowrap;
+            animation: floatUp 15s linear infinite;
+        }
+
+        .ticker.green {
+            color: var(--success);
+        }
+
+        .ticker.red {
+            color: var(--danger);
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.1;
+            }
+            90% {
+                opacity: 0.1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(0);
+                opacity: 0;
+            }
+        }
+
+        /* Modern Gradient Background */
+        .modern-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(236, 226, 214, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(74, 158, 115, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(236, 226, 214, 0.08) 0%, transparent 50%),
+                linear-gradient(135deg, #1a1714 0%, #1a1714 25%, #1a1714 50%, #1a1714 75%, #1a1714 100%);
+        }
+
+        /* Main Content */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .back-btn {
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid rgba(236, 226, 214, 0.2);
+            color: var(--text-primary);
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(20px);
+        }
+
+        .back-btn:hover {
+            background: rgba(236, 226, 214, 0.1);
+            border-color: var(--primary);
+        }
+
+        .page-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #5cb88a 50%, #4a9e73 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(92, 184, 138, 0.5);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Watchlist Container */
+        .watchlist-container {
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(236, 226, 214, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(236, 226, 214, 0.1);
+        }
+
+        .watchlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(236, 226, 214, 0.2);
+        }
+
+        .watchlist-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .add-stock-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-stock-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        /* Watchlist Table */
+        .watchlist-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .watchlist-table th {
+            background: rgba(236, 226, 214, 0.1);
+            color: var(--text-primary);
+            font-weight: 600;
+            text-align: left;
+            padding: 20px 15px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(236, 226, 214, 0.2);
+        }
+
+        .watchlist-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background-color 0.3s ease;
+        }
+
+        .watchlist-table tr:hover {
+            background: rgba(236, 226, 214, 0.05);
+        }
+
+        .wl-ident { display: flex; align-items: center; gap: 11px; min-width: 0; }
+
+        .stock-symbol {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        .stock-name {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+
+
+        .price-info {
+            text-align: right;
+        }
+
+        .current-price {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .price-when-added {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 3px;
+        }
+
+        .change-info {
+            text-align: right;
+        }
+
+        .total-change {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .total-change.positive {
+            color: var(--success);
+        }
+
+        .total-change.negative {
+            color: var(--danger);
+        }
+
+        .days-change {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .days-change.positive {
+            color: var(--success);
+        }
+
+        .days-change.negative {
+            color: var(--danger);
+        }
+
+        .stock-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-btn:hover {
+            background: rgba(236, 226, 214, 0.2);
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .action-btn.remove {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+        }
+
+        .action-btn.remove:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--danger);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .empty-state p {
+            margin-bottom: 30px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .watchlist-table {
+                font-size: 0.9rem;
+            }
+            
+            .watchlist-table th,
+            .watchlist-table td {
+                padding: 15px 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2.5rem;
+            }
+            
+            .watchlist-container {
+                padding: 30px 20px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .watchlist-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+    <!-- Floating Tickers Background -->
+    <div class="floating-tickers" id="floatingTickers"></div>
+    
+    <!-- Modern Background -->
+    <div class="modern-background"></div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="header">
+            <a href="portfolio.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Portfolio
+            </a>
+            <h1 class="page-title">Watchlist</h1>
+        </div>
+
+        <div class="watchlist-container">
+            <div class="watchlist-header">
+                <h2 class="watchlist-title">Your Stock Watchlist</h2>
+                <button class="add-stock-btn" onclick="addStock()">
+                    <i class="fas fa-plus"></i> Add Stock
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table class="watchlist-table" id="watchlistTable">
+                    <thead>
+                        <tr>
+                            <th>Stock</th>
+                            <th>Current Price</th>
+                            <th>Price When Added</th>
+                            <th>Total Change %</th>
+                            <th>Days Change %</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="watchlistBody">
+                        <!-- Stock rows will be dynamically added here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <h3>Your watchlist is empty</h3>
+                <p>Start building your watchlist by adding stocks you're interested in tracking.</p>
+                <button class="add-stock-btn" onclick="addStock()">
+                    <i class="fas fa-plus"></i> Add Your First Stock
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Live watchlist — loaded from Supabase (falls back to samples in demo mode)
+        let watchlistStocks = [];
+        const _catalog = (() => { try { return (new StockDataService()).comprehensiveStocks || []; } catch(e){ return []; } })();
+        function nameForSymbol(sym) {
+            const s = _catalog.find(x => x.symbol === sym);
+            return s ? s.name : sym;
+        }
+
+        async function loadWatchlist() {
+            if (!SL.configured) {
+                // Demo fallback so the page isn't empty before Supabase is connected
+                watchlistStocks = [
+                    { symbol:'AAPL', name:'Apple Inc.', currentPrice:172.62, priceWhenAdded:165.80, totalChangePercent:4.12, daysChangePercent:1.44, daysAdded:0 },
+                    { symbol:'NVDA', name:'NVIDIA Corporation', currentPrice:881.65, priceWhenAdded:750.30, totalChangePercent:17.50, daysChangePercent:1.81, daysAdded:0 }
+                ];
+                renderWatchlist();
+                return;
+            }
+            const rows = await SL.getWatchlistDetailed();
+            const symbols = rows.map(r => r.symbol);
+            const prices = symbols.length ? await stockDataService.getQuotes(symbols) : {};
+            const now = Date.now();
+            watchlistStocks = rows.map(r => {
+                const live = prices[r.symbol];
+                const current = live && live.price != null ? Number(live.price) : (r.price_when_added || 0);
+                const added = r.price_when_added != null ? Number(r.price_when_added) : current;
+                const totalPct = added > 0 ? ((current - added) / added) * 100 : 0;
+                const dayPct = live && live.change_pct != null ? Number(live.change_pct) : 0;
+                const days = r.added_at ? Math.floor((now - new Date(r.added_at)) / 86400000) : 0;
+                return { symbol:r.symbol, name:nameForSymbol(r.symbol), currentPrice:current,
+                         priceWhenAdded:added, totalChangePercent:totalPct, daysChangePercent:dayPct, daysAdded:days };
+            });
+            renderWatchlist();
+        }
+
+        // Initialize floating tickers
+        function initFloatingTickers() {
+            const tickerContainer = document.getElementById('floatingTickers');
+            const stocks = ['AAPL', 'MSFT', 'NVDA', 'GOOGL', 'TSLA', 'META', 'AMZN', 'NFLX', 'AMD', 'INTC', 'ORCL', 'CRM', 'ADBE', 'PYPL', 'UBER'];
+            
+            setInterval(() => {
+                const ticker = document.createElement('div');
+                ticker.className = `ticker ${Math.random() > 0.5 ? 'green' : 'red'}`;
+                
+                const randomStock = stocks[Math.floor(Math.random() * stocks.length)];
+                const randomPrice = (Math.random() * 1000 + 50).toFixed(2);
+                const randomChange = (Math.random() * 20 - 10).toFixed(2);
+                const changeSymbol = randomChange > 0 ? '+' : '';
+                
+                ticker.textContent = `${randomStock} $${randomPrice} ${changeSymbol}${randomChange}`;
+                ticker.style.left = Math.random() * 100 + '%';
+                ticker.style.animationDelay = Math.random() * 5 + 's';
+                
+                tickerContainer.appendChild(ticker);
+                
+                // Remove ticker after animation
+                setTimeout(() => {
+                    if (ticker.parentNode) {
+                        ticker.parentNode.removeChild(ticker);
+                    }
+                }, 15000);
+            }, 2000);
+        }
+
+        // Render watchlist table
+        function renderWatchlist() {
+            const watchlistBody = document.getElementById('watchlistBody');
+            const watchlistTable = document.getElementById('watchlistTable');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (watchlistStocks.length === 0) {
+                watchlistTable.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            watchlistTable.style.display = 'table';
+            emptyState.style.display = 'none';
+            
+            watchlistBody.innerHTML = watchlistStocks.map(stock => {
+                const totalChangeClass = stock.totalChangePercent >= 0 ? 'positive' : 'negative';
+                const daysChangeClass = stock.daysChangePercent >= 0 ? 'positive' : 'negative';
+                const totalChangeSymbol = stock.totalChangePercent >= 0 ? '+' : '';
+                const daysChangeSymbol = stock.daysChangePercent >= 0 ? '+' : '';
+                
+                return `
+                    <tr>
+                        <td>
+                            <div class="wl-ident">
+                                ${window.logoHtml ? window.logoHtml(stock.symbol, stock.sector) : ''}
+                                <div style="min-width:0;">
+                                    <div class="stock-symbol">${stock.symbol}</div>
+                                    <div class="stock-name">${stock.name}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="price-info">
+                            <div class="current-price">$${stock.currentPrice.toFixed(2)}</div>
+                        </td>
+                        <td class="price-info">
+                            <div class="price-when-added">$${stock.priceWhenAdded.toFixed(2)}</div>
+                        </td>
+                        <td class="change-info">
+                            <div class="total-change ${totalChangeClass}">
+                                ${totalChangeSymbol}${stock.totalChangePercent.toFixed(2)}%
+                            </div>
+                        </td>
+                        <td class="change-info">
+                            <div class="days-change ${daysChangeClass}">
+                                ${daysChangeSymbol}${stock.daysChangePercent.toFixed(2)}%
+                            </div>
+                        </td>
+                        <td>
+                            <div class="stock-actions">
+                                <button class="action-btn" onclick="showMetrics('${stock.symbol}')" title="View Metrics">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                                <button class="action-btn remove" onclick="removeStock('${stock.symbol}')" title="Remove">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Add stock function
+        async function addStock() {
+            const input = prompt('Add a stock — enter its ticker symbol (e.g. AAPL):');
+            if (!input) return;
+            const symbol = input.trim().toUpperCase();
+            if (!symbol) return;
+            if (watchlistStocks.some(s => s.symbol === symbol)) { alert(symbol + ' is already on your watchlist.'); return; }
+            await SL.addToWatchlist(symbol);
+            await loadWatchlist();
+        }
+
+        // Show metrics function -> jump to the trading page for this symbol
+        function showMetrics(symbol) {
+            window.location.href = 'trading.html?symbol=' + encodeURIComponent(symbol);
+        }
+
+        // Remove stock function
+        async function removeStock(symbol) {
+            await SL.removeFromWatchlist(symbol);
+            watchlistStocks = watchlistStocks.filter(stock => stock.symbol !== symbol);
+            renderWatchlist();
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            initFloatingTickers();
+            loadWatchlist();
+        });
+    </script>
+</body>
+</html>

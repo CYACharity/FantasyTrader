@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fantasy Trader Tutorial</title>
+    <style>
+        :root {
+            --primary: #4a6785;
+            --secondary: #6aa08d;
+            --accent: #e0a24c;
+            --background: #1a1714;
+            --surface: #241f1b;
+            --success: #5cb88a;
+            --danger: #d9645c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--background) 0%, #0A1128 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .tutorial-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: rgba(36, 31, 27, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(236, 226, 214, 0.2);
+            backdrop-filter: blur(20px);
+        }
+
+        .tutorial-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .tutorial-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, var(--success) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .tutorial-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+        }
+
+        .tutorial-step {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(236, 226, 214, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .tutorial-step:hover {
+            transform: translateY(-5px);
+            border-color: var(--success);
+            box-shadow: 0 10px 30px rgba(236, 226, 214, 0.2);
+        }
+
+        .step-number {
+            display: inline-block;
+            background: var(--success);
+            color: #000;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .step-title {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .step-content {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .step-highlight {
+            background: rgba(236, 226, 214, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--success);
+            margin: 1rem 0;
+        }
+
+        .tutorial-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .skip-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .skip-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .continue-btn {
+            background: linear-gradient(135deg, var(--success) 0%, var(--secondary) 100%);
+            border: none;
+            color: #000;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .continue-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        .icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--success);
+        }
+
+        @media (max-width: 768px) {
+            .tutorial-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .tutorial-title {
+                font-size: 2rem;
+            }
+            
+            .tutorial-actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+</head>
+<body>
+    <div class="tutorial-container">
+        <div class="tutorial-header">
+            <h1 class="tutorial-title">Welcome to Fantasy Trader!</h1>
+            <p class="tutorial-subtitle">Let's get you started with the basics</p>
+        </div>
+
+        <div class="tutorial-step">
+            <div class="step-number">1</div>
+            <div class="icon">📊</div>
+            <h3 class="step-title">Build Your Watchlist</h3>
+            <p class="step-content">
+                You've just selected stocks from different sectors to add to your watchlist. 
+                These stocks will appear in your portfolio and you can track their performance.
+            </p>
+            <div class="step-highlight">
+                <strong>Pro Tip:</strong> Diversify across sectors to reduce risk and increase potential returns.
+            </div>
+        </div>
+
+        <div class="tutorial-step">
+            <div class="step-number">2</div>
+            <div class="icon">💰</div>
+            <h3 class="step-title">Start Trading</h3>
+            <p class="step-content">
+                Use your $100,000 virtual cash to buy and sell stocks. Monitor market movements 
+                and make strategic decisions to grow your portfolio.
+            </p>
+            <div class="step-highlight">
+                <strong>Remember:</strong> This is paper trading - no real money is at risk!
+            </div>
+        </div>
+
+        <div class="tutorial-step">
+            <div class="step-number">3</div>
+            <div class="icon">🏆</div>
+            <h3 class="step-title">Compete & Learn</h3>
+            <p class="step-content">
+                Join leagues, compete against other traders, and learn from your performance. 
+                Track your progress with detailed analytics and reports.
+            </p>
+            <div class="step-highlight">
+                <strong>Goal:</strong> Become the top trader in your league!
+            </div>
+        </div>
+
+        <div class="tutorial-actions">
+            <a href="dashboard.html" class="skip-btn">Skip Tutorial</a>
+            <a href="dashboard.html" class="continue-btn">Start Trading!</a>
+        </div>
+    </div>
+</body>
+</html>

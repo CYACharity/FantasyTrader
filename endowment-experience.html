@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Whitfield Endowment - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1A1714; color: #F4EEE6; font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+        .wrap { max-width: 780px; margin: 0 auto; padding: 1.5rem 1.25rem 5rem; }
+        .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .top a { color: #5CB88A; text-decoration: none; font-weight: 600; font-size: 0.85rem; }
+        .top .tag { font: 700 0.64rem 'Inter', sans-serif; letter-spacing: 0.2em; text-transform: uppercase; color: #E0A24C; }
+
+        /* status bar */
+        .hud {
+            position: sticky; top: 0; z-index: 50;
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            background: rgba(26, 23, 20, 0.97); border: 2px solid rgba(236, 226, 214, 0.12);
+            margin-bottom: 1.4rem;
+        }
+        .hud div { padding: 0.65rem 0.9rem; border-right: 1px solid rgba(236, 226, 214, 0.08); min-width: 0; }
+        .hud div:last-child { border-right: none; }
+        .hud .k { font: 700 0.58rem 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #7d746a; }
+        .hud .v { font: 700 1.02rem 'Inter', sans-serif; font-variant-numeric: tabular-nums; margin-top: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .trust-meter { height: 5px; background: rgba(236,226,214,0.1); margin-top: 0.45rem; }
+        .trust-meter i { display: block; height: 100%; background: #5CB88A; transition: width 0.6s ease, background 0.6s ease; }
+
+        .scene { animation: fadeUp 0.5s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+        .art { background: #14110E; border: 2px solid rgba(236, 226, 214, 0.1); border-bottom: none; }
+        .art svg { display: block; width: 100%; height: auto; }
+        .panel { background: #241F1B; border: 2px solid rgba(236, 226, 214, 0.12); padding: 1.6rem 1.7rem; }
+        .kicker { font: 700 0.62rem 'Inter', sans-serif; letter-spacing: 0.22em; text-transform: uppercase; color: #E0A24C; margin-bottom: 0.5rem; }
+        .panel h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 1.5rem; margin-bottom: 0.9rem; }
+        .panel p { color: #C9C0B4; font-size: 0.94rem; line-height: 1.75; margin-bottom: 0.9rem; }
+        .panel p b { color: #F4EEE6; }
+        .say { border-left: 3px solid rgba(224, 162, 76, 0.6); padding: 0.2rem 0 0.2rem 1rem; margin: 0 0 0.9rem; font-style: italic; color: #D8CFC2; }
+        .say .who { display: block; font: 700 0.64rem 'Inter', sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #E0A24C; font-style: normal; margin-bottom: 0.2rem; }
+
+        .chartbox { background: #1E1A16; border: 1px solid rgba(236,226,214,0.08); padding: 0.9rem; margin: 1.1rem 0; }
+        .chartbox .cb-t { font: 700 0.62rem 'Inter', sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #7d746a; margin-bottom: 0.5rem; }
+        .chartbox .cwrap { position: relative; height: 190px; }
+
+        .choices { display: flex; flex-direction: column; gap: 0.65rem; margin-top: 1.2rem; }
+        .choice {
+            text-align: left; cursor: pointer; background: #1E1A16;
+            border: 2px solid rgba(236, 226, 214, 0.12); padding: 0.95rem 1.15rem;
+            color: inherit; font-family: inherit; transition: all 0.15s ease;
+        }
+        .choice:hover { border-color: #5CB88A; transform: translateX(3px); }
+        .choice .ct { font-weight: 700; font-size: 0.92rem; }
+        .choice .cs { color: #8a8178; font-size: 0.78rem; margin-top: 0.25rem; line-height: 1.5; }
+        .outcome { margin-top: 1.2rem; padding: 1.1rem 1.2rem; border: 1px solid rgba(92,184,138,0.35); background: rgba(92,184,138,0.06); display: none; }
+        .outcome.bad { border-color: rgba(217,100,92,0.4); background: rgba(217,100,92,0.06); }
+        .outcome.show { display: block; animation: fadeUp 0.35s ease; }
+        .outcome .ot { font: 700 0.66rem 'Inter', sans-serif; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 0.45rem; color: #5CB88A; }
+        .outcome.bad .ot { color: #D9645C; }
+        .outcome .ob { font-size: 0.88rem; line-height: 1.65; color: #D8CFC2; }
+        .go-on {
+            margin-top: 1rem; background: linear-gradient(180deg, #63bf92, #4faa7d); color: #14110E;
+            border: none; padding: 0.75rem 1.7rem; font: 800 0.8rem 'Inter', sans-serif;
+            letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+        }
+        .go-on:hover { filter: brightness(1.07); }
+
+        /* scorecard */
+        .grade { font: 600 4.2rem 'Fraunces', Georgia, serif; line-height: 1; }
+        .score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin: 1.2rem 0; }
+        .score-cell { background: #1E1A16; border: 1px solid rgba(236,226,214,0.1); padding: 0.9rem 1rem; }
+        .score-cell .k { font: 700 0.6rem 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #7d746a; }
+        .score-cell .v { font: 700 1.25rem 'Inter', sans-serif; margin-top: 0.2rem; font-variant-numeric: tabular-nums; }
+        .lesson { display: flex; gap: 0.7rem; padding: 0.7rem 0; border-bottom: 1px solid rgba(236,226,214,0.07); font-size: 0.87rem; line-height: 1.6; color: #C9C0B4; }
+        .lesson b { color: #F4EEE6; }
+        .lesson .dot { color: #E0A24C; font-weight: 800; }
+        .legal-note { margin-top: 2rem; padding: 0.9rem 1.1rem; border: 1px solid rgba(236,226,214,0.1); font: 500 0.72rem 'Inter', sans-serif; color: #7d746a; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="top">
+            <a href="experiences.html">← Experiences</a>
+            <span class="tag">Simulated Experience · Endowment Management</span>
+        </div>
+        <div class="hud">
+            <div><span class="k">Year</span><div class="v" id="hYear">0</div></div>
+            <div><span class="k">Endowment</span><div class="v" id="hVal">$20.0M</div></div>
+            <div><span class="k">Paid to school</span><div class="v" id="hPaid">$0</div></div>
+            <div><span class="k">Board trust</span><div class="trust-meter"><i id="hTrust" style="width:60%"></i></div></div>
+        </div>
+        <div id="stage"></div>
+        <div class="legal-note">A fictional simulation for education. Returns are scripted to teach concepts — real markets are messier, and nothing here is investment advice.</div>
+    </div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   THE WHITFIELD ENDOWMENT — a story about other people's money
+   ══════════════════════════════════════════════════════════════ */
+const S = {
+    year: 0, value: 20.0, paid: 0, trust: 60,
+    spendRule: null,          // 'fixed' | 'smooth' | 'band'
+    alloc: null,              // {eq, bd, alt, label}
+    crypto: 0,                // % sleeve
+    building: false,          // accepted illiquid gift
+    crashMove: null,          // 'cash' | 'rebalance' | 'cut'
+    reentered: null,
+    history: [{ x: 'Start', v: 20.0 }],
+    lessons: [],
+};
+const fmtM = v => '$' + v.toFixed(1) + 'M';
+function hud() {
+    document.getElementById('hYear').textContent = S.year;
+    document.getElementById('hVal').textContent = fmtM(S.value);
+    document.getElementById('hPaid').textContent = fmtM(S.paid);
+    const t = document.getElementById('hTrust');
+    t.style.width = Math.max(4, Math.min(100, S.trust)) + '%';
+    t.style.background = S.trust >= 55 ? '#5CB88A' : S.trust >= 35 ? '#E0A24C' : '#D9645C';
+}
+
+/* ── tiny illustration library (theme-colored SVG scenes) ── */
+const ART = {
+campus: `<svg viewBox="0 0 780 180" xmlns="http://www.w3.org/2000/svg">
+<rect width="780" height="180" fill="#14110E"/>
+<circle cx="640" cy="46" r="22" fill="rgba(224,162,76,0.5)"/>
+<path d="M0,150 L780,150" stroke="rgba(236,226,214,0.15)"/>
+<rect x="290" y="70" width="200" height="80" fill="rgba(236,226,214,0.07)"/>
+<path d="M280,70 L390,28 L500,70 Z" fill="rgba(236,226,214,0.1)"/>
+<rect x="322" y="90" width="16" height="60" fill="rgba(236,226,214,0.1)"/><rect x="362" y="90" width="16" height="60" fill="rgba(236,226,214,0.1)"/>
+<rect x="402" y="90" width="16" height="60" fill="rgba(236,226,214,0.1)"/><rect x="442" y="90" width="16" height="60" fill="rgba(236,226,214,0.1)"/>
+<rect x="383" y="12" width="4" height="20" fill="rgba(236,226,214,0.25)"/><path d="M387,12 L410,17 L387,24 Z" fill="rgba(92,184,138,0.6)"/>
+<rect x="80" y="110" width="60" height="40" fill="rgba(236,226,214,0.05)"/><rect x="640" y="104" width="70" height="46" fill="rgba(236,226,214,0.05)"/>
+<path d="M60,150 C90,120 120,138 150,150" stroke="rgba(92,184,138,0.35)" fill="none" stroke-width="2"/>
+<path d="M600,150 C630,116 670,134 700,150" stroke="rgba(92,184,138,0.35)" fill="none" stroke-width="2"/>
+<text x="390" y="172" text-anchor="middle" fill="#7d746a" font-size="10" letter-spacing="3">WHITFIELD ACADEMY · EST. 1912</text></svg>`,
+boardroom: `<svg viewBox="0 0 780 170" xmlns="http://www.w3.org/2000/svg">
+<rect width="780" height="170" fill="#14110E"/>
+<ellipse cx="390" cy="120" rx="240" ry="34" fill="rgba(236,226,214,0.07)"/>
+<circle cx="230" cy="72" r="15" fill="rgba(224,162,76,0.55)"/><rect x="214" y="90" width="32" height="26" rx="6" fill="rgba(224,162,76,0.35)"/>
+<circle cx="330" cy="62" r="15" fill="rgba(236,226,214,0.28)"/><rect x="314" y="80" width="32" height="28" rx="6" fill="rgba(236,226,214,0.16)"/>
+<circle cx="450" cy="62" r="15" fill="rgba(236,226,214,0.28)"/><rect x="434" y="80" width="32" height="28" rx="6" fill="rgba(236,226,214,0.16)"/>
+<circle cx="550" cy="72" r="15" fill="rgba(92,184,138,0.55)"/><rect x="534" y="90" width="32" height="26" rx="6" fill="rgba(92,184,138,0.32)"/>
+<rect x="360" y="20" width="60" height="8" rx="2" fill="rgba(92,184,138,0.3)"/>
+<text x="390" y="160" text-anchor="middle" fill="#7d746a" font-size="10" letter-spacing="3">THE INVESTMENT COMMITTEE</text></svg>`,
+storm: `<svg viewBox="0 0 780 170" xmlns="http://www.w3.org/2000/svg">
+<rect width="780" height="170" fill="#14110E"/>
+<path d="M40,60 C80,20 160,20 190,52 C230,30 290,40 300,70 C260,90 90,90 40,60 Z" fill="rgba(217,100,92,0.16)"/>
+<path d="M470,44 C510,10 600,12 630,44 C680,26 740,40 745,66 C700,88 520,86 470,44 Z" fill="rgba(217,100,92,0.12)"/>
+<path d="M120,95 L100,125 L118,125 L96,158" stroke="#D9645C" stroke-width="3" fill="none" stroke-linecap="round"/>
+<polyline points="60,150 160,132 240,142 330,110 420,128 520,84 620,104 730,60" stroke="rgba(236,226,214,0.2)" stroke-width="2" fill="none" stroke-dasharray="5 4"/>
+<polyline points="60,90 160,102 240,96 330,122 420,112 520,142 620,134 730,152" stroke="#D9645C" stroke-width="3" fill="none"/>
+<text x="390" y="34" text-anchor="middle" fill="#D9645C" font-size="11" font-weight="700" letter-spacing="3">YEAR TWO · THE CRASH</text></svg>`,
+students: `<svg viewBox="0 0 780 160" xmlns="http://www.w3.org/2000/svg">
+<rect width="780" height="160" fill="#14110E"/>
+<circle cx="300" cy="60" r="13" fill="rgba(236,226,214,0.3)"/><rect x="286" y="76" width="28" height="34" rx="6" fill="rgba(236,226,214,0.18)"/>
+<circle cx="360" cy="56" r="13" fill="rgba(92,184,138,0.5)"/><rect x="346" y="72" width="28" height="38" rx="6" fill="rgba(92,184,138,0.3)"/>
+<circle cx="420" cy="60" r="13" fill="rgba(224,162,76,0.5)"/><rect x="406" y="76" width="28" height="34" rx="6" fill="rgba(224,162,76,0.3)"/>
+<circle cx="480" cy="58" r="13" fill="rgba(236,226,214,0.3)"/><rect x="466" y="74" width="28" height="36" rx="6" fill="rgba(236,226,214,0.18)"/>
+<rect x="330" y="20" width="120" height="22" rx="3" fill="rgba(236,226,214,0.1)"/>
+<text x="390" y="35" text-anchor="middle" fill="#B7ADA1" font-size="9" letter-spacing="1">KEEP OUR SCHOLARSHIPS</text>
+<text x="390" y="145" text-anchor="middle" fill="#7d746a" font-size="10" letter-spacing="3">OUTSIDE THE FINANCE OFFICE</text></svg>`,
+sunrise: `<svg viewBox="0 0 780 160" xmlns="http://www.w3.org/2000/svg">
+<rect width="780" height="160" fill="#14110E"/>
+<circle cx="390" cy="150" r="70" fill="rgba(92,184,138,0.18)"/>
+<circle cx="390" cy="150" r="44" fill="rgba(92,184,138,0.25)"/>
+<path d="M60,130 L780,130" stroke="rgba(236,226,214,0.12)"/>
+<polyline points="60,120 170,112 280,116 390,96 500,84 610,62 730,38" stroke="#5CB88A" stroke-width="3" fill="none"/>
+<text x="390" y="30" text-anchor="middle" fill="#5CB88A" font-size="11" font-weight="700" letter-spacing="3">THE LONG RECOVERY</text></svg>`,
+};
+
+/* ── scripted market years (the lesson engine) ── */
+function yearReturn(eq, bd, alt, yr) {
+    // per-asset scripted returns by story year
+    const R = {
+        1: { eq: 0.14, bd: 0.035, alt: 0.07, cr: 1.2 },
+        2: { eq: -0.32, bd: 0.07, alt: -0.12, cr: -0.70 },
+        3: { eq: 0.26, bd: 0.02, alt: 0.09, cr: 0.60 },
+        4: { eq: 0.11, bd: 0.03, alt: 0.06, cr: -0.15 },
+    }[yr] || { eq: 0.08, bd: 0.03, alt: 0.06, cr: 0.10 };
+    return { R, port: eq * R.eq + bd * R.bd + alt * R.alt };
+}
+function spendAmount() {
+    if (S.spendRule === 'fixed') return S.value * 0.05;
+    if (S.spendRule === 'smooth') {
+        const last3 = S.history.slice(-3).map(h => h.v);
+        return (last3.reduce((a, b) => a + b, 0) / last3.length) * 0.05;
+    }
+    return Math.min(Math.max(S.value * 0.05, 0.8), 1.15); // band: $0.8M floor, $1.15M cap
+}
+function stepYear(extraEq) {
+    S.year++;
+    const a = S.alloc;
+    const crypto = S.crypto / 100;
+    const eq = a.eq * (1 - crypto), bd = a.bd * (1 - crypto), alt = a.alt * (1 - crypto);
+    const { R, port } = yearReturn(eq, bd, alt, S.year);
+    let ret = port + crypto * R.cr + (extraEq || 0);
+    S.value = S.value * (1 + ret);
+    const draw = spendAmount();
+    S.value -= draw; S.paid += draw;
+    if (S.building && S.year === 2) S.value -= 0.35; // forced cheap sale of part of the building for liquidity
+    S.history.push({ x: 'Yr ' + S.year, v: +S.value.toFixed(2) });
+    return { ret, draw, R };
+}
+
+/* ── engine ── */
+let chart;
+function render(id) {
+    const sc = SCENES[id];
+    const stage = document.getElementById('stage');
+    stage.innerHTML = `<div class="scene">
+        ${sc.art ? '<div class="art">' + ART[sc.art] + '</div>' : ''}
+        <div class="panel">
+            <div class="kicker">${sc.kicker || ''}</div>
+            <h2>${sc.title}</h2>
+            ${typeof sc.body === 'function' ? sc.body() : sc.body}
+            ${sc.chart ? '<div class="chartbox"><div class="cb-t">Endowment value</div><div class="cwrap"><canvas id="expChart"></canvas></div></div>' : ''}
+            <div class="choices">${(sc.choices || []).map((c, i) =>
+                `<button class="choice" onclick="pick('${id}', ${i})"><div class="ct">${c.t}</div><div class="cs">${c.s || ''}</div></button>`).join('')}</div>
+            <div class="outcome" id="outcome"><div class="ot" id="outT"></div><div class="ob" id="outB"></div>
+                <button class="go-on" id="goOn">Continue →</button></div>
+        </div>
+    </div>`;
+    if (sc.chart) drawChart();
+    hud();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function drawChart() {
+    const c = document.getElementById('expChart'); if (!c || !window.Chart) return;
+    if (chart) { try { chart.destroy(); } catch (e) {} }
+    const up = S.history[S.history.length - 1].v >= 20;
+    chart = new Chart(c, { type: 'line',
+        data: { labels: S.history.map(h => h.x), datasets: [{ data: S.history.map(h => h.v),
+            borderColor: up ? '#5CB88A' : '#D9645C', backgroundColor: 'rgba(92,184,138,0.08)', fill: true,
+            borderWidth: 2.5, pointRadius: 3, pointBackgroundColor: '#E0A24C', tension: 0.25 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false },
+            tooltip: { callbacks: { label: x => '$' + x.parsed.y.toFixed(1) + 'M' } } },
+            scales: { y: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: 'rgba(255,255,255,.5)', callback: v => '$' + v + 'M' } },
+                      x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,.45)' } } } } });
+}
+window.pick = function (id, i) {
+    const c = SCENES[id].choices[i];
+    const res = c.fx ? c.fx() : {};
+    document.querySelectorAll('.choice').forEach(b => b.disabled = true, b => b.style.opacity = 0.4);
+    document.querySelectorAll('.choice').forEach((b, j) => { if (j !== i) b.style.opacity = 0.35; else b.style.borderColor = '#E0A24C'; });
+    const out = document.getElementById('outcome');
+    out.className = 'outcome show' + (res.bad ? ' bad' : '');
+    document.getElementById('outT').textContent = res.bad ? 'What happens' : 'What happens';
+    document.getElementById('outB').innerHTML = res.text || '';
+    document.getElementById('goOn').onclick = () => render(res.go || c.go);
+    hud();
+    out.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+/* ══ THE STORY ══ */
+const SCENES = {
+
+intro: { art: 'campus', kicker: 'Chapter one · The handover', title: 'Twenty million dollars and a hundred years of trust',
+body: `
+<p>Whitfield Academy has existed since 1912. Its endowment — <b>$20 million</b>, built from a century of alumni gifts — pays for 31 full scholarships, two endowed teaching chairs, and the leaking roof of the science building. After their old advisor retired, the board voted to hand the portfolio to you.</p>
+<div class="say"><span class="who">Marjorie Whitfield-Okafor · Board Chair</span>"Every dollar in this account is a promise somebody made to a student they'll never meet. We need about $1 million a year from it, forever. The last thing my grandfather said about this fund: don't be brilliant with it. Be right."</div>
+<p>Dan, the school's CFO, slides the account statements across the table and waits. Everyone is looking at you.</p>`,
+choices: [
+    { t: '"Before I touch a dollar, I need to understand what this money has to do."', s: 'Start with the liabilities, not the assets.', fx: () => { S.trust += 10; return { text: 'Marjorie nods slowly. Dan visibly relaxes. Asking about the school\'s needs before the market\'s opportunities is the first correct move in institutional investing — the portfolio exists to serve the spending, not the other way around. <b>Board trust rises.</b>', go: 'listen' }; } },
+    { t: '"Good news — I have some ideas that could double this in five years."', s: 'Lead with ambition.', fx: () => { S.trust -= 12; return { bad: true, text: 'The room goes quiet. Marjorie writes something down. Doubling $20M in five years means ~15% a year — hedge-fund-legend territory — promised to a board whose actual need is $1M a year of reliability. You sound like the last three people who cold-called them. <b>Trust falls.</b>', go: 'listen' }; } },
+    { t: '"What went wrong with the last advisor?"', s: 'Learn the history first.', fx: () => { S.trust += 4; return { text: 'Useful question. Answer: nothing dramatic — he was fine, then got slow, then retired. But you learn something better: the board once fired a manager in 2009 <i>for selling at the bottom</i>. This board remembers panic. File that away. <b>Trust rises slightly.</b>', go: 'listen' }; } },
+], },
+
+listen: { art: 'boardroom', kicker: 'Chapter one · The listening meeting', title: 'One question before the numbers',
+body: `
+<p>You have the committee for one more hour. The room includes Marjorie (patient, sharp), Dan the CFO (worries about cash), and <b>Brad</b> — a young trustee who made money in tech and mentions it. You get one deep-dive question before they scatter to their day jobs.</p>`,
+choices: [
+    { t: '"Exactly how much cash does the school need from this fund, and when?"', s: 'Map the spending obligation precisely.', fx: () => { S.trust += 8; return { text: 'Dan pulls up the real numbers: <b>$1.0M/year</b>, paid quarterly, funding scholarships (60%), faculty chairs (25%), maintenance (15%). Scholarships CANNOT be paused mid-year — students are enrolled. Translation: this portfolio has a bond-like liability attached to it. Whatever you build must produce $250k every 90 days through any market on Earth. <b>This is the single most valuable fact you could have learned.</b>', go: 'ips' }; } },
+    { t: '"What would make this committee fire me?"', s: 'Understand the behavioral risk.', fx: () => { S.trust += 6; return { text: 'Brave question; honest answers. Marjorie: "Losing a third of it." Dan: "Missing a scholarship payment." Brad: "Underperforming Milton Prep\'s endowment three years running." Note the danger — those three fears pull in <i>different directions</i>. The committee itself is a risk to manage. <b>Trust rises.</b>', go: 'ips' }; } },
+    { t: '"What\'s your view on markets right now?"', s: 'Take the committee\'s temperature.', fx: () => { S.trust -= 4; return { bad: true, text: 'You get 40 minutes of Brad\'s opinions about AI stocks and a lecture about his cousin\'s crypto fund. You\'ve learned nothing about the school\'s needs and accidentally taught the committee that investment meetings are for market chatter. The pros ask about liabilities; you asked for predictions. <b>A small step backward.</b>', go: 'ips' }; } },
+], },
+
+ips: { kicker: 'Chapter two · The rulebook', title: 'Write the spending rule before the first trade',
+body: `
+<p>Before allocating a cent, you draft the <b>Investment Policy Statement</b> — the constitution that will make decisions when everyone (including you) is scared. The heart of it is the spending rule: how the $1M draw actually gets calculated. This one paragraph will matter more than any stock you ever pick.</p>
+<p>Three standard designs are on the table:</p>`,
+choices: [
+    { t: 'Fixed 5% of current market value, every year', s: 'Simple. But the payout crashes exactly when markets do.', fx: () => { S.spendRule = 'fixed'; S.lessons.push(['Spending rules', 'A fixed %-of-market-value rule transmits every crash directly into the school\'s budget — the year the endowment fell, scholarships got cut too. Smoothing exists to break that link.']); return { text: 'Clean and common. But notice what you signed: if the endowment drops 30%, the school\'s income drops 30% <i>in the same year</i> — the portfolio\'s worst moment becomes the students\' worst moment. Endowments call this "spending volatility," and you\'ve just bought the maximum amount of it.', go: 'alloc' }; } },
+    { t: '5% of the trailing 3-year average value', s: 'The classic endowment smoothing rule.', fx: () => { S.spendRule = 'smooth'; S.trust += 5; S.lessons.push(['Spending rules', 'Your 3-year smoothing rule meant the crash reached the school\'s budget slowly and partially — the single most protective decision of the whole simulation.']); return { text: 'The institutional standard, and for good reason: averaging over three years means one terrible market year only moves the payout by a third of the damage, a year late. The school can plan; the portfolio gets time to heal. Dan the CFO actually smiles. <b>Trust rises.</b>', go: 'alloc' }; } },
+    { t: '5% with a floor of $800k and a cap of $1.15M', s: 'A corridor: never starve the school, never overfeed it.', fx: () => { S.spendRule = 'band'; S.trust += 3; S.lessons.push(['Spending rules', 'Your floor-and-cap corridor guaranteed scholarships a minimum in the crash — paid for by capping the boom-year draws. Corridors trade upside for survivability.']); return { text: 'A corridor rule: the school always gets at least $800k (scholarships survive anything) and never more than $1.15M (boom years build the buffer instead of inflating the budget). Slightly complex, deeply humane. Dan asks for it in writing immediately.', go: 'alloc' }; } },
+], },
+
+alloc: { kicker: 'Chapter two · The allocation', title: 'Now — and only now — the portfolio',
+body: `
+<p>With the spending rule signed, you design the machine that funds it. The menu below is simplified to three dials: <b>equities</b> (growth engine, violent), <b>bonds</b> (shock absorber, pays the bills), <b>real assets/alts</b> (inflation defense). Remember what you know: $1M must come out every year, the board fired someone for panic-selling in 2009, and Brad benchmarks you against Milton Prep.</p>`,
+choices: [
+    { t: 'GROWTH — 75% equities · 20% bonds · 5% alts', s: 'Endowments are forever; act like it.', fx: () => { S.alloc = { eq: 0.75, bd: 0.20, alt: 0.05, label: 'Growth 75/20/5' }; return { text: 'The Yale-ish argument: an infinite horizon should hold maximum growth assets and treat crashes as noise. True for the <i>portfolio</i> — but your spending rule makes the horizon partly finite: $1M leaves every year regardless. You\'ve built high performance with a thin cushion. We\'ll see.', go: 'y1' }; } },
+    { t: 'BALANCED — 60% equities · 30% bonds · 10% alts', s: 'Growth with a real shock absorber.', fx: () => { S.alloc = { eq: 0.60, bd: 0.30, alt: 0.10, label: 'Balanced 60/30/10' }; S.trust += 3; return { text: 'The textbook institutional build: enough equity to outgrow inflation plus spending, enough bonds to fund ~6 years of draws without ever selling stocks in a panic. It will lag in manias and shine in storms — which is the design, not a flaw.', go: 'y1' }; } },
+    { t: 'PRESERVATION — 40% equities · 55% bonds · 5% alts', s: 'The grandfather said don\'t lose it.', fx: () => { S.alloc = { eq: 0.40, bd: 0.55, alt: 0.05, label: 'Preservation 40/55/5' }; return { text: 'Safe-feeling — and quietly risky in a different currency. At 5% spending plus ~2.5% inflation, this portfolio needs ~7.5% a year to hold its real value; a 40% equity mix has rarely delivered that. You\'ve traded crash risk for <b>erosion risk</b>: the slow kind nobody gets fired for until it\'s too late.', go: 'y1' }; } },
+    { t: 'SWING — 90% equities · 5% bonds · 5% alts', s: 'Beat Milton Prep. Decisively.', fx: () => { S.alloc = { eq: 0.90, bd: 0.05, alt: 0.05, label: 'Swing 90/5/5' }; S.trust -= 5; return { bad: true, text: 'Brad loves it. Dan turns grey: with $1M leaving annually, a 35% equity crash would force you to sell stocks <i>at the bottom</i> just to make the scholarship payments — converting a temporary loss into a permanent one. You\'ve stapled the spending problem to the riskiest possible engine. <b>Dan\'s trust wavers.</b>', go: 'y1' }; } },
+], },
+
+y1: { chart: true, kicker: 'Chapter three · Year one', title: () => 'A good year — the most dangerous kind',
+body: () => {
+    const r = stepYear();
+    S._y1 = r;
+    const pct = (r.ret * 100).toFixed(1);
+    let react;
+    if (S.alloc.eq >= 0.9) { S.trust += 6; react = '<div class="say"><span class="who">Brad</span>"THIS is what I\'m talking about. Milton Prep did nine-something. We should lean in harder."</div><p>You are now the committee\'s genius. Remember this feeling; it has a half-life.</p>'; }
+    else if (S.alloc.eq <= 0.4) { S.trust -= 7; react = '<div class="say"><span class="who">Brad</span>"Milton Prep\'s endowment returned 11.4%. We did ' + pct + '. Can someone explain why we\'re paying for underperformance?"</div><p>Marjorie defends you — "we hired discipline, not a lottery ticket" — but you can feel the scoreboard problem starting. Conservative portfolios must survive their own good markets.</p>'; }
+    else { S.trust += 3; react = '<p>The committee is calm — the best possible reaction. Marjorie asks one good question ("what would this have done in 2008?") and moves to the roof budget. Boring meetings are what success sounds like.</p>'; }
+    return `<p>Markets cooperate: equities +14%, bonds +3.5%. Your <b>${S.alloc.label}</b> portfolio returns <b>${pct}%</b>, and the school receives its <b>${fmtM(r.draw)}</b> draw on schedule. The endowment stands at <b>${fmtM(S.value)}</b>.</p>` + react;
+},
+choices: [ { t: 'On to the annual meeting…', s: '', fx: () => ({ text: 'Year one closes. Then Brad asks for "five minutes on an opportunity."', go: 'crypto' }) } ], },
+
+crypto: { kicker: 'Chapter three · The temptation', title: 'Brad has a deck',
+body: `
+<p>Fourteen slides, dark mode, a rocket on slide three. The <b>"Digital Assets Opportunity Fund"</b> run by Brad's former roommate returned <b>+120%</b> last year. Brad moves that Whitfield allocate 10% of the endowment. "Milton Prep is <i>looking into it</i>," he adds, which is trustee for <i>I heard it at a dinner</i>.</p>
+<div class="say"><span class="who">Marjorie</span>"I don't understand it, which worries me. But I didn't understand the internet either. What do you recommend?"</div>`,
+choices: [
+    { t: 'Decline — and teach the committee why in one page', s: 'Volatility math, custody risk, fee stack, no yield.', fx: () => { S.crypto = 0; S.trust += 6; S.lessons.push(['Speculative sleeves', 'You declined the +120% fund at the top. A year later it was −70%. The hardest part of institutional investing is that discipline looks like cowardice at every market top.']); return { text: 'You write one page: an asset with 70-80% drawdown history cannot sit inside a fund with a hard $1M annual liability; the fund\'s 2-and-20 fee stack consumes the diversification argument; custody is an unresolved question for a fiduciary. Brad calls it "boomer thinking." Marjorie files your memo. <b>Watch what happens next year.</b>', go: 'gift' }; } },
+    { t: 'Allocate a contained 2% sleeve', s: 'Small enough to survive, big enough to learn.', fx: () => { S.crypto = 2; S.trust += 2; S.lessons.push(['Speculative sleeves', 'Your 2% crypto sleeve fell ~70% in the crash — costing ~1.4% of the endowment. Painful, survivable, and educational: sleeve sizing is what turns a blowup into a tuition payment.']); return { text: 'The diplomatic middle: 2% ($400k), documented as a satellite position with a written thesis and an exit rule. If it zeroes, the endowment loses less than a mediocre quarter; if Brad\'s roommate is right, it matters. Marjorie appreciates that the number came with a memo.', go: 'gift' }; } },
+    { t: 'Follow the momentum — allocate the full 10%', s: '+120% speaks for itself.', fx: () => { S.crypto = 10; S.trust -= 8; S.lessons.push(['Speculative sleeves', 'The 10% crypto allocation lost ~70% in the crash — about 7% of the entire endowment, roughly TWO YEARS of scholarships, gone into an asset chosen from a trustee\'s slide deck.']); return { bad: true, text: '$2 million of scholarship money goes into the roommate\'s fund, at the top, after the +120% year — the precise pattern (performance-chasing into an illiquid vehicle) that kills institutional portfolios. Dan documents his objection in the minutes. Remember that detail.', go: 'gift' }; } },
+], },
+
+gift: { kicker: 'Chapter four · Strings attached', title: 'A donor calls with a building',
+body: `
+<p>An alum wants to donate a <b>$3M office building</b> to the endowment — generous, and complicated. It's 60% leased, needs a roof within five years, and the gift agreement says it <b>cannot be sold for a decade</b>. Dan is already doing liquidity math on a napkin.</p>`,
+choices: [
+    { t: 'Accept with gratitude — $3M is $3M', s: 'The endowment grows 15% in one phone call.', fx: () => { S.building = true; S.value += 3; S.history[S.history.length - 1].v = +S.value.toFixed(2); S.lessons.push(['Illiquid gifts', 'The building added $3M on paper — and during the crash it produced no sellable value while consuming repair cash. Illiquid assets are worth less than their appraisal to a fund with annual obligations.']); return { text: 'The endowment jumps to ' + fmtM(S.value) + ' on paper. But notice what you actually bought: an asset that pays partial rent, needs capital, and CANNOT be sold when you most need money. In good times it\'s a gift. In a liquidity crunch it\'s a passenger who can\'t swim.', go: 'y2crash' }; } },
+    { t: 'Negotiate: accept only if the no-sale clause is dropped', s: 'Gifts serve the mission, not the donor\'s attachment.', fx: () => { S.trust += 6; S.lessons.push(['Illiquid gifts', 'You negotiated the restriction off the donated building (then politely sold it). Fiduciaries accept gifts on the fund\'s terms — a restricted asset is a smaller gift than its price tag claims.']); return { text: 'Awkward for exactly one phone call. The donor\'s lawyer huffs; the donor, who mostly wants his name on the atrium, agrees. You accept the building, sell it in eight months at $2.9M, and the endowment gets <i>usable</i> money. Marjorie learns something about you: you can say a polite no to $3 million. <b>Trust rises.</b>', go: 'y2crash' }; } },
+    { t: 'Decline the gift entirely', s: 'Too messy for a fund this size.', fx: () => { S.trust -= 3; return { bad: true, text: 'Defensible on pure portfolio logic — but you turned down ~$2.9M of realizable value because negotiating felt uncomfortable, and the development office is now furious with the finance office. Fiduciary duty includes doing the annoying work of making gifts usable.', go: 'y2crash' }; } },
+], },
+
+y2crash: { art: 'storm', chart: true, kicker: 'Chapter five · Year two', title: () => 'The year the phones ring',
+body: () => {
+    const r = stepYear(); S._y2 = r;
+    const pct = (r.ret * 100).toFixed(1);
+    const cryptoLine = S.crypto ? `<p>Brad's fund is down <b>70%</b> and has suspended withdrawals${S.crypto >= 10 ? ' — roughly $1.4M of scholarship money is trapped inside' : ''}. Brad has not spoken in two meetings.</p>` : `<p>The Digital Assets Opportunity Fund you declined is down <b>70%</b> and gated. Nobody mentions it. Marjorie catches your eye for half a second. That's the entire reward for being right early — take it.</p>`;
+    return `<p>It arrives the way it always does — fast, with a headline nobody predicted. Equities fall <b>32%</b> over the year; your bonds return +7% (this is why they exist). The portfolio returns <b>${pct}%</b>, and after the school's draw the endowment stands at <b>${fmtM(S.value)}</b>.</p>
+    ${cryptoLine}
+    ${S.building ? '<p>The building\'s two biggest tenants broke their leases; the roof estimate arrived anyway. You sell a stake at a discount to raise cash — <b>−$350k</b>.</p>' : ''}
+    <div class="say"><span class="who">Marjorie · emergency session, 7:04 AM</span>"I have three board members demanding we go to cash, a CFO who needs $250,000 in six weeks, and a student newspaper asking if scholarships are safe. What do we do?"</div>`;
+},
+choices: [
+    { t: 'Go to cash until the storm passes', s: 'Stop the bleeding. Protect what\'s left.', fx: () => { S.crashMove = 'cash'; S.trust += 8; S.lessons.push(['Crash behavior', 'Selling to cash "until things settle" locked in the crash loss and missed the +26% recovery year. The endowment paid ~$3M for one comfortable meeting. There is never a bell at the bottom.']); return { bad: true, text: 'The committee exhales — someone finally "did something." The comfort costs approximately everything: the endowment is now positioned to miss the recovery, which never sends an invitation. This is the exact trade the board fired a manager for in 2009. You\'ll see the bill next year.', go: 'students' }; } },
+    { t: 'Hold, and rebalance INTO equities to targets', s: 'The IPS was written for precisely this morning.', fx: () => { S.crashMove = 'rebalance'; S.trust -= 6; S.lessons.push(['Crash behavior', 'Rebalancing into the crash — selling bonds to buy stocks at −32% — was the highest-value decision available: those shares drove the recovery. The rule made the decision; you just had to not override it.']); return { text: 'You walk the committee through the IPS paragraph they approved in calmer weather: bonds are UP 7% — you sell some of exactly those to buy equities at a third off, returning to target weights. Three trustees think you\'ve lost your mind, and trust dips <i>today</i>. The math will testify later.', go: 'students' }; } },
+    { t: 'Hold the portfolio, but cut the spending draw', s: 'Protect the corpus; the school tightens its belt.', fx: () => { S.crashMove = 'cut'; S.paid -= 0.3; S.value += 0.3; S.trust -= 10; S.lessons.push(['Crash behavior', 'Cutting the draw protected the portfolio arithmetic and broke the human contract — scholarship students absorbed the market\'s volatility. Endowments exist to prevent exactly that transfer.']); return { bad: true, text: 'Financially tidy; institutionally explosive. The $300k cut hits mid-year scholarship funding — see next scene. There were portfolios built so this never becomes the choice; the time to make this decision was two years ago, at the allocation meeting.', go: 'students' }; } },
+], },
+
+students: { art: 'students', kicker: 'Chapter five · Outside the finance office', title: () => S.crashMove === 'cut' ? 'Forty students, one banner' : 'The quiet corridor',
+body: () => {
+    if (S.crashMove === 'cut') return `<p>Forty students stand outside the finance office. The banner is polite, which makes it worse: <b>"KEEP OUR SCHOLARSHIPS."</b> Two are seniors who may not register next term. The local paper runs the photo. Marjorie spends the week doing damage control and the board quietly reverses half your cut, funding it by selling equities — at the bottom, the exact trade you were trying to avoid, now made anyway with worse press.</p><p>Write this on the wall of every meeting room: <b>in an endowment, the humans are the senior tranche.</b> Build portfolios where their payment is never the variable.</p>`;
+    if (S.crashMove === 'cash') return `<p>No protests — the draws are paid, from the enormous cash pile. The corridor is quiet. The damage you've taken doesn't photograph: it's the recovery you're about to miss, which will never appear on any banner because nobody protests an invisible loss. That's what makes this mistake the most popular one in institutional history.</p>`;
+    return `<p>The draws go out on schedule — funded from the bond sleeve, exactly as designed, without selling a single depressed share of equity. No banners, no headlines, no emergency sales. The most important week of your tenure looks, from the outside, like absolutely nothing happened. Institutional investing at its best is the art of making crises boring.</p>`;
+},
+choices: [ { t: 'Survive to year three', s: '', fx: () => ({ text: 'Winter ends. It always has so far.', go: 'y3' }) } ], },
+
+y3: { art: 'sunrise', chart: true, kicker: 'Chapter six · Year three', title: () => 'The recovery nobody believed',
+body: () => {
+    let extra = 0;
+    if (S.crashMove === 'cash') { // parked in cash: miss equity rebound
+        S.year++; const draw = spendAmount(); const ret = 0.015;
+        S.value = S.value * (1 + ret) - draw; S.paid += draw;
+        S.history.push({ x: 'Yr ' + S.year, v: +S.value.toFixed(2) });
+        return `<p>Equities rebound <b>+26%</b> — one of the strongest years in decades. Whitfield's endowment, parked in cash "until things are clearer," earns <b>1.5%</b>. Milton Prep's endowment is up 19%. Brad has found his voice again, and this time he has a point.</p>
+        <div class="say"><span class="who">Marjorie</span>"So when do we get back in?"</div>
+        <p>And there it is — the second impossible decision that selling always schedules. Markets are up 26% off the low: re-entering now feels like buying high; waiting feels prudent and repeats the mistake. There is no good answer, which is the lesson: <b>the sell decision was actually two decisions, and nobody gets both right.</b></p>`;
+    }
+    if (S.crashMove === 'rebalance') extra = 0.035;   // rebalance bonus: bought low
+    const r = stepYear(extra);
+    return `<p>Equities rebound <b>+26%</b>${S.crashMove === 'rebalance' ? ', and the shares you bought at the bottom with rebalanced bond money return even more — the discipline dividend' : ''}. The portfolio returns <b>${(r.ret * 100).toFixed(1)}%</b>; the endowment stands at <b>${fmtM(S.value)}</b> after the draw.</p>
+    <div class="say"><span class="who">Marjorie · at the annual meeting</span>"${S.crashMove === 'rebalance' ? 'A year ago I thought you were insane. I\'ve told the committee that our job in the next crash is to reread the policy statement and then sit on our hands.' : 'We made it through. Let\'s talk about what we\'d do differently.'}"</div>
+    ${S.crashMove === 'rebalance' ? '<p><b>Trust surges.</b> Nothing builds institutional credibility like a rule that worked in the dark.</p>' : ''}`;
+},
+choices: [ { t: 'Fast-forward: years four through ten', s: 'Steady markets, steady draws, quarterly meetings.', fx: () => { if (S.crashMove === 'rebalance') S.trust += 18; return { text: 'Seven more years of ordinary markets — the compounding years, where the machine either works or leaks.', go: 'finale' }; } } ], },
+
+finale: { chart: true, kicker: 'Chapter seven · Year ten', title: () => 'The ten-year report',
+body: () => {
+    while (S.year < 10) stepYear();
+    const target = 20 * Math.pow(1.025, 10);  // real preservation @2.5% inflation
+    S._target = target;
+    return `<p>A decade after the handover, you present the ten-year report. The endowment stands at <b>${fmtM(S.value)}</b>, having paid the school a cumulative <b>${fmtM(S.paid)}</b>. To have preserved its <i>real</i> purchasing power against ~2.5% inflation, the corpus needed to reach about <b>${fmtM(target)}</b>.</p>
+    <p>Marjorie, greyer now, reads the summary page twice, then looks up.</p>
+    <div class="say"><span class="who">Marjorie</span>"My grandfather asked for one thing: be right, not brilliant. Let's see which you were."</div>`;
+},
+choices: [ { t: 'Open the scorecard', s: '', fx: () => ({ text: 'The committee turns to the last page.', go: 'score' }) } ], },
+
+score: { kicker: 'The verdict', title: 'Your stewardship, graded',
+body: () => {
+    const target = S._target || 25.6;
+    const realOK = S.value >= target; const nearOK = S.value >= target * 0.9;
+    let pts = 0;
+    pts += realOK ? 40 : nearOK ? 28 : S.value >= 20 ? 18 : 5;
+    pts += Math.min(25, Math.max(0, (S.trust - 40) * 0.6));
+    pts += S.crashMove === 'rebalance' ? 20 : S.crashMove === 'cut' ? 6 : 0;
+    pts += S.crypto === 0 ? 8 : S.crypto === 2 ? 6 : 0;
+    pts += S.spendRule !== 'fixed' ? 7 : 3;
+    const grade = pts >= 85 ? 'A' : pts >= 70 ? 'B' : pts >= 55 ? 'C' : pts >= 40 ? 'D' : 'F';
+    const gradeCol = pts >= 70 ? '#5CB88A' : pts >= 55 ? '#E0A24C' : '#D9645C';
+    try { SL.saveQuizResult('experience-endowment', Math.round(pts), 100); } catch (e) {}
+    try { localStorage.setItem('exp-endowment', grade); } catch (e) {}
+    return `
+    <div style="display:flex;align-items:center;gap:1.6rem;margin-bottom:0.4rem;">
+        <span class="grade" style="color:${gradeCol}">${grade}</span>
+        <div>
+            <div style="font:700 0.66rem 'Inter',sans-serif;letter-spacing:0.16em;text-transform:uppercase;color:#7d746a;">Fiduciary grade</div>
+            <div style="font:600 1.1rem 'Fraunces',Georgia,serif;margin-top:0.2rem;">${grade === 'A' ? '"Right, not brilliant." He\'d have liked you.' : grade === 'B' ? 'A safe pair of hands — with one scar to learn from.' : grade === 'C' ? 'The school survived you. Study the lessons below.' : 'The endowment needed a rulebook. It got reactions.'}</div>
+        </div>
+    </div>
+    <div class="score-grid">
+        <div class="score-cell"><div class="k">Final corpus</div><div class="v" style="color:${realOK ? '#5CB88A' : '#E0A24C'}">${fmtM(S.value)}</div></div>
+        <div class="score-cell"><div class="k">Real-value target</div><div class="v">${fmtM(target)}</div></div>
+        <div class="score-cell"><div class="k">Paid to students & school</div><div class="v" style="color:#5CB88A">${fmtM(S.paid)}</div></div>
+        <div class="score-cell"><div class="k">Final board trust</div><div class="v">${Math.round(Math.max(0, Math.min(100, S.trust)))}/100</div></div>
+    </div>
+    <div style="font:700 0.66rem 'Inter',sans-serif;letter-spacing:0.16em;text-transform:uppercase;color:#E0A24C;margin:1.3rem 0 0.4rem;">What this decade taught</div>
+    ${S.lessons.map(l => `<div class="lesson"><span class="dot">→</span><span><b>${l[0]}.</b> ${l[1]}</span></div>`).join('')}
+    <div class="lesson"><span class="dot">→</span><span><b>The meta-lesson.</b> Every decision that mattered was made BEFORE the crisis: the spending rule, the allocation, the sleeve sizes, the IPS paragraph about rebalancing. The crisis only revealed which meetings you'd taken seriously.</span></div>
+    <div style="display:flex;gap:0.7rem;margin-top:1.6rem;flex-wrap:wrap;">
+        <button class="go-on" onclick="location.reload()">Run it again differently</button>
+        <a class="go-on" style="background:rgba(255,255,255,0.07);color:#F4EEE6;text-decoration:none;display:inline-block;" href="hedgefund-experience.html">Next: The Analyst Desk →</a>
+        <a class="go-on" style="background:none;border:1px solid rgba(236,226,214,0.25);color:#B7ADA1;text-decoration:none;display:inline-block;" href="experiences.html">All experiences</a>
+    </div>`;
+},
+choices: [], },
+};
+
+render('intro');
+</script>
+</body>
+</html>

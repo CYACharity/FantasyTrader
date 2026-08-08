@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Analyst Desk - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1A1714; color: #F4EEE6; font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+        .wrap { max-width: 780px; margin: 0 auto; padding: 1.5rem 1.25rem 5rem; }
+        .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .top a { color: #5CB88A; text-decoration: none; font-weight: 600; font-size: 0.85rem; }
+        .top .tag { font: 700 0.64rem 'Inter', sans-serif; letter-spacing: 0.2em; text-transform: uppercase; color: #E0A24C; }
+        .hud {
+            position: sticky; top: 0; z-index: 50;
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            background: rgba(26, 23, 20, 0.97); border: 2px solid rgba(236, 226, 214, 0.12);
+            margin-bottom: 1.4rem;
+        }
+        .hud div { padding: 0.65rem 0.9rem; border-right: 1px solid rgba(236, 226, 214, 0.08); min-width: 0; }
+        .hud div:last-child { border-right: none; }
+        .hud .k { font: 700 0.58rem 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #7d746a; }
+        .hud .v { font: 700 1.02rem 'Inter', sans-serif; font-variant-numeric: tabular-nums; margin-top: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .trust-meter { height: 5px; background: rgba(236,226,214,0.1); margin-top: 0.45rem; }
+        .trust-meter i { display: block; height: 100%; background: #5CB88A; transition: width 0.6s ease, background 0.6s ease; }
+        .scene { animation: fadeUp 0.5s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+        .art { background: #14110E; border: 2px solid rgba(236, 226, 214, 0.1); border-bottom: none; }
+        .art svg { display: block; width: 100%; height: auto; }
+        .panel { background: #241F1B; border: 2px solid rgba(236, 226, 214, 0.12); padding: 1.6rem 1.7rem; }
+        .kicker { font: 700 0.62rem 'Inter', sans-serif; letter-spacing: 0.22em; text-transform: uppercase; color: #E0A24C; margin-bottom: 0.5rem; }
+        .panel h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 1.5rem; margin-bottom: 0.9rem; }
+        .panel p { color: #C9C0B4; font-size: 0.94rem; line-height: 1.75; margin-bottom: 0.9rem; }
+        .panel p b { color: #F4EEE6; }
+        .say { border-left: 3px solid rgba(224, 162, 76, 0.6); padding: 0.2rem 0 0.2rem 1rem; margin: 0 0 0.9rem; font-style: italic; color: #D8CFC2; }
+        .say .who { display: block; font: 700 0.64rem 'Inter', sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #E0A24C; font-style: normal; margin-bottom: 0.2rem; }
+        .dossier { background: #1E1A16; border: 1px solid rgba(236,226,214,0.1); padding: 0.9rem 1.05rem; margin: 0.8rem 0; }
+        .dossier .dt { font: 700 0.8rem 'Inter', sans-serif; color: #F4EEE6; display: flex; justify-content: space-between; }
+        .dossier .dd { color: #8a8178; font-size: 0.76rem; line-height: 1.55; margin-top: 0.35rem; }
+        .dossier .stat { display: inline-block; margin-right: 0.9rem; font-size: 0.72rem; color: #B7ADA1; }
+        .dossier .stat b { color: #E0A24C; }
+        .chartbox { background: #1E1A16; border: 1px solid rgba(236,226,214,0.08); padding: 0.9rem; margin: 1.1rem 0; }
+        .chartbox .cb-t { font: 700 0.62rem 'Inter', sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #7d746a; margin-bottom: 0.5rem; }
+        .chartbox .cwrap { position: relative; height: 190px; }
+        .choices { display: flex; flex-direction: column; gap: 0.65rem; margin-top: 1.2rem; }
+        .choice {
+            text-align: left; cursor: pointer; background: #1E1A16;
+            border: 2px solid rgba(236, 226, 214, 0.12); padding: 0.95rem 1.15rem;
+            color: inherit; font-family: inherit; transition: all 0.15s ease;
+        }
+        .choice:hover { border-color: #5CB88A; transform: translateX(3px); }
+        .choice .ct { font-weight: 700; font-size: 0.92rem; }
+        .choice .cs { color: #8a8178; font-size: 0.78rem; margin-top: 0.25rem; line-height: 1.5; }
+        .outcome { margin-top: 1.2rem; padding: 1.1rem 1.2rem; border: 1px solid rgba(92,184,138,0.35); background: rgba(92,184,138,0.06); display: none; }
+        .outcome.bad { border-color: rgba(217,100,92,0.4); background: rgba(217,100,92,0.06); }
+        .outcome.show { display: block; animation: fadeUp 0.35s ease; }
+        .outcome .ot { font: 700 0.66rem 'Inter', sans-serif; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 0.45rem; color: #5CB88A; }
+        .outcome.bad .ot { color: #D9645C; }
+        .outcome .ob { font-size: 0.88rem; line-height: 1.65; color: #D8CFC2; }
+        .go-on {
+            margin-top: 1rem; background: linear-gradient(180deg, #63bf92, #4faa7d); color: #14110E;
+            border: none; padding: 0.75rem 1.7rem; font: 800 0.8rem 'Inter', sans-serif;
+            letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+        }
+        .go-on:hover { filter: brightness(1.07); }
+        .grade { font: 600 4.2rem 'Fraunces', Georgia, serif; line-height: 1; }
+        .score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin: 1.2rem 0; }
+        .score-cell { background: #1E1A16; border: 1px solid rgba(236,226,214,0.1); padding: 0.9rem 1rem; }
+        .score-cell .k { font: 700 0.6rem 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #7d746a; }
+        .score-cell .v { font: 700 1.25rem 'Inter', sans-serif; margin-top: 0.2rem; font-variant-numeric: tabular-nums; }
+        .lesson { display: flex; gap: 0.7rem; padding: 0.7rem 0; border-bottom: 1px solid rgba(236,226,214,0.07); font-size: 0.87rem; line-height: 1.6; color: #C9C0B4; }
+        .lesson b { color: #F4EEE6; }
+        .lesson .dot { color: #E0A24C; font-weight: 800; }
+        .legal-note { margin-top: 2rem; padding: 0.9rem 1.1rem; border: 1px solid rgba(236,226,214,0.1); font: 500 0.72rem 'Inter', sans-serif; color: #7d746a; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="top">
+            <a href="experiences.html">← Experiences</a>
+            <span class="tag">Simulated Experience · Long/Short Equity</span>
+        </div>
+        <div class="hud">
+            <div><span class="k">Week</span><div class="v" id="hWeek">1</div></div>
+            <div><span class="k">Sleeve P&L</span><div class="v" id="hPnl">$0</div></div>
+            <div><span class="k">Position</span><div class="v" id="hPos">—</div></div>
+            <div><span class="k">PM trust</span><div class="trust-meter"><i id="hTrust" style="width:50%"></i></div></div>
+        </div>
+        <div id="stage"></div>
+        <div class="legal-note">A fictional simulation for education. Companies, prices and outcomes are invented to teach risk concepts — nothing here is investment advice.</div>
+    </div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   THE ANALYST DESK — thirteen weeks at Meridian Capital
+   ══════════════════════════════════════════════════════════════ */
+const S = {
+    week: 1, pnl: 0, trust: 50, sleeve: 50,      // $50M paper sleeve
+    pick: null, sizePct: 0, hedge: null,
+    squeezeMove: null, riskCut: null, cpiMove: null,
+    px: [],                                       // position price path for charts
+    lessons: [],
+};
+const fmtK = v => (v < 0 ? '−$' : '+$') + Math.abs(v).toLocaleString(undefined, { maximumFractionDigits: 0 });
+function hud() {
+    document.getElementById('hWeek').textContent = S.week;
+    const p = document.getElementById('hPnl');
+    p.textContent = fmtK(S.pnl); p.style.color = S.pnl >= 0 ? '#5CB88A' : '#D9645C';
+    document.getElementById('hPos').textContent = S.pick ? (S.pick.side === 'short' ? 'SHORT ' : 'LONG ') + S.pick.sym + (S.sizePct ? ' · ' + S.sizePct + '%' : '') : '—';
+    const t = document.getElementById('hTrust');
+    t.style.width = Math.max(4, Math.min(100, S.trust)) + '%';
+    t.style.background = S.trust >= 55 ? '#5CB88A' : S.trust >= 35 ? '#E0A24C' : '#D9645C';
+}
+const ART = {
+desk: `<svg viewBox="0 0 780 170" xmlns="http://www.w3.org/2000/svg">
+<rect width="780" height="170" fill="#14110E"/>
+<rect x="70" y="40" width="130" height="76" rx="4" fill="rgba(236,226,214,0.07)" stroke="rgba(236,226,214,0.15)"/>
+<polyline points="82,100 108,80 130,92 156,60 188,72" stroke="#5CB88A" stroke-width="2" fill="none"/>
+<rect x="220" y="34" width="130" height="82" rx="4" fill="rgba(236,226,214,0.07)" stroke="rgba(236,226,214,0.15)"/>
+<polyline points="232,60 258,86 282,70 306,96 338,54" stroke="#D9645C" stroke-width="2" fill="none"/>
+<rect x="370" y="42" width="130" height="74" rx="4" fill="rgba(236,226,214,0.07)" stroke="rgba(236,226,214,0.15)"/>
+<rect x="382" y="58" width="46" height="6" fill="rgba(224,162,76,0.5)"/><rect x="382" y="72" width="70" height="6" fill="rgba(236,226,214,0.2)"/>
+<rect x="382" y="86" width="58" height="6" fill="rgba(236,226,214,0.2)"/><rect x="382" y="100" width="34" height="6" fill="rgba(92,184,138,0.5)"/>
+<circle cx="600" cy="70" r="16" fill="rgba(224,162,76,0.5)"/><rect x="582" y="90" width="36" height="30" rx="7" fill="rgba(224,162,76,0.3)"/>
+<circle cx="670" cy="76" r="14" fill="rgba(236,226,214,0.25)"/><rect x="655" y="94" width="30" height="26" rx="6" fill="rgba(236,226,214,0.14)"/>
+<rect x="60" y="128" width="660" height="4" fill="rgba(236,226,214,0.08)"/>
+<text x="390" y="158" text-anchor="middle" fill="#7d746a" font-size="10" letter-spacing="3">MERIDIAN CAPITAL · LONG/SHORT EQUITY · $2.1B</text></svg>`,
+squeeze: `<svg viewBox="0 0 780 170" xmlns="http://www.w3.org/2000/svg">
+<rect width="780" height="170" fill="#14110E"/>
+<polyline points="60,120 150,116 240,122 330,112 400,108" stroke="rgba(236,226,214,0.3)" stroke-width="2" fill="none"/>
+<polyline points="400,108 440,80 480,88 520,44 560,58 620,22" stroke="#D9645C" stroke-width="3.5" fill="none"/>
+<circle cx="620" cy="22" r="5" fill="#D9645C"/>
+<text x="640" y="26" fill="#D9645C" font-size="12" font-weight="700">+18%</text>
+<text x="200" y="60" fill="#7d746a" font-size="11">28% of the float is short. The float noticed.</text>
+<text x="390" y="158" text-anchor="middle" fill="#7d746a" font-size="10" letter-spacing="3">WEEK SIX · THE SQUEEZE</text></svg>`,
+riskroom: `<svg viewBox="0 0 780 160" xmlns="http://www.w3.org/2000/svg">
+<rect width="780" height="160" fill="#14110E"/>
+<rect x="290" y="26" width="200" height="98" rx="6" fill="rgba(217,100,92,0.08)" stroke="rgba(217,100,92,0.4)"/>
+<text x="390" y="56" text-anchor="middle" fill="#D9645C" font-size="12" font-weight="700">GROSS 212%</text>
+<text x="390" y="76" text-anchor="middle" fill="#B7ADA1" font-size="10">limit 180%</text>
+<rect x="330" y="88" width="120" height="10" fill="rgba(236,226,214,0.1)"/>
+<rect x="330" y="88" width="102" height="10" fill="rgba(217,100,92,0.6)"/>
+<text x="390" y="148" text-anchor="middle" fill="#7d746a" font-size="10" letter-spacing="3">WEEK NINE · RISK COMMITTEE</text></svg>`,
+macro: `<svg viewBox="0 0 780 160" xmlns="http://www.w3.org/2000/svg">
+<rect width="780" height="160" fill="#14110E"/>
+<text x="390" y="52" text-anchor="middle" fill="#F4EEE6" font-size="22" font-weight="800" font-family="Inter">CPI +0.9% <tspan fill="#D9645C">vs +0.4% est.</tspan></text>
+<polyline points="120,80 220,86 320,82 390,84" stroke="rgba(236,226,214,0.3)" stroke-width="2" fill="none"/>
+<polyline points="390,84 430,120 470,112 530,134 620,128 700,138" stroke="#D9645C" stroke-width="3" fill="none"/>
+<text x="390" y="150" text-anchor="middle" fill="#7d746a" font-size="10" letter-spacing="3">WEEK ELEVEN · THE PRINT</text></svg>`,
+};
+
+/* engine (same shape as the endowment) */
+let chart;
+function render(id) {
+    const sc = SCENES[id];
+    document.getElementById('stage').innerHTML = `<div class="scene">
+        ${sc.art ? '<div class="art">' + ART[sc.art] + '</div>' : ''}
+        <div class="panel">
+            <div class="kicker">${sc.kicker || ''}</div>
+            <h2>${typeof sc.title === 'function' ? sc.title() : sc.title}</h2>
+            ${typeof sc.body === 'function' ? sc.body() : sc.body}
+            ${sc.chart ? '<div class="chartbox"><div class="cb-t">' + (sc.chartTitle || 'Position price') + '</div><div class="cwrap"><canvas id="expChart"></canvas></div></div>' : ''}
+            <div class="choices">${(sc.choices || []).map((c, i) =>
+                `<button class="choice" onclick="pick('${id}', ${i})"><div class="ct">${c.t}</div><div class="cs">${c.s || ''}</div></button>`).join('')}</div>
+            <div class="outcome" id="outcome"><div class="ot">What happens</div><div class="ob" id="outB"></div>
+                <button class="go-on" id="goOn">Continue →</button></div>
+        </div>
+    </div>`;
+    if (sc.chart) drawChart();
+    hud();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function drawChart() {
+    const c = document.getElementById('expChart'); if (!c || !window.Chart || !S.px.length) return;
+    if (chart) { try { chart.destroy(); } catch (e) {} }
+    const up = S.px[S.px.length - 1].v >= S.px[0].v;
+    const goodForUs = S.pick && S.pick.side === 'short' ? !up : up;
+    chart = new Chart(c, { type: 'line',
+        data: { labels: S.px.map(h => h.x), datasets: [{ data: S.px.map(h => h.v),
+            borderColor: goodForUs ? '#5CB88A' : '#D9645C', backgroundColor: 'rgba(236,226,214,0.04)', fill: true,
+            borderWidth: 2.5, pointRadius: 3, pointBackgroundColor: '#E0A24C', tension: 0.15 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false },
+            tooltip: { callbacks: { label: x => '$' + x.parsed.y.toFixed(2) } } },
+            scales: { y: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: 'rgba(255,255,255,.5)', callback: v => '$' + v } },
+                      x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,.45)' } } } } });
+}
+window.pick = function (id, i) {
+    const c = SCENES[id].choices[i];
+    const res = c.fx ? c.fx() : {};
+    document.querySelectorAll('.choice').forEach((b, j) => { b.disabled = true; if (j !== i) b.style.opacity = 0.35; else b.style.borderColor = '#E0A24C'; });
+    const out = document.getElementById('outcome');
+    out.className = 'outcome show' + (res.bad ? ' bad' : '');
+    document.getElementById('outB').innerHTML = res.text || '';
+    document.getElementById('goOn').onclick = () => render(res.go || c.go);
+    hud();
+    out.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+function posDollars() { return S.sleeve * 1e6 * S.sizePct / 100; }
+
+/* ══ THE STORY ══ */
+const SCENES = {
+
+day1: { art: 'desk', kicker: 'Week one · Onboarding', title: 'Fifty million dollars of pretend, one very real chair',
+body: `
+<p><b>Meridian Capital</b> runs $2.1B of long/short equity: roughly $130 long and $80 short per $100 of capital — 210% gross, 50% net, in the language you'll now speak daily. You're the new analyst. Your training sleeve is <b>$50M of paper capital</b>, tracked to the penny, reviewed in thirteen weeks.</p>
+<div class="say"><span class="who">Dana Okafor · Portfolio Manager</span>"Three things end analysts here. Being wrong isn't one of them — half my book is wrong at any moment. Sizing wrong, hiding losers, and surprising me. Do none of those and we'll get along."</div>
+<div class="say"><span class="who">Viktor · Head of Risk</span>"I don't care about your thesis. I care about your exposure. You'll learn the difference the first bad day."</div>`,
+choices: [ { t: 'Head to the morning meeting', s: 'Three ideas are on the table. You get to champion one.', fx: () => ({ text: 'The research queue has three names on it. Pick your first swing.', go: 'pitch' }) } ], },
+
+pitch: { kicker: 'Week two · The pitch', title: 'Choose your first position',
+body: `
+<p>Three dossiers from the research queue. Whatever you pick, YOU will defend it at Sunday meeting — with numbers, not adjectives.</p>
+<div class="dossier"><div class="dt"><span>SHORT · Bricktail Retail (BRKT) · $42</span><span style="color:#D9645C">crowded</span></div>
+<div class="dd">Mall chain, same-store sales −6%, debt wall in 18 months. Your model says equity is worth $15. The catch: <b>28% of the float is already short</b>, and the stock has a retail-forum fan club.</div>
+<div style="margin-top:0.4rem;"><span class="stat">Upside if right: <b>~64%</b></span><span class="stat">Borrow cost: <b>9%/yr</b></span><span class="stat">Squeeze risk: <b>extreme</b></span></div></div>
+<div class="dossier"><div class="dt"><span>LONG · Corvid Semiconductors (CRVD) · $88</span><span style="color:#5CB88A">catalyst</span></div>
+<div class="dd">Sells test equipment to every AI fab being built. Orders up 40%, street models only +22%. <b>Earnings in four weeks</b> — your edge is a channel-check spreadsheet suggesting a beat.</div>
+<div style="margin-top:0.4rem;"><span class="stat">Upside if right: <b>~25%</b></span><span class="stat">If guide disappoints: <b>−15%</b></span><span class="stat">Vol: <b>high</b></span></div></div>
+<div class="dossier"><div class="dt"><span>LONG · Harlan Foods (HRLN) · $31</span><span style="color:#E0A24C">patience</span></div>
+<div class="dd">Boring soup-and-snacks maker at 9× FCF after a botched acquisition. New CEO selling the mistake, buying back 6% of shares a year. No catalyst on the calendar — just cheapness and time. An activist is rumored to be circling.</div>
+<div style="margin-top:0.4rem;"><span class="stat">Upside if right: <b>~35% over a year</b></span><span class="stat">Downside: <b>it stays boring</b></span><span class="stat">Vol: <b>low</b></span></div></div>`,
+choices: [
+    { t: 'Short Bricktail — the math says zero', s: 'Highest conviction, most dangerous crowd.', fx: () => { S.pick = { sym: 'BRKT', side: 'short', p0: 42 }; S.px = [{ x: 'Wk2', v: 42 }]; return { text: 'Dana approves it with one eyebrow up: "Your model is probably right. Models don\'t get margin calls — you do. Watch the borrow, watch the forums, and size it like something that can rip 50% against you. Because it can."', go: 'size' }; } },
+    { t: 'Long Corvid Semis — ride the earnings edge', s: 'Real research edge, dated catalyst.', fx: () => { S.pick = { sym: 'CRVD', side: 'long', p0: 88 }; S.px = [{ x: 'Wk2', v: 88 }]; return { text: 'Dana likes dated catalysts: "Four weeks, then the market grades your channel checks. Clean setup. Just remember the guide matters more than the quarter — companies beat and still die by guidance."', go: 'size' }; } },
+    { t: 'Long Harlan Foods — buy cheap, wait', s: 'The unfashionable compounder.', fx: () => { S.pick = { sym: 'HRLN', side: 'long', p0: 31 }; S.px = [{ x: 'Wk2', v: 31 }]; return { text: 'Dana smiles for the first time: "Nobody pitches soup in week two. Good. The risk in these isn\'t the stock — it\'s YOUR patience. Dead money tests people. We\'ll see what you\'re made of around week eight."', go: 'size' }; } },
+], },
+
+size: { kicker: 'Week two · Sizing', title: 'How much? (The real question)',
+body: () => `
+<p>Your sleeve is $50M. The ${S.pick.side === 'short' ? 'short' : 'long'} in <b>${S.pick.sym}</b> needs a size. Meridian's rulebook: standard positions 2-4%, max single-name 6%, hard stop review at −20% on any position. Dana will read your size as a statement about your judgment.</p>`,
+choices: [
+    { t: '1% — dip a toe ($500k)', s: 'Can\'t get hurt. Can\'t matter either.', fx: () => { S.sizePct = 1; S.trust -= 4; return { bad: true, text: 'Dana glances at the blotter: "One percent? If you\'re right you\'ve made us lunch money; if you\'re wrong you\'ve learned nothing. Undersizing isn\'t caution — it\'s ambivalence with paperwork. Conviction and size are supposed to match."', go: 'hedge' }; } },
+    { t: '3% — a real position ($1.5M)', s: 'Standard size for a first-year idea.', fx: () => { S.sizePct = 3; S.trust += 6; return { text: 'The textbook answer, and Dana nods like you passed a small exam. At 3%, a total thesis failure (−30%) costs the sleeve ~1% — survivable; a clean win adds ~1% — meaningful. Sizing is how professionals stay in the game long enough for their edge to show up.', go: 'hedge' }; } },
+    { t: '8% — swing at your best idea ($4M)', s: 'Over the single-name limit. Conviction!', fx: () => { S.sizePct = 8; S.trust -= 8; return { bad: true, text: 'Viktor appears at your desk holding the risk report like a subpoena: "Max is six. You booked eight. Cut it to six TODAY." You start at 6% with a risk flag on your file — and a lesson: limits aren\'t suggestions, they\'re the fund\'s immune system.' , go: 'hedge' }; } },
+], },
+
+hedge: { kicker: 'Week three · The other side', title: 'Every position has a shadow',
+body: () => {
+    if (S.sizePct === 8) S.sizePct = 6;
+    return `
+<p>Dana's desk rule: no naked exposure without a stated reason. Your ${S.pick.side} in <b>${S.pick.sym}</b> carries risks you didn't choose — sector swings, market swings, factor rotations. How do you shape it?</p>`;
+},
+choices: [
+    { t: 'Pair it against a same-sector name', s: S.pick && '', fx: () => { S.hedge = 'pair'; S.trust += 5; return { text: 'You ' + (S.pick.side === 'short' ? 'go long the strongest retailer against your short — now you\'re short BAD retail, not short America' : 'short the weakest competitor against your long — isolating YOUR company\'s edge from the sector\'s noise') + '. The trade is now about your research, not the market\'s mood. This is what "long/short" was invented to do.', go: 'event1' }; } },
+    { t: 'Hedge with a sector ETF', s: 'Cheaper, blunter, one click.', fx: () => { S.hedge = 'etf'; S.trust += 3; return { text: 'A sector ETF hedge removes the market and sector waves but keeps all single-name risk on both legs — decent, liquid, and what most funds actually do at scale. Viktor logs your net exposure with a small approving grunt.', go: 'event1' }; } },
+    { t: 'No hedge — let the thesis breathe', s: 'Hedges cost carry. Conviction shouldn\'t pay rent.', fx: () => { S.hedge = 'none'; S.trust -= 3; return { bad: true, text: 'Dana: "So your P&L is now your thesis PLUS the S&P, the sector, and whatever the Fed says Wednesday. When the CPI print hits, remember you chose to own all of that too." Foreshadowing is a literary term. It is also a risk report.', go: 'event1' }; } },
+], },
+
+event1: { chart: true, chartTitle: () => S.pick.sym + ' price', kicker: 'Weeks four to six · First contact', title: () => ({ BRKT: 'The forum finds your short', CRVD: 'Earnings night', HRLN: 'Eight weeks of nothing' })[S.pick.sym],
+body: () => {
+    S.week = 6;
+    const d = posDollars();
+    if (S.pick.sym === 'BRKT') {
+        S.px.push({ x: 'Wk4', v: 41 }, { x: 'Wk5', v: 44 }, { x: 'Wk6', v: 49.5 });
+        S._sq = true;
+        return `<p>Your model updates: still says $15. The stock disagrees — a retail forum has crowned BRKT "the next squeeze," and it grinds from $42 to <b>$49.50 (+18%)</b> in nine sessions. Your short is down <b>${fmtK(-d * 0.18)}</b>${S.hedge === 'pair' ? ', partly cushioned by your long leg (+$' + Math.round(d * 0.06 / 1000) + 'k)' : ''}. Borrow cost just repriced from 9% to 21%.</p>
+        <div class="say"><span class="who">Dana</span>"Nothing about their business improved. Everything about your position got worse. Those are different sentences — what do you want to do?"</div>`;
+    }
+    if (S.pick.sym === 'CRVD') {
+        S.px.push({ x: 'Wk4', v: 91 }, { x: 'Wk5', v: 90 }, { x: 'Earnings', v: 99 }, { x: 'Wk6', v: 95 });
+        S.pnl += d * 0.08;
+        return `<p>Earnings land: revenue beat by 9%, exactly as your channel checks whispered. The stock spikes to $99 after hours — then management guides <i>conservatively</i> ("supply-chain visibility remains limited") and it settles at <b>$95, +8%</b> from your $88. Your P&L: <b>${fmtK(d * 0.08)}</b>.</p>
+        <div class="say"><span class="who">Dana</span>"You were right on the quarter. Now the harder question — the edge you had is SPENT. The next move is about a thesis you haven't researched yet. What's the trade?"</div>`;
+    }
+    S.px.push({ x: 'Wk4', v: 30.6 }, { x: 'Wk5', v: 30.2 }, { x: 'Wk6', v: 30.8 });
+    return `<p>Eight weeks. Harlan has moved from $31 to <b>$30.80</b>. Your neighbor's momentum book is up 9% and he mentions it daily. The buyback keeps retiring shares; the CEO keeps selling the bad acquisition; the stock keeps doing nothing. Your P&L: <b>${fmtK(-d * 0.006)}</b>. This scene is the actual test.</p>
+    <div class="say"><span class="who">Dana</span>"Position report says 'no change.' Analyst's face says 'get me out.' Which one am I supposed to believe?"</div>`;
+},
+choices: [
+    { t: () => ({ BRKT: 'Cover half, keep half with a hard stop', CRVD: 'Trim half, let the rest run with a stop at entry', HRLN: 'Hold. Nothing in the thesis changed' })[S.pick.sym] || 'Manage it', s: 'Respect the tape without abandoning the work.',
+      fx: () => { const d = posDollars();
+        if (S.pick.sym === 'BRKT') { S.pnl -= d * 0.09; S.squeezeMove = 'half'; S.trust += 8; S.lessons.push(['Crowded shorts', 'Covering half into the squeeze cost real money and capped a catastrophic tail. Crowded shorts are positions where being right eventually can still bankrupt you immediately.']); return { text: 'You realize half the loss (' + fmtK(-d * 0.09) + ') and keep a survivable short. Two weeks later the forum moves on and BRKT bleeds to $38 — your remaining half claws most of it back. Dana: "That\'s the whole job. You bought the right to still be there when the thesis paid."', go: 'riskday' }; }
+        if (S.pick.sym === 'CRVD') { S.pnl += d * 0.03; S.trust += 7; S.lessons.push(['Catalyst trades', 'You banked the researched edge at the catalyst and ran the remainder with a stop. Edges have expiry dates — the P&L after the event belongs to a different thesis.']); return { text: 'You bank half at +8% and hold the rest, which drifts to +14% over the next month. Dana approves: "Most analysts marry the position after the first win. You dated it. Better."', go: 'riskday' }; }
+        S.trust += 9; S.lessons.push(['Dead money', 'Holding Harlan through two dead months — because the THESIS was intact even though the price was boring — is what let you collect the activist repricing later. Patience is a position.']); return { text: 'You re-verify the thesis line by line — buyback on schedule, divestiture closing, activist rumor hardening — and change nothing. Dana writes one word on your review sheet: "Composed."', go: 'riskday' }; },
+    },
+    { t: () => ({ BRKT: 'Hold the full short — the model says $15', CRVD: 'Hold everything — this goes to $120', HRLN: 'Swap into your neighbor\'s momentum names', })[S.pick.sym] || 'Press on', s: 'Conviction, undiluted.',
+      fx: () => { const d = posDollars();
+        if (S.pick.sym === 'BRKT') { S.pnl -= d * 0.11; S.squeezeMove = 'hold'; S.trust -= 4; S.lessons.push(['Crowded shorts', 'Holding the full short through the squeeze worked this time — BRKT faded — but the path took the position to −30% first. Surviving a coin flip is not the same as making a good bet.']); return { bad: true, text: 'BRKT touches $55 before the fever breaks (−30% on your short at the worst mark; Viktor\'s report flags you in red). It fades back to $38 over the month, and you end down only ' + fmtK(-d * 0.11) + ' — but Dana saw the path, not just the endpoint: "You got away with it. Say that sentence out loud until it scares you."', go: 'riskday' }; }
+        if (S.pick.sym === 'CRVD') { S.pnl -= d * 0.02; S.trust -= 2; S.lessons.push(['Catalyst trades', 'Holding everything after the catalyst turned a researched trade into an unresearched one; the post-earnings fade gave back part of the win.']); return { bad: true, text: 'The stock fades to $93 as the excitement cools — nothing terrible, but your +8% is now +5.7% and your edge (the channel checks) is already public information. Dana: "What do you know about the NEXT quarter that the street doesn\'t? …Exactly."', go: 'riskday' }; }
+        S.pnl -= d * 0.015; S.trust -= 10; S.lessons.push(['Dead money', 'Abandoning the soup thesis for momentum names — right before the activist filed — is the most expensive pattern in analyst behavior: selling patience at its low to buy excitement at its high.']); return { bad: true, text: 'You rotate into two momentum darlings the week they peak. They chop; Harlan, three weeks after you sold, announces the activist stake and jumps 22% without you. Dana doesn\'t say anything, which is worse.', go: 'riskday' }; },
+    },
+    { t: () => ({ BRKT: 'Double the short into the pop', CRVD: 'Double the position — beat + dip = gift', HRLN: 'Cut it. Opportunity cost is real', })[S.pick.sym] || 'Escalate', s: 'Aggression as a strategy.',
+      fx: () => { const d = posDollars();
+        if (S.pick.sym === 'BRKT') { S.pnl -= d * 0.22; S.squeezeMove = 'double'; S.trust -= 14; S.lessons.push(['Crowded shorts', 'Doubling a crowded short into a squeeze put the position\'s survival in the crowd\'s hands. The margin math — not the valuation math — nearly ended the trade at the exact bottom.']); return { bad: true, text: 'You double at $49.50. It touches $55 — your doubled short is down ' + fmtK(-d * 0.22) + ' at the mark, borrow at 30%, and Viktor force-covers a third of it AT THE TOP under the desk\'s drawdown rule. BRKT then collapses to $34 over six weeks… with your position two-thirds gone. Right thesis. Ruined trade. This is the whole lesson of shorting.', go: 'riskday' }; }
+        if (S.pick.sym === 'CRVD') { S.pnl += d * 0.04; S.trust -= 5; S.lessons.push(['Catalyst trades', 'Doubling after the catalyst worked small — but it doubled an UNRESEARCHED bet. Process grades count even when outcome grades are fine.']); return { bad: true, text: 'It works — modestly (+4% on the added piece). Dana is unimpressed anyway: "You doubled AFTER your information advantage expired. That\'s not conviction, that\'s momentum with a memory of having done research once."', go: 'riskday' }; }
+        S.trust -= 6; S.lessons.push(['Dead money', 'Cutting Harlan for "opportunity cost" three weeks before the activist filing: the most common way patient theses die is boredom, not evidence.']); return { bad: true, text: 'Defensible in a textbook — capital does have alternatives. Except your reason wasn\'t analysis, it was itch. Three weeks later the activist files and Harlan gaps +22%. Opportunity cost cuts both ways; the ledger only shows one side.', go: 'riskday' }; },
+    },
+], },
+
+riskday: { art: 'riskroom', kicker: 'Week nine · The risk committee', title: 'Everyone cuts today',
+body: () => {
+    S.week = 9;
+    return `
+<p>A rival fund blew up over the weekend, and prime brokers are tightening everyone's leverage. Meridian's gross is 212% against a 180% covenant. Viktor's email subject line is one word: <b>"Today."</b> Every book cuts ~15%, including your sleeve. The only question is <i>what</i> you cut.</p>
+<div class="say"><span class="who">Viktor</span>"I don't care which. The market doesn't grade your feelings about your positions. Pick your cuts by RISK, not by which losses you'd have to admit."</div>`;
+},
+choices: [
+    { t: 'Trim only the winners — they\'ve "earned" the sale', s: 'Lock gains, give losers room to come back.', fx: () => { S.riskCut = 'winners'; S.trust -= 8; S.pnl -= posDollars() * 0.02; S.lessons.push(['The disposition effect', 'Cutting winners and keeping losers — because selling losers admits the mistake — is the most documented bias in trading. Risk cuts should target risk, not ego.']); return { bad: true, text: 'The classic disposition effect: you sold what was working to protect your feelings about what wasn\'t. Viktor circles your cut sheet in red: "You reduced P&L, not risk. Your remaining book is now your LOSERS, concentrated." The next two weeks prove him annoyingly right.', go: 'cpi' }; } },
+    { t: 'Cut the weakest theses regardless of P&L', s: 'Re-underwrite everything; kill what you wouldn\'t re-buy.', fx: () => { S.riskCut = 'theses'; S.trust += 9; S.lessons.push(['Risk cuts', 'You cut by re-underwriting — "would I open this position today?" — instead of by P&L. Forced de-grossing is a free portfolio review if your ego lets it be one.']); return { text: 'You spend the day re-underwriting instead of mourning: every position must justify itself as if opened fresh today. Two can\'t. They go, one at a gain, one at a loss — the P&L column wasn\'t on the exam. Viktor, for the first time, uses your actual name.', go: 'cpi' }; } },
+    { t: 'Cut pro-rata — 15% off everything, no opinions', s: 'Mechanical, unbiased, done by lunch.', fx: () => { S.riskCut = 'prorata'; S.trust += 4; S.lessons.push(['Risk cuts', 'Pro-rata de-grossing is the honest default: it removes risk without letting bias pick favorites. Not optimal, never stupid.']); return { text: 'The humble option: shave everything equally and let no bias into the blade. Slightly worse than perfect re-underwriting, dramatically better than ego-driven picks. Viktor: "Fine. Boring is fine. Boring survives."', go: 'cpi' }; } },
+], },
+
+cpi: { art: 'macro', chart: true, chartTitle: 'Your book vs. the print (indexed)', kicker: 'Week eleven · The macro ambush', title: '8:31 AM',
+body: () => {
+    S.week = 11;
+    S.px = [{ x: 'Mon', v: 100 }, { x: 'Tue', v: 100.4 }, { x: 'CPI', v: 96 }, { x: 'Thu', v: 95.2 }, { x: 'Fri', v: 95.8 }];
+    const naked = S.hedge === 'none';
+    const d = posDollars();
+    const hit = naked ? d * 0.05 : d * 0.015;
+    S.pnl -= hit;
+    return `
+<p>Inflation prints <b>+0.9% vs +0.4% expected</b>. The market drops 4% in a day; rate-sensitive names drop 7; correlations converge toward 1 — the day when "diversified" books discover they own one trade. Your sleeve marks down <b>${fmtK(-hit)}</b>${naked ? ' — the unhedged market exposure you kept in week three just presented its bill' : ' — your hedge absorbed most of the market wave, exactly as designed'}.</p>
+<div class="say"><span class="who">Dana · 8:34 AM, desk-wide</span>"Nobody here predicted that print, including the people who\'ll claim they did by lunch. Decisions now are about EXPOSURE, not forecasts. What are you doing?"</div>`;
+},
+choices: [
+    { t: 'Nothing — the book is hedged and sized for exactly this', s: 'If the risk work was done, today is survivable by design.', fx: () => { if (S.hedge !== 'none') { S.trust += 10; S.cpiMove = 'hold'; S.lessons.push(['Macro shocks', 'On CPI day you did nothing — because the hedging and sizing decisions from weeks two and three had already made the shock survivable. Risk management happens BEFORE the event or not at all.']); return { text: 'The correct answer, EARNED three scenes ago when you sized moderately and hedged. Your book wobbles and recovers with the market\'s Friday bounce. Dana, at the postmortem: "Notice who had a quiet day. It\'s not luck. Quiet was purchased in advance."', go: 'review' }; } S.trust -= 6; S.pnl -= posDollars() * 0.02; S.cpiMove = 'frozen'; S.lessons.push(['Macro shocks', 'Unhedged and frozen: "doing nothing" is only a strategy when the preparation was done. Otherwise it\'s just hoping with extra steps.']); return { bad: true, text: 'For a hedged book, "nothing" is discipline. For your naked book, it\'s paralysis wearing discipline\'s jacket — Thursday\'s follow-through takes another bite before Friday\'s bounce. Same word, opposite meanings, and the difference was decided in week three.', go: 'review' }; } },
+    { t: 'De-gross 20% into the panic', s: 'Reduce everything. Survive first, think later.', fx: () => { S.cpiMove = 'degross'; S.trust += 2; S.pnl -= posDollars() * 0.008; S.lessons.push(['Macro shocks', 'De-grossing into the shock was expensive but defensible — paying a fee to guarantee survival is sometimes right, and always better than being forced to do it a day later.']); return { text: 'You pay the panic-day spreads (they\'re never good) and cut. Friday\'s bounce happens partly without you — the survival fee. Viktor shrugs: "Expensive. Defensible. The people who NEEDED to do this and didn\'t are the ones I\'m watching." Middle grades are still passing grades.', go: 'review' }; } },
+    { t: 'Buy the dip aggressively — panic is opportunity', s: 'Great trades are made on red days.', fx: () => { S.cpiMove = 'buydip'; const d2 = posDollars(); if (S.hedge !== 'none') { S.pnl += d2 * 0.02; S.trust -= 2; S.lessons.push(['Macro shocks', 'Buying the dip from a hedged, sized book worked — but review honestly whether the process (adding unresearched market risk mid-shock) deserved the outcome it got.']); return { text: 'From your hedged, un-wrecked position you CAN afford to add — and Friday\'s bounce pays you ' + fmtK(d2 * 0.02) + '. Dana banks the win and files the concern: "Today it\'s courage. The fourth time it\'s a habit, and the market eventually charges for the habit."', go: 'review' }; } S.pnl -= d2 * 0.03; S.trust -= 9; S.lessons.push(['Macro shocks', 'Buying the dip from an already-unhedged, bleeding book added risk at maximum uncertainty — doubling exposure to a coin you\'d already called wrong once that day.']); return { bad: true, text: 'You add exposure from a book already bleeding — and Thursday\'s second leg down hits the doubled position before Friday\'s partial bounce. Viktor\'s note to Dana is one line: "He averages into uncontrolled risk." That sentence follows analysts around.', go: 'review' }; } },
+], },
+
+review: { kicker: 'Week thirteen · The review', title: 'Dana closes the door',
+body: () => {
+    S.week = 13;
+    const bps = S.pnl / (S.sleeve * 1e6) * 10000;
+    return `
+<p>Thirteen weeks, one position championed, one squeeze or catalyst or desert of boredom survived, one forced de-gross, one macro ambush. Your sleeve's final P&L: <b>${fmtK(S.pnl)}</b> (${bps >= 0 ? '+' : ''}${bps.toFixed(0)} bps on $50M).</p>
+<div class="say"><span class="who">Dana</span>"P&L is the least interesting page of this review — thirteen weeks of returns is noise and we both know it. What I graded is the shape of your decisions. Ready?"</div>`;
+},
+choices: [ { t: 'Open the review', s: '', fx: () => ({ text: 'She slides the folder across.', go: 'score' }) } ], },
+
+score: { kicker: 'The verdict', title: 'Your thirteen weeks, graded',
+body: () => {
+    const bps = S.pnl / (S.sleeve * 1e6) * 10000;
+    let pts = 30;
+    pts += Math.max(-10, Math.min(15, bps / 8));
+    pts += (S.trust - 50) * 0.9;
+    const grade = pts >= 78 ? 'A' : pts >= 62 ? 'B' : pts >= 46 ? 'C' : pts >= 32 ? 'D' : 'F';
+    const gradeCol = pts >= 62 ? '#5CB88A' : pts >= 46 ? '#E0A24C' : '#D9645C';
+    const verdict = grade === 'A' ? '"Full-time offer. You size like someone who plans to be here in ten years."'
+        : grade === 'B' ? '"Offer, with a development plan. Your instincts are ahead of your discipline — that\'s fixable. The reverse isn\'t."'
+        : grade === 'C' ? '"Extended probation. You have the analysis. The market kept catching you managing your feelings instead of your exposure."'
+        : '"We\'re letting you go — and here\'s the strange gift: every scar in this folder is the standard curriculum. Most people pay for it with real money."';
+    try { SL.saveQuizResult('experience-hedgefund', Math.round(Math.max(0, Math.min(100, pts))), 100); } catch (e) {}
+    try { localStorage.setItem('exp-hedgefund', grade); } catch (e) {}
+    return `
+    <div style="display:flex;align-items:center;gap:1.6rem;margin-bottom:0.4rem;">
+        <span class="grade" style="color:${gradeCol}">${grade}</span>
+        <div>
+            <div style="font:700 0.66rem 'Inter',sans-serif;letter-spacing:0.16em;text-transform:uppercase;color:#7d746a;">Desk review</div>
+            <div style="font:600 1.05rem 'Fraunces',Georgia,serif;margin-top:0.2rem;">${verdict}</div>
+        </div>
+    </div>
+    <div class="score-grid">
+        <div class="score-cell"><div class="k">Sleeve P&L</div><div class="v" style="color:${S.pnl >= 0 ? '#5CB88A' : '#D9645C'}">${fmtK(S.pnl)}</div></div>
+        <div class="score-cell"><div class="k">Return (bps)</div><div class="v">${bps >= 0 ? '+' : ''}${bps.toFixed(0)}</div></div>
+        <div class="score-cell"><div class="k">PM trust</div><div class="v">${Math.round(Math.max(0, Math.min(100, S.trust)))}/100</div></div>
+        <div class="score-cell"><div class="k">Risk flags</div><div class="v">${(S.sizePct === 6 ? 1 : 0) + (S.riskCut === 'winners' ? 1 : 0) + (S.cpiMove === 'buydip' && S.hedge === 'none' ? 1 : 0)}</div></div>
+    </div>
+    <div style="font:700 0.66rem 'Inter',sans-serif;letter-spacing:0.16em;text-transform:uppercase;color:#E0A24C;margin:1.3rem 0 0.4rem;">What the desk taught</div>
+    ${S.lessons.map(l => `<div class="lesson"><span class="dot">→</span><span><b>${l[0]}.</b> ${l[1]}</span></div>`).join('')}
+    <div class="lesson"><span class="dot">→</span><span><b>The meta-lesson.</b> Dana never once graded a forecast. Sizing, hedging, cut discipline, and behavior under fire — the four things that were graded are the four things fully within your control. That's the entire secret of the industry, hiding in a performance review.</span></div>
+    <div style="display:flex;gap:0.7rem;margin-top:1.6rem;flex-wrap:wrap;">
+        <button class="go-on" onclick="location.reload()">Run it again — different pick</button>
+        <a class="go-on" style="background:rgba(255,255,255,0.07);color:#F4EEE6;text-decoration:none;display:inline-block;" href="endowment-experience.html">Next: The Whitfield Endowment →</a>
+        <a class="go-on" style="background:none;border:1px solid rgba(236,226,214,0.25);color:#B7ADA1;text-decoration:none;display:inline-block;" href="experiences.html">All experiences</a>
+    </div>`;
+},
+choices: [], },
+};
+
+render('day1');
+</script>
+</body>
+</html>

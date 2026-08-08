@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 3: Alternative Investments - Advanced Trading</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #d9645c; --accent: #e0a24c; --background: #1a1714; --surface: #1e1a16; --surface-2: #241f1b; --border: #2a2420; --text-primary: #e8e8e8; --text-body: #c4c4c4; --text-muted: #888888; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--background); color: var(--text-primary); min-height: 100vh; }
+        .mod-header { background: rgba(20, 20, 20, 0.97); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0.85rem 2rem; position: sticky; top: 0; z-index: 100; }
+        .mod-header-inner { max-width: 820px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .back-link { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
+        .back-link:hover { opacity: 0.75; }
+        .mod-header-meta { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; letter-spacing: 0.5px; }
+        .reading-progress { position: fixed; top: 0; left: 0; height: 2px; width: 0%; background: var(--primary); z-index: 200; }
+        .article { max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+        .module-label { display: inline-block; font-size: 0.62rem; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--primary); background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.18); padding: 5px 12px; border-radius: 4px; margin-bottom: 1.2rem; }
+        .article-title { font-family: 'Lora', serif; font-size: 2.4rem; font-weight: 700; line-height: 1.2; color: #ffffff; margin-bottom: 0.8rem; }
+        .article-subtitle { font-family: 'Lora', serif; font-size: 1.15rem; font-weight: 400; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.5rem; }
+        .article-meta { display: flex; gap: 1.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); margin-bottom: 2.5rem; font-size: 0.75rem; color: var(--text-muted); }
+        .meta-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); }
+        .article p { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.85; color: var(--text-body); margin-bottom: 1.5rem; }
+        .article h2 { font-family: 'Inter', sans-serif; font-size: 1.35rem; font-weight: 700; color: #ffffff; margin-top: 3rem; margin-bottom: 1rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+        .article h3 { font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-top: 2rem; margin-bottom: 0.75rem; }
+        .callout { background: var(--surface); border-left: 3px solid var(--primary); border-radius: 0 8px 8px 0; padding: 1.25rem 1.5rem; margin: 1.8rem 0; }
+        .callout-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--primary); margin-bottom: 0.5rem; }
+        .callout p { font-size: 0.95rem; line-height: 1.7; margin-bottom: 0; }
+        .figure { margin: 2.2rem 0; text-align: center; }
+        .figure-diagram { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem 1.5rem; margin-bottom: 0.7rem; }
+        .figure-caption { font-size: 0.73rem; color: var(--text-muted); font-style: italic; }
+        .comparison-table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 1.8rem 0; font-size: 0.88rem; }
+        .comparison-table thead { background: var(--surface); }
+        .comparison-table th { padding: 0.9rem 1.2rem; text-align: left; font-weight: 700; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+        .comparison-table td { padding: 0.85rem 1.2rem; border-bottom: 1px solid rgba(255, 255, 255, 0.03); color: var(--text-body); font-family: 'Lora', serif; font-size: 0.9rem; line-height: 1.5; }
+        .comparison-table tr:last-child td { border-bottom: none; }
+        .numbered-list { counter-reset: item; margin: 1.2rem 0 1.5rem; padding-left: 0; list-style: none; }
+        .numbered-list li { counter-increment: item; font-family: 'Lora', serif; font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 0.6rem; padding-left: 2.2rem; position: relative; }
+        .numbered-list li::before { content: counter(item) "."; position: absolute; left: 0; font-weight: 700; color: var(--primary); font-family: 'Inter', sans-serif; }
+        .quiz-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; margin: 3rem 0 2rem; }
+        .quiz-q { margin-bottom: 1.5rem; }
+        .quiz-q p { font-family: 'Inter', sans-serif; font-size: 0.92rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.7rem; }
+        .quiz-opts { display: flex; flex-direction: column; gap: 0.4rem; }
+        .quiz-opt { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 0.7rem 1rem; font-size: 0.88rem; color: var(--text-body); cursor: pointer; transition: all 0.2s; }
+        .quiz-opt:hover { background: rgba(239, 68, 68, 0.06); border-color: rgba(239, 68, 68, 0.2); }
+        .quiz-opt.correct { background: rgba(239, 68, 68, 0.12); border-color: var(--primary); color: #ffffff; }
+        .quiz-opt.wrong { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); }
+        .quiz-opt.disabled { pointer-events: none; opacity: 0.5; }
+        .quiz-feedback { font-size: 0.82rem; margin-top: 0.5rem; display: none; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.right { color: var(--primary); }
+        .quiz-feedback.wrong-fb { color: #d9645c; }
+        .sources { margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+        .sources h3 { font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem; margin-top: 0; }
+        .source-item { font-size: 0.82rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 0.6rem; padding-left: 1.2rem; position: relative; }
+        .source-item::before { content: ''; position: absolute; left: 0; top: 0.55rem; width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); }
+        .source-item a { color: var(--primary); text-decoration: none; }
+        .module-footer { max-width: 720px; margin: 0 auto; padding: 0 1.5rem 4rem; display: flex; justify-content: space-between; align-items: center; }
+        .footer-btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.85rem 1.6rem; border-radius: 10px; font-size: 0.85rem; font-weight: 700; text-decoration: none; transition: all 0.2s ease; border: none; cursor: pointer; }
+        .footer-btn-next { background: var(--primary); color: var(--background); }
+        .footer-btn-next:hover { transform: translateY(-2px); box-shadow: 0 2px 10px rgba(0,0,0,0.18); }
+        .footer-btn-back { background: rgba(255, 255, 255, 0.04); color: var(--text-muted); border: 1px solid var(--border); }
+        .footer-btn-back:hover { color: var(--text-primary); border-color: rgba(255, 255, 255, 0.15); }
+        @media (max-width: 640px) { .article { padding: 2rem 1.1rem 4rem; } .article-title { font-size: 1.8rem; } }
+            :root { --level: #d9645c; }
+
+        /* Unified module chrome (matches all pathway modules) */
+        .quiz-figure {
+            background: rgba(236, 226, 214, 0.03);
+            border: 1px solid var(--border, #2a2420);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }
+        .quiz-figure svg { width: 100%; max-width: 430px; height: auto; display: block; margin: 0 auto; }
+        .module-label { color: var(--level, var(--primary)) !important; }
+        .reading-progress { background: var(--level, var(--primary)) !important; }
+    
+        /* Quiz rework: lettered options, cleaner questions */
+        .quiz-section h3 { font-family: 'Fraunces', Georgia, serif !important; font-size: 1.3rem !important; }
+        .quiz-q { padding-top: 1.2rem; border-top: 1px solid rgba(236, 226, 214, 0.07); }
+        .quiz-q:first-of-type { border-top: none; padding-top: 0; }
+        .quiz-q > p { font-size: 1rem !important; }
+        .quiz-opts { counter-reset: opt; }
+        .quiz-opt { position: relative; padding-left: 2.9rem !important; counter-increment: opt; }
+        .quiz-opt::before {
+            content: counter(opt, upper-alpha);
+            position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%);
+            width: 1.45rem; height: 1.45rem; border: 1px solid rgba(236, 226, 214, 0.25);
+            border-radius: 5px; display: flex; align-items: center; justify-content: center;
+            font: 700 0.68rem 'Inter', sans-serif; color: #8a8178;
+        }
+        .quiz-opt:hover::before { border-color: rgba(236, 226, 214, 0.5); color: #F4EEE6; }
+        .quiz-opt.correct::before { border-color: #5cb88a; color: #5cb88a; content: '✓'; }
+        .quiz-opt.wrong::before { border-color: #d9645c; color: #d9645c; content: '✕'; }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+    <div class="reading-progress" id="readingProgress"></div>
+    <div class="mod-header">
+        <div class="mod-header-inner">
+            <a href="advanced-path.html" class="back-link"><span>&larr;</span> Advanced Path</a>
+            <div class="mod-header-meta">MODULE 3 OF 6</div>
+        </div>
+    </div>
+
+    <article class="article">
+        <div class="module-label">Advanced &middot; Module 3</div>
+        <h1 class="article-title">Alternative Investments</h1>
+        <p class="article-subtitle">Diversify beyond stocks and bonds with REITs, commodities, crypto, and private equity strategies.</p>
+
+        <div class="article-meta">
+            <div class="meta-item">8 min read</div>
+            <div class="meta-dot"></div>
+            <div class="meta-item">Sources: NAREIT, CME, CFA Institute</div>
+            <div class="meta-dot"></div>
+            <div class="meta-item">Last updated Mar 2026</div>
+        </div>
+
+        <h2>Real Estate Investment Trusts (REITs)</h2>
+        <p>REITs own and operate income-producing real estate. Unlike owning a property directly, REITs are liquid, diversified, and tax-advantaged. Equity REITs own buildings; mortgage REITs hold loans. REITs must distribute 90% of taxable income as dividends. Average REIT yield is 3-5%, beating bonds.</p>
+
+        <div class="callout">
+            <div class="callout-label">Key Point</div>
+            <p>REITs are interest-rate sensitive. When rates rise, REIT valuations fall because income is discounted more heavily. Diversification benefit comes from low correlation with stocks during equity downturns.</p>
+        </div>
+
+        <h2>Commodities & Commodity Futures</h2>
+        <p>Commodities include precious metals (gold, silver), energy (oil, natural gas), and agriculture (wheat, corn). Direct ownership requires storage. Commodity futures provide leveraged exposure. Oil futures (WTI) and gold futures (GC) are most liquid. Commodities hedge inflation and geopolitical risk.</p>
+
+        <h3>Why Own Commodities?</h3>
+        <p>Negative correlation with stocks in inflation regimes. Oil prices spike during geopolitical crises. Gold maintains value during currency collapse. Diversification benefit during equity selloffs.</p>
+
+        <h2>Cryptocurrency & Blockchain Basics</h2>
+        <p>Bitcoin (BTC) and Ethereum (ETH) are decentralized digital currencies secured by blockchain. Bitcoin's supply is capped at 21 million, creating scarcity. Ethereum enables smart contracts. Crypto markets operate 24/7 with high volatility (50-100% annual swings). Institutional adoption has increased through spot ETFs (since Jan 2024).</p>
+
+        <h2>Private Equity & Venture Capital Overview</h2>
+        <p>Private equity firms buy companies, improve operations, and exit for profit. Venture capital funds early-stage startups. These illiquid investments require 5-10 year lockups but historically return 15-25% IRR. Accredited investors minimum $200K income or $1M net worth required.</p>
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Asset Class</th>
+                    <th>Liquidity</th>
+                    <th>Volatility</th>
+                    <th>Expected Return</th>
+                    <th>Correlation with Stocks</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>REITs</strong></td>
+                    <td>High (liquid)</td>
+                    <td>Medium</td>
+                    <td>6-8%</td>
+                    <td>0.6-0.7</td>
+                </tr>
+                <tr>
+                    <td><strong>Gold</strong></td>
+                    <td>High</td>
+                    <td>Medium (15-20%)</td>
+                    <td>3-5%</td>
+                    <td>-0.2 to 0</td>
+                </tr>
+                <tr>
+                    <td><strong>Oil Futures</strong></td>
+                    <td>High</td>
+                    <td>Very High (40%+)</td>
+                    <td>Varies</td>
+                    <td>0.3-0.5</td>
+                </tr>
+                <tr>
+                    <td><strong>Bitcoin</strong></td>
+                    <td>High</td>
+                    <td>Extreme (80%+ annual)</td>
+                    <td>Unpredictable</td>
+                    <td>0.2-0.4 (increasing)</td>
+                </tr>
+                <tr>
+                    <td><strong>Private Equity</strong></td>
+                    <td>Very Low (5-10 yr lock)</td>
+                    <td>Low (smooth returns)</td>
+                    <td>15-25% IRR</td>
+                    <td>0.5-0.7</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Key Takeaways</h2>
+        <ol class="numbered-list">
+            <li>REITs provide real estate exposure with monthly/quarterly dividends and interest-rate sensitivity.</li>
+            <li>Commodities offer inflation protection and negative correlation to equities during crises.</li>
+            <li>Cryptocurrency is high-volatility, 24/7, and increasingly institutional-grade with spot ETF access.</li>
+            <li>Private equity delivers 15-25% returns but requires 5-10 year lockups and accredited investor status.</li>
+            <li>A diversified portfolio includes 5-15% alternatives to reduce overall volatility.</li>
+        </ol>
+
+        <div class="quiz-section">
+            <h3>Check Your Understanding</h3>
+            <p class="quiz-subtitle" style="margin-top: 0;">Answer these questions before moving to Module 4.</p>
+
+            <div class="quiz-q" id="q1">
+                <p>1. What must REITs distribute annually?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, true)">At least 90% of taxable income as dividends</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">All capital gains from property sales</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">50% of revenue</div>
+                </div>
+                <div class="quiz-feedback" id="fb1"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <p>2. Why is gold considered a hedge during equity market crashes?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">Gold always rises when stocks fall</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, true)">Gold has negative/zero correlation with stocks and maintains value during uncertainty</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">Gold prices are regulated by governments</div>
+                </div>
+                <div class="quiz-feedback" id="fb2"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <p>3. What is the primary limitation of private equity as an investment?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">Private equity returns are always negative</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, true)">5-10 year lockups mean capital is unavailable for emergencies or better opportunities</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">Private equity is only available to billionaires</div>
+                </div>
+                <div class="quiz-feedback" id="fb3"></div>
+            </div>
+
+        
+            <div class="quiz-q" id="q4" data-why="With 3:1 reward-to-risk you only need to be right ~30% of the time to make money. Asymmetry is the edge.">
+                <p>4. Two trades, both risking $100 (red). Which setup is worth taking?</p>
+                <div class="quiz-figure"><svg viewBox="0 0 300 130" xmlns="http://www.w3.org/2000/svg"><rect x="60" y="65" width="40" height="25" fill="#D9645C"/><rect x="60" y="40" width="40" height="25" fill="#5cb88a"/><text x="52" y="118" fill="#B7ADA1" font-size="10">Trade A: 1 to 1</text><rect x="190" y="65" width="40" height="25" fill="#D9645C"/><rect x="190" y="-10" width="40" height="75" fill="#5cb88a"/><text x="180" y="118" fill="#B7ADA1" font-size="10">Trade B: 3 to 1</text></svg></div>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">Trade A — smaller target hits more often</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, true)">Trade B — $300 upside against $100 risk can be wrong twice and still profit</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">Both are identical</div>
+                </div>
+                <div class="quiz-feedback" id="fb4"></div>
+            </div>
+
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; Further Reading</h3>
+            <div class="source-item">National Association of Real Estate Investment Trusts (NAREIT). <em>REIT Fundamentals</em>. Complete guide to REIT types, taxation, and economics. <a href="https://www.reit.com" target="_blank">reit.com</a></div>
+            <div class="source-item">CME Group. <em>Commodity Futures Markets</em>. Contracts, expiration dates, and leverage for energy, metals, and agriculture. <a href="https://www.cmegroup.com" target="_blank">cmegroup.com</a></div>
+            <div class="source-item">Nakamoto, Satoshi. <em>Bitcoin: A Peer-to-Peer Electronic Cash System</em> (2008). Original Bitcoin whitepaper explaining blockchain mechanics and scarcity design.</div>
+            <div class="source-item">CFA Institute. <em>Alternative Investments Curriculum</em>. Deep dives into real estate, hedge funds, private equity, and commodities valuation.</div>
+        </div>
+    
+        <div class="legal-note" style="margin-top:2rem;padding:0.9rem 1.1rem;border:1px solid rgba(236,226,214,0.1);border-radius:8px;font:500 0.72rem 'Inter',sans-serif;color:#7d746a;line-height:1.6;">Educational content only — nothing here is investment, legal, or tax advice. Markets involve risk, figures are illustrative and may contain errors, and past performance never guarantees future results. Do your own research before investing real money.</div>
+    </article>
+
+    <div class="module-footer">
+        <a href="advanced-path.html" class="footer-btn footer-btn-back">&larr; Back to Path</a>
+        <a href="advanced-module-4.html" class="footer-btn footer-btn-next">Module 4: Global Markets & Macro &rarr;</a>
+    </div>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+            document.getElementById('readingProgress').style.width = Math.min(pct, 100) + '%';
+        });
+
+        function checkQuiz(num, el, isCorrect) {
+            const q = document.getElementById('q' + num);
+            const fb = document.getElementById('fb' + num);
+            const opts = q.querySelectorAll('.quiz-opt');
+            opts.forEach(o => { o.classList.add('disabled'); o.classList.remove('correct', 'wrong'); });
+            const why = q.dataset.why ? ' ' + q.dataset.why : '';
+            if (isCorrect) {
+                el.classList.add('correct');
+                fb.textContent = 'Correct.' + why;
+                fb.className = 'quiz-feedback show right';
+            } else {
+                el.classList.add('wrong');
+                opts.forEach(o => { if (o.getAttribute('onclick').includes('true')) o.classList.add('correct'); });
+                fb.textContent = 'Not quite. The correct answer is highlighted above.' + why;
+                fb.className = 'quiz-feedback show wrong-fb';
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/quiz.js"></script>
+</body>
+</html>

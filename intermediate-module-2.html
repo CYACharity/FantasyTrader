@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 2: Options Basics - Stocks League</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #e0a24c; --accent: #e0a24c; --background: #1a1714; --surface: #1e1a16; --surface-2: #241f1b; --border: #2a2420; --text-primary: #e8e8e8; --text-body: #c4c4c4; --text-muted: #888888; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--background); color: var(--text-primary); min-height: 100vh; }
+        .mod-header { background: rgba(20, 20, 20, 0.97); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0.85rem 2rem; position: sticky; top: 0; z-index: 100; }
+        .mod-header-inner { max-width: 820px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .back-link { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; transition: opacity 0.2s; }
+        .back-link:hover { opacity: 0.75; }
+        .mod-header-meta { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; }
+        .reading-progress { position: fixed; top: 0; left: 0; height: 2px; width: 0%; background: var(--primary); z-index: 200; transition: width 0.15s linear; }
+        .article { max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+        .module-label { display: inline-block; font-size: 0.62rem; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--primary); background: rgba(236, 226, 214, 0.08); border: 1px solid rgba(224, 162, 76, 0.18); padding: 5px 12px; border-radius: 4px; margin-bottom: 1.2rem; }
+        .article-title { font-family: 'Lora', serif; font-size: 2.4rem; font-weight: 700; line-height: 1.2; color: #ffffff; margin-bottom: 0.8rem; }
+        .article-subtitle { font-family: 'Lora', serif; font-size: 1.15rem; font-weight: 400; color: var(--text-muted); margin-bottom: 1.5rem; }
+        .article-meta { display: flex; align-items: center; gap: 1.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); margin-bottom: 2.5rem; font-size: 0.75rem; color: var(--text-muted); }
+        .meta-item { display: flex; align-items: center; gap: 5px; }
+        .meta-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); }
+        .article p { font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.85; color: var(--text-body); margin-bottom: 1.5rem; }
+        .article h2 { font-family: 'Inter', sans-serif; font-size: 1.35rem; font-weight: 700; color: #ffffff; margin-top: 3rem; margin-bottom: 1rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+        .article h3 { font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-top: 2rem; margin-bottom: 0.75rem; }
+        .callout { background: var(--surface); border-left: 3px solid var(--primary); padding: 1.25rem 1.5rem; margin: 1.8rem 0; }
+        .callout-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--primary); margin-bottom: 0.5rem; }
+        .callout p { font-size: 0.95rem; line-height: 1.7; margin-bottom: 0; }
+        .figure { margin: 2.2rem 0; text-align: center; }
+        .figure-diagram { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem 1.5rem; margin-bottom: 0.7rem; }
+        .figure-caption { font-size: 0.73rem; color: var(--text-muted); font-style: italic; }
+        .flow-row { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; }
+        .flow-box { background: rgba(236, 226, 214, 0.08); border: 1px solid rgba(224, 162, 76, 0.2); border-radius: 10px; padding: 0.9rem 1.2rem; text-align: center; min-width: 130px; }
+        .flow-box-title { font-size: 0.7rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 0.3rem; }
+        .flow-box-desc { font-size: 0.72rem; color: var(--text-body); line-height: 1.4; }
+        .flow-arrow { font-size: 1.2rem; color: var(--text-muted); padding: 0 0.6rem; }
+        .comparison-table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 1.8rem 0; font-size: 0.88rem; }
+        .comparison-table thead { background: var(--surface); }
+        .comparison-table th { padding: 0.9rem 1.2rem; text-align: left; font-weight: 700; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+        .comparison-table td { padding: 0.85rem 1.2rem; border-bottom: 1px solid rgba(255, 255, 255, 0.03); color: var(--text-body); font-family: 'Lora', serif; font-size: 0.9rem; line-height: 1.5; }
+        .comparison-table tr:last-child td { border-bottom: none; }
+        .numbered-list { counter-reset: item; margin: 1.2rem 0 1.5rem; padding-left: 0; list-style: none; }
+        .numbered-list li { counter-increment: item; font-family: 'Lora', serif; font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 0.6rem; padding-left: 2.2rem; position: relative; }
+        .numbered-list li::before { content: counter(item) "."; position: absolute; left: 0; font-weight: 700; color: var(--primary); font-family: 'Inter', sans-serif; font-size: 0.85rem; }
+        .quiz-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; margin: 3rem 0 2rem; }
+        .quiz-section h3 { margin-top: 0; margin-bottom: 0.3rem; }
+        .quiz-subtitle { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+        .quiz-q { margin-bottom: 1.5rem; }
+        .quiz-q p { font-family: 'Inter', sans-serif; font-size: 0.92rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.7rem; }
+        .quiz-opts { display: flex; flex-direction: column; gap: 0.4rem; }
+        .quiz-opt { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 0.7rem 1rem; font-size: 0.88rem; color: var(--text-body); cursor: pointer; transition: all 0.2s; }
+        .quiz-opt:hover { background: rgba(236, 226, 214, 0.06); border-color: rgba(224, 162, 76, 0.2); }
+        .quiz-opt.correct { background: rgba(224, 162, 76, 0.12); border-color: var(--primary); color: #ffffff; }
+        .quiz-opt.wrong { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: rgba(255, 255, 255, 0.5); }
+        .quiz-opt.disabled { pointer-events: none; opacity: 0.5; }
+        .quiz-feedback { font-size: 0.82rem; margin-top: 0.5rem; font-weight: 500; display: none; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.right { color: var(--primary); }
+        .quiz-feedback.wrong-fb { color: #d9645c; }
+        .sources { margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+        .sources h3 { font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem; margin-top: 0; }
+        .source-item { font-size: 0.82rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 0.6rem; padding-left: 1.2rem; position: relative; }
+        .source-item::before { content: ''; position: absolute; left: 0; top: 0.55rem; width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); }
+        .source-item a { color: var(--primary); text-decoration: none; }
+        .module-footer { max-width: 720px; margin: 0 auto; padding: 0 1.5rem 4rem; display: flex; justify-content: space-between; }
+        .footer-btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.85rem 1.6rem; border-radius: 10px; font-size: 0.85rem; font-weight: 700; text-decoration: none; transition: all 0.2s ease; border: none; cursor: pointer; }
+        .footer-btn-next { background: var(--primary); color: var(--background); }
+        .footer-btn-next:hover { transform: translateY(-2px); box-shadow: 0 2px 10px rgba(0,0,0,0.18); }
+        .footer-btn-back { background: rgba(255, 255, 255, 0.04); color: var(--text-muted); border: 1px solid var(--border); }
+        .footer-btn-back:hover { color: var(--text-primary); }
+        @media (max-width: 640px) { .article { padding: 2rem 1.1rem 4rem; } .article-title { font-size: 1.8rem; } .flow-row { flex-direction: column; } .flow-arrow { transform: rotate(90deg); } }
+            :root { --level: #e0a24c; }
+
+        /* Unified module chrome (matches all pathway modules) */
+        .quiz-figure {
+            background: rgba(236, 226, 214, 0.03);
+            border: 1px solid var(--border, #2a2420);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }
+        .quiz-figure svg { width: 100%; max-width: 430px; height: auto; display: block; margin: 0 auto; }
+        .module-label { color: var(--level, var(--primary)) !important; }
+        .reading-progress { background: var(--level, var(--primary)) !important; }
+    
+        /* Quiz rework: lettered options, cleaner questions */
+        .quiz-section h3 { font-family: 'Fraunces', Georgia, serif !important; font-size: 1.3rem !important; }
+        .quiz-q { padding-top: 1.2rem; border-top: 1px solid rgba(236, 226, 214, 0.07); }
+        .quiz-q:first-of-type { border-top: none; padding-top: 0; }
+        .quiz-q > p { font-size: 1rem !important; }
+        .quiz-opts { counter-reset: opt; }
+        .quiz-opt { position: relative; padding-left: 2.9rem !important; counter-increment: opt; }
+        .quiz-opt::before {
+            content: counter(opt, upper-alpha);
+            position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%);
+            width: 1.45rem; height: 1.45rem; border: 1px solid rgba(236, 226, 214, 0.25);
+            border-radius: 5px; display: flex; align-items: center; justify-content: center;
+            font: 700 0.68rem 'Inter', sans-serif; color: #8a8178;
+        }
+        .quiz-opt:hover::before { border-color: rgba(236, 226, 214, 0.5); color: #F4EEE6; }
+        .quiz-opt.correct::before { border-color: #5cb88a; color: #5cb88a; content: '✓'; }
+        .quiz-opt.wrong::before { border-color: #d9645c; color: #d9645c; content: '✕'; }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+    <div class="reading-progress" id="readingProgress"></div>
+    <div class="mod-header">
+        <div class="mod-header-inner">
+            <a href="intermediate-path.html" class="back-link"><span>&larr;</span> Intermediate Path</a>
+            <div class="mod-header-meta">MODULE 2 OF 6</div>
+        </div>
+    </div>
+
+    <article class="article">
+        <div class="module-label">Intermediate &middot; Module 2</div>
+        <h1 class="article-title">Options Basics</h1>
+        <p class="article-subtitle">Master calls, puts, strike prices, and premium to unlock advanced trading strategies.</p>
+
+        <div class="article-meta">
+            <div class="meta-item">6 min read</div>
+            <div class="meta-dot"></div>
+            <div class="meta-item">Sources: CBOE, CFE Curriculum</div>
+            <div class="meta-dot"></div>
+            <div class="meta-item">Last updated Mar 2026</div>
+        </div>
+
+        <h2>What is an Option?</h2>
+
+        <p>An option is a bet on stock price movement without owning the stock itself. You pay a small fee upfront (called the premium) for the right—but not the obligation—to buy or sell 100 shares at a fixed price by a certain date. Options let you control big moves with small amounts of money. This leverage is powerful, but risky: you can lose your entire premium quickly if the bet goes wrong.</p>
+
+        <div class="callout">
+            <div class="callout-label">Key Concept</div>
+            <p>Every option has four parts: <strong>type</strong> (call = bet on a rise, put = bet on a fall), <strong>strike price</strong> (the fixed price level), <strong>expiration date</strong> (when the option expires), and <strong>premium</strong> (what you pay). Understanding these four pieces is the key to profiting with options.</p>
+        </div>
+
+        <h2>Calls vs. Puts</h2>
+
+        <h3>Call Option</h3>
+        <p>A call is a bet that a stock will rise. You pay a small premium for the right to buy at a fixed strike price. If the stock jumps above the strike, you can exercise (buy shares at the lower strike price) or sell the call contract itself for a profit. If the stock falls or stays flat, you lose the premium. Think of it like buying a lottery ticket that pays off if the stock goes up.</p>
+
+        <div style="background: rgba(236, 226, 214, 0.08); border-left: 3px solid rgba(224, 162, 76, 0.3); padding: 1rem 1.2rem; margin: 1.2rem 0; border-radius: 0 6px 6px 0;"><strong>Example:</strong> You buy a Tesla $200 call with a 2-month expiration. You pay $5 premium. Tesla is trading at $195. If Tesla rises to $210, your call is worth $10+, and you double your money. If it falls to $185, your call expires worthless—you lose the $5.</div>
+
+        <h3>Put Option</h3>
+        <p>A put is insurance on a stock you own, or a bet that a stock will fall. You pay a premium for the right to sell at a fixed strike price. If the stock crashes below the strike, the put becomes valuable. If the stock rises, the put loses value and expires worthless. Puts are often used as "insurance"—you hope to never use them, but they protect you if the market tanks.</p>
+
+        <div style="background: rgba(236, 226, 214, 0.08); border-left: 3px solid rgba(224, 162, 76, 0.3); padding: 1rem 1.2rem; margin: 1.2rem 0; border-radius: 0 6px 6px 0;"><strong>Example:</strong> You own 100 Netflix shares at $180 each. The stock has been volatile. You buy a $170 put for $3 (insurance). If Netflix crashes to $150, your put lets you sell at $170, limiting your loss. You paid $3 per share for peace of mind.</div>
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Call</th>
+                    <th>Put</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Right to</td>
+                    <td>Buy at strike price</td>
+                    <td>Sell at strike price</td>
+                </tr>
+                <tr>
+                    <td>Profit when</td>
+                    <td>Stock rises above strike</td>
+                    <td>Stock falls below strike</td>
+                </tr>
+                <tr>
+                    <td>Max loss</td>
+                    <td>Premium paid</td>
+                    <td>Premium paid</td>
+                </tr>
+                <tr>
+                    <td>Max profit</td>
+                    <td>Unlimited</td>
+                    <td>Strike price minus premium</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Strike Price & Expiration</h2>
+
+        <p>The strike price is your fixed price level. It never changes—that's the whole point. Options closest to today's stock price cost less but move faster (more leverage). Expiration dates range from days to months. The closer expiration gets, the faster the option loses time value (a concept called theta decay). This is why long-term options tend to be better for beginners.</p>
+
+        <h3>In-the-Money vs Out-of-the-Money</h3>
+        <ul class="numbered-list">
+            <li><strong>In-the-money (ITM):</strong> The option is already profitable if exercised today. A call with a $100 strike is ITM when the stock is at $110. A put with a $100 strike is ITM when the stock is at $90.</li>
+            <li><strong>Out-of-the-money (OTM):</strong> The option would be unprofitable if exercised today. These are cheaper but riskier. You're betting on a bigger move.</li>
+        </ul>
+
+        <h2>Intrinsic Value vs Time Value</h2>
+
+        <p>Every option premium has two parts. Intrinsic value is the profit you'd lock in right now if you exercised. Time value is what the market pays you for the chance that the stock will move further before expiration. As the expiration date approaches, time value evaporates fast. This is why selling short-dated options can be profitable—you're collecting time value that's about to disappear.</p>
+
+        <div style="background: rgba(236, 226, 214, 0.08); border-left: 3px solid rgba(224, 162, 76, 0.3); padding: 1rem 1.2rem; margin: 1.2rem 0; border-radius: 0 6px 6px 0;"><strong>Example:</strong> You buy an Amazon $150 call when the stock is at $145. The call costs $8. Only $0 is intrinsic value (it's not ITM yet). The other $8 is time value. If Amazon stays at $145, that $8 time value disappears as expiration nears. But if Amazon jumps to $160, your $8 premium turns into $10+ intrinsic value, and you profit.</div>
+
+        <div class="figure">
+            <div class="figure-diagram">
+                <div class="flow-row">
+                    <div class="flow-box">
+                        <div class="flow-box-title">Call Strike</div>
+                        <div class="flow-box-desc">$100</div>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-box">
+                        <div class="flow-box-title">Stock Price</div>
+                        <div class="flow-box-desc">$110</div>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-box">
+                        <div class="flow-box-title">Intrinsic</div>
+                        <div class="flow-box-desc">$10 profit</div>
+                    </div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-box">
+                        <div class="flow-box-title">+Time Value</div>
+                        <div class="flow-box-desc">= Total Premium</div>
+                    </div>
+                </div>
+            </div>
+            <div class="figure-caption">Fig. 1 &mdash; Breaking down an option's premium into intrinsic and time value.</div>
+        </div>
+
+        <h2>Basic Strategies</h2>
+
+        <h3>Covered Call</h3>
+        <p>You own 100 shares and sell a call on top of them to collect premium. It's like renting out your shares for income. You get to keep the premium and any stock gains up to the strike price. The tradeoff: if the stock soars way above the strike, your shares get called away and you miss the upside. It's a conservative income strategy.</p>
+
+        <div style="background: rgba(236, 226, 214, 0.08); border-left: 3px solid rgba(224, 162, 76, 0.3); padding: 1rem 1.2rem; margin: 1.2rem 0; border-radius: 0 6px 6px 0;"><strong>Example:</strong> You own 100 shares of Apple at $150. You sell a $160 call and collect $3 premium ($300 total). Apple is now "covered." If it stays below $160, you pocket the $300 and keep the shares. If it shoots to $170, your shares get called away at $160, and you miss the extra $10 per share of upside.</div>
+
+        <h3>Protective Put</h3>
+        <p>You own shares of a stock and buy a put option as downside insurance. It's like buying umbrella insurance for your portfolio. You pay a small premium now, and if the stock crashes, the put pays off and cushions your loss. If the stock rises, the put expires worthless, but you captured the gains. You paid for peace of mind.</p>
+
+        <div style="background: rgba(236, 226, 214, 0.08); border-left: 3px solid rgba(224, 162, 76, 0.3); padding: 1rem 1.2rem; margin: 1.2rem 0; border-radius: 0 6px 6px 0;"><strong>Example:</strong> You own 100 Google shares bought at $130. You're worried about an earnings miss, so you buy a $125 put for $2 per share ($200 total). If Google crashes to $110 after earnings, your put is worth $15, offsetting your loss. The $2 insurance cost was worth the sleep you'll get.</div>
+
+        <h2>Key Takeaways</h2>
+
+        <ol class="numbered-list">
+            <li>A call gives the right to buy; a put gives the right to sell.</li>
+            <li>Strike price, expiration, and premium are the three pillars of options pricing.</li>
+            <li>Intrinsic value is profit if exercised today; time value is what you pay for future optionality.</li>
+            <li>A covered call caps upside in exchange for premium income.</li>
+            <li>A protective put is insurance—you pay to protect downside.</li>
+        </ol>
+
+        <div class="quiz-section">
+            <h3>Check Your Understanding</h3>
+            <p class="quiz-subtitle">Test your options knowledge.</p>
+
+            <div class="quiz-q" id="q1">
+                <p>1. A call option gives you the right to:</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, true)">Buy at the strike price</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">Sell at the strike price</div>
+                    <div class="quiz-opt" onclick="checkQuiz(1, this, false)">Hold the stock indefinitely</div>
+                </div>
+                <div class="quiz-feedback" id="fb1"></div>
+            </div>
+
+            <div class="quiz-q" id="q2">
+                <p>2. An option's total premium is made up of:</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">Only intrinsic value</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, true)">Intrinsic value + time value</div>
+                    <div class="quiz-opt" onclick="checkQuiz(2, this, false)">Only the strike price</div>
+                </div>
+                <div class="quiz-feedback" id="fb2"></div>
+            </div>
+
+            <div class="quiz-q" id="q3">
+                <p>3. In a covered call strategy, what is capped?</p>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">Your downside losses</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, true)">Your upside gains</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">The premium you collect</div>
+                </div>
+                <div class="quiz-feedback" id="fb3"></div>
+            </div>
+
+        
+            <div class="quiz-q" id="q4" data-why="Breakouts on heavy volume are far more reliable than moves on thin trading — volume is the fuel.">
+                <p>4. The green bars show volume. What does the tall bar during the breakout tell you?</p>
+                <div class="quiz-figure"><svg viewBox="0 0 300 130" xmlns="http://www.w3.org/2000/svg"><line x1="30" y1="10" x2="30" y2="105" stroke="rgba(236,226,214,0.25)"/><line x1="30" y1="105" x2="290" y2="105" stroke="rgba(236,226,214,0.25)"/><polyline points="30,70 80,68 130,66 180,30 240,26 290,22" fill="none" stroke="#F4EEE6" stroke-width="2"/><rect x="45" y="92" width="16" height="13" fill="#5cb88a" opacity="0.5"/><rect x="95" y="94" width="16" height="11" fill="#5cb88a" opacity="0.5"/><rect x="145" y="90" width="16" height="15" fill="#5cb88a" opacity="0.5"/><rect x="180" y="55" width="16" height="50" fill="#5cb88a"/><rect x="245" y="88" width="16" height="17" fill="#5cb88a" opacity="0.5"/></svg></div>
+                <div class="quiz-opts">
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">Nothing — volume is noise</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, true)">Conviction — many participants confirmed the move</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, false)">The stock is about to split</div>
+                </div>
+                <div class="quiz-feedback" id="fb4"></div>
+            </div>
+
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; Further Reading</h3>
+            <div class="source-item">CBOE (Chicago Board Options Exchange). <em>Options Industry Curriculum</em>. Chapter 1: Introduction to Options. <a href="https://www.cboe.com/learning" target="_blank">cboe.com/learning</a></div>
+            <div class="source-item">Hull, John C. <em>Options, Futures, and Other Derivatives</em> (10th ed.). Pearson, 2018. Chapter 9: Mechanics of Options Markets.</div>
+            <div class="source-item">CFA Institute. <em>Derivatives and Portfolio Management</em>. Advanced Options Pricing Module. CFE Curriculum.</div>
+        </div>
+    
+        <div class="legal-note" style="margin-top:2rem;padding:0.9rem 1.1rem;border:1px solid rgba(236,226,214,0.1);border-radius:8px;font:500 0.72rem 'Inter',sans-serif;color:#7d746a;line-height:1.6;">Educational content only — nothing here is investment, legal, or tax advice. Markets involve risk, figures are illustrative and may contain errors, and past performance never guarantees future results. Do your own research before investing real money.</div>
+    </article>
+
+    <div class="module-footer">
+        <a href="intermediate-path.html" class="footer-btn footer-btn-back">&larr; Back to Path</a>
+        <a href="intermediate-module-3.html" class="footer-btn footer-btn-next">Module 3: Sector Analysis &rarr;</a>
+    </div>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+            document.getElementById('readingProgress').style.width = Math.min(pct, 100) + '%';
+        });
+
+        function checkQuiz(num, el, isCorrect) {
+            const q = document.getElementById('q' + num);
+            const fb = document.getElementById('fb' + num);
+            const opts = q.querySelectorAll('.quiz-opt');
+            opts.forEach(o => { o.classList.add('disabled'); o.classList.remove('correct', 'wrong'); });
+            const why = q.dataset.why ? ' ' + q.dataset.why : '';
+            if (isCorrect) {
+                el.classList.add('correct');
+                fb.textContent = 'Correct.' + why;
+                fb.className = 'quiz-feedback show right';
+            } else {
+                el.classList.add('wrong');
+                opts.forEach(o => { if (o.getAttribute('onclick').includes('true')) o.classList.add('correct'); });
+                fb.textContent = 'Not quite. The correct answer is highlighted.';
+                fb.className = 'quiz-feedback show wrong-fb';
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/quiz.js"></script>
+</body>
+</html>

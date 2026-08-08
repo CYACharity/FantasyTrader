@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draft Room - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="stock-data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <style>
+        :root {
+            --primary: #4a6785;
+            --secondary: #6aa08d;
+            --accent: #e0a24c;
+            --success: #5cb88a;
+            --danger: #d9645c;
+            --background: #1a1714;
+            --surface: #241f1b;
+            --surface-light: #2a2420;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B8C4;
+            --border: rgba(236, 226, 214, 0.2);
+            --gradient-primary: linear-gradient(135deg, #4a6785, #6aa08d);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--background); color: var(--text-primary); font-family: 'Inter','Segoe UI',Arial,sans-serif; min-height: 100vh; }
+        a { color: var(--success); }
+        .draft-container { max-width: 1600px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 1fr 400px; gap: 2rem; }
+        .draft-main { display: flex; flex-direction: column; gap: 1.5rem; }
+        .draft-header { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .draft-title { font-size: 1.5rem; font-weight: 700; }
+        .draft-title small { display:block; color: var(--text-secondary); font-size: .8rem; font-weight: 500; margin-top:.25rem; }
+        .draft-status { background: var(--success); color: var(--background); padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; }
+        .draft-status.waiting { background: var(--accent); }
+        .turn-banner { background: var(--surface-light); border: 2px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; font-size: 1.15rem; font-weight: 700; }
+        .turn-banner.you { border-color: var(--success); background: rgba(236, 226, 214, .08); color: var(--success); }
+        .panel { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+        .panel h3 { font-size: 1.1rem; margin-bottom: 1rem; }
+        .rosters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+        .roster-card { background: var(--surface-light); border: 2px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; }
+        .roster-card.on-clock { border-color: var(--accent); box-shadow: 0 2px 10px rgba(0,0,0,0.18); }
+        .roster-name { font-weight: 700; margin-bottom: .5rem; display:flex; justify-content:space-between; align-items:center; }
+        .roster-badge { font-size:.7rem; background: var(--accent); color:#000; padding:.15rem .5rem; border-radius:4px; }
+        .roster-pick { display:flex; justify-content:space-between; font-size:.9rem; padding:.35rem 0; border-bottom:1px solid rgba(255,255,255,.05); }
+        .roster-pick .sym { font-weight:600; color: var(--success); }
+        .roster-empty { color: var(--text-secondary); font-size:.85rem; padding:.35rem 0; }
+        .pickboard { max-height: 260px; overflow-y:auto; }
+        .pickboard-row { display:grid; grid-template-columns: 44px 1fr 90px; gap:.5rem; padding:.5rem .25rem; border-bottom:1px solid rgba(255,255,255,.05); font-size:.9rem; align-items:center; }
+        .pickboard-row .pk { color: var(--text-secondary); }
+        .search-input { width: 100%; padding: 1rem; background: var(--surface-light); border: 2px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 1rem; margin-bottom: 1rem; }
+        .search-input:focus { outline: none; border-color: var(--success); }
+        .suggestions-list { max-height: 560px; overflow-y: auto; }
+        .suggestion-item { background: var(--surface-light); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 0.5rem; }
+        .suggestion-item.pickable { cursor: pointer; transition: all .2s ease; }
+        .suggestion-item.pickable:hover { border-color: var(--success); transform: translateX(4px); }
+        .suggestion-item.taken { opacity: .4; }
+        .suggestion-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; }
+        .suggestion-symbol { font-size: 1.15rem; font-weight: 700; color: var(--success); }
+        .suggestion-price { font-weight: 600; }
+        .suggestion-change.positive { color: var(--success); }
+        .suggestion-change.negative { color: var(--danger); }
+        .btn { border:none; border-radius:8px; color:#fff; font-weight:700; cursor:pointer; padding:.85rem 1.25rem; font-size:1rem; }
+        .btn-primary { background: var(--gradient-primary); }
+        .btn-success { background: var(--success); color:#000; }
+        .btn:disabled { opacity:.5; cursor:not-allowed; }
+        .members-list { display:flex; flex-direction:column; gap:.5rem; margin: 1rem 0; }
+        .member-chip { background: var(--surface-light); border:1px solid var(--border); border-radius:8px; padding:.6rem .9rem; display:flex; justify-content:space-between; }
+        .code-box { font-family: monospace; font-size:1.6rem; letter-spacing:3px; background: var(--surface-light); border:2px dashed var(--border); border-radius:8px; padding:.75rem; text-align:center; color: var(--accent); cursor:pointer; }
+        .standings-row { display:grid; grid-template-columns: 40px 1fr 120px 90px; gap:.5rem; align-items:center; padding:.6rem .25rem; border-bottom:1px solid rgba(255,255,255,.05); }
+        .rank { font-weight:800; color: var(--accent); }
+        .pos { color: var(--success); } .neg { color: var(--danger); }
+        .muted { color: var(--text-secondary); }
+        @media (max-width: 1024px){ .draft-container{ grid-template-columns: 1fr; } }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+    <div class="draft-container">
+        <div class="draft-main">
+            <div class="draft-header">
+                <div>
+                    <h1 class="draft-title" id="leagueTitle">Draft Room<small id="leagueSub">Loading…</small></h1>
+                </div>
+                <div class="draft-status" id="draftStatus">—</div>
+            </div>
+            <div id="mainArea"></div>
+        </div>
+        <div class="draft-sidebar">
+            <div class="panel" id="sidebar">
+                <h3 id="sidebarTitle">Available Stocks</h3>
+                <input type="text" class="search-input" id="stockSearch" placeholder="Search by symbol or name…">
+                <div class="suggestions-list" id="suggestionsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(location.search);
+        const LEAGUE_ID = params.get('league');
+        let me = null, league = null, members = [], picks = [], priceMap = {}, universe = [];
+        let channel = null;
+
+        function nameFor(uid) {
+            const m = members.find(x => x.user_id === uid);
+            const p = m && m.profiles;
+            return (p && (p.full_name || p.username)) || (uid === (me && me.id) ? 'You' : 'Player');
+        }
+
+        async function boot() {
+            if (!SL.configured) { document.getElementById('leagueSub').textContent = 'Connect Supabase to use leagues.'; return; }
+            me = await SL.requireAuth('signup.html');
+            if (!me) return;
+            if (!LEAGUE_ID) {
+                document.getElementById('mainArea').innerHTML =
+                    '<div class="panel">No league selected. <a href="create-league.html">Create one</a> or join from <a href="league.html">the leagues page</a>.</div>';
+                document.getElementById('sidebar').style.display = 'none';
+                return;
+            }
+            try { universe = (new StockDataService()).comprehensiveStocks || []; } catch(e) { universe = []; }
+            await refresh();
+            channel = SL.subscribeLeague(LEAGUE_ID, () => refresh());
+            document.getElementById('stockSearch').addEventListener('input', renderSidebar);
+        }
+
+        async function refresh() {
+            league = await SL.getLeague(LEAGUE_ID);
+            if (!league) { document.getElementById('leagueSub').textContent = 'League not found.'; return; }
+            [members, picks, priceMap] = await Promise.all([
+                SL.getLeagueMembers(LEAGUE_ID),
+                SL.getPicks(LEAGUE_ID),
+                SL.getPrices(),
+            ]);
+            render();
+        }
+
+        function render() {
+            document.getElementById('leagueTitle').childNodes[0].nodeValue = league.name + ' ';
+            const rounds = league.roster_size;
+            document.getElementById('leagueSub').textContent =
+                members.length + ' players · ' + rounds + ' picks each · code ' + league.join_code;
+
+            if (league.status === 'lobby') return renderLobby();
+            if (league.status === 'drafting') return renderDraft();
+            return renderComplete();
+        }
+
+        function renderLobby() {
+            document.getElementById('draftStatus').textContent = 'Lobby';
+            document.getElementById('draftStatus').className = 'draft-status waiting';
+            const isOwner = league.owner_id === me.id;
+            const canStart = members.length >= 2;
+            document.getElementById('mainArea').innerHTML = `
+                <div class="panel">
+                    <h3>Waiting Room</h3>
+                    <p class="muted">Share this code so friends can join. The draft starts when the host begins.</p>
+                    <div class="code-box" title="Click to copy" onclick="copyCode()">${league.join_code}</div>
+                    <div class="members-list">
+                        ${members.map(m => `<div class="member-chip"><span>${nameFor(m.user_id)}</span>${m.user_id===league.owner_id?'<span class="roster-badge">HOST</span>':''}</div>`).join('')}
+                    </div>
+                    ${isOwner
+                        ? `<button class="btn btn-success" id="startBtn" ${canStart?'':'disabled'} onclick="startDraft()">${canStart?'Start Draft':'Need 2+ players'}</button>`
+                        : `<p class="muted">Waiting for the host to start…</p>`}
+                </div>`;
+            document.getElementById('sidebarTitle').textContent = 'Stock Pool';
+            renderSidebar();
+        }
+
+        window.copyCode = () => { navigator.clipboard && navigator.clipboard.writeText(league.join_code); };
+
+        window.startDraft = async () => {
+            const b = document.getElementById('startBtn'); if (b){ b.disabled = true; b.textContent='Starting…'; }
+            try { await SL.startDraft(LEAGUE_ID); await refresh(); }
+            catch(e){ alert(e.message || 'Could not start draft'); if(b){ b.disabled=false; b.textContent='Start Draft'; } }
+        };
+
+        function currentTurn() { return SL.whoseTurn(league); }
+
+        function renderDraft() {
+            const t = currentTurn();
+            const n = (league.draft_order||[]).length;
+            const totalPicks = n * league.roster_size;
+            const round = t ? t.round + 1 : 1;
+            document.getElementById('draftStatus').textContent = `Round ${round} of ${league.roster_size}`;
+            document.getElementById('draftStatus').className = 'draft-status';
+
+            const myTurn = t && t.userId === me.id;
+            const banner = myTurn
+                ? `<div class="turn-banner you"><i class="fas fa-bolt"></i> You're on the clock — pick a stock from the right.</div>`
+                : `<div class="turn-banner">On the clock: <strong>${t ? nameFor(t.userId) : '—'}</strong> · pick ${league.current_pick+1} of ${totalPicks}</div>`;
+
+            document.getElementById('mainArea').innerHTML = banner + `
+                <div class="panel"><h3>Rosters</h3><div class="rosters-grid" id="rostersGrid"></div></div>
+                <div class="panel"><h3>Pick Board</h3><div class="pickboard" id="pickboard"></div></div>`;
+
+            const order = league.draft_order || [];
+            document.getElementById('rostersGrid').innerHTML = order.map(uid => {
+                const mine = picks.filter(p => p.user_id === uid).sort((a,b)=>a.pick_number-b.pick_number);
+                const onClock = t && t.userId === uid;
+                const slots = [];
+                for (let i=0;i<league.roster_size;i++){
+                    if (mine[i]) slots.push(`<div class="roster-pick"><span class="sym">${mine[i].symbol}</span><span class="muted">R${mine[i].round+1}</span></div>`);
+                    else slots.push(`<div class="roster-empty">— empty —</div>`);
+                }
+                return `<div class="roster-card ${onClock?'on-clock':''}">
+                    <div class="roster-name">${nameFor(uid)} ${onClock?'<span class="roster-badge">ON CLOCK</span>':''}</div>
+                    ${slots.join('')}
+                </div>`;
+            }).join('');
+
+            const pb = document.getElementById('pickboard');
+            pb.innerHTML = picks.length ? picks.slice().reverse().map(p =>
+                `<div class="pickboard-row"><span class="pk">#${p.pick_number+1}</span><span>${nameFor(p.user_id)}</span><span class="sym" style="color:var(--success);font-weight:700;text-align:right;">${p.symbol}</span></div>`
+            ).join('') : '<div class="muted">No picks yet.</div>';
+
+            document.getElementById('sidebarTitle').textContent = myTurn ? 'Make your pick' : 'Available stocks';
+            renderSidebar();
+        }
+
+        async function renderComplete() {
+            document.getElementById('draftStatus').textContent = league.status === 'active' ? 'Live' : 'Complete';
+            document.getElementById('draftStatus').className = 'draft-status';
+            document.getElementById('sidebar').style.display = 'none';
+            const standings = await SL.leagueStandings(LEAGUE_ID);
+            document.getElementById('mainArea').innerHTML = `
+                <div class="turn-banner you"><i class="fas fa-trophy"></i> Draft complete — standings update live with the market.</div>
+                <div class="panel">
+                    <h3>Standings</h3>
+                    <div class="standings-row muted"><span>#</span><span>Player</span><span>Roster value</span><span>Return</span></div>
+                    ${standings.map((s,i)=>`
+                        <div class="standings-row">
+                            <span class="rank">${i+1}</span>
+                            <div><div style="font-weight:600">${s.user_id===me.id?'You':s.name}</div><div class="muted" style="font-size:.8rem">${s.roster.join(', ')||'—'}</div></div>
+                            <span>$${s.value.toFixed(2)}</span>
+                            <span class="${s.returnPct>=0?'pos':'neg'}">${s.returnPct>=0?'+':''}${s.returnPct.toFixed(2)}%</span>
+                        </div>`).join('')}
+                </div>`;
+        }
+
+        function renderSidebar() {
+            const list = document.getElementById('suggestionsList');
+            if (!list) return;
+            const q = (document.getElementById('stockSearch').value || '').toLowerCase();
+            const taken = new Set(picks.map(p => p.symbol));
+            const t = currentTurn();
+            const myTurn = league.status === 'drafting' && t && t.userId === me.id;
+
+            let rows = universe.map(u => {
+                const lp = priceMap[u.symbol];
+                return { symbol: u.symbol, name: u.name,
+                         price: lp && lp.price != null ? Number(lp.price) : null,
+                         change: lp && lp.change_pct != null ? Number(lp.change_pct) : null };
+            });
+            if (q) rows = rows.filter(r => r.symbol.toLowerCase().includes(q) || (r.name||'').toLowerCase().includes(q));
+            rows = rows.slice(0, 60);
+
+            list.innerHTML = rows.map(r => {
+                const isTaken = taken.has(r.symbol);
+                const pickable = myTurn && !isTaken;
+                const chg = r.change == null ? '' :
+                    `<span class="suggestion-change ${r.change>=0?'positive':'negative'}">${r.change>=0?'+':''}${r.change.toFixed(2)}%</span>`;
+                const price = r.price == null ? '<span class="muted">—</span>' : `$${r.price.toFixed(2)}`;
+                return `<div class="suggestion-item ${pickable?'pickable':''} ${isTaken?'taken':''}" ${pickable?`onclick="makePick('${r.symbol}')"`:''}>
+                    <div class="suggestion-header"><span class="suggestion-symbol">${r.symbol}</span><span class="suggestion-price">${price}</span></div>
+                    <div style="font-size:.9rem;color:var(--text-secondary);margin-bottom:.35rem;">${r.name||''}</div>
+                    ${isTaken ? '<div style="font-size:.8rem;color:var(--danger)">Already drafted</div>' : chg}
+                </div>`;
+            }).join('') || '<div class="muted" style="padding:1rem;text-align:center">No stocks found</div>';
+        }
+
+        window.makePick = async (symbol) => {
+            try { await SL.makePick(LEAGUE_ID, symbol); await refresh(); }
+            catch(e){ alert(e.message || 'Pick failed'); await refresh(); }
+        };
+
+        boot();
+    </script>
+</body>
+</html>

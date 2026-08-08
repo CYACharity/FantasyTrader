@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experiences - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1A1714; color: #F4EEE6; font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+        .wrap { max-width: 780px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+        .top { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 2rem; }
+        h1 { font-family: 'Poppins','Inter',sans-serif !important; font-weight: 800; font-size: 1.8rem; }
+        .sub { color: #B7ADA1; font-size: .9rem; margin-top: .25rem; }
+
+        /* Experience cards */
+        .exp-grid { display: grid; gap: 1rem; }
+        .exp {
+            background: #221E1A; border: 1px solid rgba(236,226,214,.08); border-radius: 16px;
+            padding: 1.5rem 1.6rem; cursor: pointer; transition: all .15s ease;
+        }
+        .exp:hover { border-color: rgba(92,184,138,.45); transform: translateY(-2px); }
+        .exp h2 { font-family: 'Poppins','Inter',sans-serif !important; font-size: 1.15rem; font-weight: 700; margin-bottom: .35rem; }
+        .exp p { color: #B7ADA1; font-size: .88rem; line-height: 1.5; }
+        .exp .tag { display: inline-block; margin-top: .7rem; font: 600 .7rem 'Inter',sans-serif; text-transform: uppercase;
+                    letter-spacing: .06em; color: #E0A24C; }
+
+        /* Scenario player */
+        .player { display: none; }
+        .scene { background: #221E1A; border: 1px solid rgba(236,226,214,.08); border-radius: 16px; padding: 1.8rem; }
+        .scene .step { color: #E0A24C; font: 600 .72rem 'Inter',sans-serif; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .6rem; }
+        .scene .narrative { font-size: 1rem; line-height: 1.7; color: #E7DFD3; margin-bottom: 1.25rem; }
+        .choice {
+            display: block; width: 100%; text-align: left; cursor: pointer; margin-bottom: .6rem;
+            background: rgba(236,226,214,.04); border: 1px solid rgba(236,226,214,.12);
+            border-radius: 12px; padding: .95rem 1.1rem; color: #F4EEE6; font: 500 .92rem 'Inter',sans-serif;
+            transition: all .15s ease;
+        }
+        .choice:hover { border-color: #5CB88A; background: rgba(92,184,138,.07); }
+        .feedback { border-radius: 12px; padding: 1rem 1.2rem; margin: .5rem 0 1rem; font-size: .9rem; line-height: 1.6; display: none; }
+        .feedback.good { display: block; background: rgba(92,184,138,.1); border: 1px solid rgba(92,184,138,.35); }
+        .feedback.bad  { display: block; background: rgba(217,100,92,.1); border: 1px solid rgba(217,100,92,.35); }
+        .nextbtn { background: #5CB88A; color: #14110E; border: none; border-radius: 10px; padding: .8rem 1.6rem;
+                   font: 700 .95rem 'Inter',sans-serif; cursor: pointer; display: none; }
+        .meter { display: flex; justify-content: space-between; color: #B7ADA1; font-size: .8rem; margin-bottom: 1rem; }
+        .meter b { color: #F4EEE6; }
+
+        /* Featured campaign cards */
+        .camp { display: block; text-decoration: none; color: inherit; background: #241F1B;
+                border: 2px solid rgba(236,226,214,0.12); transition: all .18s ease; overflow: hidden; }
+        .camp:hover { transform: translateY(-3px); box-shadow: 0 14px 34px rgba(0,0,0,.4); }
+        .camp.green:hover { border-color: #5CB88A; }
+        .camp.gold:hover { border-color: #E0A24C; }
+        .camp-art { background: #14110E; border-bottom: 1px solid rgba(236,226,214,.08); }
+        .camp-art svg { display: block; width: 100%; height: auto; }
+        .camp-body { padding: 1.15rem 1.3rem 1.25rem; }
+        .camp-kick { font: 700 .6rem 'Inter',sans-serif; letter-spacing: .2em; text-transform: uppercase; }
+        .camp.green .camp-kick { color: #5CB88A; } .camp.gold .camp-kick { color: #E0A24C; }
+        .camp-title { font: 600 1.45rem 'Fraunces',Georgia,serif; margin: .4rem 0 .45rem; color: #F4EEE6; }
+        .camp-desc { color: #B7ADA1; font-size: .84rem; line-height: 1.55; }
+        .camp-chips { display: flex; gap: .45rem; flex-wrap: wrap; margin-top: .85rem; }
+        .camp-chip { font: 700 .62rem 'Inter',sans-serif; letter-spacing: .08em; text-transform: uppercase;
+                     color: #8a8178; border: 1px solid rgba(236,226,214,.14); padding: .3rem .6rem; }
+        .camp-cta { margin-top: .9rem; font: 800 .74rem 'Inter',sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+        .camp.green .camp-cta { color: #5CB88A; } .camp.gold .camp-cta { color: #E0A24C; }
+        .camp:hover .camp-cta { letter-spacing: .16em; }
+        .soon-row { display: flex; gap: .7rem; margin-bottom: 1.8rem; flex-wrap: wrap; }
+        .soon { font: 600 .72rem 'Inter',sans-serif; color: #7d746a; border: 1px solid rgba(236,226,214,.14);
+                padding: .55rem .95rem; }
+
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="top">
+            <a href="learn.html" class="back-link">← Learning Hub</a>
+            <div>
+                <h1>Experiences</h1>
+                <div class="sub">Step into real financial scenarios and make the calls yourself.</div>
+            </div>
+        </div>
+
+        <div style="font:700 0.66rem 'Inter',sans-serif;letter-spacing:0.18em;text-transform:uppercase;color:#E0A24C;margin:0.4rem 0 0.8rem;">Story campaigns</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-bottom:1.4rem;">
+            <a href="endowment-experience.html" class="camp green">
+                <div class="camp-art"><svg viewBox="0 0 400 110" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="110" fill="#14110E"/><circle cx="330" cy="26" r="13" fill="rgba(224,162,76,0.5)"/><rect x="150" y="42" width="100" height="48" fill="rgba(236,226,214,0.07)"/><path d="M145,42 L200,20 L255,42 Z" fill="rgba(236,226,214,0.1)"/><rect x="166" y="54" width="8" height="36" fill="rgba(236,226,214,0.1)"/><rect x="186" y="54" width="8" height="36" fill="rgba(236,226,214,0.1)"/><rect x="206" y="54" width="8" height="36" fill="rgba(236,226,214,0.1)"/><rect x="226" y="54" width="8" height="36" fill="rgba(236,226,214,0.1)"/><path d="M0,92 L400,92" stroke="rgba(236,226,214,0.14)"/><polyline points="30,80 90,72 150,76 210,60 270,50 340,30 385,22" stroke="#5CB88A" stroke-width="2.5" fill="none"/></svg></div>
+                <div class="camp-body">
+                    <div class="camp-kick">Endowment Management</div>
+                    <div class="camp-title">The Whitfield Endowment</div>
+                    <div class="camp-desc">A school hands you $20M and a century of promises. Set the rules, ride out the crash, answer to the board.</div>
+                    <div class="camp-chips"><span class="camp-chip">~20 min</span><span class="camp-chip">14 decisions</span><span class="camp-chip">Live charts</span><span class="camp-chip">Graded</span></div>
+                    <div class="camp-cta">Take the job →</div>
+                </div>
+            </a>
+            <a href="hedgefund-experience.html" class="camp gold">
+                <div class="camp-art"><svg viewBox="0 0 400 110" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="110" fill="#14110E"/><rect x="30" y="22" width="90" height="52" rx="3" fill="rgba(236,226,214,0.07)" stroke="rgba(236,226,214,0.15)"/><polyline points="38,62 58,44 74,52 92,32 112,40" stroke="#5CB88A" stroke-width="2" fill="none"/><rect x="140" y="16" width="90" height="58" rx="3" fill="rgba(236,226,214,0.07)" stroke="rgba(236,226,214,0.15)"/><polyline points="148,34 168,54 186,42 204,62 222,28" stroke="#D9645C" stroke-width="2" fill="none"/><rect x="250" y="26" width="90" height="48" rx="3" fill="rgba(236,226,214,0.07)" stroke="rgba(236,226,214,0.15)"/><rect x="258" y="36" width="34" height="5" fill="rgba(224,162,76,0.5)"/><rect x="258" y="47" width="52" height="5" fill="rgba(236,226,214,0.2)"/><rect x="258" y="58" width="24" height="5" fill="rgba(92,184,138,0.5)"/><rect x="20" y="86" width="360" height="3" fill="rgba(236,226,214,0.08)"/></svg></div>
+                <div class="camp-body">
+                    <div class="camp-kick">Hedge Fund Analyst</div>
+                    <div class="camp-title">The Analyst Desk</div>
+                    <div class="camp-desc">Thirteen weeks at a $2B long/short fund. One pitch, one squeeze, one CPI ambush — and a PM who grades everything.</div>
+                    <div class="camp-chips"><span class="camp-chip">~20 min</span><span class="camp-chip">13 weeks</span><span class="camp-chip">P&L tracked</span><span class="camp-chip">Graded</span></div>
+                    <div class="camp-cta">Take the seat →</div>
+                </div>
+            </a>
+        </div>
+        <div class="soon-row">
+            <span class="soon">Coming soon · Surviving 2008: The Full Campaign</span>
+            <span class="soon">Coming soon · The Inter-School Investing Cup</span>
+            <span class="soon">Coming soon · The House Flip</span>
+            <span class="soon">Coming soon · IPO Roadshow</span>
+        </div>
+
+        
+
+        
+    </div>
+
+    <script>
+        const EXPERIENCES = {
+            manda: {
+                title: 'The M&A Deal Room', tag: 'Mergers & Acquisitions',
+                desc: 'You are the CEO of Meridian Foods. A rival is in play — decide whether to buy it, what to pay, and how to survive a bidding war.',
+                steps: [
+                    { t: 'Your target, Crestline Snacks, trades at $40/share. Your bankers say synergies could justify up to $54. Activists are circling it. Your opening move?',
+                      c: [['Open with a friendly offer at $48 — a 20% premium', 1, 'Solid. A meaningful premium signals seriousness while leaving room below your $54 ceiling.'],
+                          ['Lowball at $41 to "leave room to negotiate"', 0, 'The board rejects it in a day and leaks it. Now everyone knows Crestline is in play — you may have just invited rival bidders.'],
+                          ['Open at your maximum, $54, to end it fast', 0, 'You might win — but you just paid your entire synergy value to their shareholders. There is nothing left in the deal for yours.']] },
+                    { t: 'Crestline counters at $52 and — as feared — a private equity firm enters at $50 cash. Your $48 offer is stale. Your board asks: how do we fund whatever comes next?',
+                      c: [['Mostly stock — share the risk with their shareholders', 0, 'Defensible, but Crestline holders see your volatile shares as worth less than PE’s cash. You will need a higher headline number to compete.'],
+                          ['Cash from new debt — clean and decisive, at 6x leverage', 0, 'Cash competes with PE, but 6x leverage means one bad year post-close could turn your win into a bankruptcy story.'],
+                          ['Cash-and-stock mix at $52, keeping leverage under 4x', 1, 'The classic answer: cash to compete, stock to share risk, leverage that survives a recession.']] },
+                    { t: 'You are at $52. The PE firm bumps to $55 — above your bankers’ synergy math. The room goes quiet. What is your call?',
+                      c: [['Walk away and issue a disciplined statement', 1, 'The hardest and most correct move in M&A. Studies show bidding-war "winners" routinely overpay — the winner’s curse. Your stock RISES on the news.'],
+                          ['Go to $57 — we’ve come too far to lose', 0, 'You win the asset and lose the war: you paid $3/share more than the value your own bankers could justify. Your stock drops 12% on announcement.'],
+                          ['Go hostile — tender directly to shareholders at $56', 0, 'Hostile deals cost more, close slower, and start with a poisoned relationship — while still overpaying. Rarely the answer for an operating buyer.']] },
+                ],
+                moral: 'Great acquirers are defined by the deals they refuse. Premiums are easy to pay and brutal to earn back.',
+            },
+            crash: {
+                title: 'Surviving the Crash', tag: 'Investing Psychology',
+                desc: 'It is September 2008. You have $100,000 invested and a decade of gains on the line. Live the crash month by month and see what your choices cost.',
+                steps: [
+                    { t: 'Lehman Brothers just collapsed. Your portfolio is down 12% in three weeks. CNBC is wall-to-wall panic. Your first move?',
+                      c: [['Do nothing. Review my allocation on schedule, not on adrenaline', 1, 'Boring and right. Nothing about your goals changed this week — only prices did.'],
+                          ['Sell half — protect what’s left until things are "clearer"', 0, 'Clarity never arrives at the bottom. You just locked in half the damage, and now you need a second perfect decision: when to get back in.'],
+                          ['Sell everything. Cash is safety', 0, 'You have converted a temporary 12% loss into a permanent one, and history says you will not re-enter until the recovery has already run.']] },
+                    { t: 'November 2008. The market is now down 40% from its peak. Your $100k is $62k. A friend says "it could go to zero." Your 401(k) contribution hits this week. What happens to it?',
+                      c: [['Pause contributions until the smoke clears', 0, 'The smoke IS the discount. Contributions paused here missed the single best buying window in a generation.'],
+                          ['Keep buying on schedule — same amount, same funds', 1, 'Every dollar invested this month bought shares that roughly tripled over the next five years.'],
+                          ['Go all-in — borrow to buy the dip', 0, 'Right direction, ruinous method. The market fell another 20% before bottoming; leverage would have forced you out at the very low.']] },
+                    { t: 'March 2009. Down 55% from the peak — the actual bottom, though nobody knows it. A television strategist calls for "Dow 4,000." Your move?',
+                      c: [['Rebalance: sell some bonds to buy stocks back to target', 1, 'The discipline play. Rebalancing here was mathematically forced buying at the bottom — it added years of returns.'],
+                          ['Wait for "confirmation" the bottom is in', 0, 'Confirmation arrived +40% later. The market does not send invitations.'],
+                          ['Switch to gold until the system stabilizes', 0, 'Stocks returned ~400% over the next decade; gold went sideways after 2011. Panic hedges bought at panic prices rarely pay.']] },
+                ],
+                moral: 'In 2008-09, outcomes were decided less by what people owned than by what they DID. The correct answers were all boring.',
+            },
+            allocate: {
+                title: 'The First Paycheck', tag: 'Money Allocation',
+                desc: 'You just started a job earning $5,000/month after tax. Build your financial machine from dollar one — and dodge the classic traps.',
+                steps: [
+                    { t: 'Month one. You have $4,000 in credit card debt at 24% APR, no savings, and your employer matches 401(k) contributions up to 4%. Where does your first spare $500/month go?',
+                      c: [['401(k) to the full match, rest to the credit card', 1, 'The match is an instant 100% return — nothing beats it. The card’s 24% is the next-best guaranteed win.'],
+                          ['All of it to the credit card — debt first, always', 0, 'Close — but skipping a 100% instant match to prepay 24% debt leaves free money on the table. Match first, THEN attack the card.'],
+                          ['Straight into stocks — time in market beats everything', 0, 'Stocks average ~8-10%. Your card charges a guaranteed 24%. You are investing at a locked-in loss.']] },
+                    { t: 'Six months in: card paid off, match captured. You have $1,000/month free and zero emergency fund. A coworker pitches you his "can’t-miss" crypto coin. Allocation?',
+                      c: [['Build 3-6 months of expenses in savings before anything else', 1, 'The emergency fund is what keeps every future investment from being sold at the worst moment. It buys you the right to take risk later.'],
+                          ['Split it: half savings, half the coworker’s coin', 0, 'Half-measures on both. The coin isn’t an asset class — it’s a tip from a guy at lunch. The fund comes first, whole.'],
+                          ['YOLO the coin — you’re young, you can recover', 0, 'Being young means compounding is your superpower — feeding it to lottery tickets is the one way to waste it.']] },
+                    { t: 'Year two: fund built, debt gone, match maxed. $1,500/month to deploy for the next 30 years. Pick the machine:',
+                      c: [['Max Roth IRA, then index funds in the 401(k), automated monthly', 1, 'Tax-free compounding plus automation. At 8%, this path passes $2M before you turn 55 — on autopilot.'],
+                          ['Pick 5-6 exciting stocks and manage them actively', 0, 'Possible, but the average active picker trails the index by 2-4%/yr — worth ~$700k less over 30 years on this budget.'],
+                          ['Save it all in a high-yield savings account — no risk', 0, 'At 4% versus inflation of 3%, your "safe" money nearly stands still for 30 years while the invested version quadruples in real terms.']] },
+                ],
+                moral: 'Order of operations beats stock-picking: match → toxic debt → emergency fund → tax-advantaged automation. The sequence IS the strategy.',
+            },
+        };
+
+        // Completion badges for the story campaigns (saved locally + to account)
+        (function () {
+            const marks = [['exp-endowment', 'a[href="endowment-experience.html"]'], ['exp-hedgefund', 'a[href="hedgefund-experience.html"]']];
+            marks.forEach(([key, sel]) => {
+                const grade = localStorage.getItem(key);
+                const card = document.querySelector(sel);
+                if (grade && card) {
+                    const b = document.createElement('div');
+                    b.style.cssText = 'margin-top:0.7rem;display:inline-block;font:800 0.68rem Inter,sans-serif;letter-spacing:0.1em;text-transform:uppercase;color:#5CB88A;border:1px solid rgba(92,184,138,0.45);padding:0.35rem 0.7rem;';
+                    b.textContent = 'Completed · Grade ' + grade;
+                    card.appendChild(b);
+                }
+            });
+        })();
+        const menu = document.getElementById('menu');
+        const player = document.getElementById('player');
+        if (false) {  // legacy quick-scenario engine, retired
+        let cur = null, idx = 0, score = 0;
+
+        function renderMenu() {
+            menu.innerHTML = Object.entries(EXPERIENCES).map(([k, e]) =>
+                '<div class="exp" onclick="startExp(\'' + k + '\')">' +
+                '<h2>' + e.title + '</h2><p>' + e.desc + '</p>' +
+                '<span class="tag">' + e.tag + ' · ' + e.steps.length + ' decisions</span></div>'
+            ).join('');
+        }
+
+        window.startExp = function (key) {
+            cur = EXPERIENCES[key]; cur.key = key; idx = 0; score = 0;
+            menu.style.display = 'none'; player.style.display = 'block';
+            document.getElementById('mTitle').textContent = cur.title;
+            renderStep();
+        };
+
+        function renderStep() {
+            const s = cur.steps[idx];
+            document.getElementById('mScore').textContent = score + ' / ' + cur.steps.length;
+            document.getElementById('sStep').textContent = 'Decision ' + (idx + 1) + ' of ' + cur.steps.length;
+            document.getElementById('sText').textContent = s.t;
+            document.getElementById('sFeedback').className = 'feedback';
+            document.getElementById('sNext').style.display = 'none';
+            document.getElementById('sChoices').innerHTML = s.c.map((c, i) =>
+                '<button class="choice" onclick="pick(' + i + ')">' + c[0] + '</button>').join('');
+        }
+
+        window.pick = function (i) {
+            const s = cur.steps[idx];
+            const [, good, fb] = s.c[i];
+            if (good) score++;
+            document.getElementById('mScore').textContent = score + ' / ' + cur.steps.length;
+            const f = document.getElementById('sFeedback');
+            f.textContent = fb;
+            f.className = 'feedback ' + (good ? 'good' : 'bad');
+            document.querySelectorAll('.choice').forEach(b => b.disabled = true);
+            document.getElementById('sNext').style.display = 'inline-block';
+        };
+
+        document.getElementById('sNext').addEventListener('click', () => {
+            idx++;
+            if (idx < cur.steps.length) { renderStep(); return; }
+            // Finished
+            try { SL.saveQuizResult('experience-' + cur.key, score, cur.steps.length); } catch (e) {}
+            document.getElementById('sStep').textContent = 'Complete';
+            document.getElementById('sText').innerHTML =
+                '<strong style="font-size:1.2rem;">You scored ' + score + ' of ' + cur.steps.length + '.</strong><br><br>' + cur.moral +
+                '<br><br><span style="color:#B7ADA1;font-size:.85rem;">Result saved to your account.</span>';
+            document.getElementById('sChoices').innerHTML = '';
+            document.getElementById('sFeedback').className = 'feedback';
+            const n = document.getElementById('sNext');
+            n.style.display = 'inline-block'; n.textContent = 'Back to Experiences';
+            n.onclick = () => { player.style.display = 'none'; menu.style.display = 'grid'; n.textContent = 'Continue →'; n.onclick = null; renderMenu(); };
+        });
+
+        renderMenu();
+            }
+    </script>
+</body>
+</html>

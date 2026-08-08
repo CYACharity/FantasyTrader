@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draft Room - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4a6785;
+            --secondary: #6aa08d;
+            --accent: #e0a24c;
+            --success: #5cb88a;
+            --danger: #d9645c;
+            --background: #1a1714;
+            --surface: #241f1b;
+            --surface-light: #2a2420;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B8C4;
+            --border: rgba(236, 226, 214, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text-primary);
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        .draft-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+
+        .draft-main {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .draft-header {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .draft-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .draft-status {
+            background: var(--success);
+            color: var(--background);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .sectors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .sector-card {
+            background: var(--surface-light);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            min-height: 300px;
+        }
+
+        .sector-card.required {
+            border-color: var(--accent);
+        }
+
+        .sector-card.complete {
+            border-color: var(--success);
+        }
+
+        .sector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .sector-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .sector-status {
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            background: var(--surface);
+        }
+
+        .sector-status.required {
+            background: rgba(224, 162, 76, 0.2);
+            color: var(--accent);
+        }
+
+        .sector-status.complete {
+            background: rgba(236, 226, 214, 0.2);
+            color: var(--success);
+        }
+
+        .selected-stock {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .selected-stock-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stock-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .selected-stock-details h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .selected-stock-details p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .remove-stock {
+            background: var(--danger);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .draft-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .search-section {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .search-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--surface-light);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--success);
+        }
+
+        .suggestions-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .suggestion-item {
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .suggestion-item:hover {
+            border-color: var(--success);
+            transform: translateX(5px);
+        }
+
+        .suggestion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .suggestion-symbol {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .suggestion-price {
+            font-weight: 600;
+        }
+
+        .suggestion-change {
+            font-size: 0.9rem;
+        }
+
+        .suggestion-change.positive {
+            color: var(--success);
+        }
+
+        .suggestion-change.negative {
+            color: var(--danger);
+        }
+
+        .pick-button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .pick-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+</head>
+<body>
+    <div class="draft-container">
+        <div class="draft-main">
+            <div class="draft-header">
+                <h1 class="draft-title">Draft Room</h1>
+                <div class="draft-status">Round 5 of 18</div>
+            </div>
+            <div class="sectors-grid" id="sectorsGrid">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+        <div class="draft-sidebar">
+            <div class="search-section">
+                <h3 class="search-header">Search Stocks</h3>
+                <input type="text" class="search-input" placeholder="Search by symbol or name..." id="stockSearch">
+                <div class="suggestions-list" id="suggestionsList">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sectors = [
+            { id: 'tech', name: 'Technology', required: true },
+            { id: 'healthcare', name: 'Healthcare', required: true },
+            { id: 'finance', name: 'Financial', required: true },
+            { id: 'energy', name: 'Energy', required: true },
+            { id: 'consumer', name: 'Consumer', required: true },
+            { id: 'industrial', name: 'Industrial', required: true },
+            { id: 'materials', name: 'Materials', required: true },
+            { id: 'utilities', name: 'Utilities', required: true },
+            { id: 'realestate', name: 'Real Estate', required: true },
+            { id: 'communication', name: 'Communication', required: true },
+            { id: 'defensive', name: 'Defensive', required: true }
+        ];
+
+        const allStocks = [
+            { symbol: 'AAPL', name: 'Apple Inc.', price: 178.50, change: 5.2, sector: 'tech' },
+            { symbol: 'MSFT', name: 'Microsoft Corp.', price: 378.20, change: 7.1, sector: 'tech' },
+            { symbol: 'NVDA', name: 'NVIDIA Corp.', price: 487.25, change: 12.8, sector: 'tech' },
+            { symbol: 'GOOGL', name: 'Alphabet Inc.', price: 142.30, change: 6.4, sector: 'tech' },
+            { symbol: 'AMZN', name: 'Amazon.com Inc.', price: 145.80, change: 4.8, sector: 'tech' },
+            { symbol: 'META', name: 'Meta Platforms', price: 335.40, change: 9.2, sector: 'tech' },
+            { symbol: 'JNJ', name: 'Johnson & Johnson', price: 162.50, change: 2.1, sector: 'healthcare' },
+            { symbol: 'UNH', name: 'UnitedHealth Group', price: 485.20, change: 3.5, sector: 'healthcare' },
+            { symbol: 'JPM', name: 'JPMorgan Chase', price: 145.30, change: 3.1, sector: 'finance' },
+            { symbol: 'BAC', name: 'Bank of America', price: 34.20, change: 2.3, sector: 'finance' }
+        ];
+
+        const selectedStocks = {};
+        let currentPick = null;
+
+        function renderSectors() {
+            const container = document.getElementById('sectorsGrid');
+            container.innerHTML = sectors.map(sector => {
+                const selected = selectedStocks[sector.id];
+                const status = selected ? 'complete' : 'required';
+
+                return `
+                    <div class="sector-card ${status}">
+                        <div class="sector-header">
+                            <div class="sector-name">${sector.name}</div>
+                            <span class="sector-status ${status}">
+                                ${selected ? 'Complete' : 'Required'}
+                            </span>
+                        </div>
+                        ${selected ? `
+                            <div class="selected-stock">
+                                <div class="selected-stock-info">
+                                    <div class="stock-icon">${selected.symbol}</div>
+                                    <div class="selected-stock-details">
+                                        <h4>${selected.symbol}</h4>
+                                        <p>${selected.name}</p>
+                                    </div>
+                                </div>
+                                <button class="remove-stock" onclick="removeStock('${sector.id}')">Remove</button>
+                            </div>
+                        ` : `
+                            <div style="color: var(--text-secondary); text-align: center; padding: 2rem 0;">
+                                Select a stock from this sector
+                            </div>
+                        `}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function removeStock(sectorId) {
+            delete selectedStocks[sectorId];
+            renderSectors();
+        }
+
+        document.getElementById('stockSearch').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            const filtered = allStocks.filter(stock =>
+                stock.symbol.toLowerCase().includes(query) ||
+                stock.name.toLowerCase().includes(query)
+            );
+            renderSuggestions(filtered);
+        });
+
+        function renderSuggestions(stocks) {
+            const container = document.getElementById('suggestionsList');
+            if (stocks.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 2rem;">No stocks found</div>';
+                return;
+            }
+
+            container.innerHTML = stocks.map(stock => {
+                const changeClass = stock.change >= 0 ? 'positive' : 'negative';
+                const changeSign = stock.change >= 0 ? '+' : '';
+                const sector = sectors.find(s => s.id === stock.sector);
+                const canSelect = !selectedStocks[stock.sector];
+
+                return `
+                    <div class="suggestion-item" ${canSelect ? `onclick="selectStock('${stock.sector}', '${stock.symbol}')"` : ''} style="opacity: ${canSelect ? '1' : '0.5'};">
+                        <div class="suggestion-header">
+                            <span class="suggestion-symbol">${stock.symbol}</span>
+                            <span class="suggestion-price">$${stock.price.toFixed(2)}</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                            ${stock.name}
+                        </div>
+                        <div class="suggestion-change ${changeClass}">
+                            ${changeSign}${stock.change}% • ${sector.name}
+                        </div>
+                        ${!canSelect ? '<div style="font-size: 0.85rem; color: var(--danger); margin-top: 0.5rem;">Already selected for this sector</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectStock(sectorId, symbol) {
+            const stock = allStocks.find(s => s.symbol === symbol);
+            if (stock) {
+                selectedStocks[sectorId] = stock;
+                renderSectors();
+                document.getElementById('stockSearch').value = '';
+                renderSuggestions(allStocks);
+            }
+        }
+
+        // Initialize
+        renderSectors();
+        renderSuggestions(allStocks);
+    </script>
+</body>
+</html>

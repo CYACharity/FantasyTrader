@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>League Rules - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        :root {
+            --surface-light: #241F1B;
+            --surface-hover: rgba(236, 226, 214, 0.05);
+            --border: rgba(236, 226, 214, 0.12);
+            --text-primary: #F4EEE6;
+            --text-secondary: #B7ADA1;
+            --gradient-primary: linear-gradient(135deg, #5CB88A, #4a9e73);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1A1714; color: var(--text-primary); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+        .wrap { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+        .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2.25rem; }
+        .top h1 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 2rem; }
+        .top .sub { color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.3rem; }
+
+        .rules-section { margin-bottom: 2rem; }
+        .rules-section-title {
+            font-size: 1.35rem; font-weight: 700; color: var(--text-primary);
+            margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;
+            padding-bottom: 0.75rem; border-bottom: 2px solid var(--border);
+        }
+        .rules-section-icon {
+            width: 40px; height: 40px; background: var(--gradient-primary); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; color: white;
+        }
+        .rules-list {
+            background: var(--surface-light); border: 2px solid var(--border);
+            border-radius: 12px; padding: 1.5rem; margin-top: 1rem;
+        }
+        .rule-item {
+            padding: 1rem; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            transition: background 0.2s ease;
+        }
+        .rule-item:hover { background: var(--surface-hover); }
+        .rule-item:last-child { border-bottom: none; }
+        .rule-label { color: var(--text-secondary); font-size: 0.95rem; }
+        .rule-value { font-weight: 700; color: var(--text-primary); }
+        .rules-description {
+            background: linear-gradient(135deg, rgba(92, 184, 138, 0.08), rgba(74, 103, 133, 0.08));
+            border: 2px solid var(--border); border-radius: 12px;
+            padding: 1.5rem; margin-top: 1rem;
+        }
+        .rules-description p { color: var(--text-secondary); line-height: 1.8; margin-bottom: 1rem; font-size: 0.95rem; }
+        .rules-description p:last-child { margin-bottom: 0; }
+        .rules-description strong { color: #5CB88A; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="top">
+            <div>
+                <h1>League Rules</h1>
+                <div class="sub">How Fantasy Trader leagues work — draft, allocate, compete.</div>
+            </div>
+            <a href="league.html" class="back-link">← Leagues</a>
+        </div>
+
+        <div class="rules-section">
+            <h3 class="rules-section-title">
+                <span class="rules-section-icon"><i class="fas fa-users"></i></span>
+                Joining a League
+            </h3>
+            <div class="rules-list">
+                <div class="rule-item"><span class="rule-label">League Size</span><span class="rule-value">4 – 12 players</span></div>
+                <div class="rule-item"><span class="rule-label">How to Join</span><span class="rule-value">6-character join code from the host</span></div>
+                <div class="rule-item"><span class="rule-label">League Lock</span><span class="rule-value">No new players once the draft starts</span></div>
+            </div>
+        </div>
+
+        <div class="rules-section">
+            <h3 class="rules-section-title">
+                <span class="rules-section-icon"><i class="fas fa-list-ol"></i></span>
+                The Snake Draft
+            </h3>
+            <div class="rules-description">
+                <p>Every league drafts live, together. The pick order <strong>reverses each round</strong> — if you pick last in round one, you pick first in round two. Every player drafts <strong>14 stocks</strong>, and 11 are in play each week.</p>
+                <p><strong>One owner per stock.</strong> Once a ticker is drafted, it's off the board for everyone else. All listed stocks are available — no restricted universe.</p>
+            </div>
+        </div>
+
+        <div class="rules-section">
+            <h3 class="rules-section-title">
+                <span class="rules-section-icon"><i class="fas fa-wallet"></i></span>
+                Capital Allocation
+            </h3>
+            <div class="rules-list">
+                <div class="rule-item"><span class="rule-label">Starting Capital</span><span class="rule-value">Set by the host (default $100,000)</span></div>
+                <div class="rule-item"><span class="rule-label">Deploying It</span><span class="rule-value">Choose share counts for each drafted stock</span></div>
+                <div class="rule-item"><span class="rule-label">Undeployed Cash</span><span class="rule-value">Sits idle — it never grows</span></div>
+                <div class="rule-item"><span class="rule-label">Overspending</span><span class="rule-value">Impossible — the slider caps at your cash</span></div>
+            </div>
+        </div>
+
+        <div class="rules-section">
+            <h3 class="rules-section-title">
+                <span class="rules-section-icon"><i class="fas fa-chart-line"></i></span>
+                Scoring &amp; Standings
+            </h3>
+            <div class="rules-description">
+                <p>Standings rank players by <strong>total portfolio return</strong> — the live market value of your shares against what you paid. Prices track the real market during trading hours (9:30 AM – 4:00 PM ET).</p>
+            </div>
+        </div>
+
+        <div class="rules-section">
+            <h3 class="rules-section-title">
+                <span class="rules-section-icon"><i class="fas fa-ban"></i></span>
+                Trading Restrictions
+            </h3>
+            <div class="rules-list">
+                <div class="rule-item"><span class="rule-label">Short Selling</span><span class="rule-value">Not allowed</span></div>
+                <div class="rule-item"><span class="rule-label">Day Trading</span><span class="rule-value">Not allowed</span></div>
+                <div class="rule-item"><span class="rule-label">Your Edge</span><span class="rule-value">What you draft and how you weight it</span></div>
+            </div>
+        </div>
+
+        <div class="rules-section">
+            <h3 class="rules-section-title">
+                <span class="rules-section-icon"><i class="fas fa-trophy"></i></span>
+                Winning
+            </h3>
+            <div class="rules-description">
+                <p>The player with the <strong>highest portfolio return</strong> when the season ends takes the crown. Ties break by total portfolio value. Talk is encouraged; whining is not.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

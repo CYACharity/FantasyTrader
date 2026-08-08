@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Long-Term Investing - Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --background: #1a1714; --text-primary: #f4eee6; --text-secondary: #b7ada1; }
+        body { background: var(--background); color: var(--text-primary); font-family: 'Inter', system-ui, sans-serif; }
+        .wrap { max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+        .crumbs { margin-bottom: 2.5rem; }
+        .kicker { color: #E0A24C; font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .5rem; }
+        h1 { font-size: 2.2rem; margin-bottom: .5rem; }
+        .sub { color: var(--text-secondary); margin-bottom: 2.5rem; font-size: .98rem; }
+        .level { margin-bottom: 3.5rem; }
+        .level-title { font-size: 1.6rem; margin-bottom: 1.5rem; text-align: center; }
+        #level-beginner .level-title, #level-foundations .level-title { color: #5cb88a; }
+        #level-intermediate .level-title, #level-core .level-title { color: #E0A24C; }
+        #level-advanced .level-title { color: #D9645C; }
+
+        /* Verbatim card styles from the trading pathway (beginner-path.html),
+           with the accent color scoped per level. */
+        .level { --primary: #5cb88a; --secondary: #4a9e73; --primary-soft: rgba(92, 184, 138, 0.3); }
+        #level-intermediate, #level-core { --primary: #e0a24c; --secondary: #d97706; --primary-soft: rgba(224, 162, 76, 0.3); }
+        #level-advanced { --primary: #d9645c; --secondary: #dc2626; --primary-soft: rgba(217, 100, 92, 0.3); }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .module-card {
+            background: rgba(26, 26, 26, 0.95);
+            border: 1px solid rgba(236, 226, 214, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .module-card:hover::before {
+            opacity: 1;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 15px 35px rgba(236, 226, 214, 0.1);
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .module-number {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: var(--background);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+
+        .module-status {
+            background: rgba(236, 226, 214, 0.1);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .module-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .module-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .module-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .module-features li {
+            color: var(--text-secondary);
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .module-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .module-progress {
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .module-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .module-btn {
+            background: rgba(236, 226, 214, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary-soft);
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+            flex: 1;
+        }
+
+        .module-btn:hover {
+            background: rgba(236, 226, 214, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .start-btn:hover {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        }
+
+        .show-all { display: none; margin: -1.25rem 0 1.75rem; }
+        .show-all a { color: var(--text-secondary); font: 600 .85rem 'Inter',sans-serif; text-decoration: none; }
+        .show-all a:hover { color: var(--text-primary); }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="crumbs"><a href="learn.html" class="back-link">← Learning Hub</a></div>
+        <div class="kicker">Learning Path</div>
+        <h1>Long-Term Investing</h1>
+        <p class="sub">Build wealth patiently — valuation, quality, and time in the market.</p>
+        <div class="show-all" id="showAllRow"><a href="#" onclick="history.replaceState(null,'',location.pathname); applyLevelFilter(); return false;">← Show all levels</a></div>
+
+        <div class="level" id="level-beginner">
+            <h2 class="level-title">Beginner</h2>
+            <div class="modules-grid">
+                <div class="module-card lv-beginner" data-module="investing-module-1" onclick="location.href='investing-module-1.html'">
+                    <div class="module-header">
+                        <div class="module-number">1</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Why Long-Term Investing Works</h3>
+                    <p class="module-description">Compounding is what happens when your returns start earning returns of their own.</p>
+                    <ul class="module-features">
+                        <li>The power of compounding</li>
+                        <li>Time in the market beats timing the market</li>
+                        <li>Your real enemies: fees, taxes, and panic</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-beginner" data-module="investing-module-2" onclick="location.href='investing-module-2.html'">
+                    <div class="module-header">
+                        <div class="module-number">2</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Index Funds & Diversification</h3>
+                    <p class="module-description">An index fund buys every company in a market index — the S&P 500 fund holds all 500 firms in one share.</p>
+                    <ul class="module-features">
+                        <li>Owning everything at once</li>
+                        <li>Why diversification is the only free lunch</li>
+                        <li>Costs and dollar-cost averaging</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-beginner" data-module="investing-module-3" onclick="location.href='investing-module-3.html'">
+                    <div class="module-header">
+                        <div class="module-number">3</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Setting Goals & Knowing Your Risk Tolerance</h3>
+                    <p class="module-description">Before buying anything, name what the money is for and when you need it.</p>
+                    <ul class="module-features">
+                        <li>Money needs a job description</li>
+                        <li>Risk tolerance is discovered, not declared</li>
+                        <li>The emergency fund comes first</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-beginner" data-module="investing-module-4" onclick="location.href='investing-module-4.html'">
+                    <div class="module-header">
+                        <div class="module-number">4</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Retirement Accounts & the Free Money</h3>
+                    <p class="module-description">If your employer matches contributions, every dollar you put in up to the match instantly doubles.</p>
+                    <ul class="module-features">
+                        <li>The 401(k) match is a 100% return</li>
+                        <li>Roth vs. Traditional in one paragraph</li>
+                        <li>The quiet cost of cashing out</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-beginner" data-module="investing-module-5" onclick="location.href='investing-module-5.html'">
+                    <div class="module-header">
+                        <div class="module-number">5</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Bonds & Fixed Income Basics</h3>
+                    <p class="module-description">Buy a bond and you are the lender: the issuer pays fixed interest (the coupon) and returns your principal at maturity.</p>
+                    <ul class="module-features">
+                        <li>A bond is a loan with a schedule</li>
+                        <li>The seesaw: rates up, prices down</li>
+                        <li>What bonds are for</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-beginner" data-module="investing-module-6" onclick="location.href='investing-module-6.html'">
+                    <div class="module-header">
+                        <div class="module-number">6</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Behavioral Traps Every New Investor Falls Into</h3>
+                    <p class="module-description">Performance chasing is buying last year's winner right before it becomes this year's loser.</p>
+                    <ul class="module-features">
+                        <li>Chasing what already went up</li>
+                        <li>Loss aversion and the refusal to sell</li>
+                        <li>Checking the account every day</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="level" id="level-intermediate">
+            <h2 class="level-title">Intermediate</h2>
+            <div class="modules-grid">
+                <div class="module-card lv-intermediate" data-module="investing-module-7" onclick="location.href='investing-module-7.html'">
+                    <div class="module-header">
+                        <div class="module-number">7</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Reading Financial Statements</h3>
+                    <p class="module-description">Every public company files three statements each quarter, and each answers a different question. The income statement: did we sell profitably this period? The balance sheet: what…</p>
+                    <ul class="module-features">
+                        <li>Three documents, one story</li>
+                        <li>The balance sheet: where companies die</li>
+                        <li>Cash flow: the lie detector</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-intermediate" data-module="investing-module-8" onclick="location.href='investing-module-8.html'">
+                    <div class="module-header">
+                        <div class="module-number">8</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Valuation: What a Company Is Worth</h3>
+                    <p class="module-description">A stock at $400 isn't "expensive" and a stock at $4 isn't "cheap" — price alone means nothing until divided by something the business produces. Valuation is the discipline of…</p>
+                    <ul class="module-features">
+                        <li>Price is a vote; value is a weighing</li>
+                        <li>Multiples are comparisons, not verdicts</li>
+                        <li>Reverse-engineering expectations</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-intermediate" data-module="investing-module-9" onclick="location.href='investing-module-9.html'">
+                    <div class="module-header">
+                        <div class="module-number">9</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Growth vs. Value Investing</h3>
+                    <p class="module-description">Value investing buys businesses for less than a conservative estimate of what they're worth — Graham's "margin of safety," Buffett's cigar butts upgraded to…</p>
+                    <ul class="module-features">
+                        <li>Two tribes, one arithmetic</li>
+                        <li>Where each style fails</li>
+                        <li>The synthesis grown-ups reach</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-intermediate" data-module="investing-module-10" onclick="location.href='investing-module-10.html'">
+                    <div class="module-header">
+                        <div class="module-number">10</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Moats: Durable Competitive Advantage</h3>
+                    <p class="module-description">Capitalism's default setting is erosion: any business earning fat profits attracts competitors until the profits are ordinary. A moat is whatever breaks that gravity — a…</p>
+                    <ul class="module-features">
+                        <li>Why great businesses stay great</li>
+                        <li>The proof is ROIC, not the story</li>
+                        <li>Moats die — watch the drawbridge</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-intermediate" data-module="investing-module-11" onclick="location.href='investing-module-11.html'">
+                    <div class="module-header">
+                        <div class="module-number">11</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Position Sizing & Rebalancing Discipline</h3>
+                    <p class="module-description">Investors agonize over WHAT to buy and improvise HOW MUCH — exactly backwards, because sizing is the decision that determines survival. The brutal base rate: roughly 40% of all…</p>
+                    <ul class="module-features">
+                        <li>The decision nobody researches</li>
+                        <li>Let winners run vs. concentration creep</li>
+                        <li>Rebalancing: the machine that buys low</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-intermediate" data-module="investing-module-12" onclick="location.href='investing-module-12.html'">
+                    <div class="module-header">
+                        <div class="module-number">12</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Economic Cycles & Sector Rotation</h3>
+                    <p class="module-description">Expansion, peak, contraction, recovery — the business cycle has repeated a dozen times since WWII, averaging five to seven years, and each phase reliably favors different corners…</p>
+                    <ul class="module-features">
+                        <li>The economy breathes</li>
+                        <li>Signals worth respecting (and their failure rate)</li>
+                        <li>Using cycles without becoming a forecaster</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="level" id="level-advanced">
+            <h2 class="level-title">Advanced</h2>
+            <div class="modules-grid">
+                <div class="module-card lv-advanced" data-module="investing-module-13" onclick="location.href='investing-module-13.html'">
+                    <div class="module-header">
+                        <div class="module-number">13</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Capital Allocation: Dividends, Buybacks & ROIC</h3>
+                    <p class="module-description">A mature company generates a river of free cash, and every dollar must go through one of five doors: reinvest in the business, acquire, buy back stock, pay dividends, or repay…</p>
+                    <ul class="module-features">
+                        <li>The CEO's real job</li>
+                        <li>Buyback math, without the ideology</li>
+                        <li>Dividend quality, measured like a bond</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-advanced" data-module="investing-module-14" onclick="location.href='investing-module-14.html'">
+                    <div class="module-header">
+                        <div class="module-number">14</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">M&A, Deal Math & Corporate Actions</h3>
+                    <p class="module-description">Roughly $3-4 trillion of M&A happens in a normal year, and the evidence is settled and awkward: most acquisitions destroy acquirer value. Study after study puts the failure rate…</p>
+                    <ul class="module-features">
+                        <li>When companies buy companies</li>
+                        <li>The spread is a probability meter</li>
+                        <li>Spinoffs: the corporate action worth studying</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-advanced" data-module="investing-module-15" onclick="location.href='investing-module-15.html'">
+                    <div class="module-header">
+                        <div class="module-number">15</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">DCF in Practice: Valuing a Real Business</h3>
+                    <p class="module-description">A business is worth the cash it will hand its owners over its remaining life, discounted to today at a rate reflecting the risk of those cash flows. Everything else in valuation —…</p>
+                    <ul class="module-features">
+                        <li>The theory in one sentence</li>
+                        <li>A full worked model</li>
+                        <li>How professionals actually use it</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-advanced" data-module="investing-module-16" onclick="location.href='investing-module-16.html'">
+                    <div class="module-header">
+                        <div class="module-number">16</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Special Situations: Spinoffs, Arbitrage & Forced Sellers</h3>
+                    <p class="module-description">Most of the market is a fair fight against smart money. Special situations are the exception: corners where someone is transacting for reasons that have NOTHING to do with price —…</p>
+                    <ul class="module-features">
+                        <li>Hunting where others must sell</li>
+                        <li>The catalog, with mechanics</li>
+                        <li>Process over prediction</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-advanced" data-module="investing-module-17" onclick="location.href='investing-module-17.html'">
+                    <div class="module-header">
+                        <div class="module-number">17</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">International Investing & Currency Risk</h3>
+                    <p class="module-description">U.S. investors hold ~80% of their equities at home while the U.S. is ~60% of world market cap — and every country does the same (Swedes overweight Sweden, Japanese overweight…</p>
+                    <ul class="module-features">
+                        <li>The home-bias tax</li>
+                        <li>Currency: the return you didn't order</li>
+                        <li>What's actually different out there</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+
+                <div class="module-card lv-advanced" data-module="investing-module-18" onclick="location.href='investing-module-18.html'">
+                    <div class="module-header">
+                        <div class="module-number">18</div>
+                        <span class="module-status">Not Started</span>
+                    </div>
+                    <h3 class="module-title">Building an Income Portfolio That Survives</h3>
+                    <p class="module-description">The capstone question of long-term investing eventually becomes: how does a pile of capital pay a reliable monthly bill — through crashes, inflation, and three decades of…</p>
+                    <ul class="module-features">
+                        <li>Income is an engineering problem</li>
+                        <li>Bonds: ladders beat guesses</li>
+                        <li>The seductive machines, priced honestly</li>
+                    </ul>
+                    <div class="module-progress">
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-text">0% Complete</div>
+                    </div>
+                    <div class="module-actions">
+                        <button class="module-btn start-btn">Begin Module</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show only the level in the URL hash (e.g. #beginner); otherwise show all.
+        function applyLevelFilter() {
+            const secs = Array.from(document.querySelectorAll('.level'));
+            const h = location.hash.replace('#', '').toLowerCase();
+            const row = document.getElementById('showAllRow');
+            const active = secs.some(s => s.id === 'level-' + h);
+            secs.forEach(s => { s.style.display = (!active || s.id === 'level-' + h) ? '' : 'none'; });
+            // Single-level view matches the trading path pages: no level heading.
+            document.querySelectorAll('.level-title').forEach(t => { t.style.display = active ? 'none' : ''; });
+            if (row) row.style.display = active ? 'block' : 'none';
+        }
+        window.addEventListener('hashchange', applyLevelFilter);
+        applyLevelFilter();
+        // Open at the top — never scrolled down to the hash anchor.
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        window.scrollTo(0, 0);
+        setTimeout(() => window.scrollTo(0, 0), 0);
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js"></script>
+    <script src="js/guard.js"></script>
+    <script>
+        // Mark completed modules (from Supabase, falling back to local progress).
+        (async () => {
+            try {
+                const progress = await SL.getLessonProgress();
+                document.querySelectorAll('.module-card').forEach(card => {
+                    const rec = progress[card.dataset.module];
+                    if (rec && rec.completed) {
+                        card.querySelector('.module-status').textContent = 'Completed';
+                        card.querySelector('.module-status').classList.add('done');
+                        card.querySelector('.progress-fill').style.width = '100%';
+                        card.querySelector('.progress-text').textContent = '100% Complete';
+                        card.querySelector('.module-btn').textContent = 'Review Module';
+                    }
+                });
+            } catch (e) { /* fine */ }
+        })();
+    </script>
+</body>
+</html>

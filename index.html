@@ -405,8 +405,8 @@
             <a href="#faq">FAQ</a>
         </div>
         <div class="na">
-            <a class="si" id="navSignIn" href="signup.html?mode=login">Sign in</a>
-            <a class="gs" id="navCta" href="signup.html">Get started</a>
+            <a class="si" href="signup.html?mode=login">Sign in</a>
+            <a class="gs" href="signup.html">Get started</a>
         </div>
     </div>
 </nav>
@@ -418,7 +418,7 @@
             <h1>Draft real stocks.<br><em>Beat</em> your <span class="und">friends.</span></h1>
             <p class="sub">It plays exactly like fantasy football — snake draft, weekly head-to-head matchups, waivers and trades — except your players are fourteen real companies and your season runs on the actual market.</p>
             <div class="ctas">
-                <a class="btn g" id="heroCta" href="signup.html">Start a league — it's free</a>
+                <a class="btn g" href="signup.html">Start a league — it's free</a>
                 <a class="btn s" href="#season">See how a season plays</a>
             </div>
             <div class="trust">Real market data &middot; no real money, ever &middot; two minutes to your first draft</div>
@@ -612,32 +612,6 @@
 const nav = document.getElementById('nav');
 addEventListener('scroll', () => nav.classList.toggle('sc', scrollY > 20), { passive: true });
 
-/* ── Returning player? Point the buttons at the dashboard instead of signup.
-   We read Supabase's stored session directly rather than loading the whole
-   auth SDK on the landing page — this is only a hint for the button label;
-   the dashboard still verifies properly and bounces anyone who isn't real. */
-(function () {
-    let signedIn = false;
-    try {
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (!/^sb-.*-auth-token$/.test(k)) continue;
-            const v = JSON.parse(localStorage.getItem(k) || 'null');
-            const exp = v && (v.expires_at || (v.currentSession && v.currentSession.expires_at));
-            // a refresh token means Supabase can silently renew an expired session
-            const canRefresh = v && (v.refresh_token || (v.currentSession && v.currentSession.refresh_token));
-            if (v && (canRefresh || (exp && exp * 1000 > Date.now()))) { signedIn = true; break; }
-        }
-    } catch (e) { /* private mode or blocked storage — leave the default buttons */ }
-    if (!signedIn) return;
-
-    const cta = document.getElementById('navCta');
-    const si = document.getElementById('navSignIn');
-    const hero = document.getElementById('heroCta');
-    if (cta)  { cta.textContent = 'Open dashboard'; cta.href = 'dashboard.html'; }
-    if (si)   { si.style.display = 'none'; }
-    if (hero) { hero.textContent = 'Go to your dashboard →'; hero.href = 'dashboard.html'; }
-})();
 
 const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.12 });
 document.querySelectorAll('.rv').forEach(el => io.observe(el));

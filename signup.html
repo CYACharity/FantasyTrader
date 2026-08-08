@@ -428,11 +428,14 @@
             el.textContent = msg; el.style.display = 'block';
         }
 
-        // Already signed in? Don't make people type their password again —
-        // Supabase keeps the session alive, so send them straight in.
-        // Escape hatch: signup.html?switch=1 stays here to log in as someone else.
+        // Auto-login ONLY when someone came here to sign in (?mode=login).
+        // If they clicked "Get started" / "Start a league" the intent is to
+        // CREATE an account — maybe for a friend on a shared laptop — so always
+        // show the form. Escape hatch: ?switch=1 forces the form either way.
         (async () => {
-            if (new URLSearchParams(location.search).has('switch')) return;
+            const q = new URLSearchParams(location.search);
+            if (q.has('switch')) return;
+            if (q.get('mode') !== 'login') return;   // signup intent — never redirect
             try {
                 if (SL.configured && await SL.currentUser()) {
                     const d = (() => { try { const v = sessionStorage.getItem('sl_after_login');

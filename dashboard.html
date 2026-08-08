@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- how the link looks when someone shares it -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Fantasy Trader">
+    <meta property="og:url" content="https://fantasytrader.co/">
+    <meta property="og:title" content="Come play Fantasy Trader">
+    <meta property="og:description" content="Fantasy football, but your players are real companies. Draft stocks, run $100,000, and beat your friends head-to-head every week. Free, no real money.">
+    <meta property="og:image" content="https://fantasytrader.co/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Fantasy Trader — draft real stocks, beat your friends">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Come play Fantasy Trader">
+    <meta name="twitter:description" content="Fantasy football, but your players are real companies. Draft stocks, run $100,000, and beat your friends every week.">
+    <meta name="twitter:image" content="https://fantasytrader.co/og-image.jpg">
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
@@ -235,23 +249,33 @@
         /* Main Content */
         .hero-art {
             position: absolute;
-            top: 130px;
+            /* The art layer spans exactly the empty band between the ticker strip
+               (ends at 161px) and the fixed bottom panels (100px tall), then
+               `contain` + `center` centers the bull & bear inside it. This keeps
+               the gaps above the horns and below the hooves equal on ANY screen —
+               laptop, iMac or iPad — instead of a hardcoded offset. */
+            top: 161px;
             left: 50%;
             transform: translateX(-50%);
             width: min(1120px, 96vw);
-            height: 640px;
-            background: url('dash-hero.png') center top / contain no-repeat;
+            height: calc(100vh - 261px);
+            height: calc(100dvh - 261px);   /* mobile browser chrome-aware */
+            min-height: 300px;
+            background: url('dash-hero-centered.png') center center / contain no-repeat;
             opacity: 0.08;
             pointer-events: none;
             z-index: 0;
         }
         .hero-art-trace {
             position: absolute;
-            top: 130px;
+            /* must match .hero-art EXACTLY or the glowing outline desyncs from the art */
+            top: 161px;
             left: 50%;
             transform: translateX(-50%);
             width: min(1120px, 96vw);
-            height: 640px;
+            height: calc(100vh - 261px);
+            height: calc(100dvh - 261px);
+            min-height: 300px;
             pointer-events: none;
             z-index: 0;
         }
@@ -1561,7 +1585,30 @@
             transform: translateY(-9px) !important;
             box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5) !important;
         }
-    </style>
+    
+        /* ── Short screens ──────────────────────────────────────────────
+           13" laptops at scaled resolutions and 720p displays don't have the
+           vertical room for the full-size layout, and the FIXED bottom strip
+           was covering the action cards. Compress the oversized title margin
+           and scale the three cards (which have different base sizes:
+           league 245, learn 222, practice 200) so the row always clears it.
+           Selectors are .main-actions-scoped to outrank .action-button.league. */
+        @media (max-height: 900px) {
+            .title-section { margin-top: 200px !important; margin-bottom: 32px !important; }
+            .main-actions { gap: 1.7rem; margin-bottom: 1.4rem; }
+            .main-actions .action-button           { width: 176px; height: 176px; padding: 0.9rem 1rem 0.85rem; }
+            .main-actions .action-button.league    { width: 216px; height: 216px; }
+            .main-actions .action-button.learn     { width: 196px; height: 196px; }
+        }
+        @media (max-height: 800px) {
+            .title-section { margin-top: 182px !important; margin-bottom: 24px !important; }
+            .main-actions { gap: 1.25rem; margin-bottom: 1rem; }
+            .main-actions .action-button           { width: 152px; height: 152px; padding: 0.72rem 0.8rem 0.68rem; }
+            .main-actions .action-button.league    { width: 186px; height: 186px; }
+            .main-actions .action-button.learn     { width: 169px; height: 169px; }
+        }
+
+</style>
 </head>
 <body>
     <!-- Ticker -->
@@ -1618,7 +1665,7 @@
     <div class="dashboard-container">
         <div class="hero-art" aria-hidden="true"></div>
         <div class="hero-art-trace" aria-hidden="true">
-            <svg viewBox="0 0 1438 830" preserveAspectRatio="xMidYMin meet" style="width:100%;height:100%;overflow:visible;">
+            <svg viewBox="0 25 1438 830" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;overflow:visible;">
                 <defs>
                     <filter id="ftGlow" x="-40%" y="-40%" width="180%" height="180%">
                         <feGaussianBlur stdDeviation="6" result="b"/>
@@ -2355,6 +2402,10 @@
         document.addEventListener('DOMContentLoaded', function() {
             const isTutorial = localStorage.getItem('showTutorial') === 'true' || localStorage.getItem('tutorialActive') === 'true';
             if (isTutorial) {
+                // Burn the flag the moment the tour starts, not when it finishes.
+                // Otherwise anyone who abandons it halfway gets ambushed by the
+                // tutorial on every single dashboard visit, forever.
+                localStorage.setItem('showTutorial', 'false');
                 setTimeout(startSpotlightTutorial, 600);
             }
         });

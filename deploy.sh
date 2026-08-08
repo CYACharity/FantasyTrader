@@ -74,6 +74,18 @@ git config http.postBuffer 524288000     # 500MB
 git config http.version HTTP/1.1
 git config core.compression 0
 
+# GitHub itself commits to the repo sometimes (e.g. it writes a CNAME file when
+# you set a custom domain). Pull those down first or the push gets rejected.
+if git ls-remote --exit-code --heads origin main >/dev/null 2>&1; then
+  say "Syncing with GitHub first…"
+  if git pull --rebase origin main >/dev/null 2>&1; then
+    ok "Up to date with the remote"
+  else
+    git rebase --abort >/dev/null 2>&1 || true
+    warn "Couldn't auto-sync — attempting push anyway"
+  fi
+fi
+
 say "Pushing to GitHub… (a browser may open to sign you in)"
 # HEAD:main = "publish whatever I have right now as the main branch"
 if git push -u origin HEAD:main; then

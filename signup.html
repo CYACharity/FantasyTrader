@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- how the link looks when someone shares it -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Fantasy Trader">
+    <meta property="og:url" content="https://fantasytrader.co/">
+    <meta property="og:title" content="Come play Fantasy Trader">
+    <meta property="og:description" content="Fantasy football, but your players are real companies. Draft stocks, run $100,000, and beat your friends head-to-head every week. Free, no real money.">
+    <meta property="og:image" content="https://fantasytrader.co/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Fantasy Trader — draft real stocks, beat your friends">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Come play Fantasy Trader">
+    <meta name="twitter:description" content="Fantasy football, but your players are real companies. Draft stocks, run $100,000, and beat your friends every week.">
+    <meta name="twitter:image" content="https://fantasytrader.co/og-image.jpg">
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
@@ -429,9 +443,10 @@
             const password = document.getElementById('loginPassword').value;
 
             const afterLogin = (() => { try { const d = sessionStorage.getItem('sl_after_login'); sessionStorage.removeItem('sl_after_login'); return d; } catch (e) { return null; } })();
-            // First-time users go through the survey + stock picker onboarding.
-            const needsOnboarding = !localStorage.getItem('userPreferences');
-            const dest = needsOnboarding ? 'survey.html' : (afterLogin || 'dashboard.html');
+            // Logging in means the account already exists — never re-run onboarding.
+            // (This used to check localStorage, which is per-BROWSER, so signing in
+            //  from a new device or a private window replayed the whole survey.)
+            const dest = afterLogin || 'dashboard.html';
             if (!SL.configured) { window.location.href = dest; return; } // demo mode
             try {
                 await SL.signIn(email, password);

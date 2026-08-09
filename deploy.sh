@@ -25,8 +25,13 @@ command -v git >/dev/null || die "git isn't installed. Install Xcode tools: xcod
 [ -f index.html ] || die "Run this from inside the Fantasy Trader folder."
 
 # ---- 1. clear any stale lock from an interrupted commit ----
-if [ -f .git/index.lock ]; then
-  rm -f .git/index.lock && ok "Cleared a stale git lock"
+# git drops several different .lock files (index, HEAD, and one per ref). If a
+# previous run was killed part-way through, any of them can be left behind and
+# every one of them blocks the next commit. Sweep them all, not just index.lock.
+STALE=$(find .git -name '*.lock' -type f 2>/dev/null | wc -l | tr -d ' ')
+if [ "$STALE" != "0" ]; then
+  find .git -name '*.lock' -type f -delete 2>/dev/null
+  ok "Cleared $STALE stale git lock(s)"
 fi
 
 # ---- 2. repo exists? ----

@@ -23,7 +23,7 @@
     <title>Stock League - Dashboard</title>
     <style>
         /* Add modern font */
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap');
 
         :root {
             --primary: #4A6785;
@@ -588,12 +588,7 @@
         }
         .ann-item { display: flex; gap: 0.5rem; align-items: center; padding: 0.14rem 0.25rem; border-radius: 6px; min-width: 0; }
         .ann-item:hover { background: rgba(236,226,214,0.04); }
-        /* Announcements panel reads like a banner */
-        .panel-sections .panel-section:nth-child(3) {
-            background: linear-gradient(90deg, rgba(224, 162, 76, 0.14) 0%, #221E1A 45%) !important;
-            border: 1px solid rgba(224, 162, 76, 0.45) !important;
-            border-top: 2px solid #E0A24C !important;
-        }
+        /* (the old gold-banner treatment for announcements lived here) */
         .race-title {
             font-family: 'Fraunces', Georgia, serif !important;
             font-size: 0.92rem !important;
@@ -1707,7 +1702,10 @@
             .hero-grid .main-title { font-size: clamp(2.2rem, 4.4vw, 3.4rem); margin-bottom: 1.2rem; }
             .hero-stats { margin-bottom: 1.5rem; gap: 2rem; }
             .hstat b { font-size: 1.55rem; }
-            .hero-grid .action-button { width: 100px !important; height: 100px !important; }
+            .hero-grid .action-button,
+            .hero-grid .action-button.league,
+            .hero-grid .action-button.learn,
+            .hero-grid .action-button.practice { width: 100px !important; height: 100px !important; }
             .hero-grid .action-button .ab-top svg { width: 29px !important; height: 29px !important; }
         }
 
@@ -1717,10 +1715,292 @@
         @supports (height: 100dvh) { .hero-art, .hero-art-trace { height: calc(100dvh - 288px) !important; } }
         /* Compete first, then Learn, then Practice — the old order rules put Learn in front */
         .hero-grid .action-button.league   { order: 1 !important; }
-        .hero-grid .action-button.learn    { order: 2 !important; width: 116px !important; height: 116px !important; }
+        .hero-grid .action-button.learn    { order: 2 !important; }
+        /* all three squares are the same size, full stop — the old per-variant
+           sizing rules kept blowing Learn up bigger than its neighbours */
+        .hero-grid .main-actions .action-button,
+        .hero-grid .main-actions .action-button.league,
+        .hero-grid .main-actions .action-button.learn,
+        .hero-grid .main-actions .action-button.practice { width: 116px !important; height: 116px !important; }
+        @media (max-height: 820px) {
+            .hero-grid .main-actions .action-button,
+            .hero-grid .main-actions .action-button.league,
+            .hero-grid .main-actions .action-button.learn,
+            .hero-grid .main-actions .action-button.practice { width: 100px !important; height: 100px !important; }
+        }
         .hero-grid .action-button.practice { order: 3 !important; }
         /* a hidden badge must actually stay hidden */
         .inbox-badge-mini[hidden] { display: none !important; }
+
+        /* ── v3 pass ───────────────────────────────────────────────────── */
+
+        /* the tape reads like an old exchange board */
+        .ticker-item, .ticker-item.up, .ticker-item.down {
+            font-family: 'Silkscreen', 'Courier New', monospace !important;
+            font-weight: 700 !important; font-size: 0.8rem !important;
+            letter-spacing: 0.02em; padding: 0 1.15rem;
+        }
+
+        /* BETA sits right on top of the wordmark */
+        .hero-beta {
+            display: inline-block; margin-bottom: 0.6rem;
+            font: 800 0.6rem 'Inter', sans-serif; letter-spacing: 0.2em; text-transform: uppercase;
+            color: #E0A24C; background: rgba(224,162,76,0.12);
+            border: 1px solid rgba(224,162,76,0.42); border-radius: 4px;
+            padding: 5px 8px 4px;
+        }
+        .hero-grid .main-title { font-size: clamp(3.1rem, 6.6vw, 5.6rem) !important; }
+        @media (max-height: 820px) {
+            .hero-grid .main-title { font-size: clamp(2.6rem, 5.4vw, 4.2rem) !important; }
+        }
+
+        /* bull & bear: bigger, and the bear runs off the right edge */
+        .hero-art, .hero-art-trace {
+            right: -5vw !important;
+            width: min(72vw, 1180px) !important;
+            top: 128px !important;
+            height: calc(100vh - 244px) !important;
+        }
+        @supports (height: 100dvh) { .hero-art, .hero-art-trace { height: calc(100dvh - 244px) !important; } }
+        .hero-art { opacity: 0.05 !important; }
+        .hero-grid { grid-template-columns: minmax(340px, 42%) 1fr; }
+
+        /* inbox reads like a real mail widget */
+        .inbox-simple { display: block !important; padding: 0 !important; }
+        .inbox-panel { display: block; text-decoration: none; width: 100%; }
+        .ip-head {
+            display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.42rem;
+            font: 700 0.6rem 'Inter', sans-serif; letter-spacing: 0.15em;
+            text-transform: uppercase; color: #7d746a;
+        }
+        .ip-head svg { color: #7d746a; }
+        .ip-head .inbox-badge-mini {
+            position: static !important; margin-left: auto; min-width: 16px; height: 16px;
+            display: inline-flex; align-items: center; justify-content: center;
+            border-radius: 8px; background: #D9645C; color: #17130F;
+            font: 800 0.6rem 'Inter', sans-serif; letter-spacing: 0; padding: 0 5px;
+        }
+        .ip-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.2rem; }
+        .ip-list li {
+            display: flex; align-items: baseline; gap: 0.45rem;
+            font: 400 0.74rem 'Inter', sans-serif; color: #B7ADA1;
+            white-space: nowrap; overflow: hidden;
+        }
+        .ip-list li .ip-dot {
+            width: 5px; height: 5px; border-radius: 50%; background: #5CB88A; flex-shrink: 0;
+        }
+        .ip-list li .ip-from { color: #F4EEE6; font-weight: 700; flex-shrink: 0; }
+        .ip-list li .ip-sub { overflow: hidden; text-overflow: ellipsis; }
+        .ip-list li .ip-time { margin-left: auto; color: #6b6259; font-size: 0.68rem; flex-shrink: 0; padding-left: 0.5rem; }
+        .ip-empty { color: #6b6259 !important; font-style: normal; }
+        .inbox-panel:hover .ip-list li .ip-sub { color: #C9BEB0; }
+
+        /* announcements: title, one line, done */
+        .ann-head { font-size: 0.9rem !important; }
+        .ann-body { font-size: 0.78rem !important; }
+        .ann-more { font-size: 0.66rem !important; }
+        .ann-modal-item p { font-size: 0.84rem !important; }
+
+
+        /* ── v4 pass ───────────────────────────────────────────────────── */
+
+        /* taller tape */
+        .ticker-container { height: 40px !important; }
+        .ticker-row { height: 39px !important; }
+        .ticker-item, .ticker-item.up, .ticker-item.down { font-size: 0.86rem !important; }
+
+        /* the greeting carries the page, so give it a little more size */
+        .welcome-message { font-size: 1.68rem !important; }
+
+        /* hero block: up and to the left, wordmark eased back down a touch */
+        .hero-grid { padding-top: 118px !important; grid-template-columns: minmax(340px, 40%) 1fr !important; }
+        .hero-left { padding-left: clamp(0.25rem, 1.4vw, 1.4rem) !important; align-self: start; margin-top: 2.6vh; }
+        .hero-grid .main-title { font-size: clamp(2.9rem, 6.1vw, 5.1rem) !important; }
+        @media (max-height: 820px) {
+            .hero-grid { padding-top: 112px !important; }
+            .hero-left { margin-top: 1.4vh; }
+            .hero-grid .main-title { font-size: clamp(2.4rem, 5vw, 3.9rem) !important; }
+        }
+
+        /* animals pushed further right */
+        .hero-art, .hero-art-trace { right: -7vw !important; width: min(74vw, 1220px) !important; }
+
+        /* ── the announcements page ── */
+        .ann-modal { backdrop-filter: blur(6px); background: rgba(12,10,8,0.72) !important; }
+        .ann-modal-card {
+            width: min(620px, 92vw) !important; max-height: 84vh; overflow-y: auto;
+            background: #211D19 !important; border: 1px solid rgba(236,226,214,0.14) !important;
+            border-radius: 16px !important; padding: 1.7rem 1.7rem 1.5rem !important;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.6);
+        }
+        .ann-modal-card::-webkit-scrollbar { width: 8px; }
+        .ann-modal-card::-webkit-scrollbar-thumb { background: rgba(236,226,214,0.14); border-radius: 4px; }
+        .ann-modal-head { align-items: flex-start !important; margin-bottom: 1.3rem !important; }
+        .amh-kicker {
+            display: block; font: 700 0.58rem 'Inter', sans-serif; letter-spacing: 0.22em;
+            text-transform: uppercase; color: #7d746a; margin-bottom: 0.3rem;
+        }
+        .ann-modal-head h2 {
+            font: 600 1.6rem 'Fraunces', Georgia, serif !important; color: #F4EEE6; margin: 0;
+        }
+        .ann-modal-close {
+            display: flex; align-items: center; justify-content: center;
+            width: 30px; height: 30px; border-radius: 8px;
+            background: rgba(236,226,214,0.06) !important; border: 1px solid rgba(236,226,214,0.12) !important;
+            color: #B7ADA1 !important; cursor: pointer; flex-shrink: 0;
+        }
+        .ann-modal-close:hover { background: rgba(236,226,214,0.12) !important; color: #F4EEE6 !important; }
+
+        .ann-feed { display: flex; flex-direction: column; gap: 0.65rem; }
+        .ann-post {
+            position: relative; padding: 1rem 1.1rem 1.05rem 1.25rem;
+            border-radius: 11px; background: rgba(236,226,214,0.035);
+            border: 1px solid rgba(236,226,214,0.09); overflow: hidden;
+        }
+        .ann-post::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--acc);
+        }
+        .ann-post.gold  { --acc: #E0A24C; }
+        .ann-post.green { --acc: #5CB88A; }
+        .ann-post.blue  { --acc: #9DB8D2; }
+        .ann-post.grey  { --acc: #6b6259; }
+        .ann-post-meta { display: flex; align-items: center; gap: 0.55rem; margin-bottom: 0.4rem; }
+        .ann-cat {
+            font: 700 0.56rem 'Inter', sans-serif; letter-spacing: 0.16em; text-transform: uppercase;
+            color: var(--acc);
+        }
+        .ann-post-meta time {
+            font: 500 0.62rem 'Inter', sans-serif; color: #6b6259; letter-spacing: 0.04em;
+        }
+        .ann-post-meta time::before { content: '·'; margin-right: 0.5rem; color: #4d463f; }
+        .ann-post h3 {
+            font: 700 1.02rem 'Inter', sans-serif; color: #F4EEE6; margin: 0 0 0.28rem;
+        }
+        .ann-post p {
+            font: 400 0.85rem/1.5 'Inter', sans-serif; color: #A79C90; margin: 0;
+        }
+        .ann-post-go {
+            display: inline-block; margin-top: 0.7rem; text-decoration: none;
+            font: 700 0.7rem 'Inter', sans-serif; letter-spacing: 0.07em; text-transform: uppercase;
+            color: var(--acc); border-bottom: 1px solid transparent; padding-bottom: 1px;
+        }
+        .ann-post-go:hover { border-bottom-color: var(--acc); }
+
+        /* ── v5 pass ───────────────────────────────────────────────────── */
+
+        /* hero drops toward the middle and the wordmark comes down a size */
+        .hero-left { align-self: center !important; margin-top: 7vh !important; }
+        .hero-grid .main-title { font-size: clamp(2.5rem, 5.1vw, 4.2rem) !important; }
+        @media (max-height: 820px) {
+            .hero-left { margin-top: 4vh !important; }
+            .hero-grid .main-title { font-size: clamp(2.1rem, 4.3vw, 3.3rem) !important; }
+        }
+
+        /* animals further right, bear running off the edge */
+        .hero-art, .hero-art-trace { right: -15vw !important; width: min(80vw, 1340px) !important; }
+
+        /* index chips: bold, tighter, and colourless while the market sleeps */
+        .header-tickers { gap: 0.85rem !important; }
+        .index-chip { font-weight: 800 !important; font-size: 0.78rem !important; gap: 0.32rem !important; }
+        .index-chip .label { color: rgba(255,255,255,0.55) !important; font-weight: 700; }
+        .index-chip.flat, .index-chip.flat span { color: #A79C90 !important; }
+
+        /* the closed market says so in red */
+        .clock-chip .mkt-shut { color: #D9645C !important; font-weight: 600; }
+        .clock-chip .mkt-open { color: #5CB88A !important; font-weight: 600; }
+        .clock-chip .mkt-dot { background: #D9645C !important; }
+        .clock-chip .mkt-dot.open { background: #5CB88A !important; }
+
+        /* thinner glow on the animals */
+        #traceBull, #traceBear { stroke-width: 3 !important; }
+
+        /* panels: only the top rail carries colour */
+        .panel-sections .panel-section,
+        .panel-sections .panel-section:hover { border-color: rgba(236,226,214,0.1) !important; }
+        .panel-sections .panel-section:nth-child(1) { border-top-color: #5CB88A !important; }
+        .panel-sections .panel-section:nth-child(2) { border-top-color: #E0A24C !important; }
+        .panel-sections .panel-section:nth-child(3) { border-top-color: #9DB8D2 !important; }
+        .panel-sections .panel-section:nth-child(4) { border-top-color: #D9645C !important; }
+
+        /* announcements: rounded, a megaphone, one line */
+        .ann-panel {
+            position: relative; border-radius: 10px !important;
+            border-color: rgba(236,226,214,0.1) !important;
+        }
+        .ann-mega {
+            position: absolute; top: 10px; right: 11px; width: 16px; height: 16px;
+            color: #E0A24C; opacity: 0.8;
+        }
+        .ann-panel h3 { padding-right: 26px; }
+        .ann-panel .ann-head {
+            font: 700 0.92rem 'Inter', sans-serif !important; color: #F4EEE6; line-height: 1.3;
+        }
+
+        /* ── v6 pass ───────────────────────────────────────────────────── */
+
+        /* BETA: thin green caps, no chip */
+        .hero-beta {
+            background: none !important; border: none !important; padding: 0 !important;
+            font: 700 0.66rem 'Inter', sans-serif !important; letter-spacing: 0.24em !important;
+            text-transform: uppercase !important; color: #5CB88A !important;
+            margin-bottom: 0.7rem !important;
+        }
+
+        /* index chips: bold label, dim value, flat dash while nothing is live */
+        .index-chip { font-weight: 800 !important; font-size: 0.8rem !important; gap: 0.42rem !important; }
+        .index-chip .label {
+            color: #B7ADA1 !important; font-weight: 800 !important; letter-spacing: 0.01em;
+        }
+        .index-chip.flat, .index-chip.flat span:not(.label) { color: #6b6259 !important; }
+        .index-chip.up  span:not(.label) { color: #5CB88A !important; }
+        .index-chip.down span:not(.label) { color: #D9645C !important; }
+
+        /* announcements: no coloured rail, centred, one faint diagonal sweep */
+        .panel-sections .panel-section.ann-panel {
+            border-top-color: rgba(236,226,214,0.1) !important;
+            justify-content: center !important;
+            position: relative; overflow: hidden;
+        }
+        .ann-panel::after {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: linear-gradient(108deg, transparent 38%,
+                rgba(236,226,214,0.055) 47%, rgba(236,226,214,0.055) 53%, transparent 62%);
+        }
+        .ann-panel h3 { position: absolute; top: 0.32rem; left: 0.6rem; margin: 0; }
+        .ann-panel .panel-content {
+            display: flex !important; align-items: center; justify-content: flex-start;
+            padding-right: 26px; position: relative; z-index: 1;
+        }
+        .ann-panel .ann-head { font-size: 0.9rem !important; }
+        .ann-mega { top: 9px !important; right: 10px !important; width: 17px !important; height: 17px !important; }
+
+        /* nothing gold on the announcements box, and the sweep reads properly */
+        .panel-sections .panel-section.ann-panel {
+            background: #221E1A !important;
+            border: 1px solid rgba(236,226,214,0.1) !important;
+            border-top: 1px solid rgba(236,226,214,0.1) !important;
+            border-radius: 10px !important;
+        }
+        .ann-panel::after {
+            background: linear-gradient(106deg, transparent 30%,
+                rgba(236,226,214,0.075) 44%, rgba(236,226,214,0.075) 56%, transparent 70%) !important;
+        }
+        .ann-panel .panel-content { justify-content: center !important; text-align: center; }
+
+        /* ── v7 pass ───────────────────────────────────────────────────── */
+
+        /* the announcement headline carries the box, so give it real weight */
+        .ann-panel .ann-head {
+            font: 600 1.16rem 'Fraunces', Georgia, serif !important;
+            color: #F4EEE6 !important; letter-spacing: 0.005em; line-height: 1.25;
+        }
+
+        /* envelope sits dead centre again — an earlier override had killed the flex */
+        .panel-section .inbox-simple {
+            display: flex !important; align-items: center !important; justify-content: center !important;
+            flex: 1; padding: 0 !important; height: 100%;
+        }
+        .inbox-icon-wrap { margin-top: 0 !important; }
 </style>
 </head>
 <body>
@@ -1739,7 +2019,11 @@
     <!-- Navigation -->
     <div class="navbar">
         <span class="welcome-message" id="welcomeMsg"><span id="welcomePre"></span><span id="username"></span><span id="welcomePost"></span><span class="type-caret" id="typeCaret">|</span></span>
-        <div class="header-tickers"></div>
+        <div class="header-tickers">
+            <div class="index-chip flat" id="idxSP"><span class="label">S&P 500</span><span>—</span></div>
+            <div class="index-chip flat" id="idxDOW"><span class="label">DOW</span><span>—</span></div>
+            <div class="index-chip flat" id="idxNAS"><span class="label">NASDAQ</span><span>—</span></div>
+        </div>
         <div class="header-actions">
             <div class="clock-chip" id="clockChip">
                 <span id="navClock">—</span>
@@ -1765,19 +2049,19 @@
                         <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
                     </filter>
                 </defs>
-                <path id="traceBull" d="M788,109 L641,179 L640,199 L643,209 L655,223 L676,239 L669,251 L651,242 L631,223 L623,207 L622,181 L561,139 L207,436 L178,529 L134,530 L136,604 L196,556 L227,462 L230,458 L287,591 L244,635 L236,648 L288,770 L344,770 L321,696 L317,673 L443,529 L418,435 L418,424 L492,536 L603,541 L657,595 L705,594 L632,490 L555,441 L572,289 L577,289 L602,342 L614,360 L709,414 L765,360 L767,353 L740,239 L700,212 L698,208 Z M414,604 L357,669 L473,769 L519,771 Z" fill="none" stroke="#28E05C" stroke-width="4.5" stroke-linecap="round" filter="url(#ftGlow)"/>
-                <path id="traceBear" d="M857,276 L839,322 L777,389 L781,422 L730,481 L784,520 L791,522 L852,490 L907,487 L931,450 L941,440 L926,509 L921,515 L773,614 L737,685 L898,619 L989,618 L1048,569 L1019,633 L1067,725 L1024,768 L1025,770 L1147,770 L1148,696 L1208,618 L1207,628 L1183,690 L1184,695 L1214,733 L1193,769 L1283,769 L1292,724 L1251,674 L1248,594 L1239,488 L972,224 L891,286 Z M996,648 L991,644 L900,643 L830,769 L912,770 L1000,660 Z" fill="none" stroke="#FF3B36" stroke-width="4.5" stroke-linecap="round" filter="url(#ftGlow)"/>
+                <path id="traceBull" d="M788,109 L641,179 L640,199 L643,209 L655,223 L676,239 L669,251 L651,242 L631,223 L623,207 L622,181 L561,139 L207,436 L178,529 L134,530 L136,604 L196,556 L227,462 L230,458 L287,591 L244,635 L236,648 L288,770 L344,770 L321,696 L317,673 L443,529 L418,435 L418,424 L492,536 L603,541 L657,595 L705,594 L632,490 L555,441 L572,289 L577,289 L602,342 L614,360 L709,414 L765,360 L767,353 L740,239 L700,212 L698,208 Z M414,604 L357,669 L473,769 L519,771 Z" fill="none" stroke="#1DD424" stroke-width="5" stroke-linecap="round" filter="url(#ftGlow)"/>
+                <path id="traceBear" d="M857,276 L839,322 L777,389 L781,422 L730,481 L784,520 L791,522 L852,490 L907,487 L931,450 L941,440 L926,509 L921,515 L773,614 L737,685 L898,619 L989,618 L1048,569 L1019,633 L1067,725 L1024,768 L1025,770 L1147,770 L1148,696 L1208,618 L1207,628 L1183,690 L1184,695 L1214,733 L1193,769 L1283,769 L1292,724 L1251,674 L1248,594 L1239,488 L972,224 L891,286 Z M996,648 L991,644 L900,643 L830,769 L912,770 L1000,660 Z" fill="none" stroke="#EE1418" stroke-width="5" stroke-linecap="round" filter="url(#ftGlow)"/>
             </svg>
         </div>
 
         <div class="hero-grid">
             <div class="hero-left">
-                <div class="hero-eyebrow" id="heroEyebrow">Fantasy stock leagues</div>
+                <div class="hero-beta">&mdash; Beta &mdash;</div>
                 <h1 class="main-title">FantasyTrader</h1>
 
                 <div class="hero-stats">
                     <div class="hstat">
-                        <b id="heroCapital">$100,000</b>
+                        <b id="heroCapital">$10,000</b>
                         <span>Capital</span>
                     </div>
                     <div class="hstat">
@@ -1799,7 +2083,7 @@
                                 <path d="M16 6.8l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3z" fill="currentColor" stroke="none"/>
                             </svg>
                         </span>
-                        <span class="ab-name">Compete</span>
+                        <span class="ab-name">Leagues</span>
                     </a>
                     <a href="learn.html" class="action-button learn">
                         <span class="ab-top">
@@ -1865,13 +2149,13 @@
         </div>
         <div class="panel-section ann-panel" onclick="openAnnModal()" style="cursor:pointer;" title="Read all posts">
             <h3>Announcements</h3>
+            <svg class="ann-mega" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 9.5h3.2L16 5v14L7.2 14.5H4a1.5 1.5 0 0 1-1.5-1.5v-2A1.5 1.5 0 0 1 4 9.5z"/>
+                <path d="M7.2 14.5 8.6 20h2.6l-1.2-4.6"/>
+                <path d="M19 9.6a3.4 3.4 0 0 1 0 4.8"/>
+            </svg>
             <div class="panel-content">
-                <div class="ann-pin">
-                    <span class="ann-tag">Pinned</span>
-                    <div class="ann-head">The $25 returns race</div>
-                    <div class="ann-body">First trader to double their money takes the pot.</div>
-                    <span class="ann-more">Read all posts &rsaquo;</span>
-                </div>
+                <div class="ann-head">The $25 returns race</div>
             </div>
         </div>
         <div class="panel-section">
@@ -2010,7 +2294,8 @@
                 const open = day >= 1 && day <= 5 && mins >= 570 && mins < 960;
                 const dot = document.getElementById('mktDot'), st = document.getElementById('mktStatus');
                 if (dot) dot.className = 'mkt-dot ' + (open ? 'open' : 'closed');
-                if (st) st.textContent = open ? 'Market Open' : 'Market Closed';
+                if (st) { st.textContent = open ? 'Market Open' : 'Market Closed';
+                          st.className = open ? 'mkt-open' : 'mkt-shut'; }
             } catch (e) {}
         }
         updateNavClock(); setInterval(updateNavClock, 30000);
@@ -2044,7 +2329,7 @@
             const LB = prep(bull), LR = prep(bear);
             function run(p, L, dur) {
                 return new Promise(res => {
-                    p.style.opacity = 0.78;
+                    p.style.opacity = 0.84;
                     const t0 = performance.now();
                     (function step(t) {
                         const k = Math.min(1, (t - t0) / dur);
@@ -2062,8 +2347,8 @@
             (async function loop() {
                 await new Promise(r => setTimeout(r, 1200));
                 for (;;) {
-                    await run(bull, LB, 3400);          // bull lights up and STAYS lit
-                    await run(bear, LR, 3400);          // bear traces alongside the glowing bull
+                    await run(bull, LB, 4300);          // bull lights up and STAYS lit
+                    await run(bear, LR, 4300);          // bear traces alongside the glowing bull
                     await new Promise(r => setTimeout(r, 900));   // both fully lit together
                     fade(bull, LB);
                     fade(bear, LR);
@@ -2159,6 +2444,13 @@
             } catch (e) { /* keep placeholders */ }
         })();
 
+        function marketIsOpen() {
+            try {
+                const et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+                const day = et.getDay(), mins = et.getHours() * 60 + et.getMinutes();
+                return day >= 1 && day <= 5 && mins >= 570 && mins < 960;
+            } catch (e) { return false; }
+        }
         (async () => {
             const chips = [['^GSPC', 'idxSP', 'S&P 500'], ['^DJI', 'idxDOW', 'DOW'], ['^IXIC', 'idxNAS', 'NASDAQ']];
             for (const [sym, id, label] of chips) {
@@ -2173,6 +2465,13 @@
                     const pct = prev ? ((price - prev) / prev * 100) : 0;
                     const el = document.getElementById(id);
                     if (!el) continue;
+                    if (!marketIsOpen()) {
+                        // Nothing is moving, so quoting a number would just be
+                        // yesterday's close wearing today's clothes. Show a dash.
+                        el.className = 'index-chip flat';
+                        el.innerHTML = '<span class="label">' + label + '</span><span>&mdash;</span>';
+                        continue;
+                    }
                     el.className = 'index-chip ' + (pct >= 0 ? 'up' : 'down');
                     el.innerHTML = '<span class="label">' + label + '</span><span>' +
                         price.toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' ' +
@@ -2491,77 +2790,73 @@
             }
         });
 
-        /* ── hero stats: your league capital, or your practice account ──
-           A league you're actually in wins; otherwise we fall back to the
-           practice portfolio so the numbers are never placeholder. */
+        /* ── hero stats: straight off your paper portfolio ──
+           Cash plus the live value of everything you hold on the practice
+           account. "This week" is that portfolio's move against cost basis. */
         (async function heroStats() {
-            const capEl  = document.getElementById('heroCapital');
-            const wkEl   = document.getElementById('heroWeek');
-            const eyeEl  = document.getElementById('heroEyebrow');
+            const capEl = document.getElementById('heroCapital');
+            const wkEl  = document.getElementById('heroWeek');
             if (!capEl || !window.SL || !SL.configured) return;
-            const money = n => '$' + Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
-            const setPct = (el, pct) => {
-                el.className = pct > 0.005 ? 'up' : pct < -0.005 ? 'down' : 'flat';
-                el.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
-            };
             try {
-                const me = await SL.currentUser();
-                const leagues = await SL.myLeagues().catch(() => []);
-                const live = (leagues || []).map(r => r.leagues).filter(l => l && l.status === 'active');
-                if (me && live.length) {
-                    const l = live[0];
-                    const standings = await SL.leagueStandings(l.id);
-                    const mine = standings.find(x => x.user_id === me.id);
-                    const rank = standings.findIndex(x => x.user_id === me.id) + 1;
-                    const members = await SL.getLeagueMembers(l.id).catch(() => []);
-                    const cash = (members.find(m => m.user_id === me.id) || {}).cash;
-                    if (mine) {
-                        capEl.textContent = money((Number(cash) || 0) + mine.value);
-                        setPct(wkEl, mine.returnPct);
-                        const ord = n => { const v = n % 100; if (v >= 11 && v <= 13) return n + 'th';
-                            return n + ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th'); };
-                        if (eyeEl && rank) eyeEl.textContent = l.name + ' · ' + ord(rank) + ' of ' + standings.length;
-                        return;
-                    }
-                }
                 const pf = await SL.loadPortfolio();
                 const syms = Object.keys(pf.stocks || {});
                 const prices = syms.length ? await SL.getPrices(syms) : {};
                 let val = 0, cost = 0;
                 syms.forEach(sym => {
-                    const pos = pf.stocks[sym], q = prices[sym];
+                    const pos = pf.stocks[sym] || {}, q = prices[sym];
                     const px = q && q.price != null ? Number(q.price) : Number(pos.avgPrice || 0);
                     val  += px * (pos.shares || 0);
                     cost += (pos.avgPrice || px) * (pos.shares || 0);
                 });
-                capEl.textContent = money((pf.cash || 0) + val);
-                setPct(wkEl, cost > 0 ? (val - cost) / cost * 100 : 0);
-                if (eyeEl) eyeEl.textContent = 'Practice account';
+                capEl.textContent = '$' + ((pf.cash || 0) + val).toLocaleString(undefined, { maximumFractionDigits: 0 });
+                const pct = cost > 0 ? (val - cost) / cost * 100 : 0;
+                wkEl.className = pct > 0.005 ? 'up' : pct < -0.005 ? 'down' : 'flat';
+                wkEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
             } catch (e) { /* leave the defaults up */ }
         })();
+
     </script>
     <!-- Announcements popup -->
     <div id="annModal" class="ann-modal" onclick="if (event.target === this) closeAnnModal()">
         <div class="ann-modal-card">
             <div class="ann-modal-head">
-                <h2>Announcements</h2>
-                <button class="ann-modal-close" onclick="closeAnnModal()">✕</button>
+                <div>
+                    <span class="amh-kicker">FantasyTrader</span>
+                    <h2>What's new</h2>
+                </div>
+                <button class="ann-modal-close" onclick="closeAnnModal()" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M6 6l12 12M18 6L6 18"/>
+                    </svg>
+                </button>
             </div>
-            <div class="ann-modal-item">
-                <div class="ann-modal-title">The $25 returns race <span class="ann-pill">Pinned</span></div>
-                <p>First trader to double their money wins the pot. Practice accounts don't count, only league portfolios. Standings update with the market.</p>
-            </div>
-            <div class="ann-modal-item">
-                <div class="ann-modal-title">Alternative investments pathway is live</div>
-                <p>Eighteen new modules on crypto, real estate, commodities and private equity. Find them in the Learning Hub.</p>
-            </div>
-            <div class="ann-modal-item">
-                <div class="ann-modal-title">Draft pool expanded to 5,000 stocks</div>
-                <p>Small caps, REITs and ADRs are all draftable now. Prices come from the same live feed as everything else.</p>
-            </div>
-            <div class="ann-modal-item">
-                <div class="ann-modal-title">Career center</div>
-                <p>Internships, resume help and paths into finance. Still being built.</p>
+
+            <div class="ann-feed">
+                <article class="ann-post gold">
+                    <div class="ann-post-meta"><span class="ann-cat">Contest</span><time>Live now</time></div>
+                    <h3>The $25 returns race</h3>
+                    <p>First player to double their league portfolio takes the pot.</p>
+                    <a class="ann-post-go" href="league.html">Go to leagues</a>
+                </article>
+
+                <article class="ann-post green">
+                    <div class="ann-post-meta"><span class="ann-cat">Learning</span><time>New</time></div>
+                    <h3>Alternative investments pathway</h3>
+                    <p>18 modules on crypto, real estate, commodities and private equity.</p>
+                    <a class="ann-post-go" href="learn.html">Open the hub</a>
+                </article>
+
+                <article class="ann-post blue">
+                    <div class="ann-post-meta"><span class="ann-cat">Product</span><time>Shipped</time></div>
+                    <h3>5,000 draftable stocks</h3>
+                    <p>Small caps, REITs and ADRs, all on the same live price feed.</p>
+                </article>
+
+                <article class="ann-post grey">
+                    <div class="ann-post-meta"><span class="ann-cat">Coming</span><time>Soon</time></div>
+                    <h3>Career center</h3>
+                    <p>Internships and resume help, built into the dashboard.</p>
+                </article>
             </div>
         </div>
     </div>

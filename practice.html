@@ -924,7 +924,7 @@
 
     <!-- Main Content -->
     <div class="main-content">
-                <div class="practice-banner">
+        <div class="practice-banner">
             <div class="pb-text">
                 <div class="pb-kicker">The Practice Floor</div>
                 <div class="pb-line">Where you blow up the account that doesn't matter</div>
@@ -1268,6 +1268,18 @@
     .page-title, .page-title span, .practice-title { background: none !important;
         -webkit-text-fill-color: #F4EEE6 !important; color: #F4EEE6 !important;
         text-shadow: none !important; }
+
+    /* ── everything moves up ──────────────────────────────────────────
+       The footnote used to hold the bottom auto-margin that centred this
+       block. It's gone, so the block was falling to the bottom of the
+       screen. Pin it near the top and let the spare room sit underneath. */
+    body { justify-content: flex-start !important; }
+    .main-content { margin-top: 0.4rem !important; margin-bottom: auto !important; }
+    .practice-cards { margin-top: 1.4rem !important; }
+
+    @media (max-height: 860px) {
+        .practice-cards { margin-top: 1rem !important; }
+    }
 </style>
 
 

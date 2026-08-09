@@ -262,10 +262,7 @@
             pointer-events: none;
             z-index: 0;
         }
-        .hero-art {
-            background: url('dash-hero-centered.png') center right / contain no-repeat;
-            opacity: 0.14;
-        }
+        /* (the silhouette is drawn inside .hero-art-trace's svg now) */
         .hero-art-trace path { opacity: 0; }
         .dashboard-container {
             position: relative;
@@ -1694,7 +1691,11 @@
         @media (max-width: 1080px) {
             .hero-grid { grid-template-columns: 1fr; padding-top: 122px; min-height: 0; }
             .hero-right { display: none; }
-            .hero-art, .hero-art-trace { width: 92vw; right: 50%; transform: translateX(50%); opacity: 0.07; }
+            /* opacity here used to dim only the CSS background layer; now that the
+               silhouette lives inside the svg it would dim the glow too, so it
+               moves onto the fill itself. */
+            .hero-art, .hero-art-trace { width: 92vw; right: 50%; transform: translateX(50%); }
+            .hero-art-trace .hero-fill { opacity: 0.04; }
             .hero-grid .main-title { font-size: 3rem; }
         }
         @media (max-height: 820px) {
@@ -2001,6 +2002,191 @@
             flex: 1; padding: 0 !important; height: 100%;
         }
         .inbox-icon-wrap { margin-top: 0 !important; }
+
+        /* one element, one scale — nothing left to drift */
+        .hero-art { display: none !important; }
+        .hero-art-trace .hero-fill { opacity: 0.05; }
+
+        /* ── tutorial send-off ─────────────────────────────────────────── */
+        .tut-fx {
+            position: fixed; inset: 0; z-index: 100000; display: flex;
+            align-items: center; justify-content: center; cursor: pointer;
+            background: rgba(12, 10, 8, 0.72); backdrop-filter: blur(7px);
+            animation: tutFxIn 0.35s ease both;
+        }
+        .tut-fx.out { animation: tutFxOut 0.45s ease both; }
+        @keyframes tutFxIn  { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes tutFxOut { to { opacity: 0; } }
+
+        .tut-fx-card {
+            text-align: center; padding: 2.6rem 3rem 2.4rem;
+            animation: tutCardIn 0.55s cubic-bezier(0.2, 0.9, 0.25, 1.1) both 0.05s;
+        }
+        @keyframes tutCardIn {
+            from { opacity: 0; transform: translateY(14px) scale(0.94); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        .tut-fx-badge { position: relative; width: 116px; height: 116px; margin: 0 auto 1.5rem; }
+        .tut-fx-badge svg { width: 100%; height: 100%; overflow: visible; }
+        .tfx-ring {
+            fill: none; stroke: #5CB88A; stroke-width: 3;
+            stroke-dasharray: 170; stroke-dashoffset: 170;
+            transform: rotate(-90deg); transform-origin: 50% 50%;
+            filter: drop-shadow(0 0 12px rgba(92, 184, 138, 0.55));
+            animation: tfxRing 0.85s cubic-bezier(0.3, 0.8, 0.3, 1) forwards 0.15s;
+        }
+        @keyframes tfxRing { to { stroke-dashoffset: 0; } }
+        .tfx-tick {
+            fill: none; stroke: #5CB88A; stroke-width: 5;
+            stroke-linecap: round; stroke-linejoin: round;
+            stroke-dasharray: 46; stroke-dashoffset: 46;
+            filter: drop-shadow(0 0 8px rgba(92, 184, 138, 0.6));
+            animation: tfxTick 0.4s ease forwards 0.85s;
+        }
+        @keyframes tfxTick { to { stroke-dashoffset: 0; } }
+
+        .tfx-spark {
+            position: absolute; left: 50%; top: 50%; width: 5px; height: 5px;
+            margin: -2.5px 0 0 -2.5px; border-radius: 50%; background: #E0A24C;
+            opacity: 0; animation: tfxSpark 0.85s ease-out forwards 0.95s;
+        }
+        .tfx-spark.s2 { background: #5CB88A; }
+        .tfx-spark.s4 { background: #5CB88A; }
+        .tfx-spark.s6 { background: #9DB8D2; }
+        .tfx-spark.s1 { --tx:  72px; --ty: -40px; }
+        .tfx-spark.s2 { --tx:  82px; --ty:  26px; animation-delay: 1.0s; }
+        .tfx-spark.s3 { --tx:   6px; --ty:  82px; animation-delay: 0.98s; }
+        .tfx-spark.s4 { --tx: -74px; --ty:  38px; animation-delay: 1.02s; }
+        .tfx-spark.s5 { --tx: -80px; --ty: -30px; animation-delay: 0.96s; }
+        .tfx-spark.s6 { --tx:  -8px; --ty: -84px; animation-delay: 1.04s; }
+        @keyframes tfxSpark {
+            0%   { opacity: 0; transform: translate(0, 0) scale(0.4); }
+            25%  { opacity: 1; }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1); }
+        }
+
+        .tut-fx-title {
+            font: 600 2.15rem 'Fraunces', Georgia, serif; color: #F4EEE6;
+            letter-spacing: -0.01em; margin-bottom: 0.5rem;
+            animation: tutLineIn 0.5s ease both 0.75s;
+        }
+        .tut-fx-sub {
+            font: 700 0.72rem 'Inter', sans-serif; letter-spacing: 0.26em;
+            text-transform: uppercase; color: #5CB88A;
+            animation: tutLineIn 0.5s ease both 1.0s;
+        }
+        @keyframes tutLineIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .tut-fx, .tut-fx-card, .tfx-ring, .tfx-tick, .tut-fx-title, .tut-fx-sub { animation-duration: 0.01s !important; }
+            .tfx-spark { display: none; }
+        }
+
+        /* ── hero proportions, locked to viewport WIDTH ────────────────────
+           The art used to be sized by height (100vh - 244px) while being
+           offset by width (-15vw), so the two disagreed the moment a screen
+           had a different aspect ratio — which is why it never matched the
+           landing-page capture. Width drives everything now; the min() only
+           kicks in on short screens so the animals can't reach the panels. */
+        .hero-art-trace {
+            --artW: min(75.4vw, calc((100vh - 250px) * 1.7325));
+            top: 128px !important;
+            right: -15vw !important;
+            left: auto !important;
+            width: var(--artW) !important;
+            height: calc(var(--artW) / 1.7325) !important;
+            min-height: 0 !important;
+            transform: none !important;
+        }
+        @supports (height: 100dvh) {
+            .hero-art-trace { --artW: min(75.4vw, calc((100dvh - 250px) * 1.7325)); }
+        }
+        /* a small, scale-proportional offset reads as depth against the grey */
+        .hero-art-trace .trace-shift { transform: translate(-19px, -6px); }
+
+        /* text column hugs the left edge at every width instead of drifting
+           inward as the centred max-width grid gets wider */
+        .hero-grid { max-width: none !important; }
+        .hero-left { padding-left: calc(3.2vw - 20px) !important; }
+
+        @media (max-height: 820px) {
+            .hero-left { margin-top: 1.4vh !important; }
+        }
+        @media (max-width: 1080px) {
+            .hero-art-trace {
+                --artW: 92vw; right: 4vw !important; top: 120px !important;
+            }
+            .hero-left { padding-left: 4vw !important; }
+        }
+
+        /* megaphone rides with the label */
+        .ann-panel h3 { display: flex; align-items: center; gap: 0.34rem; padding-right: 0 !important; }
+        .ann-mega {
+            position: static !important; width: 14px !important; height: 14px !important;
+            color: #E0A24C; opacity: 0.9; flex-shrink: 0;
+        }
+
+        /* ── announcements board: same language as the news page ── */
+        .ann-modal-card {
+            width: min(880px, 94vw) !important; max-height: 86vh; overflow-y: auto;
+            background: #1C1815 !important; border: 1px solid rgba(236,226,214,0.1) !important;
+            border-radius: 18px !important; padding: 1.9rem 1.9rem 1.8rem !important;
+        }
+        .ann-modal-head { margin-bottom: 1.5rem !important; }
+
+        .ann-kicker {
+            display: block; font: 600 0.68rem 'Inter', sans-serif; letter-spacing: 0.09em;
+            text-transform: uppercase; color: #E0A24C; margin-bottom: 0.55rem;
+        }
+        .ann-kicker.green { color: #5CB88A; }
+        .ann-kicker.blue  { color: #9DB8D2; }
+        .ann-kicker.mute  { color: #7d746a; }
+
+        /* lead story */
+        .ann-lead {
+            display: grid; grid-template-columns: 260px 1fr; gap: 0; overflow: hidden;
+            background: #221E1A; border: 1px solid rgba(236,226,214,0.08); border-radius: 16px;
+            margin-bottom: 1.15rem; text-decoration: none; color: inherit; min-height: 190px;
+            transition: border-color .15s ease;
+        }
+        .ann-lead:hover { border-color: rgba(236,226,214,0.2); }
+        .ann-lead-art {
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #2A2521, #201C18); color: rgba(224,162,76,0.55);
+        }
+        .ann-lead-art svg { width: 76px; height: 76px; }
+        .ann-lead-body { padding: 1.7rem; display: flex; flex-direction: column; justify-content: center; }
+        .ann-lead-body h3 {
+            font: 600 1.45rem 'Fraunces', Georgia, serif; line-height: 1.3;
+            color: #F4EEE6; margin: 0 0 0.7rem;
+        }
+        .ann-lead:hover h3 { color: #5CB88A; }
+        .ann-lead-body p { font: 400 0.9rem/1.55 'Inter', sans-serif; color: #B7ADA1; margin: 0; }
+
+        /* the three smaller cards */
+        .ann-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.15rem; }
+        .ann-story {
+            background: #221E1A; border: 1px solid rgba(236,226,214,0.08); border-radius: 14px;
+            padding: 1.15rem 1.2rem 1.25rem; display: flex; flex-direction: column; gap: 0.45rem;
+            text-decoration: none; color: inherit; transition: border-color .15s ease, transform .15s ease;
+        }
+        a.ann-story:hover { border-color: rgba(236,226,214,0.2); transform: translateY(-2px); }
+        .ann-story h4 { font: 600 0.98rem/1.4 'Inter', sans-serif; color: #F4EEE6; margin: 0; }
+        a.ann-story:hover h4 { color: #5CB88A; }
+        .ann-story p { font: 400 0.83rem/1.5 'Inter', sans-serif; color: #B7ADA1; margin: 0; }
+        .ann-when {
+            font: 500 0.74rem 'Inter', sans-serif; color: #7d746a; margin-top: auto; padding-top: 0.5rem;
+        }
+        .ann-lead .ann-when { color: #E0A24C; font-weight: 600; padding-top: 0.9rem; }
+
+        @media (max-width: 760px) {
+            .ann-lead { grid-template-columns: 1fr; }
+            .ann-lead-art { min-height: 110px; }
+            .ann-grid { grid-template-columns: 1fr; }
+        }
 </style>
 </head>
 <body>
@@ -2042,15 +2228,25 @@
     <div class="dashboard-container">
         <div class="hero-art" aria-hidden="true"></div>
         <div class="hero-art-trace" aria-hidden="true">
-            <svg viewBox="0 25 1438 830" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;overflow:visible;">
+            <!-- The grey silhouette and the glowing outline are the SAME artwork.
+                 They used to be positioned by two different systems (CSS
+                 background-size:contain/right vs SVG preserveAspectRatio:xMid)
+                 which only agreed when the container happened to match the art's
+                 aspect ratio — hence the drift from screen to screen. Now the PNG
+                 is an <image> inside the same viewBox, so one transform moves both
+                 and they can never come apart. -->
+            <svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 25 1438 830" preserveAspectRatio="xMaxYMid meet" style="width:100%;height:100%;overflow:visible;">
+                <image href="dash-hero-centered.png" xlink:href="dash-hero-centered.png"
+                       x="0" y="25" width="1438" height="830" class="hero-fill"/>
                 <defs>
                     <filter id="ftGlow" x="-40%" y="-40%" width="180%" height="180%">
                         <feGaussianBlur stdDeviation="6" result="b"/>
                         <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
                     </filter>
                 </defs>
-                <path id="traceBull" d="M788,109 L641,179 L640,199 L643,209 L655,223 L676,239 L669,251 L651,242 L631,223 L623,207 L622,181 L561,139 L207,436 L178,529 L134,530 L136,604 L196,556 L227,462 L230,458 L287,591 L244,635 L236,648 L288,770 L344,770 L321,696 L317,673 L443,529 L418,435 L418,424 L492,536 L603,541 L657,595 L705,594 L632,490 L555,441 L572,289 L577,289 L602,342 L614,360 L709,414 L765,360 L767,353 L740,239 L700,212 L698,208 Z M414,604 L357,669 L473,769 L519,771 Z" fill="none" stroke="#1DD424" stroke-width="5" stroke-linecap="round" filter="url(#ftGlow)"/>
+<g class="trace-shift">                <path id="traceBull" d="M788,109 L641,179 L640,199 L643,209 L655,223 L676,239 L669,251 L651,242 L631,223 L623,207 L622,181 L561,139 L207,436 L178,529 L134,530 L136,604 L196,556 L227,462 L230,458 L287,591 L244,635 L236,648 L288,770 L344,770 L321,696 L317,673 L443,529 L418,435 L418,424 L492,536 L603,541 L657,595 L705,594 L632,490 L555,441 L572,289 L577,289 L602,342 L614,360 L709,414 L765,360 L767,353 L740,239 L700,212 L698,208 Z M414,604 L357,669 L473,769 L519,771 Z" fill="none" stroke="#1DD424" stroke-width="5" stroke-linecap="round" filter="url(#ftGlow)"/>
                 <path id="traceBear" d="M857,276 L839,322 L777,389 L781,422 L730,481 L784,520 L791,522 L852,490 L907,487 L931,450 L941,440 L926,509 L921,515 L773,614 L737,685 L898,619 L989,618 L1048,569 L1019,633 L1067,725 L1024,768 L1025,770 L1147,770 L1148,696 L1208,618 L1207,628 L1183,690 L1184,695 L1214,733 L1193,769 L1283,769 L1292,724 L1251,674 L1248,594 L1239,488 L972,224 L891,286 Z M996,648 L991,644 L900,643 L830,769 L912,770 L1000,660 Z" fill="none" stroke="#EE1418" stroke-width="5" stroke-linecap="round" filter="url(#ftGlow)"/>
+            </g>
             </svg>
         </div>
 
@@ -2148,12 +2344,11 @@
             </div>
         </div>
         <div class="panel-section ann-panel" onclick="openAnnModal()" style="cursor:pointer;" title="Read all posts">
-            <h3>Announcements</h3>
-            <svg class="ann-mega" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <h3><svg class="ann-mega" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M4 9.5h3.2L16 5v14L7.2 14.5H4a1.5 1.5 0 0 1-1.5-1.5v-2A1.5 1.5 0 0 1 4 9.5z"/>
                 <path d="M7.2 14.5 8.6 20h2.6l-1.2-4.6"/>
                 <path d="M19 9.6a3.4 3.4 0 0 1 0 4.8"/>
-            </svg>
+            </svg>Announcements</h3>
             <div class="panel-content">
                 <div class="ann-head">The $25 returns race</div>
             </div>
@@ -2269,7 +2464,7 @@
                     j = await res.json();
                 }
                 const news = (j && j.news) || [];
-                if (!news.length) return;
+                if (!news.length) { newsUnavailable(); return; }
                 const withImg = news.filter(n => n.thumbnail && n.thumbnail.resolutions && n.thumbnail.resolutions.length);
                 const top = withImg[0] || news[0];
                 document.getElementById('dashNewsHeadline').textContent = top.title;
@@ -2280,8 +2475,14 @@
                     t.style.backgroundImage = "url('" + img + "')";
                     t.classList.add('has-img');
                 }
-            } catch (e) { /* keep placeholder */ }
+            } catch (e) { newsUnavailable(); }
         })();
+        // The headline used to sit on "Loading…" forever whenever the feed was
+        // unreachable, which reads as a broken app rather than a quiet one.
+        function newsUnavailable() {
+            const h = document.getElementById('dashNewsHeadline');
+            if (h && /^Loading/.test(h.textContent)) h.textContent = 'Headlines are unavailable right now.';
+        }
 
         // Clock + market open/closed (US market: 9:30–4:00 ET, Mon–Fri)
         function updateNavClock() {
@@ -2357,9 +2558,26 @@
             })();
         })();
 
-        // Typewriter greeting: "Welcome <username>, let's start trading."
-        (function () {
-            const username = localStorage.getItem('username') || 'Trader';
+        // Typewriter greeting. The name comes from this browser first, but if the
+        // user signed in somewhere else we go ask Supabase for their profile rather
+        // than falling back to the generic "Trader".
+        (async function () {
+            let username = localStorage.getItem('username');
+            if (!username && window.SL && SL.configured) {
+                try {
+                    const me = await SL.currentUser();
+                    const meta = (me && me.user_metadata) || {};
+                    username = meta.username || meta.full_name || '';
+                    if (!username && me) {
+                        const { data } = await SL.client.from('profiles')
+                            .select('username, full_name').eq('id', me.id).maybeSingle();
+                        username = (data && (data.username || data.full_name)) || '';
+                    }
+                    if (!username && me && me.email) username = me.email.split('@')[0];
+                    if (username) localStorage.setItem('username', username);
+                } catch (e) { /* fall through */ }
+            }
+            if (!username) username = 'Trader';
             const pre = 'Welcome ';
             const post = '';
             const preEl = document.getElementById('welcomePre');
@@ -2594,7 +2812,7 @@
 
         const tutSteps = [
             {
-                selector: '.action-button.learn',
+                selector: '.hero-grid .action-button.learn',
                 title: 'Start Learning',
                 desc: 'Your education hub with beginner to advanced paths. Let\'s take a quick look.',
                 action: 'navigate',
@@ -2602,7 +2820,7 @@
                 btnText: 'Go to Learn'
             },
             {
-                selector: '.action-button.practice',
+                selector: '.hero-grid .action-button.practice',
                 title: 'Practice Trading',
                 desc: 'Trade with $10,000 in virtual funds — no risk, real experience.',
                 action: 'navigate',
@@ -2610,8 +2828,8 @@
                 btnText: 'Go to Practice'
             },
             {
-                selector: '.action-button.league',
-                title: 'Compete in Leagues',
+                selector: '.hero-grid .action-button.league',
+                title: 'Leagues',
                 desc: 'Draft stocks with friends and see who builds the best portfolio.',
                 action: 'navigate',
                 target: 'league.html',
@@ -2620,9 +2838,9 @@
             {
                 selector: '.panel-sections',
                 title: 'Your Dashboard Feed',
-                desc: 'Market news, announcements, and your inbox — all in one place at the bottom of your dashboard.',
+                desc: 'News, announcements and your inbox live along the bottom of the dashboard.',
                 action: null,
-                btnText: 'Finish Tour'
+                btnText: 'Finish Tutorial'
             }
         ];
 
@@ -2657,21 +2875,36 @@
                 const tipH = tip.offsetHeight;
                 let top, left;
 
-                // Prefer below, then above, then overlay bottom
-                const spaceBelow = window.innerHeight - rect.bottom - pad;
-                const spaceAbove = rect.top - pad;
+                // The action squares are small and live on the left, with the whole
+                // right half of the hero empty — so for narrow targets we park the
+                // card beside them instead of underneath, where it used to collide
+                // with the fixed panel strip along the bottom.
+                const strip = document.querySelector('.panel-sections');
+                const floor = strip ? strip.getBoundingClientRect().top : window.innerHeight;
+                const rowEl = el.closest('.main-actions');
+                const rightEdge = rowEl ? Math.max(rect.right, rowEl.getBoundingClientRect().right) : rect.right;
+                const roomRight = window.innerWidth - rightEdge - pad - 46;
+                const roomBelow = floor - rect.bottom - pad - 24;
 
-                if (spaceBelow >= tipH + 14) {
+                if (rect.width < 220 && roomRight >= tipW + 12) {
+                    // Anchor past the whole row of squares, not just the highlighted
+                    // one, so the card never sits on top of its neighbours.
+                    const row = el.closest('.main-actions');
+                    const edge = row ? row.getBoundingClientRect().right : rect.right;
+                    left = Math.max(rect.right, edge) + pad + 22;
+                    top = rect.top + rect.height / 2 - tipH / 2;
+                } else if (roomBelow >= tipH) {
                     top = rect.bottom + pad + 12;
-                } else if (spaceAbove >= tipH + 14) {
+                    left = rect.left + rect.width / 2 - tipW / 2;
+                } else if (rect.top - pad - 12 >= tipH) {
                     top = rect.top - pad - 12 - tipH;
+                    left = rect.left + rect.width / 2 - tipW / 2;
                 } else {
-                    // Place at bottom of viewport
-                    top = window.innerHeight - tipH - 16;
+                    top = Math.max(12, floor - tipH - 16);
+                    left = rect.left + rect.width / 2 - tipW / 2;
                 }
 
-                // Center horizontally on the target, clamped
-                left = rect.left + rect.width / 2 - tipW / 2;
+                top = Math.max(12, Math.min(top, window.innerHeight - tipH - 12));
                 left = Math.max(12, Math.min(left, window.innerWidth - tipW - 12));
 
                 tip.style.top = top + 'px';
@@ -2735,7 +2968,7 @@
             // Non-navigation step (dashboard feed) — advance or end
             tutCurrent++;
             if (tutCurrent >= tutSteps.length) {
-                endSpotlightTutorial();
+                endSpotlightTutorial(true);
             } else {
                 const tip = document.getElementById('tutTooltip');
                 tip.classList.remove('visible');
@@ -2746,13 +2979,41 @@
             }
         }
 
-        function endSpotlightTutorial() {
+        function endSpotlightTutorial(withFanfare) {
             document.getElementById('tutBackdrop').classList.remove('active');
             localStorage.removeItem('showTutorial');
             localStorage.removeItem('tutorialStep');
             localStorage.removeItem('tutorialActive');
             localStorage.removeItem('tutorialReturnStep');
             localStorage.setItem('tutorialCompleted', 'true');
+            if (withFanfare) tutorialFinishFx();
+        }
+
+        /* The send-off: a ring that snaps shut, a tick, and a line of type.
+           Clears itself after a beat, or on a click if you're impatient. */
+        function tutorialFinishFx() {
+            const fx = document.createElement('div');
+            fx.className = 'tut-fx';
+            fx.innerHTML =
+                '<div class="tut-fx-card">' +
+                    '<div class="tut-fx-badge">' +
+                        '<svg viewBox="0 0 64 64" aria-hidden="true">' +
+                            '<circle class="tfx-ring" cx="32" cy="32" r="27"/>' +
+                            '<path class="tfx-tick" d="M19 33.5 28 42l17-19"/>' +
+                        '</svg>' +
+                        '<i class="tfx-spark s1"></i><i class="tfx-spark s2"></i><i class="tfx-spark s3"></i>' +
+                        '<i class="tfx-spark s4"></i><i class="tfx-spark s5"></i><i class="tfx-spark s6"></i>' +
+                    '</div>' +
+                    '<div class="tut-fx-title">Tutorial complete</div>' +
+                    '<div class="tut-fx-sub">Let\u2019s get started.</div>' +
+                '</div>';
+            document.body.appendChild(fx);
+            const bye = () => {
+                fx.classList.add('out');
+                setTimeout(() => fx.remove(), 500);
+            };
+            fx.addEventListener('click', bye);
+            setTimeout(bye, 3200);
         }
 
         function startSpotlightTutorial() {
@@ -2822,7 +3083,7 @@
             <div class="ann-modal-head">
                 <div>
                     <span class="amh-kicker">FantasyTrader</span>
-                    <h2>What's new</h2>
+                    <h2>Announcements</h2>
                 </div>
                 <button class="ann-modal-close" onclick="closeAnnModal()" aria-label="Close">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -2831,32 +3092,43 @@
                 </button>
             </div>
 
-            <div class="ann-feed">
-                <article class="ann-post gold">
-                    <div class="ann-post-meta"><span class="ann-cat">Contest</span><time>Live now</time></div>
+            <a class="ann-lead" href="league.html">
+                <div class="ann-lead-art" aria-hidden="true">
+                    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 4h12v7.5a6 6 0 0 1-12 0V4z"/>
+                        <path d="M10 6H5.6v1.8A4.6 4.6 0 0 0 10 12.4"/>
+                        <path d="M22 6h4.4v1.8A4.6 4.6 0 0 1 22 12.4"/>
+                        <path d="M16 17.5v4"/><path d="M10 28h12M11 25.5h10v2.5H11z"/>
+                        <path d="M12.2 25.5c.4-2.4 1.7-4 3.8-4s3.4 1.6 3.8 4"/>
+                    </svg>
+                </div>
+                <div class="ann-lead-body">
+                    <span class="ann-kicker">Contest &middot; Live now</span>
                     <h3>The $25 returns race</h3>
                     <p>First player to double their league portfolio takes the pot.</p>
-                    <a class="ann-post-go" href="league.html">Go to leagues</a>
-                </article>
+                    <span class="ann-when">Go to leagues &rarr;</span>
+                </div>
+            </a>
 
-                <article class="ann-post green">
-                    <div class="ann-post-meta"><span class="ann-cat">Learning</span><time>New</time></div>
-                    <h3>Alternative investments pathway</h3>
+            <div class="ann-grid">
+                <a class="ann-story" href="learn.html">
+                    <span class="ann-kicker green">Learning</span>
+                    <h4>Alternative investments pathway</h4>
                     <p>18 modules on crypto, real estate, commodities and private equity.</p>
-                    <a class="ann-post-go" href="learn.html">Open the hub</a>
-                </article>
-
-                <article class="ann-post blue">
-                    <div class="ann-post-meta"><span class="ann-cat">Product</span><time>Shipped</time></div>
-                    <h3>5,000 draftable stocks</h3>
-                    <p>Small caps, REITs and ADRs, all on the same live price feed.</p>
-                </article>
-
-                <article class="ann-post grey">
-                    <div class="ann-post-meta"><span class="ann-cat">Coming</span><time>Soon</time></div>
-                    <h3>Career center</h3>
+                    <span class="ann-when">New</span>
+                </a>
+                <div class="ann-story">
+                    <span class="ann-kicker blue">Product</span>
+                    <h4>5,000 draftable stocks</h4>
+                    <p>Small caps, REITs and ADRs, on the same live price feed.</p>
+                    <span class="ann-when">Shipped</span>
+                </div>
+                <div class="ann-story">
+                    <span class="ann-kicker mute">Coming</span>
+                    <h4>Career center</h4>
                     <p>Internships and resume help, built into the dashboard.</p>
-                </article>
+                    <span class="ann-when">Soon</span>
+                </div>
             </div>
         </div>
     </div>

@@ -1953,8 +1953,8 @@
                 } else if (stepNum === 2) {
                     actionBtn.textContent = 'Not now';
                     actionBtn.onclick = function() { tutSkipLeague(); };
-                    nextBtn.textContent = 'Get Started';
-                    nextBtn.onclick = function() { tutJoinLeague(); };
+                    nextBtn.textContent = 'Next';
+                    nextBtn.onclick = function() { tutBackToDash(); };
                 }
 
                 target.scrollIntoView({behavior: 'smooth', block: 'center'});
@@ -1963,6 +1963,14 @@
                 let rt;
                 window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => positionTutorial(target), 250); });
             }
+
+            // Hand the tour back to the dashboard for its closing step (index 3).
+            window.tutBackToDash = function() {
+                localStorage.setItem('tutorialStep', '3');
+                localStorage.setItem('tutorialReturnStep', '9');
+                localStorage.setItem('tutorialActive', 'true');
+                window.location.href = 'dashboard.html?tutorial=true';
+            };
 
             window.tutJoinLeague = function() {
                 localStorage.removeItem('showTutorial');

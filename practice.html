@@ -973,8 +973,6 @@
         </div>
     </div>
 
-    <p class="practice-footnote"><b>Real market data</b> · zero risk · unlimited practice time</p>
-
     <div class="sector-modal" id="sectorModal">
         <div class="sector-modal-content">
             <div class="sector-modal-header">
@@ -1265,6 +1263,11 @@
     body { display: flex; flex-direction: column; min-height: 100vh; }
     .main-content { margin-top: auto !important; }
     .practice-footnote { margin-bottom: auto !important; }
+
+    /* solid white page titles — no green ombre */
+    .page-title, .page-title span, .practice-title { background: none !important;
+        -webkit-text-fill-color: #F4EEE6 !important; color: #F4EEE6 !important;
+        text-shadow: none !important; }
 </style>
 
 

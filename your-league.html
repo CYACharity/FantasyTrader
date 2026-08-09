@@ -642,21 +642,54 @@
 
         .lb-sub { font-size: 0.68rem; color: #7d746a; font-weight: 500; margin-top: 1px; }
 
-        /* the podium — real steps with the place number on each block */
-        .lb-podium { display: flex; justify-content: center; align-items: flex-end; gap: 0.55rem; margin-bottom: 1.6rem; }
-        .pod { text-align: center; min-width: 150px; display: flex; flex-direction: column; justify-content: flex-end; }
-        .pod-name { font: 600 1rem 'Fraunces', Georgia, serif; }
-        .pod-cap { font: 600 0.78rem 'Inter', sans-serif; font-variant-numeric: tabular-nums; color: #B7ADA1; margin: 0.1rem 0 0.55rem; }
-        .pod-block {
-            display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(180deg, #2A241F, #221E1A);
-            border: 1px solid rgba(236, 226, 214, 0.12); border-bottom: none;
-            font: 550 1.5rem 'Fraunces', Georgia, serif; color: #7d746a;
+        /* the podium — gold / silver / bronze steps, crown on the leader */
+        .lb-podium {
+            display: flex; justify-content: center; align-items: flex-end; gap: 0.7rem;
+            margin-bottom: 1.8rem; padding: 1.6rem 1rem 0;
+            border-radius: 14px 14px 0 0;
+            background: radial-gradient(ellipse at 50% 120%, rgba(224,162,76,0.13), transparent 62%);
         }
-        .pod-block.p1 { height: 84px; border-top: 2px solid #E0A24C; color: #E0A24C; font-size: 1.9rem; }
-        .pod-block.p2 { height: 58px; }
-        .pod-block.p3 { height: 42px; }
-        @media (max-width: 640px) { .pod { min-width: 100px; } }
+        .pod { text-align: center; min-width: 150px; display: flex; flex-direction: column; justify-content: flex-end; }
+        .pod-crown { height: 26px; margin-bottom: 2px; }
+        .pod-crown svg { filter: drop-shadow(0 2px 5px rgba(224,162,76,0.55)); }
+        .pod-medal {
+            width: 34px; height: 34px; margin: 0 auto 0.45rem; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font: 800 0.95rem 'Poppins', sans-serif; color: #17130F;
+        }
+        .pod-medal.m1 { background: linear-gradient(160deg,#F6D07A,#E0A24C); box-shadow: 0 0 16px rgba(224,162,76,0.5); width: 40px; height: 40px; font-size: 1.1rem; }
+        .pod-medal.m2 { background: linear-gradient(160deg,#E4E7EA,#A9B2BB); }
+        .pod-medal.m3 { background: linear-gradient(160deg,#D9A277,#A9714A); }
+        .pod-name { font: 700 0.95rem 'Poppins', sans-serif; color: #F4EEE6; letter-spacing: .005em; }
+        .pod-cap {
+            font: 700 0.85rem 'Poppins', sans-serif; font-variant-numeric: tabular-nums;
+            color: #E8DCCB; margin: 0.12rem 0 0.1rem;
+        }
+        .pod-ret { font: 700 0.7rem 'Poppins', sans-serif; margin-bottom: 0.55rem; }
+        .pod-block {
+            display: flex; align-items: flex-start; justify-content: center; padding-top: .5rem;
+            background: linear-gradient(180deg, #2E2822, #221E1A);
+            border: 1px solid rgba(236, 226, 214, 0.12); border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            font: 800 1.5rem 'Poppins', sans-serif; color: #6b6259;
+        }
+        .pod-block.p1 {
+            height: 104px; font-size: 2rem;
+            background: linear-gradient(180deg, rgba(224,162,76,0.34), rgba(224,162,76,0.07));
+            border-color: rgba(224,162,76,0.55); color: #F6D07A;
+            box-shadow: 0 -10px 34px rgba(224,162,76,0.18);
+        }
+        .pod-block.p2 {
+            height: 70px;
+            background: linear-gradient(180deg, rgba(200,210,220,0.20), rgba(200,210,220,0.04));
+            border-color: rgba(200,210,220,0.34); color: #D6DDE4;
+        }
+        .pod-block.p3 {
+            height: 52px;
+            background: linear-gradient(180deg, rgba(199,127,84,0.22), rgba(199,127,84,0.04));
+            border-color: rgba(199,127,84,0.36); color: #D9A277;
+        }
+        @media (max-width: 640px) { .pod { min-width: 100px; } .pod-name { font-size: .82rem; } }
 
         .player-name {
             font-weight: 600;
@@ -1294,7 +1327,7 @@
         .team-head h3 { font: 600 1.2rem 'Fraunces', Georgia, serif; }
         .team-sub { font-size: 0.8rem; color: #B7ADA1; }
         .lineup-row {
-            display: grid; grid-template-columns: 72px 1fr 92px 96px 108px 92px; gap: 0.6rem;
+            display: grid; grid-template-columns: 60px 1fr 88px 92px minmax(190px,1fr) 96px; gap: 0.6rem;
             align-items: center; padding: 0.6rem 0.2rem; border-bottom: 1px solid rgba(236,226,214,0.07);
             font-size: 0.85rem;
         }
@@ -1306,11 +1339,70 @@
             background: none; color: #B7ADA1;
         }
         .start-btn.on { background: rgba(92,184,138,0.16); border-color: #5cb88a; color: #5cb88a; }
+        /* The track is drawn by the track pseudo-element, NOT the input background —
+           that way the input can be tall enough to hold the thumb without clipping it. */
         .alloc-mini {
-            width: 100%; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 999px;
-            background: rgba(236,226,214,0.14); outline: none;
+            width: 100%; -webkit-appearance: none; appearance: none;
+            height: 26px; background: none; outline: none; cursor: pointer; display: block;
         }
-        .alloc-mini::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #5cb88a; cursor: pointer; }
+        .alloc-mini::-webkit-slider-runnable-track {
+            height: 7px; border-radius: 999px;
+            background: rgba(236,226,214,0.16);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.35);
+        }
+        .alloc-mini::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 21px; height: 21px; border-radius: 50%;
+            background: linear-gradient(180deg,#6fca9d,#4faa7d);
+            border: 3px solid #221E1A; box-shadow: 0 2px 6px rgba(0,0,0,0.45);
+            margin-top: -7px;            /* (7px track - 21px thumb) / 2 = centered */
+            transition: transform .1s ease;
+        }
+        .alloc-mini:active::-webkit-slider-thumb { transform: scale(1.12); }
+        .alloc-mini::-moz-range-track {
+            height: 7px; border-radius: 999px; background: rgba(236,226,214,0.16); border: none;
+        }
+        .alloc-mini::-moz-range-thumb {
+            width: 15px; height: 15px; border-radius: 50%;
+            background: #5cb88a; cursor: pointer; border: 3px solid #221E1A;
+        }
+        .alloc-mini:disabled { opacity: .35; cursor: not-allowed; }
+        /* a ring that pulses around the sliders until the player dismisses the tip */
+        .alloc-cell { position: relative; display: block; }
+        body.slider-hint .alloc-cell::after {
+            content: ''; position: absolute; left: -11px; right: -11px; top: -7px; bottom: -7px;
+            border-radius: 22px; border: 2px solid rgba(224,162,76,0.8); pointer-events: none;
+            box-shadow: 0 0 12px rgba(224,162,76,0.28);
+            animation: sliderRing 1.6s ease-in-out infinite;
+        }
+        @keyframes sliderRing {
+            0%,100% { opacity: .5; }
+            50%     { opacity: 1; }
+        }
+        /* the short, gamey tip above the sliders */
+        .alloc-tip {
+            display: flex; align-items: center; gap: .7rem; margin-bottom: 1rem;
+            padding: .7rem .9rem; border-radius: 10px;
+            background: rgba(224,162,76,0.10); border: 1px solid rgba(224,162,76,0.35);
+        }
+        .alloc-tip .tip-txt {
+            font: 700 .82rem 'Poppins', sans-serif; letter-spacing: .01em; color: #E8DCCB; flex: 1;
+        }
+        .alloc-tip .tip-txt b { color: #E0A24C; }
+        .alloc-tip .tip-ok {
+            font: 800 .7rem 'Poppins', sans-serif; letter-spacing: .1em; text-transform: uppercase;
+            background: #E0A24C; color: #1A1714; border: none; border-radius: 7px;
+            padding: .45rem .95rem; cursor: pointer; white-space: nowrap;
+        }
+        .alloc-tip .tip-ok:hover { filter: brightness(1.12); }
+        /* typed amounts — same row, same look */
+        .alloc-num {
+            width: 62px; background: rgba(255,255,255,0.05); border: 1px solid rgba(236,226,214,0.14);
+            color: #F4EEE6; border-radius: 6px; padding: 0.28rem 0.4rem; text-align: right;
+            font: 700 0.8rem 'Inter', sans-serif; outline: none; -moz-appearance: textfield;
+        }
+        .alloc-num:focus { border-color: rgba(92,184,138,0.55); }
+        .alloc-num::-webkit-outer-spin-button, .alloc-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .alloc-dollar { width: 84px; }
         .cap-bar { display: flex; height: 22px; border-radius: 4px; overflow: hidden; background: rgba(236,226,214,0.07); margin: 0.6rem 0 0.2rem; }
         .cap-bar .seg { height: 100%; }
     </style>
@@ -1714,7 +1806,8 @@
         /* draft card: header row + expandable blurb, no overflow anywhere */
         .df-card { overflow: hidden; min-width: 0; }
         .df-head { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
-        .df-head .df-txt { min-width: 0; flex: 1; }
+        .df-head .df-txt { min-width: 0; flex: 1; overflow: hidden; }
+        .df-head .df-price { margin-left: auto; padding-left: 0.4rem; }
         .df-sym { display: block; }
         .df-name, .df-tag, .df-sym, .oc-chip, .tm-sym, .tm-sec, .mu-roster {
             overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
@@ -1830,6 +1923,9 @@
         .cf-yes { background: #E0A24C; border: none; color: #17130F; }
         .cf-yes:hover { filter: brightness(1.08); }
 
+        /* league rules: centred column on ultrawide monitors instead of full-bleed */
+        #rules.content-section { max-width: 1160px; margin-left: auto; margin-right: auto; }
+
         .tc-bar { margin-bottom: 1rem; }
         .tf-group { display: inline-flex; gap: 2px; background: rgba(236,226,214,0.05); padding: 2px; }
         .tf-btn {
@@ -1874,7 +1970,14 @@
         .tm-row b { text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .lineup-row > span { min-width: 0; overflow: hidden; }
         .lineup-row .sym { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
-    </style>
+    
+        /* the countdown caption reads like a game HUD, not a paragraph */
+        .week-banner .wk-sub {
+            font: 700 0.74rem 'Poppins', sans-serif !important;
+            letter-spacing: 0.13em; text-transform: uppercase;
+            color: #C9BEB0; margin-top: 0.45rem;
+        }
+</style>
 </head>
 <body>
     <!-- Header -->
@@ -1894,7 +1997,7 @@
                 <a href="league.html" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Back
                 </a>
-                <button class="btn btn-primary" onclick="enterDraft()">
+                <button class="btn btn-primary" id="enterDraftBtn" onclick="enterDraft()">
                     <i class="fas fa-play"></i> Enter Draft
                 </button>
             </div>
@@ -2921,6 +3024,9 @@
             const nm = document.getElementById('leagueName'); if (nm) nm.textContent = DRAFT.league.name;
             const sub = document.getElementById('leagueSubtitle'); if (sub) sub.textContent = `${DRAFT.members.length} Investors • ${DRAFT.league.roster_size} picks each`;
             const sp = document.getElementById('statPlayers'); if (sp) sp.textContent = DRAFT.members.length;
+            // the big Enter Draft header button only matters before the draft begins
+            const edb = document.getElementById('enterDraftBtn');
+            if (edb) edb.style.display = (DRAFT.league.status === 'lobby') ? '' : 'none';
             const safely = (fn, name) => { try { const r = fn(); if (r && r.catch) r.catch(e => console.warn(name, e)); } catch (e) { console.warn(name, e); } };
             safely(renderDraftMain, 'draftMain');
             safely(renderDraftSidebar, 'draftSidebar');
@@ -3572,7 +3678,7 @@
                     <div>
                         <div class="wk-label" style="color:#E0A24C;">Week 1 of ${w.totalWeeks} · Prep Window</div>
                         ${wkClockHtml(w.endsAt)}
-                        <div class="wk-sub">until matchups go live — research, set your lineup, deploy your capital</div>
+                        <div class="wk-sub">until matchups go live</div>
                     </div>
                     <div style="text-align:right;">
                         <div class="wk-label">Then at stake weekly</div>
@@ -3639,6 +3745,9 @@
             if (starters.length < LINEUP_SIZE) { root.innerHTML = stepHtml + lineupPickerHtml(rows); return; }
             root.innerHTML = stepHtml + allocationHtml(rows);
             allocRepaint();
+            let tipSeen = false; try { tipSeen = localStorage.getItem('ftAllocTipSeen') === '1'; } catch (e) {}
+            if (tipSeen) { document.body.classList.remove('slider-hint'); const t = document.getElementById('allocTip'); if (t) t.remove(); }
+            else document.body.classList.add('slider-hint');
         }
 
         /* ── phase 1: choose your starting 11 ── */
@@ -3675,24 +3784,32 @@
                 <div class="team-head"><h3>Deploy your capital</h3>
                     <span class="team-sub"><b id="allocSpent" style="color:#F4EEE6;">$0</b> allocated · <b id="allocLeft" style="color:#5cb88a;">$0</b> cash left of $${cap.toLocaleString()}</span></div>
                 <div class="cap-bar" id="allocBar"></div>
-                <div class="team-sub" style="margin-bottom:1rem;">Drag each slider to buy shares at today's price. The sliders stop when your capital runs out — you can't overspend. Undeployed cash just sits idle.</div>
+                <div class="alloc-tip" id="allocTip">
+                    <span class="tip-txt">Slide to buy shares. You <b>can't overspend</b> &mdash; leftover cash sits idle.</span>
+                    <button class="tip-ok" onclick="dismissAllocTip()">Got it</button>
+                </div>
                 <div class="lineup-row head"><span></span><span>Stock</span><span>Price</span><span>Shares</span><span>Allocate</span><span>Cost</span></div>
                 ${starters.map(r => {
                     const key = r.symbol.replace(/[^A-Z0-9]/g, '');
                     const soloMax = r.price > 0 ? Math.floor(budget / r.price) : 0;   // hard ceiling; live clamp is tighter
+                    const step = soloMax > 400 ? Math.max(1, Math.round(soloMax / 200)) : 1;   // calm the slider on huge positions
                     return `<div class="lineup-row">
                         <span>${logoHtml(r.symbol, r.sector)}</span>
                         <span><span class="sym">${r.symbol}</span><br><span style="font-size:.68rem;color:#7d746a;">${r.sector}</span></span>
                         <span>${r.price ? '$' + r.price.toFixed(2) : '<span style="color:#d9645c">no price</span>'}</span>
-                        <span id="shTxt_${key}" style="font-weight:700;">${r.shares}</span>
-                        <span><input class="alloc-mini" id="sl_${key}" type="range" min="0" max="${soloMax}" value="${r.shares}" ${r.price > 0 ? '' : 'disabled'}
+                        <span><input class="alloc-num" id="shTxt_${key}" type="number" min="0" value="${r.shares}" ${r.price > 0 ? '' : 'disabled'}
+                                title="Type a share count" onfocus="this.select()" onclick="this.select()"
+                                onchange="typeShares('${r.symbol}', this.value)"></span>
+                        <span class="alloc-cell"><input class="alloc-mini" id="sl_${key}" type="range" min="0" max="${soloMax}" step="${step}" value="${r.shares}" ${r.price > 0 ? '' : 'disabled'}
                                 oninput="previewShares('${r.symbol}', this)" onchange="saveShares('${r.symbol}', this.value)"></span>
-                        <span id="costTxt_${key}" style="color:#B7ADA1;font-variant-numeric:tabular-nums;">$${(r.shares * r.price).toLocaleString(undefined,{maximumFractionDigits:0})}</span>
+                        <span><input class="alloc-num alloc-dollar" id="costTxt_${key}" type="text" value="$${(r.shares * r.price).toLocaleString(undefined,{maximumFractionDigits:0})}" ${r.price > 0 ? '' : 'disabled'}
+                                title="Type a dollar amount" onfocus="this.select()" onclick="this.select()"
+                                onchange="typeDollars('${r.symbol}', this.value)"></span>
                     </div>`;
                 }).join('')}
                 <div style="display:flex;gap:.7rem;margin-top:1.3rem;">
                     <button class="btn" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#B7ADA1;padding:.8rem 1.4rem;border-radius:10px;cursor:pointer;font-weight:700;" onclick="editLineup()">← Change lineup</button>
-                    <button class="btn" style="flex:1;background:linear-gradient(180deg,#63bf92,#4faa7d);color:#14110E;border:none;padding:.8rem;border-radius:10px;cursor:pointer;font:800 .9rem 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;" onclick="deployCapital()">Deploy Capital</button>
+                    <button class="btn" style="background:linear-gradient(180deg,#63bf92,#4faa7d);color:#14110E;border:none;padding:.8rem 1.6rem;border-radius:10px;cursor:pointer;font:800 .9rem 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;" onclick="deployCapital()">Deploy Capital</button>
                 </div>
             </div>`;
         }
@@ -4109,10 +4226,26 @@
             if (n > maxN) { n = Math.max(0, maxN); input.value = n; }
             row.shares = n;
             const key = sym.replace(/[^A-Z0-9]/g, '');
-            const s = document.getElementById('shTxt_' + key); if (s) s.textContent = n;
+            const s = document.getElementById('shTxt_' + key); if (s) s.value = n;
             const c = document.getElementById('costTxt_' + key);
-            if (c) c.textContent = '$' + (n * row.price).toLocaleString(undefined, { maximumFractionDigits: 0 });
+            if (c) c.value = '$' + (n * row.price).toLocaleString(undefined, { maximumFractionDigits: 0 });
             allocRepaint();
+        };
+        // Typed share count → clamp to budget, sync slider, save.
+        window.typeShares = function (sym, val) {
+            const key = sym.replace(/[^A-Z0-9]/g, '');
+            const sl = document.getElementById('sl_' + key);
+            if (!sl) return;
+            sl.value = Math.max(0, Math.floor(Number(val) || 0));
+            previewShares(sym, sl);          // clamps + repaints all three controls
+            saveShares(sym, sl.value);
+        };
+        // Typed dollar amount → convert to whole shares at today's price.
+        window.typeDollars = function (sym, val) {
+            const row = ALLOCV && ALLOCV.rows[sym];
+            if (!row || !(row.price > 0)) return;
+            const dollars = Number(String(val).replace(/[^0-9.]/g, '')) || 0;
+            typeShares(sym, Math.floor(dollars / row.price));
         };
         window.saveShares = async function (sym, val) {
             const r = myRows().find(x => x.symbol === sym) || {};
@@ -4158,7 +4291,11 @@
         }
         window.deployCapital = async function () {
             try {
-                const invested = myRows().reduce((s, r) => s + r.shares * r.price, 0);
+                // Read the live slider state first — myRows() can still be holding
+                // pre-save shares, which is why the popup showed a stale number.
+                const invested = ALLOCV
+                    ? Object.values(ALLOCV.rows).reduce((s, x) => s + x.shares * x.price, 0)
+                    : myRows().reduce((s, r) => s + r.shares * r.price, 0);
                 const { error } = await SL.client.from('league_members').update({ deployed: true })
                     .eq('league_id', DRAFT.id).eq('user_id', DRAFT.me.id);
                 if (error) throw new Error(error.message);
@@ -4173,11 +4310,33 @@
             } catch (e) { alert(e.message || 'Could not deploy capital'); }
         };
         window.editLineup = async function () {
+            const wNow = weekInfo();
+            if ((DRAFT.league || {}).status === 'active' && wNow.phase === 'live' && myMembership().deployed) {
+                alert('Lineups are locked while the week is live. Swaps reopen in the transfer window (' + wNow.days + 'd ' + wNow.hours + 'h).');
+                return;
+            }
             try {
+                // Step back to "choose your starting 11": un-deploy AND bench everyone,
+                // otherwise renderTeam sees a full lineup and drops you right back on
+                // the allocation screen — which is why this button looked dead.
                 await SL.client.from('league_members').update({ deployed: false })
                     .eq('league_id', DRAFT.id).eq('user_id', DRAFT.me.id);
+                const me = myMembership(); if (me) me.deployed = false;
+                await SL.client.from('league_picks').update({ active: false })
+                    .eq('league_id', DRAFT.id).eq('user_id', DRAFT.me.id);
+                (DRAFT.picks || []).forEach(p => { if (p.user_id === DRAFT.me.id) p.active = false; });
+                ALLOCV = null;
+                renderTeam();
+                const tr = document.getElementById('teamRoot');
+                if (tr) tr.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 await draftRefresh();
             } catch (e) { alert(e.message || 'Could not reopen your lineup'); }
+        };
+        // The allocation tip's highlight ring stays up until the player says "Got it".
+        window.dismissAllocTip = function () {
+            document.body.classList.remove('slider-hint');
+            const t = document.getElementById('allocTip'); if (t) t.remove();
+            try { localStorage.setItem('ftAllocTipSeen', '1'); } catch (e) {}
         };
 
 
@@ -4394,6 +4553,28 @@
             </div>`;
             document.body.appendChild(el);
         };
+
+        // Errors in OUR style — no more grey "fantasytrader.co says" browser popups.
+        (function () {
+            const native = window.alert;
+            window.alert = function (msg) {
+                try {
+                    const old = document.getElementById('slAlert'); if (old) old.remove();
+                    const m = document.createElement('div');
+                    m.id = 'slAlert'; m.className = 'ts-overlay';
+                    m.innerHTML = `<div class="ts-box" style="max-width:400px;">
+                        <div class="ts-sym" style="margin-bottom:.5rem;display:flex;align-items:center;gap:.55rem;">
+                            <i class="fas fa-circle-exclamation" style="color:#D9645C;font-size:1rem;"></i> Heads up</div>
+                        <div class="team-sub" style="line-height:1.65;margin-bottom:1rem;color:#C9C0B4;">${String(msg)}</div>
+                        <div style="display:flex;justify-content:flex-end;">
+                            <button class="cf-yes" style="background:#5CB88A;" onclick="document.getElementById('slAlert').remove()">Got it</button>
+                        </div>
+                    </div>`;
+                    m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+                    document.body.appendChild(m);
+                } catch (e) { native(msg); }
+            };
+        })();
 
         // A real dialog instead of the browser's grey confirm() box.
         // Resolves true if they go ahead, false if they back out.
@@ -4668,6 +4849,13 @@
                 }, 0);
                 return base + val;
             };
+            // Your own row shows your real username with "(You)" beside it — not just "You".
+            const lbName = (s) => {
+                const raw = s.name || draftName(s.user_id) || 'Player';
+                return s.user_id === (DRAFT.me || {}).id
+                    ? raw + ' <span style="color:#5CB88A;font-weight:700;">(You)</span>'
+                    : raw;
+            };
             if (lb) {
                 const leadCap = standings.length ? capOf(standings[0].user_id) : 0;
                 // simple podium above the table for the top three
@@ -4679,26 +4867,33 @@
                     cont.parentElement.insertBefore(pod, cont);
                 }
                 const top3 = standings.slice(0, 3);
+                const crown = `<svg width="26" height="20" viewBox="0 0 26 20" fill="none">
+                    <path d="M2 17h22l2-13-6.5 5L13 1 6.5 9 0 4l2 13z" fill="#E0A24C"/>
+                    <circle cx="13" cy="1.6" r="1.7" fill="#F6D07A"/></svg>`;
                 pod.innerHTML = top3.length ? `<div class="lb-podium">
                     ${[1, 0, 2].filter(i => top3[i]).map(i => { const s = top3[i];
-                        const nm = s.user_id === DRAFT.me.id ? 'You' : s.name;
+                        const nm = lbName(s);
+                        const r = Number(s.returnPct) || 0;
                         return `<div class="pod">
+                            <div class="pod-crown">${i === 0 ? crown : ''}</div>
+                            <div class="pod-medal m${i + 1}">${i + 1}</div>
                             <div class="pod-name">${nm}</div>
                             <div class="pod-cap">$${capOf(s.user_id).toLocaleString(undefined,{maximumFractionDigits:0})}</div>
+                            <div class="pod-ret" style="color:${lbPrep ? '#7d746a' : (r >= 0 ? '#5CB88A' : '#D9645C')};">${lbPrep ? '—' : (r >= 0 ? '+' : '') + r.toFixed(2) + '%'}</div>
                             <div class="pod-block p${i + 1}">${i + 1}</div>
                         </div>`; }).join('')}
                 </div>` : '';
                 lb.innerHTML = standings.map((s, i) => {
-                    const nm = s.user_id === DRAFT.me.id ? 'You' : s.name;
+                    const nm = lbName(s);
                     const cap = capOf(s.user_id);
                     const gap = leadCap - cap;
-                    const sub = lbPrep ? 'prep window'
+                    const sub = lbPrep ? (i === 0 ? '' : '')
                         : i === 0 ? 'league leader'
                         : '$' + gap.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' behind';
                     const ret = lbPrep ? '—' : (s.returnPct >= 0 ? '+' : '') + s.returnPct.toFixed(2) + '%';
                     return `<tr style="cursor:pointer" onclick="showPlayerPerf('${s.user_id}')">
                         <td class="rank-cell">${i + 1}</td>
-                        <td><div class="player-name">${nm}</div><div class="lb-sub">${sub}</div></td>
+                        <td><div class="player-name">${nm}</div>${sub ? '<div class="lb-sub">' + sub + '</div>' : ''}</td>
                         <td style="font-variant-numeric:tabular-nums;font-weight:700;">$${cap.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
                         <td style="font-variant-numeric:tabular-nums;color:#B7ADA1;">${ret}</td>
                         <td style="text-align:right;"><button class="lb-port-btn" onclick="event.stopPropagation();showPlayerPerf('${s.user_id}')">Portfolio</button></td></tr>`;

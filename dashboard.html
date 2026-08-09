@@ -97,7 +97,7 @@
             position: fixed;
             top: 80px;
             width: 100%;
-            height: 64px;   /* 20% shorter than the old 80px */
+            height: 33px;   /* single row */
             background: rgba(36, 31, 27, 0.9);
             z-index: 998;
             overflow: hidden;
@@ -247,37 +247,24 @@
         }
 
         /* Main Content */
-        .hero-art {
+        /* The bull & bear live in the right half of the hero now, so the
+           headline and buttons get the whole left column to themselves. */
+        .hero-art, .hero-art-trace {
             position: absolute;
-            /* The art layer spans exactly the empty band between the ticker strip
-               (ends at 161px) and the fixed bottom panels (100px tall), then
-               `contain` + `center` centers the bull & bear inside it. This keeps
-               the gaps above the horns and below the hooves equal on ANY screen —
-               laptop, iMac or iPad — instead of a hardcoded offset. */
-            top: 145px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: min(1120px, 96vw);
-            height: calc(100vh - 245px);
-            height: calc(100dvh - 245px);   /* mobile browser chrome-aware */
-            min-height: 300px;
-            background: url('dash-hero-centered.png') center center / contain no-repeat;
-            opacity: 0.08;
+            top: 132px;
+            right: 0;
+            left: auto;
+            transform: none;
+            width: min(58vw, 900px);
+            height: calc(100vh - 252px);
+            height: calc(100dvh - 252px);
+            min-height: 320px;
             pointer-events: none;
             z-index: 0;
         }
-        .hero-art-trace {
-            position: absolute;
-            /* must match .hero-art EXACTLY or the glowing outline desyncs from the art */
-            top: 145px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: min(1120px, 96vw);
-            height: calc(100vh - 245px);
-            height: calc(100dvh - 245px);
-            min-height: 300px;
-            pointer-events: none;
-            z-index: 0;
+        .hero-art {
+            background: url('dash-hero-centered.png') center right / contain no-repeat;
+            opacity: 0.14;
         }
         .hero-art-trace path { opacity: 0; }
         .dashboard-container {
@@ -906,7 +893,7 @@
         /* Center title section vertically */
         .title-section {
             text-align: center;
-            margin: 204px 0 50px 0;   /* clears the (now shorter) ticker strip */
+            margin: 172px 0 50px 0;   /* clears the single-row ticker strip */
             position: relative;
             z-index: 2;
             padding: 0 20px;
@@ -1594,20 +1581,146 @@
            league 245, learn 222, practice 200) so the row always clears it.
            Selectors are .main-actions-scoped to outrank .action-button.league. */
         @media (max-height: 900px) {
-            .title-section { margin-top: 184px !important; margin-bottom: 32px !important; }
+            .title-section { margin-top: 152px !important; margin-bottom: 32px !important; }
             .main-actions { gap: 1.7rem; margin-bottom: 1.4rem; }
             .main-actions .action-button           { width: 176px; height: 176px; padding: 0.9rem 1rem 0.85rem; }
             .main-actions .action-button.league    { width: 216px; height: 216px; }
             .main-actions .action-button.learn     { width: 196px; height: 196px; }
         }
         @media (max-height: 800px) {
-            .title-section { margin-top: 166px !important; margin-bottom: 24px !important; }
+            .title-section { margin-top: 134px !important; margin-bottom: 24px !important; }
             .main-actions { gap: 1.25rem; margin-bottom: 1rem; }
             .main-actions .action-button           { width: 152px; height: 152px; padding: 0.72rem 0.8rem 0.68rem; }
             .main-actions .action-button.league    { width: 186px; height: 186px; }
             .main-actions .action-button.learn     { width: 169px; height: 169px; }
         }
 
+
+        /* announcements read like a pinned note from a person, not a widget */
+        .ann-panel .panel-content { display: block !important; }
+        .ann-pin { display: flex; flex-direction: column; align-items: flex-start; gap: 0.28rem; }
+        .ann-tag {
+            font: 700 0.58rem 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase;
+            color: #E0A24C; background: rgba(224,162,76,0.13);
+            border: 1px solid rgba(224,162,76,0.3); border-radius: 4px; padding: 1px 6px;
+        }
+        .ann-head { font: 700 0.86rem 'Inter', sans-serif; color: #F4EEE6; line-height: 1.25; }
+        .ann-body { font: 400 0.76rem/1.4 'Inter', sans-serif; color: #A79C90; }
+        .ann-more { font: 600 0.7rem 'Inter', sans-serif; color: #7d746a; margin-top: 0.1rem; }
+        .ann-panel:hover .ann-more { color: #B7ADA1; }
+        .ann-pill {
+            font: 700 0.58rem 'Inter', sans-serif; letter-spacing: 0.12em; text-transform: uppercase;
+            color: #E0A24C; border: 1px solid rgba(224,162,76,0.3); border-radius: 4px;
+            padding: 1px 6px; margin-left: 6px; vertical-align: middle;
+        }
+
+        /* ── hero v2: headline left, animals right ─────────────────────── */
+        .dashboard-container { align-items: stretch !important; overflow: visible !important; }
+        .hero-grid {
+            position: relative; z-index: 2;
+            display: grid; grid-template-columns: minmax(340px, 46%) 1fr;
+            align-items: center; gap: 2rem;
+            width: 100%; max-width: 1320px; margin: 0 auto;
+            min-height: calc(100vh - 262px);
+            min-height: calc(100dvh - 262px);
+            padding: 132px 0 0;
+        }
+        .hero-left { padding-left: clamp(0.5rem, 3vw, 3rem); }
+        .hero-right { min-height: 1px; }
+        .hero-eyebrow {
+            font: 700 0.66rem 'Inter', sans-serif; letter-spacing: 0.24em; text-transform: uppercase;
+            color: #5CB88A; margin-bottom: 0.85rem;
+        }
+        .title-section { display: none !important; }
+        .hero-grid .main-title {
+            font-size: clamp(2.6rem, 5.4vw, 4.4rem); font-weight: 800; letter-spacing: -0.03em;
+            line-height: 1.02; color: #F4EEE6; margin: 0 0 1.7rem; text-align: left;
+        }
+
+        .hero-stats { display: flex; gap: 2.6rem; margin-bottom: 2.1rem; }
+        .hstat { display: flex; flex-direction: column; gap: 0.22rem; }
+        .hstat b {
+            font: 800 1.85rem 'Inter', sans-serif; letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums; color: #F4EEE6; line-height: 1;
+        }
+        .hstat b.up { color: #5CB88A; }
+        .hstat b.down { color: #D9645C; }
+        .hstat b.flat { color: #B7ADA1; }
+        .hstat span {
+            font: 700 0.6rem 'Inter', sans-serif; letter-spacing: 0.19em;
+            text-transform: uppercase; color: #7d746a;
+        }
+
+        /* small square buttons: icon on top, one word under it. nothing else. */
+        .hero-grid .main-actions {
+            display: flex !important; flex-direction: row !important; gap: 0.9rem;
+            justify-content: flex-start !important; align-items: stretch !important;
+            margin: 0 !important; flex-wrap: wrap;
+        }
+        .hero-grid .action-button {
+            width: 116px !important; height: 116px !important; padding: 0 !important;
+            display: flex !important; flex-direction: column !important;
+            align-items: center !important; justify-content: center !important; gap: 0.6rem;
+            border-radius: 13px; text-decoration: none; position: relative;
+            background: rgba(236,226,214,0.035);
+            border: 1px solid rgba(236,226,214,0.13);
+            color: #B7ADA1; transition: transform .18s ease, border-color .18s ease, background .18s ease, color .18s ease;
+            animation: none !important;
+        }
+        .hero-grid .action-button::before, .hero-grid .action-button::after { display: none !important; }
+        .hero-grid .action-button .ab-top { display: block; }
+        .hero-grid .action-button .ab-top svg {
+            width: 34px !important; height: 34px !important; display: block;
+            color: var(--ab, #E0A24C); transition: transform .18s ease;
+        }
+        .hero-grid .action-button .ab-name {
+            font: 700 0.78rem 'Inter', sans-serif !important; letter-spacing: 0.03em; color: #E8DCCB;
+        }
+        .hero-grid .action-button.league   { --ab: #E0A24C; }
+        .hero-grid .action-button.learn    { --ab: #5CB88A; }
+        .hero-grid .action-button.practice { --ab: #9DB8D2; }
+        .hero-grid .action-button:hover {
+            transform: translateY(-3px); background: rgba(236,226,214,0.06);
+            border-color: var(--ab); box-shadow: none;
+        }
+        .hero-grid .action-button:hover .ab-top svg { transform: scale(1.08); }
+        .hero-grid .action-button:hover .ab-name { color: #F4EEE6; }
+
+        /* market state reads like a status line, not a badge */
+        .clock-chip {
+            background: none !important; border: none !important; padding: 0 !important;
+            font: 500 0.78rem 'Inter', sans-serif !important; color: #8f867c !important;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .clock-chip #navClock { color: #C9BEB0; font-weight: 600; font-variant-numeric: tabular-nums; }
+        .clock-chip .mkt-dot { width: 6px; height: 6px; border-radius: 50%; background: #7d746a; box-shadow: none !important; animation: none !important; }
+        .clock-chip.open .mkt-dot { background: #5CB88A; }
+
+        @media (max-width: 1080px) {
+            .hero-grid { grid-template-columns: 1fr; padding-top: 122px; min-height: 0; }
+            .hero-right { display: none; }
+            .hero-art, .hero-art-trace { width: 92vw; right: 50%; transform: translateX(50%); opacity: 0.07; }
+            .hero-grid .main-title { font-size: 3rem; }
+        }
+        @media (max-height: 820px) {
+            .hero-grid { padding-top: 118px; }
+            .hero-grid .main-title { font-size: clamp(2.2rem, 4.4vw, 3.4rem); margin-bottom: 1.2rem; }
+            .hero-stats { margin-bottom: 1.5rem; gap: 2rem; }
+            .hstat b { font-size: 1.55rem; }
+            .hero-grid .action-button { width: 100px !important; height: 100px !important; }
+            .hero-grid .action-button .ab-top svg { width: 29px !important; height: 29px !important; }
+        }
+
+        /* the filled art is only a shadow behind the glowing outline */
+        .hero-art { opacity: 0.035 !important; }
+        .hero-art, .hero-art-trace { top: 150px !important; height: calc(100vh - 288px) !important; }
+        @supports (height: 100dvh) { .hero-art, .hero-art-trace { height: calc(100dvh - 288px) !important; } }
+        /* Compete first, then Learn, then Practice — the old order rules put Learn in front */
+        .hero-grid .action-button.league   { order: 1 !important; }
+        .hero-grid .action-button.learn    { order: 2 !important; width: 116px !important; height: 116px !important; }
+        .hero-grid .action-button.practice { order: 3 !important; }
+        /* a hidden badge must actually stay hidden */
+        .inbox-badge-mini[hidden] { display: none !important; }
 </style>
 </head>
 <body>
@@ -1620,33 +1733,13 @@
                 <div class="ticker" id="ticker1-duplicate"></div>
             </div>
         </div>
-        <!-- Second row -->
-        <div class="ticker-row">
-            <div class="ticker-track reverse">
-                <div class="ticker" id="ticker2"></div>
-                <div class="ticker" id="ticker2-duplicate"></div>
-            </div>
-        </div>
+
     </div>
 
     <!-- Navigation -->
     <div class="navbar">
         <span class="welcome-message" id="welcomeMsg"><span id="welcomePre"></span><span id="username"></span><span id="welcomePost"></span><span class="type-caret" id="typeCaret">|</span></span>
-        <div class="header-tickers">
-            <div class="index-chip up" id="idxSP">
-                <span class="label">S&P 500</span>
-                <span>—</span>
-            </div>
-            <div class="index-chip up" id="idxDOW">
-                <span class="label">DOW</span>
-                <span>—</span>
-            </div>
-            <div class="index-chip down" id="idxNAS">
-                <span class="label">NASDAQ</span>
-                <span>—</span>
-            </div>
-
-        </div>
+        <div class="header-tickers"></div>
         <div class="header-actions">
             <div class="clock-chip" id="clockChip">
                 <span id="navClock">—</span>
@@ -1672,78 +1765,71 @@
                         <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
                     </filter>
                 </defs>
-                <path id="traceBull" d="M788,109 L641,179 L640,199 L643,209 L655,223 L676,239 L669,251 L651,242 L631,223 L623,207 L622,181 L561,139 L207,436 L178,529 L134,530 L136,604 L196,556 L227,462 L230,458 L287,591 L244,635 L236,648 L288,770 L344,770 L321,696 L317,673 L443,529 L418,435 L418,424 L492,536 L603,541 L657,595 L705,594 L632,490 L555,441 L572,289 L577,289 L602,342 L614,360 L709,414 L765,360 L767,353 L740,239 L700,212 L698,208 Z M414,604 L357,669 L473,769 L519,771 Z" fill="none" stroke="#1AB921" stroke-width="4" stroke-linecap="round" filter="url(#ftGlow)"/>
-                <path id="traceBear" d="M857,276 L839,322 L777,389 L781,422 L730,481 L784,520 L791,522 L852,490 L907,487 L931,450 L941,440 L926,509 L921,515 L773,614 L737,685 L898,619 L989,618 L1048,569 L1019,633 L1067,725 L1024,768 L1025,770 L1147,770 L1148,696 L1208,618 L1207,628 L1183,690 L1184,695 L1214,733 L1193,769 L1283,769 L1292,724 L1251,674 L1248,594 L1239,488 L972,224 L891,286 Z M996,648 L991,644 L900,643 L830,769 L912,770 L1000,660 Z" fill="none" stroke="#C40D10" stroke-width="4" stroke-linecap="round" filter="url(#ftGlow)"/>
+                <path id="traceBull" d="M788,109 L641,179 L640,199 L643,209 L655,223 L676,239 L669,251 L651,242 L631,223 L623,207 L622,181 L561,139 L207,436 L178,529 L134,530 L136,604 L196,556 L227,462 L230,458 L287,591 L244,635 L236,648 L288,770 L344,770 L321,696 L317,673 L443,529 L418,435 L418,424 L492,536 L603,541 L657,595 L705,594 L632,490 L555,441 L572,289 L577,289 L602,342 L614,360 L709,414 L765,360 L767,353 L740,239 L700,212 L698,208 Z M414,604 L357,669 L473,769 L519,771 Z" fill="none" stroke="#28E05C" stroke-width="4.5" stroke-linecap="round" filter="url(#ftGlow)"/>
+                <path id="traceBear" d="M857,276 L839,322 L777,389 L781,422 L730,481 L784,520 L791,522 L852,490 L907,487 L931,450 L941,440 L926,509 L921,515 L773,614 L737,685 L898,619 L989,618 L1048,569 L1019,633 L1067,725 L1024,768 L1025,770 L1147,770 L1148,696 L1208,618 L1207,628 L1183,690 L1184,695 L1214,733 L1193,769 L1283,769 L1292,724 L1251,674 L1248,594 L1239,488 L972,224 L891,286 Z M996,648 L991,644 L900,643 L830,769 L912,770 L1000,660 Z" fill="none" stroke="#FF3B36" stroke-width="4.5" stroke-linecap="round" filter="url(#ftGlow)"/>
             </svg>
         </div>
 
-        <div class="title-section">
-            <h1 class="main-title">FantasyTrader</h1>
-            <p class="tagline">Compete. Learn. Win.</p>
-        </div>
-        
-        <div class="main-actions">
-            <a href="league.html" class="action-button league">
-                <span class="ab-top">
-                    <!-- championship trophy -->
-                    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M10 4h12v7.5a6 6 0 0 1-12 0V4z"/>
-                        <path d="M10 6H5.6v1.8A4.6 4.6 0 0 0 10 12.4"/>
-                        <path d="M22 6h4.4v1.8A4.6 4.6 0 0 1 22 12.4"/>
-                        <path d="M16 17.5v4"/>
-                        <path d="M12.2 25.5c.4-2.4 1.7-4 3.8-4s3.4 1.6 3.8 4"/>
-                        <path d="M10 28h12M11 25.5h10v2.5H11z"/>
-                        <path d="M16 6.8l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3z" fill="currentColor" stroke="none"/>
-                    </svg>
-                    <i class="ab-idx">02</i>
-                </span>
-                <span class="ab-body">
-                    <em class="ab-kick">Leagues</em>
-                    <span class="ab-name">Compete</span>
-                    <span class="ab-sub">Draft a roster, manage your capital, beat your friends week by week.</span>
-                </span>
-                <span class="ab-arrow">→</span>
-            </a>
-            <a href="learn.html" class="action-button learn">
-                <span class="ab-top">
-                    <!-- open book with a rising candle-chart growing out of the pages -->
-                    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M16 27c-2.2-1.6-5-2.4-8.4-2.4-1.4 0-2.6.1-3.6.4V8.6C5.2 8 6.7 7.8 8.4 7.8c3 0 5.6.8 7.6 2.4 2-1.6 4.6-2.4 7.6-2.4 1.7 0 3.2.2 4.4.8V25c-1-.3-2.2-.4-3.6-.4-3.4 0-6.2.8-8.4 2.4z"/>
-                        <path d="M16 10.2V27"/>
-                        <path d="M7.2 13.4l2.4-2 2 1.6 2-2.4" opacity="0.85"/>
-                        <path d="M20 15.2v-3.6M18.9 12.6h2.2v2h-2.2z" fill="currentColor" stroke="none"/>
-                        <path d="M23.4 13.6V9.4M22.3 10.4h2.2v2.4h-2.2z" fill="currentColor" stroke="none"/>
-                        <path d="M26.8 11.6V7.2M25.7 8.2h2.2v2.2h-2.2z" fill="currentColor" stroke="none"/>
-                    </svg>
-                    <i class="ab-idx">01</i>
-                </span>
-                <span class="ab-body">
-                    <em class="ab-kick">Education</em>
-                    <span class="ab-name">Learn</span>
-                    <span class="ab-sub">Three pathways from first trade to advanced strategy.</span>
-                </span>
-                <span class="ab-arrow">→</span>
-            </a>
-            <a href="practice.html" class="action-button practice">
-                <span class="ab-top">
-                    <!-- target scope with a breakout line punching through the bullseye -->
-                    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="16" cy="16" r="11"/>
-                        <circle cx="16" cy="16" r="6.2" opacity="0.65"/>
-                        <path d="M16 2.2v4M16 25.8v4M2.2 16h4M25.8 16h4"/>
-                        <path d="M8.4 20.8l4-4.4 2.8 2.4 7-8" stroke-width="1.8"/>
-                        <path d="M18.6 10.4l3.6-.4-.4 3.6" stroke-width="1.8"/>
-                        <circle cx="16" cy="16" r="1.4" fill="currentColor" stroke="none"/>
-                    </svg>
-                    <i class="ab-idx">03</i>
-                </span>
-                <span class="ab-body">
-                    <em class="ab-kick">Paper trading</em>
-                    <span class="ab-name">Practice</span>
-                    <span class="ab-sub">Trade real markets with play money.</span>
-                </span>
-                <span class="ab-arrow">→</span>
-            </a>
+        <div class="hero-grid">
+            <div class="hero-left">
+                <div class="hero-eyebrow" id="heroEyebrow">Fantasy stock leagues</div>
+                <h1 class="main-title">FantasyTrader</h1>
+
+                <div class="hero-stats">
+                    <div class="hstat">
+                        <b id="heroCapital">$100,000</b>
+                        <span>Capital</span>
+                    </div>
+                    <div class="hstat">
+                        <b id="heroWeek" class="flat">+0.00%</b>
+                        <span>This week</span>
+                    </div>
+                </div>
+
+                <div class="main-actions">
+                    <a href="league.html" class="action-button league">
+                        <span class="ab-top">
+                            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10 4h12v7.5a6 6 0 0 1-12 0V4z"/>
+                                <path d="M10 6H5.6v1.8A4.6 4.6 0 0 0 10 12.4"/>
+                                <path d="M22 6h4.4v1.8A4.6 4.6 0 0 1 22 12.4"/>
+                                <path d="M16 17.5v4"/>
+                                <path d="M12.2 25.5c.4-2.4 1.7-4 3.8-4s3.4 1.6 3.8 4"/>
+                                <path d="M10 28h12M11 25.5h10v2.5H11z"/>
+                                <path d="M16 6.8l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3z" fill="currentColor" stroke="none"/>
+                            </svg>
+                        </span>
+                        <span class="ab-name">Compete</span>
+                    </a>
+                    <a href="learn.html" class="action-button learn">
+                        <span class="ab-top">
+                            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 27c-2.2-1.6-5-2.4-8.4-2.4-1.4 0-2.6.1-3.6.4V8.6C5.2 8 6.7 7.8 8.4 7.8c3 0 5.6.8 7.6 2.4 2-1.6 4.6-2.4 7.6-2.4 1.7 0 3.2.2 4.4.8V25c-1-.3-2.2-.4-3.6-.4-3.4 0-6.2.8-8.4 2.4z"/>
+                                <path d="M16 10.2V27"/>
+                                <path d="M7.2 13.4l2.4-2 2 1.6 2-2.4" opacity="0.85"/>
+                                <path d="M20 15.2v-3.6M18.9 12.6h2.2v2h-2.2z" fill="currentColor" stroke="none"/>
+                                <path d="M23.4 13.6V9.4M22.3 10.4h2.2v2.4h-2.2z" fill="currentColor" stroke="none"/>
+                                <path d="M26.8 11.6V7.2M25.7 8.2h2.2v2.2h-2.2z" fill="currentColor" stroke="none"/>
+                            </svg>
+                        </span>
+                        <span class="ab-name">Learn</span>
+                    </a>
+                    <a href="practice.html" class="action-button practice">
+                        <span class="ab-top">
+                            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="16" cy="16" r="11"/>
+                                <circle cx="16" cy="16" r="6.2" opacity="0.65"/>
+                                <path d="M16 2.2v4M16 25.8v4M2.2 16h4M25.8 16h4"/>
+                                <path d="M8.4 20.8l4-4.4 2.8 2.4 7-8" stroke-width="1.8"/>
+                                <path d="M18.6 10.4l3.6-.4-.4 3.6" stroke-width="1.8"/>
+                                <circle cx="16" cy="16" r="1.4" fill="currentColor" stroke="none"/>
+                            </svg>
+                        </span>
+                        <span class="ab-name">Practice</span>
+                    </a>
+                </div>
+            </div>
+            <div class="hero-right" aria-hidden="true"></div>
         </div>
 
         <!-- Funds & Careers Section - Hidden for MVP -->
@@ -1766,7 +1852,7 @@
                 <a class="panel-go" href="beginner-module-6.html">Open Module</a>
             </div>
         </div>
-        <div class="panel-section market-news">
+        <div class="panel-section market-news" onclick="window.location.href='news.html'" style="cursor:pointer;" title="Open the news page">
             <h3><svg class="news-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 4h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2z"/></svg> Market News</h3>
             <div class="panel-content news-flash">
                 <div class="nf-left">
@@ -1777,14 +1863,15 @@
                 <div class="news-thumb" id="dashNewsThumb"></div>
             </div>
         </div>
-        <div class="panel-section">
+        <div class="panel-section ann-panel" onclick="openAnnModal()" style="cursor:pointer;" title="Read all posts">
             <h3>Announcements</h3>
-            <div class="panel-content ann-carousel">
-                <div class="ann-item" id="annItem" onclick="openAnnModal()" style="cursor:pointer;">
-                    <span class="ann-bar gold" id="annBar"></span>
-                    <span class="ann-text" id="annText"><b class="race-title">THE $25 RETURNS RACE</b></span>
+            <div class="panel-content">
+                <div class="ann-pin">
+                    <span class="ann-tag">Pinned</span>
+                    <div class="ann-head">The $25 returns race</div>
+                    <div class="ann-body">First trader to double their money takes the pot.</div>
+                    <span class="ann-more">Read all posts &rsaquo;</span>
                 </div>
-                <button class="ann-next" id="annNext" title="All announcements" onclick="openAnnModal()">›</button>
             </div>
         </div>
         <div class="panel-section">
@@ -1935,9 +2022,11 @@
 
         // Inbox badge — count written by the mail page on each build
         (function () {
-            const n = parseInt(localStorage.getItem('inboxCount') || '1', 10);
+            const n = parseInt(localStorage.getItem('inboxCount') || '0', 10);
             const b = document.getElementById('inboxCountBadge');
-            if (b && n > 0) { b.textContent = n > 99 ? '99+' : n; b.hidden = false; }
+            if (!b) return;
+            if (n > 0) { b.textContent = n > 99 ? '99+' : n; b.hidden = false; }
+            else { b.hidden = true; }
         })();
 
         // Glowing outline trace: circle the bull in green, then the bear in red, forever.
@@ -1955,7 +2044,7 @@
             const LB = prep(bull), LR = prep(bear);
             function run(p, L, dur) {
                 return new Promise(res => {
-                    p.style.opacity = 0.5;
+                    p.style.opacity = 0.78;
                     const t0 = performance.now();
                     (function step(t) {
                         const k = Math.min(1, (t - t0) / dur);
@@ -2040,15 +2129,10 @@
         }
 
         function initializeTickers() {
-            // Set up first row
-            const content1 = createTickerContent(row1Data);
-            document.getElementById('ticker1').innerHTML = content1;
-            document.getElementById('ticker1-duplicate').innerHTML = content1;
-
-            // Set up second row
-            const content2 = createTickerContent(row2Data);
-            document.getElementById('ticker2').innerHTML = content2;
-            document.getElementById('ticker2-duplicate').innerHTML = content2;
+            // One bar now — both former rows' tickers scroll through it together.
+            const content = createTickerContent(row1Data.concat(row2Data));
+            document.getElementById('ticker1').innerHTML = content;
+            document.getElementById('ticker1-duplicate').innerHTML = content;
         }
 
         // Initialize tickers
@@ -2069,12 +2153,9 @@
                 });
                 const good = Object.values(map).filter(r => r && Number(r.price) > 0).length;
                 if (good < 5) return;   // cache empty/stale -> leave the market-close values alone
-                const c1 = createTickerContent(apply(row1Data));
+                const c1 = createTickerContent(apply(row1Data).concat(apply(row2Data)));
                 document.getElementById('ticker1').innerHTML = c1;
                 document.getElementById('ticker1-duplicate').innerHTML = c1;
-                const c2 = createTickerContent(apply(row2Data));
-                document.getElementById('ticker2').innerHTML = c2;
-                document.getElementById('ticker2-duplicate').innerHTML = c2;
             } catch (e) { /* keep placeholders */ }
         })();
 
@@ -2409,6 +2490,55 @@
                 setTimeout(startSpotlightTutorial, 600);
             }
         });
+
+        /* ── hero stats: your league capital, or your practice account ──
+           A league you're actually in wins; otherwise we fall back to the
+           practice portfolio so the numbers are never placeholder. */
+        (async function heroStats() {
+            const capEl  = document.getElementById('heroCapital');
+            const wkEl   = document.getElementById('heroWeek');
+            const eyeEl  = document.getElementById('heroEyebrow');
+            if (!capEl || !window.SL || !SL.configured) return;
+            const money = n => '$' + Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+            const setPct = (el, pct) => {
+                el.className = pct > 0.005 ? 'up' : pct < -0.005 ? 'down' : 'flat';
+                el.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+            };
+            try {
+                const me = await SL.currentUser();
+                const leagues = await SL.myLeagues().catch(() => []);
+                const live = (leagues || []).map(r => r.leagues).filter(l => l && l.status === 'active');
+                if (me && live.length) {
+                    const l = live[0];
+                    const standings = await SL.leagueStandings(l.id);
+                    const mine = standings.find(x => x.user_id === me.id);
+                    const rank = standings.findIndex(x => x.user_id === me.id) + 1;
+                    const members = await SL.getLeagueMembers(l.id).catch(() => []);
+                    const cash = (members.find(m => m.user_id === me.id) || {}).cash;
+                    if (mine) {
+                        capEl.textContent = money((Number(cash) || 0) + mine.value);
+                        setPct(wkEl, mine.returnPct);
+                        const ord = n => { const v = n % 100; if (v >= 11 && v <= 13) return n + 'th';
+                            return n + ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th'); };
+                        if (eyeEl && rank) eyeEl.textContent = l.name + ' · ' + ord(rank) + ' of ' + standings.length;
+                        return;
+                    }
+                }
+                const pf = await SL.loadPortfolio();
+                const syms = Object.keys(pf.stocks || {});
+                const prices = syms.length ? await SL.getPrices(syms) : {};
+                let val = 0, cost = 0;
+                syms.forEach(sym => {
+                    const pos = pf.stocks[sym], q = prices[sym];
+                    const px = q && q.price != null ? Number(q.price) : Number(pos.avgPrice || 0);
+                    val  += px * (pos.shares || 0);
+                    cost += (pos.avgPrice || px) * (pos.shares || 0);
+                });
+                capEl.textContent = money((pf.cash || 0) + val);
+                setPct(wkEl, cost > 0 ? (val - cost) / cost * 100 : 0);
+                if (eyeEl) eyeEl.textContent = 'Practice account';
+            } catch (e) { /* leave the defaults up */ }
+        })();
     </script>
     <!-- Announcements popup -->
     <div id="annModal" class="ann-modal" onclick="if (event.target === this) closeAnnModal()">
@@ -2418,16 +2548,20 @@
                 <button class="ann-modal-close" onclick="closeAnnModal()">✕</button>
             </div>
             <div class="ann-modal-item">
-                <div class="ann-modal-title race-title">THE $25 RETURNS RACE</div>
-                <p>Double your portfolio before anyone else in the league does. First trader to hit <b>+100% total returns</b> takes the $25 pot — every trade counts, and the leaderboard doesn't lie.</p>
+                <div class="ann-modal-title">The $25 returns race <span class="ann-pill">Pinned</span></div>
+                <p>First trader to double their money wins the pot. Practice accounts don't count, only league portfolios. Standings update with the market.</p>
             </div>
             <div class="ann-modal-item">
-                <div class="ann-modal-title">Career Center</div>
-                <p>Coming soon — internships, resume help, and real paths into finance, right from your dashboard.</p>
+                <div class="ann-modal-title">Alternative investments pathway is live</div>
+                <p>Eighteen new modules on crypto, real estate, commodities and private equity. Find them in the Learning Hub.</p>
             </div>
             <div class="ann-modal-item">
-                <div class="ann-modal-title">New Pathway: Alternate Investments</div>
-                <p>Crypto, real estate, commodities, private equity — 18 fresh modules are live now in the Learning Hub.</p>
+                <div class="ann-modal-title">Draft pool expanded to 5,000 stocks</div>
+                <p>Small caps, REITs and ADRs are all draftable now. Prices come from the same live feed as everything else.</p>
+            </div>
+            <div class="ann-modal-item">
+                <div class="ann-modal-title">Career center</div>
+                <p>Internships, resume help and paths into finance. Still being built.</p>
             </div>
         </div>
     </div>

@@ -277,10 +277,10 @@
         </div>
 
         <h2>The theory in one sentence</h2>
-        <p>A business is worth the cash it will hand its owners over its remaining life, discounted to today at a rate reflecting the risk of those cash flows. Everything else in valuation — every multiple, every price target — is a shortcut to this sentence. The <b>discounted cash flow model</b> does it explicitly, which is both its power (assumptions in daylight) and its danger (precision theater: a spreadsheet with 40 inputs still outputs an opinion).</p>
+        <p>A business is worth the cash it will hand its owners over its remaining life, discounted to today at a rate reflecting the risk of those cash flows. Everything else in valuation, every multiple, every price target, is a shortcut to this sentence. The <b>discounted cash flow model</b> does it explicitly, which is both its power (assumptions in daylight) and its danger (precision theater: a spreadsheet with 40 inputs still outputs an opinion).</p>
         <p>The machine has four parts: forecast free cash flows for 5-10 explicit years; estimate a <b>terminal value</b> for everything after; discount both at the <b>WACC</b> (weighted average cost of capital); subtract net debt to get equity value, divide by shares. Each part is a place to lie to yourself, so we'll build one honestly.</p>
         <h2>A full worked model</h2>
-        <p>Target: a software company, $1.0B revenue growing 12% tapering to 6% by year five, 24% FCF margins, $200M net cash, 100M shares. <b>Step 1 — explicit years.</b> FCF: Yr1 $269M, Yr2 $298, Yr3 $327, Yr4 $353, Yr5 $375. <b>Step 2 — WACC.</b> Cost of equity via CAPM: 4.3% risk-free + 1.1 beta × 5% equity premium ≈ 9.8%; no debt, so WACC ≈ 9.8% — call it 10%. <b>Step 3 — discount.</b> Each year's FCF ÷ 1.10^t: 245 + 246 + 246 + 241 + 233 = <b>$1,211M</b>. <b>Step 4 — terminal value</b> via perpetuity growth at 3%: TV = 375 × 1.03 ÷ (0.10 − 0.03) = $5,518M; discounted: 5,518 ÷ 1.10^5 = <b>$3,426M</b>. Enterprise value = 1,211 + 3,426 = $4,637M; plus $200M cash = $4,837M equity; ÷ 100M shares = <b>$48.37</b>.</p>
+        <p>Target: a software company, $1.0B revenue growing 12% tapering to 6% by year five, 24% FCF margins, $200M net cash, 100M shares. <b>Step 1, explicit years.</b> FCF: Yr1 $269M, Yr2 $298, Yr3 $327, Yr4 $353, Yr5 $375. <b>Step 2. WACC.</b> Cost of equity via CAPM: 4.3% risk-free + 1.1 beta × 5% equity premium ≈ 9.8%; no debt, so WACC ≈ 9.8%, call it 10%. <b>Step 3, discount.</b> Each year's FCF ÷ 1.10^t: 245 + 246 + 246 + 241 + 233 = <b>$1,211M</b>. <b>Step 4, terminal value</b> via perpetuity growth at 3%: TV = 375 × 1.03 ÷ (0.10 − 0.03) = $5,518M; discounted: 5,518 ÷ 1.10^5 = <b>$3,426M</b>. Enterprise value = 1,211 + 3,426 = $4,637M; plus $200M cash = $4,837M equity; ÷ 100M shares = <b>$48.37</b>.</p>
         <div class="fig"><svg viewBox="0 0 560 230" xmlns="http://www.w3.org/2000/svg">
 <line x1="60" y1="180" x2="530" y2="180" stroke="rgba(236,226,214,0.25)"/>
 <rect x="80"  y="120" width="40" height="60" fill="rgba(92,184,138,0.5)"/>
@@ -297,17 +297,17 @@
 <text x="220" y="30" text-anchor="middle" fill="#B7ADA1" font-size="11" font-family="Inter,sans-serif">Five forecast years, discounted…</text>
 <text x="280" y="222" text-anchor="middle" fill="#7d746a" font-size="10">The "terminal value" bar is where every DCF hides its opinion.</text>
 </svg><div class="fig-cap">Where the value sits in our model: the five forecast years contribute ~26%; the terminal value contributes ~74%.</div></div>
-        <p>Now the honesty audit. Terminal value is 74% of the answer — meaning the model's output is mostly two numbers we guessed: terminal growth (3%) and WACC (10%). Move terminal growth to 2%: price falls to ~$44. WACC to 9%: price jumps to ~$56. A ±1-point wiggle in either assumption moves the "intrinsic value" ±15%. Anyone quoting a DCF price target to the penny has confused the spreadsheet for the territory.</p>
+        <p>Now the honesty audit. Terminal value is 74% of the answer, meaning the model's output is mostly two numbers we guessed: terminal growth (3%) and WACC (10%). Move terminal growth to 2%: price falls to ~$44. WACC to 9%: price jumps to ~$56. A ±1-point wiggle in either assumption moves the "intrinsic value" ±15%. Anyone quoting a DCF price target to the penny has confused the spreadsheet for the territory.</p>
         <h2>How professionals actually use it</h2>
-        <p>Not as a price oracle — as a <b>discipline engine</b>, three ways. <b>Sensitivity tables</b>: value across a grid of WACC × terminal growth; if the current price sits outside the entire plausible grid (as 2021's story stocks did), that's signal. <b>Reverse DCF</b>: set the model equal to today's price and solve for the implied growth — "the market is pricing 18% FCF growth for a decade; has ANY company this size ever done that?" is a genuinely answerable question (very few; base rates from Mauboussin's work say double-digit decade-long growth is rare and mostly unpredicted). <b>Scenario weighting</b>: bear/base/bull models with probabilities, forcing you to write down what breaks the thesis. The output that matters isn't $48.37 — it's the SHAPE: which assumptions the value is hostage to.</p>
-        <div class="example-box"><div class="example-label">Reverse DCF on a Real Pattern</div><p>A stock trades at $95 when your base model says $48. Solving backwards: the price implies 20% growth for ten years at a 10% discount rate. Roughly 1-2% of companies historically sustain that. The stock isn't "wrong" — it's making a claim. Your job is deciding whether this company is the 1 in 50, sized as if you might be wrong. That is a much better question than "is my target price right?"</p></div>
+        <p>Not as a price oracle, as a <b>discipline engine</b>, three ways. <b>Sensitivity tables</b>: value across a grid of WACC × terminal growth; if the current price sits outside the entire plausible grid (as 2021's story stocks did), that's signal. <b>Reverse DCF</b>: set the model equal to today's price and solve for the implied growth — "the market is pricing 18% FCF growth for a decade; has ANY company this size ever done that?" is a genuinely answerable question (very few; base rates from Mauboussin's work say double-digit decade-long growth is rare and mostly unpredicted). <b>Scenario weighting</b>: bear/base/bull models with probabilities, forcing you to write down what breaks the thesis. The output that matters isn't $48.37, it's the SHAPE: which assumptions the value is hostage to.</p>
+        <div class="example-box"><div class="example-label">Reverse DCF on a Real Pattern</div><p>A stock trades at $95 when your base model says $48. Solving backwards: the price implies 20% growth for ten years at a 10% discount rate. Roughly 1-2% of companies historically sustain that. The stock isn't "wrong", it's making a claim. Your job is deciding whether this company is the 1 in 50, sized as if you might be wrong. That is a much better question than "is my target price right?"</p></div>
         <h2>The craft rules</h2>
-        <div class="key-box"><div class="example-label">DCF Hygiene</div><p>Terminal growth ≤ long-run GDP (~2-3%) — anything higher assumes the company eventually becomes the economy. Reinvestment must fund the growth: growth without capex/R&D is spreadsheet magic. WACC below 8% for an equity needs justification. Terminal value above ~75% of total means your explicit period is too short or your story is all hockey-stick. And run the model on the SAME company twice a year — the drift in your own assumptions is the best measure of how much narrative has infected your process.</p></div>
-        <p>Final calibration: Buffett claims never to have written a DCF ("if the value doesn't scream at you, it isn't there"), while every bank intern builds five a week. Both are consistent: the model's purpose is to make mispricing OBVIOUS or expose that it isn't. If your edge requires the fourth decimal of WACC, you don't have an edge — you have a spreadsheet.</p>
+        <div class="key-box"><div class="example-label">DCF Hygiene</div><p>Terminal growth ≤ long-run GDP (~2-3%), anything higher assumes the company eventually becomes the economy. Reinvestment must fund the growth: growth without capex/R&D is spreadsheet magic. WACC below 8% for an equity needs justification. Terminal value above ~75% of total means your explicit period is too short or your story is all hockey-stick. And run the model on the SAME company twice a year, the drift in your own assumptions is the best measure of how much narrative has infected your process.</p></div>
+        <p>Final calibration: Buffett claims never to have written a DCF ("if the value doesn't scream at you, it isn't there"), while every bank intern builds five a week. Both are consistent: the model's purpose is to make mispricing OBVIOUS or expose that it isn't. If your edge requires the fourth decimal of WACC, you don't have an edge, you have a spreadsheet.</p>
 
         <div class="quiz-section">
             <h3>Check your understanding</h3>
-            <p class="quiz-subtitle">5 questions — expect real numbers. Your score saves to your account.</p>
+            <p class="quiz-subtitle">5 questions, expect real numbers. Your score saves to your account.</p>
             <div class="quiz-q" id="q1" data-why="TV = FCF × (1+g) ÷ (r − g) = 375 × 1.03 ÷ 0.07 ≈ $5,518M.">
                 <p>1. Year-5 FCF is $375M, terminal growth 3%, discount rate 10%. Terminal value at year 5 is…</p>
                 <div class="quiz-opts">
@@ -331,7 +331,7 @@
             <div class="quiz-q" id="q3" data-why="The reverse DCF converts price into a testable claim. Base rates, not the model, provide the verdict.">
                 <p>3. A reverse DCF shows the current price implies 15 years of 18% growth. The correct use of this output is…</p>
                 <div class="quiz-opts">
-                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">shorting immediately — the model says overvalued</div>
+                    <div class="quiz-opt" onclick="checkQuiz(3, this, false)">shorting immediately, the model says overvalued</div>
                     <div class="quiz-opt" onclick="checkQuiz(3, this, true)">asking how often ANY company achieves that base rate, and sizing accordingly</div>
                     <div class="quiz-opt" onclick="checkQuiz(3, this, false)">adjusting WACC until the model agrees with the price</div>
                 </div>
@@ -342,7 +342,7 @@
                 <p>4. Terminal growth of 5% forever in a 2.5%-GDP world implies…</p>
                 <div class="quiz-opts">
                     <div class="quiz-opt" onclick="checkQuiz(4, this, false)">a reasonable mature company</div>
-                    <div class="quiz-opt" onclick="checkQuiz(4, this, true)">the company eventually outgrows the entire economy — a modeling error</div>
+                    <div class="quiz-opt" onclick="checkQuiz(4, this, true)">the company eventually outgrows the entire economy, a modeling error</div>
                     <div class="quiz-opt" onclick="checkQuiz(4, this, false)">nothing unusual</div>
                 </div>
                 <div class="quiz-feedback" id="fb4"></div>
@@ -366,7 +366,7 @@
             <div class="source-item">Investopedia. <em>Weighted Average Cost of Capital.</em> <a href="https://www.investopedia.com/terms/w/wacc.asp" target="_blank" rel="noopener">investopedia.com/terms/w/wacc.asp</a></div>
         </div>
 
-        <div class="legal-note" style="margin-top:2rem;padding:0.9rem 1.1rem;border:1px solid rgba(236,226,214,0.1);border-radius:8px;font:500 0.72rem 'Inter',sans-serif;color:#7d746a;line-height:1.6;">Educational content only — nothing here is investment, legal, or tax advice. Markets involve risk, figures are illustrative and may contain errors, and past performance never guarantees future results. Do your own research before investing real money.</div>
+        <div class="legal-note" style="margin-top:2rem;padding:0.9rem 1.1rem;border:1px solid rgba(236,226,214,0.1);border-radius:8px;font:500 0.72rem 'Inter',sans-serif;color:#7d746a;line-height:1.6;">Educational content only, nothing here is investment, legal, or tax advice. Markets involve risk, figures are illustrative and may contain errors, and past performance never guarantees future results. Do your own research before investing real money.</div>
     </article>
 
     <div class="module-footer">

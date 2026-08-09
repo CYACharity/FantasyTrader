@@ -736,17 +736,11 @@
         }
 
         .learning {
-            background: #5cb88a;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(92, 184, 138, 0.3);
+            color: #F4EEE6;
         }
 
         .hub {
-            background: linear-gradient(90deg, #5cb88a 0%, #e0a24c 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(224, 162, 76, 0.3);
+            color: #F4EEE6;
             margin-left: 20px;
         }
 
@@ -1184,9 +1178,6 @@
     <button class="dashboard-btn" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
 
     <!-- Cool Facts Banner -->
-    <div class="facts-banner">
-        <p id="fact-text" class="fact-text"></p>
-    </div>
 
     <div class="title-container skyline-banner">
         <img src="skyline-light.png" alt="" class="skyline-img">
@@ -1194,7 +1185,6 @@
             <span class="learning">LEARNING</span>
             <span class="hub">HUB</span>
         </h1>
-        <p class="title-sub">Three pathways. Fifty-four modules. Learn the market your way.</p>
     </div>
 
     <div class="learning-container">
@@ -1209,7 +1199,7 @@
                         <text x="18" y="18.5" class="ring-text" id="ringBt">0%</text>
                     </svg>
                 </div>
-                <p class="level-description" id="descB">Market fundamentals, basic terminology, and building your first portfolio.</p>
+                <p class="level-description green" id="descB">Learn the language and buy your first stock.</p>
                 <button class="level-button green-button" id="btnB" onclick="window.location.href='beginner-path.html'">
                     START LEARNING
                     <span class="arrow">→</span>
@@ -1225,7 +1215,7 @@
                         <text x="18" y="18.5" class="ring-text" id="ringIt">0%</text>
                     </svg>
                 </div>
-                <p class="level-description" id="descI">Advanced analysis, chart patterns, and proven trading strategies.</p>
+                <p class="level-description yellow" id="descI">Read charts and trade with a real strategy.</p>
                 <button class="level-button yellow-button" id="btnI" onclick="window.location.href='intermediate-path.html'">
                     START LEARNING
                     <span class="arrow">→</span>
@@ -1241,7 +1231,7 @@
                         <text x="18" y="18.5" class="ring-text" id="ringAt">0%</text>
                     </svg>
                 </div>
-                <p class="level-description" id="descA">Expert-level concepts, risk management, and complex trading techniques.</p>
+                <p class="level-description red" id="descA">Manage risk like the pros do.</p>
                 <button class="level-button red-button" id="btnA" onclick="window.location.href='advanced-path.html'">
                     START LEARNING
                     <span class="arrow">→</span>
@@ -1256,7 +1246,13 @@
                 padding: 0.3rem 0.8rem; border-radius: 999px; white-space: nowrap; z-index: 2;
             }
             .path-card.recommended { border-color: rgba(92,184,138,0.5) !important; }
-        </style>
+        
+        /* level blurbs pick up their path's colour instead of sitting grey */
+        .level-description { font: 700 0.86rem/1.45 'Poppins', sans-serif !important; }
+        .level-description.green  { color: #5CB88A !important; }
+        .level-description.yellow { color: #E0A24C !important; }
+        .level-description.red    { color: #D9645C !important; }
+</style>
         <script>
             // ---------- Pathway switcher + real progress ----------
         // Search: rotating example topics, results open on the All Courses page.
@@ -1278,18 +1274,18 @@
         const PATHWAYS = {
             trading: {
                 links: ['beginner-path.html', 'intermediate-path.html', 'advanced-path.html'],
-                descs: ['Market fundamentals, basic terminology, and building your first portfolio.',
-                        'Advanced analysis, chart patterns, and proven trading strategies.',
-                        'Expert-level concepts, risk management, and complex trading techniques.'],
+                descs: ['Learn the language and buy your first stock.',
+                        'Read charts and trade with a real strategy.',
+                        'Manage risk like the pros do.'],
                 mods: [[1,2,3,4,5,6].map(n=>'beginner-module-'+n),
                        [1,2,3,4,5,6].map(n=>'intermediate-module-'+n),
                        [1,2,3,4,5,6].map(n=>'advanced-module-'+n)]
             },
             investing: {
                 links: ['investing-path.html#beginner', 'investing-path.html#intermediate', 'investing-path.html#advanced'],
-                descs: ['Why long-term investing works — compounding, index funds, diversification.',
-                        'Reading financial statements and valuing what a company is really worth.',
-                        'Dividends, quality businesses, and M&A / corporate actions.'],
+                descs: ['Compounding, index funds, diversification.',
+                        'Read a balance sheet. Value a company.',
+                        'Dividends, quality businesses, buyouts.'],
                 mods: [[1,2,3,4,5,6].map(n=>'investing-module-'+n),
                        [7,8,9,10,11,12].map(n=>'investing-module-'+n),
                        [13,14,15,16,17,18].map(n=>'investing-module-'+n)]
@@ -1443,48 +1439,6 @@
     </div>
 
     <script>
-        // Cool Facts - Randomized
-        document.addEventListener('DOMContentLoaded', () => {
-            const factElement = document.getElementById('fact-text');
-            const facts = [
-                "The S&P 500 has averaged a 10.7% annual return since 1957.",
-                "Warren Buffett made 99% of his wealth after his 50th birthday.",
-                "Time in the market beats timing the market.",
-                "The rule of 72: Divide 72 by your return rate to estimate years to double your money.",
-                "90% of successful trades come from market momentum.",
-                "Compound interest is the 8th wonder of the world.",
-                "The average investor underperforms the market by 2-3% annually.",
-                "Markets are efficient in the long run, but inefficient in the short run.",
-                "Diversification is the only free lunch in investing.",
-                "Fear and greed drive market cycles more than fundamentals."
-            ];
-
-            // Shuffle facts array
-            function shuffleArray(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
-                }
-                return array;
-            }
-
-            const shuffledFacts = shuffleArray([...facts]);
-            let currentIndex = 0;
-
-            function updateFact() {
-                if (factElement) {
-                    factElement.style.opacity = '0';
-                    setTimeout(() => {
-                        factElement.textContent = shuffledFacts[currentIndex];
-                        factElement.style.opacity = '1';
-                        currentIndex = (currentIndex + 1) % shuffledFacts.length;
-                    }, 500);
-                }
-            }
-
-            updateFact();
-            setInterval(updateFact, 10000);
-        });
 
         // Quiz and Module Data
         const beginnerModules = [
@@ -1748,11 +1702,13 @@
             const quizzesTaken = progress.quizzesTaken || 0;
             const certificates = progress.certificates || 0;
 
-            document.getElementById('quizProgress').textContent = quizProgress + '%';
-            document.getElementById('avgScore').textContent = avgScore + '%';
-            document.getElementById('quizzesTaken').textContent = quizzesTaken;
-            document.getElementById('certificates').textContent = certificates;
-            document.getElementById('progressFill').style.width = quizProgress + '%';
+            // some of these stat elements were removed in a redesign — write only what exists
+            const put = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+            put('quizProgress', quizProgress + '%');
+            put('avgScore', avgScore + '%');
+            put('quizzesTaken', quizzesTaken);
+            put('certificates', certificates);
+            const pf = document.getElementById('progressFill'); if (pf) pf.style.width = quizProgress + '%';
         }
 
         function openModule(level) {

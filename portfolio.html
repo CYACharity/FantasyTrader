@@ -1151,8 +1151,8 @@
                 <div class="report-item"><span class="label">Value One Week Ago:</span><span class="value">${fmt(startValue)}</span></div>
                 <div class="report-item"><span class="label">Value Now:</span><span class="value">${fmt(totalValue)}</span></div>
                 <div class="report-item"><span class="label">Weekly Return:</span><span class="value ${weekPct >= 0 ? 'positive' : 'negative'}">${weekPct >= 0 ? '+' : ''}${weekPct.toFixed(2)}%</span></div>
-                ${best ? '<div class="report-item"><span class="label">Best Performer:</span><span class="value positive">' + best.symbol + ' (' + (best.pct >= 0 ? '+' : '') + best.pct.toFixed(1) + '%)</span></div>' : ''}
-                ${worst ? '<div class="report-item"><span class="label">Worst Performer:</span><span class="value ' + (worst.pct >= 0 ? 'positive' : 'negative') + '">' + worst.symbol + ' (' + (worst.pct >= 0 ? '+' : '') + worst.pct.toFixed(1) + '%)</span></div>' : ''}
+                ${best ? '<div class="report-item"><span class="label">Best Performer:</span><span class="value ' + (best.pct >= 0 ? 'positive' : 'negative') + '">' + best.symbol + ' (' + (best.pct >= 0 ? '+' : '') + best.pct.toFixed(1) + '%)</span></div>' : ''}
+                ${(worst && best && worst.symbol !== best.symbol) ? '<div class="report-item"><span class="label">Worst Performer:</span><span class="value ' + (worst.pct >= 0 ? 'positive' : 'negative') + '">' + worst.symbol + ' (' + (worst.pct >= 0 ? '+' : '') + worst.pct.toFixed(1) + '%)</span></div>' : ''}
                 <div class="report-item"><span class="label">Cash on Hand:</span><span class="value">${fmt(cash)}</span></div>`
                 : '<p style="color:#B7ADA1;padding:1rem 0;">No holdings yet — your weekly report starts with your first trade.</p>';
             const modal = document.createElement('div');

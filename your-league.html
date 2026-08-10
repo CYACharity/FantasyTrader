@@ -1380,8 +1380,8 @@
         }
         /* the short, gamey tip above the sliders */
         .alloc-tip {
-            display: flex; align-items: center; gap: .7rem; margin-bottom: 1rem;
-            padding: .7rem .9rem; border-radius: 10px;
+            display: flex; align-items: center; gap: .7rem; margin-bottom: 0.85rem;
+            padding: .48rem .9rem; border-radius: 10px;
             background: rgba(224,162,76,0.10); border: 1px solid rgba(224,162,76,0.35);
         }
         .alloc-tip .tip-txt {
@@ -1977,6 +1977,304 @@
             letter-spacing: 0.13em; text-transform: uppercase;
             color: #C9BEB0; margin-top: 0.45rem;
         }
+
+        /* an unclaimed seat reads as a placeholder, not a player */
+        .pl-row.empty .pl-name { color: #6b6259; font-style: italic; }
+        .pl-row.empty .pl-rank,
+        .pl-row.empty .pl-val,
+        .pl-row.empty .pl-ret { color: #554e47; }
+        /* a plinth with nobody on it */
+        .pod.vacant .pod-name,
+        .pod.vacant .pod-cap,
+        .pod.vacant .pod-ret { color: #5b544c; }
+        .pod.vacant .pod-medal { background: rgba(236,226,214,0.09); color: #6b6259; box-shadow: none; }
+        .pod.vacant .pod-block { opacity: 0.45; }
+        /* the waiting-room countdown borrows the transfer-window clock's look */
+        #draftRoot .wk-clock { justify-content: center; margin: 0.2rem 0 1rem; }
+
+        /* the confirm reads like a league prompt, not a system dialog */
+        .ts-box h3 {
+            font: 800 1.5rem 'Poppins', sans-serif !important; letter-spacing: -0.01em;
+            text-transform: none;
+        }
+        .ts-box .ts-ok {
+            font: 800 0.76rem 'Poppins', sans-serif !important;
+            letter-spacing: 0.1em; text-transform: uppercase;
+        }
+        .ts-box .ts-cancel {
+            font: 700 0.76rem 'Poppins', sans-serif !important;
+            letter-spacing: 0.1em; text-transform: uppercase;
+        }
+
+        /* the league header is just the name now */
+        #leagueSubtitle:empty { display: none; }
+
+        /* ── waiting room roster ── */
+        .wr-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 0.85rem; }
+        .wr-count { font: 700 0.78rem 'Inter', sans-serif; color: #7d746a; font-variant-numeric: tabular-nums; }
+        .wr-list {
+            display: flex; flex-direction: column; margin-bottom: 1.2rem;
+            border: 1px solid rgba(236,226,214,0.1); border-radius: 10px; overflow: hidden;
+        }
+        .wr-row {
+            display: grid; grid-template-columns: 30px 1fr auto; align-items: center; gap: 0.7rem;
+            padding: 0.72rem 0.95rem; border-bottom: 1px solid rgba(236,226,214,0.06);
+        }
+        .wr-row:last-child { border-bottom: none; }
+        .wr-row.me { background: rgba(92,184,138,0.05); box-shadow: inset 2px 0 0 #5CB88A; }
+        .wr-seat {
+            font: 700 0.74rem 'Inter', sans-serif; color: #6b6259; font-variant-numeric: tabular-nums;
+        }
+        .wr-name { font: 600 0.9rem 'Inter', sans-serif; color: #F4EEE6; text-align: left; }
+        .wr-name em {
+            font-style: normal; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.14em;
+            text-transform: uppercase; color: #5CB88A; margin-left: 0.5rem;
+        }
+        .wr-host {
+            font: 700 0.6rem 'Inter', sans-serif; letter-spacing: 0.13em; text-transform: uppercase;
+            color: #E0A24C; border: 1px solid rgba(224,162,76,0.35); border-radius: 4px; padding: 0.14rem 0.42rem;
+        }
+        .wr-row.vacant .wr-name { color: #6b6259; font-weight: 500; font-style: italic; }
+        .wr-row.vacant .wr-seat { color: #4d463f; }
+
+        /* ── draft-complete card: same language as the capital-deployed effect ── */
+        .de-fx {
+            position: fixed; inset: 0; z-index: 100000; display: flex;
+            align-items: center; justify-content: center;
+            background: rgba(20, 17, 14, 0.78); backdrop-filter: blur(2px);
+            animation: deIn 0.35s ease both;
+        }
+        .de-fx.out { animation: deOut 0.35s ease both; }
+        @keyframes deIn  { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes deOut { to { opacity: 0; } }
+        .de-card {
+            background: #241F1B; border: 2px solid rgba(92, 184, 138, 0.55);
+            padding: 2rem 2.9rem 1.7rem; text-align: center;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+            animation: deCard 0.5s cubic-bezier(0.2, 0.9, 0.25, 1) both 0.05s;
+        }
+        @keyframes deCard {
+            from { transform: translateY(22px) scale(0.97); opacity: 0; }
+            to   { transform: none; opacity: 1; }
+        }
+        .de-check { width: 52px; height: 52px; margin: 0 auto 0.9rem; display: block; }
+        .de-check circle { fill: none; stroke: rgba(92, 184, 138, 0.35); stroke-width: 2.5; }
+        .de-check path {
+            fill: none; stroke: #5CB88A; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round;
+            stroke-dasharray: 40; stroke-dashoffset: 40;
+            animation: deTick 0.5s ease 0.35s forwards;
+        }
+        @keyframes deTick { to { stroke-dashoffset: 0; } }
+        .de-title {
+            font: 700 0.72rem 'Inter', sans-serif; letter-spacing: 0.22em;
+            text-transform: uppercase; color: #B7ADA1; margin-bottom: 0.5rem;
+        }
+        .de-amount {
+            font: 800 2.6rem 'Poppins', sans-serif; color: #F4EEE6;
+            line-height: 1; margin-bottom: 0.45rem; font-variant-numeric: tabular-nums;
+        }
+        .de-sub { font: 500 0.82rem 'Inter', sans-serif; color: #7d746a; margin-bottom: 1.4rem; }
+        .de-next {
+            width: 100%; padding: 0.78rem 1rem; border: none; cursor: pointer;
+            background: linear-gradient(180deg,#63bf92,#4faa7d); color: #14110E;
+            font: 800 0.76rem 'Poppins', sans-serif; letter-spacing: 0.14em; text-transform: uppercase;
+        }
+        .de-next:hover { filter: brightness(1.07); }
+        @media (prefers-reduced-motion: reduce) {
+            .de-fx, .de-card, .de-check path { animation-duration: 0.01s !important; }
+        }
+
+        /* the filled part of each slider matches that stock's slice of the bar */
+        .alloc-mini::-webkit-slider-runnable-track {
+            background: linear-gradient(90deg,
+                var(--fill, #5CB88A) 0 var(--pct, 0%),
+                rgba(236,226,214,0.16) var(--pct, 0%) 100%) !important;
+        }
+        .alloc-mini::-webkit-slider-thumb {
+            background: var(--fill, #5CB88A) !important;
+        }
+        .alloc-mini::-moz-range-progress { background: var(--fill, #5CB88A); height: 7px; border-radius: 999px; }
+        .alloc-mini::-moz-range-thumb { background: var(--fill, #5CB88A); }
+
+        /* the stage you're on gets a thick outline, not a thin left rule */
+        .team-step.now {
+            border: 2px solid #E0A24C !important;
+            background: rgba(224,162,76,0.09) !important;
+            box-shadow: 0 0 0 1px rgba(224,162,76,0.25);
+        }
+        .team-step.done { border-left-color: #5cb88a; }
+
+        /* lineup confirm footer */
+        .lu-confirm {
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+            flex-wrap: wrap; margin-top: 1.2rem; padding: 0.95rem 1.1rem; border-radius: 10px;
+            background: rgba(92,184,138,0.08); border: 1px solid rgba(92,184,138,0.3);
+        }
+        .lu-confirm .lu-q { font: 700 0.92rem 'Inter', sans-serif; color: #F4EEE6; }
+        .lu-confirm .lu-note { font: 400 0.78rem 'Inter', sans-serif; color: #B7ADA1; margin-top: 0.16rem; }
+        .lu-go {
+            background: linear-gradient(180deg,#63bf92,#4faa7d); color: #14110E; border: none;
+            padding: .72rem 1.5rem; border-radius: 9px; cursor: pointer;
+            font: 800 .78rem 'Poppins', sans-serif; letter-spacing: .12em; text-transform: uppercase;
+        }
+        .lu-go:hover { filter: brightness(1.07); }
+        .lu-skip {
+            background: none; border: 1px solid rgba(236,226,214,.2); color: #B7ADA1;
+            padding: .68rem 1.2rem; border-radius: 9px; cursor: pointer;
+            font: 700 .74rem 'Inter', sans-serif;
+        }
+        .lu-skip:hover { color: #F4EEE6; border-color: rgba(236,226,214,.4); }
+
+        .tm-act {
+            background: none; border: 1px solid rgba(236,226,214,.2); color: #B7ADA1;
+            padding: .6rem 1.2rem; border-radius: 8px; cursor: pointer;
+            font: 600 .84rem 'Inter', sans-serif; margin-right: .6rem;
+        }
+        .tm-act:hover { color: #F4EEE6; border-color: rgba(236,226,214,.42); }
+
+        /* ── Team Manager walkthrough ── */
+        .tt-tour { position: fixed; inset: 0; z-index: 99999; animation: ttIn .3s ease both; }
+        .tt-tour.out { animation: ttOut .3s ease both; }
+        @keyframes ttIn  { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes ttOut { to { opacity: 0; } }
+        .tt-mask { position: absolute; inset: 0; pointer-events: auto; }
+        .tt-ring {
+            position: absolute; border: 2px solid #E0A24C; border-radius: 10px; pointer-events: none;
+            box-shadow: 0 0 0 3px rgba(224,162,76,0.16), 0 0 22px rgba(224,162,76,0.3);
+            transition: all .3s cubic-bezier(.3,.8,.3,1);
+        }
+        .tt-card {
+            position: absolute; width: 300px; background: #241F1B;
+            border: 1px solid rgba(236,226,214,0.14); border-radius: 12px;
+            padding: 1.15rem 1.25rem 1.05rem; box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+            opacity: 0; transform: translateY(6px); transition: opacity .25s ease, transform .25s ease;
+        }
+        .tt-card.on { opacity: 1; transform: none; }
+        .tt-step {
+            font: 700 0.6rem 'Inter', sans-serif; letter-spacing: 0.18em; text-transform: uppercase;
+            color: #E0A24C; margin-bottom: 0.45rem;
+        }
+        .tt-title { font: 800 1.05rem 'Poppins', sans-serif; color: #F4EEE6; margin-bottom: 0.4rem; }
+        .tt-body { font: 400 0.85rem/1.5 'Inter', sans-serif; color: #B7ADA1; margin-bottom: 1rem; }
+        .tt-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.7rem; }
+        .tt-skip {
+            background: none; border: none; color: #7d746a; cursor: pointer;
+            font: 600 0.78rem 'Inter', sans-serif; padding: 0;
+        }
+        .tt-skip:hover { color: #B7ADA1; }
+        .tt-next {
+            background: linear-gradient(180deg,#63bf92,#4faa7d); color: #14110E; border: none;
+            padding: .6rem 1.3rem; border-radius: 8px; cursor: pointer;
+            font: 800 .72rem 'Poppins', sans-serif; letter-spacing: .1em; text-transform: uppercase;
+        }
+        .tt-next:hover { filter: brightness(1.07); }
+
+        /* ── week result card ── */
+        .wr-fx {
+            position: fixed; inset: 0; z-index: 100000; display: flex;
+            align-items: center; justify-content: center;
+            background: rgba(20,17,14,0.8); backdrop-filter: blur(3px);
+            animation: deIn .35s ease both;
+        }
+        .wr-fx.out { animation: deOut .35s ease both; }
+        .wr-card {
+            width: min(440px, 92vw); text-align: center; background: #241F1B;
+            padding: 2.1rem 2.4rem 1.8rem; border: 2px solid rgba(92,184,138,0.55);
+            box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+            animation: deCard .5s cubic-bezier(0.2,0.9,0.25,1) both .05s;
+        }
+        .wr-card.lost { border-color: rgba(217,100,92,0.55); }
+        .wr-week {
+            font: 700 0.62rem 'Inter', sans-serif; letter-spacing: 0.24em;
+            text-transform: uppercase; color: #7d746a; margin-bottom: 0.7rem;
+        }
+        .wr-verdict { font: 800 1.75rem 'Poppins', sans-serif; color: #F4EEE6; line-height: 1.15; margin-bottom: 0.5rem; }
+        .wr-amt {
+            font: 800 2.5rem 'Poppins', sans-serif; line-height: 1; margin-bottom: 0.7rem;
+            font-variant-numeric: tabular-nums; color: #5CB88A;
+        }
+        .wr-card.lost .wr-amt { color: #D9645C; }
+        .wr-note { font: 400 0.86rem/1.5 'Inter', sans-serif; color: #B7ADA1; margin-bottom: 1.4rem; }
+        .wr-go {
+            width: 100%; padding: .8rem 1rem; border: none; cursor: pointer;
+            background: linear-gradient(180deg,#63bf92,#4faa7d); color: #14110E;
+            font: 800 .76rem 'Poppins', sans-serif; letter-spacing: .13em; text-transform: uppercase;
+        }
+        .wr-card.lost .wr-go { background: linear-gradient(180deg,#e0776e,#c9564d); }
+        .wr-go:hover { filter: brightness(1.07); }
+
+        /* ── the debt bar on the allocation screen ── */
+        .debt-bar {
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+            flex-wrap: wrap; margin: 0 0 0.9rem; padding: 0.8rem 1rem; border-radius: 10px;
+            background: rgba(217,100,92,0.1); border: 1px solid rgba(217,100,92,0.4);
+        }
+        .debt-k { font: 800 0.95rem 'Poppins', sans-serif; color: #F4EEE6; }
+        .debt-s { font: 400 0.76rem 'Inter', sans-serif; color: #C0938E; margin-top: 0.18rem; max-width: 34rem; }
+        .debt-auto {
+            background: none; border: 1px solid rgba(217,100,92,0.5); color: #E29A93;
+            padding: .55rem 1rem; border-radius: 8px; cursor: pointer; font: 700 .76rem 'Inter', sans-serif;
+        }
+        .debt-auto:hover { color: #F4EEE6; border-color: #D9645C; }
+        .debt-done {
+            background: linear-gradient(180deg,#e0776e,#c9564d); color: #14110E; border: none;
+            padding: .58rem 1.2rem; border-radius: 8px; cursor: pointer;
+            font: 800 .72rem 'Poppins', sans-serif; letter-spacing: .1em; text-transform: uppercase;
+        }
+        .debt-done:hover { filter: brightness(1.07); }
+
+        /* ── the verdict slate ── */
+        .verdict {
+            position: relative; overflow: hidden; text-align: center;
+            padding: 3rem 2rem 2.6rem; margin-bottom: 1.2rem;
+            background: #241F1B; border: 2px solid rgba(92,184,138,0.5);
+            animation: vdIn .55s cubic-bezier(.2,.9,.25,1) both;
+        }
+        .verdict.lost { border-color: rgba(217,100,92,0.5); }
+        .verdict.gone { animation: vdOut .45s ease forwards; }
+        @keyframes vdIn  { from { opacity: 0; transform: translateY(18px) scale(.98); } to { opacity: 1; transform: none; } }
+        @keyframes vdOut { to { opacity: 0; transform: translateY(-26px) scale(.97); } }
+        .verdict::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(ellipse at 50% 0%, rgba(92,184,138,0.14), transparent 62%);
+        }
+        .verdict.lost::before { background: radial-gradient(ellipse at 50% 0%, rgba(217,100,92,0.14), transparent 62%); }
+        .vd-week {
+            position: relative; font: 700 0.62rem 'Inter', sans-serif; letter-spacing: 0.26em;
+            text-transform: uppercase; color: #8a8178; margin-bottom: 0.9rem;
+        }
+        .vd-line {
+            position: relative; font: 800 clamp(1.8rem, 4.4vw, 3.1rem) 'Poppins', sans-serif;
+            line-height: 1.1; color: #F4EEE6; margin-bottom: 0.5rem; letter-spacing: -0.015em;
+        }
+        .vd-line b { color: #5CB88A; }
+        .verdict.lost .vd-line b { color: #D9645C; }
+        .vd-amt {
+            position: relative; font: 800 1.5rem 'Poppins', sans-serif;
+            font-variant-numeric: tabular-nums; color: #5CB88A; margin-bottom: 1.6rem;
+        }
+        .verdict.lost .vd-amt { color: #D9645C; }
+        .vd-go {
+            position: relative; border: none; cursor: pointer;
+            padding: .85rem 2rem; border-radius: 10px;
+            background: linear-gradient(180deg,#63bf92,#4faa7d); color: #14110E;
+            font: 800 .78rem 'Poppins', sans-serif; letter-spacing: .13em; text-transform: uppercase;
+        }
+        .verdict.lost .vd-go { background: linear-gradient(180deg,#e0776e,#c9564d); }
+        .vd-go:hover { filter: brightness(1.08); }
+
+        /* this week's fixtures wait underneath, then rise into place */
+        #muList.mu-hidden { display: none; }
+        #muList.reveal { display: block; animation: muRise .6s cubic-bezier(.2,.9,.25,1) both; }
+        #muList.reveal .mu-card { animation: muCard .5s cubic-bezier(.2,.9,.25,1) both; }
+        #muList.reveal .mu-card:nth-child(2) { animation-delay: .08s; }
+        #muList.reveal .mu-card:nth-child(3) { animation-delay: .16s; }
+        #muList.reveal .mu-card:nth-child(4) { animation-delay: .24s; }
+        @keyframes muRise  { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes muCard  { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) {
+            .verdict, #muList.reveal, #muList.reveal .mu-card { animation-duration: .01s !important; }
+        }
 </style>
 </head>
 <body>
@@ -1990,7 +2288,7 @@
                 </div>
                 <div class="league-info">
                     <h1 class="league-name" id="leagueName">Elite Traders League</h1>
-                    <p class="league-subtitle" id="leagueSubtitle">8 Investors • 3 Months</p>
+                    <p class="league-subtitle" id="leagueSubtitle"></p>
                 </div>
             </div>
             <div class="header-actions">
@@ -1998,7 +2296,7 @@
                     <i class="fas fa-arrow-left"></i> Back
                 </a>
                 <button class="btn btn-primary" id="enterDraftBtn" onclick="enterDraft()">
-                    <i class="fas fa-play"></i> Enter Draft
+                    <i class="fas fa-play"></i> Draft
                 </button>
             </div>
         </div>
@@ -2012,7 +2310,7 @@
                 <i class="fas fa-home"></i>
                 <span>Overview</span>
             </button>
-            <button class="sidebar-tab" onclick="switchSection('draft')">
+            <button class="sidebar-tab" id="draftTab" onclick="switchSection('draft')">
                 <i class="fas fa-bolt"></i>
                 <span>Draft</span>
             </button>
@@ -2533,6 +2831,7 @@
                 ? event.target.closest('.sidebar-tab') : null;
             const tab = fromTab || document.querySelector(`.sidebar-tab[onclick*="'${sectionName}'"]`);
             if (tab) tab.classList.add('active');
+            try { syncDraftBtn(); } catch (e) {}
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -2559,11 +2858,8 @@
                     leagueNameEl.textContent = league.name || 'Elite Traders League';
                 }
                 
-                if (leagueSubtitleEl) {
-                    const playerCount = league.players || 8;
-                    const duration = league.duration || 3;
-                    leagueSubtitleEl.textContent = `${playerCount} Investors • ${duration} Month${duration > 1 ? 's' : ''}`;
-                }
+                const playerCount = league.players || 8;
+                if (leagueSubtitleEl) leagueSubtitleEl.textContent = '';
                 
                 // Update stats
                 const statPlayersEl = document.getElementById('statPlayers');
@@ -2917,6 +3213,25 @@
 
         function enterDraft() {
             selectSection('draft');
+            syncDraftBtn();
+        }
+        // Hide the header's Draft button whenever the draft tab is the one showing.
+        function syncDraftBtn() {
+            const st = (DRAFT.league || {}).status;
+            const preDraft = (st === 'lobby' || st === 'drafting');
+            // Once the draft is history the tab is dead weight — hide it and bail
+            // out of the section if that's where the player happens to be sitting.
+            const tab = document.getElementById('draftTab');
+            if (tab && DRAFT.id) {
+                tab.style.display = preDraft ? '' : 'none';
+                const sec = document.getElementById('draft');
+                if (!preDraft && sec && sec.classList.contains('active')) selectSection('overview');
+            }
+            const b = document.getElementById('enterDraftBtn');
+            if (!b) return;
+            const sec2 = document.getElementById('draft');
+            const onDraft = !!(sec2 && sec2.classList.contains('active'));
+            b.style.display = (preDraft && !onDraft) ? '' : 'none';
         }
 
         // Programmatic section switch (no reliance on a click event)
@@ -2928,6 +3243,7 @@
             document.querySelectorAll('.sidebar-tab').forEach(t => {
                 if (t.getAttribute('onclick') === `switchSection('${sectionName}')`) t.classList.add('active');
             });
+            try { syncDraftBtn(); } catch (e) {}
         }
 
         // Close modal on outside click
@@ -3020,13 +3336,25 @@
                     DRAFT.members = await SL.getLeagueMembers(DRAFT.id);
                 } catch (e) { console.warn('self-heal failed', e); }
             }
+            // Ask the server to settle any week that has finished. Idempotent —
+            // the scheduled function is the real backstop, this just means the
+            // result is waiting for whoever opens the page first.
+            if (DRAFT.league.status === 'active') {
+                try {
+                    await SL.settleLeague(DRAFT.id);
+                    DRAFT.weeks = await SL.myWeekResults(DRAFT.id);
+                    [DRAFT.members, DRAFT.picks] = await Promise.all([
+                        SL.getLeagueMembers(DRAFT.id), SL.getPicks(DRAFT.id)
+                    ]);
+                } catch (e) { console.warn('settle', e); }
+            }
+
             // Header reflects the real league
             const nm = document.getElementById('leagueName'); if (nm) nm.textContent = DRAFT.league.name;
-            const sub = document.getElementById('leagueSubtitle'); if (sub) sub.textContent = `${DRAFT.members.length} Investors • ${DRAFT.league.roster_size} picks each`;
+            const sub = document.getElementById('leagueSubtitle'); if (sub) sub.textContent = '';
             const sp = document.getElementById('statPlayers'); if (sp) sp.textContent = DRAFT.members.length;
             // the big Enter Draft header button only matters before the draft begins
-            const edb = document.getElementById('enterDraftBtn');
-            if (edb) edb.style.display = (DRAFT.league.status === 'lobby') ? '' : 'none';
+            syncDraftBtn();
             const safely = (fn, name) => { try { const r = fn(); if (r && r.catch) r.catch(e => console.warn(name, e)); } catch (e) { console.warn(name, e); } };
             safely(renderDraftMain, 'draftMain');
             safely(renderDraftSidebar, 'draftSidebar');
@@ -3119,6 +3447,23 @@
                 return '<span class="' + (p >= 0 ? 'positive' : 'negative') + '" style="font-size:.8rem;margin-left:.6rem;">' + (p >= 0 ? '+' : '') + p.toFixed(2) + '%</span>';
             };
 
+            // The overview headline is the same segmented clock the matchups tab
+            // uses, so both screens agree on how long is left.
+            function ovClock() {
+                if (L.status !== 'active') return { label: 'Status', html: '<span class="ov-v">' + stTitle + '</span>', sub: stSub };
+                const w = weekInfo();
+                if (w.over) return {
+                    label: 'Season',
+                    html: '<span class="ov-v" style="color:#E0A24C;">League over</span>',
+                    sub: '<a href="#" onclick="selectSection(\'leaderboard\');return false;" style="color:#5CB88A;">View final standings</a>',
+                };
+                const phase = w.prep ? 'Prep window' : w.closed ? 'Transfer window' : 'Week ' + Math.min(w.week, w.totalWeeks) + ' live';
+                const sub = w.prep ? 'until matchups go live'
+                          : w.closed ? 'until the next week starts'
+                          : 'until this week locks';
+                return { label: phase, html: wkClockHtml(w.endsAt), sub };
+            }
+
             // Rank members like a real standings table
             const ranked = DRAFT.members.slice().sort((a, b) => {
                 const va = (standings.find(x => x.user_id === a.user_id) || {}).value || 0;
@@ -3128,14 +3473,18 @@
             box.innerHTML = `
                 <div class="ov-strip">
                     <div class="ov-cell">
-                        <span class="ov-k">Status</span>
-                        <span class="ov-v">${stTitle}</span>
-                        <span class="ov-s">${stSub}</span>
+                        <span class="ov-k">${ovClock().label}</span>
+                        ${ovClock().html}
+                        <span class="ov-s">${ovClock().sub}</span>
                     </div>
                     <div class="ov-cell">
-                        <span class="ov-k">Rosters</span>
-                        <span class="ov-v">${L.roster_size} stocks</span>
-                        <span class="ov-s">11 in play each week</span>
+                        <span class="ov-k">Weekly capital transfer</span>
+                        <span class="ov-v">${(() => {
+                            const pct = Number(L.capital_transfer_pct) || 5;
+                            const cap = Number(L.starting_capital) || 100000;
+                            return pct + '% &middot; $' + Math.round(cap * pct / 100).toLocaleString();
+                        })()}</span>
+                        <span class="ov-s">winner takes it from the loser each week</span>
                     </div>
                     <div class="ov-cell code">
                         <span class="ov-k">Join code</span>
@@ -3158,16 +3507,24 @@
                         const s = standings.find(x => x.user_id === m.user_id) || {};
                         const p = s.returnPct;
                         return `<div class="pl-row ${isMe ? 'me' : ''}">
-                            <span class="pl-rank">${L.status === 'lobby' ? '·' : i + 1}</span>
+                            <span class="pl-rank">${L.status === 'active' ? i + 1 : 1}</span>
                             <span class="pl-name">${nm}${isMe ? '<em>you</em>' : ''}${isHost ? '<i class="pl-host">host</i>' : ''}</span>
                             <span class="pl-val">${valueOf(m.user_id)}</span>
                             <span class="pl-ret ${p == null || L.status === 'lobby' ? '' : (p >= 0 ? 'up' : 'down')}">${p == null || L.status === 'lobby' ? '—' : (p >= 0 ? '+' : '') + p.toFixed(2) + '%'}</span>
                         </div>`;
                     }).join('')}
-                    ${DRAFT.members.length < cap && L.status === 'lobby'
-                        ? `<div class="pl-foot">${cap - DRAFT.members.length} open ${cap - DRAFT.members.length === 1 ? 'seat' : 'seats'} — share the join code</div>` : ''}
+                    ${Array.from({ length: Math.max(0, cap - DRAFT.members.length) }).map(() => `
+                        <div class="pl-row empty">
+                            <span class="pl-rank">&mdash;</span>
+                            <span class="pl-name">Waiting for player&hellip;</span>
+                            <span class="pl-val">&mdash;</span>
+                            <span class="pl-ret">&mdash;</span>
+                        </div>`).join('')}
                 </div>`;
         }
+        // the overview clock needs the same heartbeat as the banner one
+        setInterval(() => { try { tickWkClocks(); } catch (e) {} }, 500);
+
         window.copyJoinCode = function (code) {
             const done = () => draftToast('CODE COPIED');
             if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -3343,24 +3700,47 @@
             const badge = document.getElementById('draftStatusBadge');
             if (L.status === 'lobby'){
                 badge.textContent = 'LOBBY';
+                setTimeout(tickWkClocks, 0);
                 const isOwner = L.owner_id === DRAFT.me.id, canStart = DRAFT.members.length >= 1;
+                const capSeats = L.max_players || 8;
                 root.innerHTML = `
                     <div class="stat-card" style="align-items:stretch;">
-                        <div class="stat-label" style="margin-bottom:.5rem;">Waiting Room</div>
-                        <div style="display:flex; align-items:center; justify-content:center; gap:.8rem; margin-bottom:1rem;">
-                            <span class="ov-code" style="font-size:1.6rem;">${L.join_code}</span>
-                            <button class="ov-copy" onclick="copyJoinCode('${L.join_code}')"><i class="far fa-copy"></i> Copy</button>
+                        <div class="wr-head">
+                            <span class="stat-label">Waiting Room</span>
+                            <span class="wr-count">${DRAFT.members.length} / ${capSeats}</span>
                         </div>
-                        <div style="display:flex; flex-direction:column; gap:.5rem; margin-bottom:1rem;">
-                            ${DRAFT.members.map(m=>`<div style="display:flex; justify-content:space-between; padding:.6rem .9rem; background:rgba(255,255,255,.05); border-radius:8px;"><span>${draftName(m.user_id)}</span>${m.user_id===L.owner_id?'<span style=\"font-size:.7rem;background:var(--accent,#e0a24c);color:#000;padding:.15rem .5rem;border-radius:4px;\">HOST</span>':''}</div>`).join('')}
+                        <div class="wr-list">
+                            ${DRAFT.members.map((m, idx) => {
+                                const nm = draftName(m.user_id);
+                                const isMe = DRAFT.me && m.user_id === DRAFT.me.id;
+                                return `<div class="wr-row ${isMe ? 'me' : ''}">
+                                    <span class="wr-seat">${idx + 1}</span>
+                                    <span class="wr-name">${nm}${isMe ? '<em>you</em>' : ''}</span>
+                                    ${m.user_id === L.owner_id ? '<span class="wr-host">Host</span>' : ''}
+                                </div>`;
+                            }).join('')}
+                            ${Array.from({ length: Math.max(0, capSeats - DRAFT.members.length) }).map((_, k) => `
+                                <div class="wr-row vacant">
+                                    <span class="wr-seat">${DRAFT.members.length + k + 1}</span>
+                                    <span class="wr-name">Waiting for player&hellip;</span>
+                                </div>`).join('')}
                         </div>
-                        ${isOwner
-                            ? `<button class="btn btn-primary" id="draftStartBtn" ${canStart?'':'disabled'} onclick="draftStart()">${canStart?'<i class=\"fas fa-play\"></i> Start Draft':'Waiting for players'}</button>`
-                            : `<div class="stat-label">Waiting for the host to start…</div>`}
+                        ${(() => {
+                            const dAt = L.draft_at ? new Date(L.draft_at).getTime() : null;
+                            const early = dAt && dAt > Date.now();
+                            const clock = early
+                                ? `<div class="wk-label" style="color:#E0A24C;text-align:center;">Draft opens in</div>${wkClockHtml(dAt)}`
+                                : '';
+                            const who = isOwner
+                                ? `<button class="btn btn-primary" id="draftStartBtn" ${canStart ? '' : 'disabled'} onclick="draftStart()">${canStart ? '<i class="fas fa-play"></i> Start Draft' : 'Waiting for players'}</button>`
+                                : `<div class="stat-label" style="text-align:center;">Only the host can start the draft.</div>`;
+                            return clock + who;
+                        })()}
                     </div>`;
                 return;
             }
             if (L.status === 'drafting'){
+                SAW_DRAFTING = true;
                 const t = draftTurn(), n = (L.draft_order||[]).length, total = n*L.roster_size;
                 badge.textContent = `ROUND ${(t?t.round+1:1)} / ${L.roster_size}`;
                 const myTurn = t && t.userId === DRAFT.me.id;
@@ -3404,7 +3784,215 @@
             // deployed on the Your Team tab — the legacy alloc panel is gone).
             root.innerHTML = '<div id="standingsPanel"></div>';
             renderRealLeaderboard(document.getElementById('standingsPanel'));
+            maybeDraftEndCard();
         }
+
+        /* ── Team Manager walkthrough — same spotlight language as the
+              first-run tutorial on the dashboard, but only four beats. ── */
+        const TM_TOUR = [
+            { sel: '#tmTerminal', title: 'Trade terminal',
+              body: 'You can buy and sell positions here.', btn: 'Next' },
+            { sel: '#tmChart', title: 'Your portfolio',
+              body: 'Your portfolio is tracked here. Check back in when lineups are live. Good luck.', btn: 'Next' },
+            { sel: '#tmChangeLineup', title: 'Change starting lineup',
+              body: 'Swap which stocks start for you. Takes you back to step one.', btn: 'Next' },
+            { sel: '#tmReallocate', title: 'Re-allocate',
+              body: 'Move capital between the stocks you already hold.', btn: 'Got it' },
+        ];
+        let tmStep = 0;
+        function teamTourKey() { return 'ftTeamTour_' + (DRAFT.id || ''); }
+        function maybeTeamTour() {
+            let seen = false;
+            try { seen = localStorage.getItem(teamTourKey()) === '1'; } catch (e) {}
+            if (seen) return;
+            if (!document.querySelector('#tmTerminal')) return;
+            try { localStorage.setItem(teamTourKey(), '1'); } catch (e) {}
+            tmStep = 0;
+            const wrap = document.createElement('div');
+            wrap.className = 'tt-tour';
+            wrap.innerHTML = `
+                <svg class="tt-mask" width="100%" height="100%">
+                    <defs><mask id="ttHole">
+                        <rect width="100%" height="100%" fill="white"/>
+                        <rect id="ttCut" x="0" y="0" width="0" height="0" rx="10" fill="black"/>
+                    </mask></defs>
+                    <rect width="100%" height="100%" fill="rgba(10,8,7,0.74)" mask="url(#ttHole)"/>
+                </svg>
+                <div class="tt-ring" id="ttRing"></div>
+                <div class="tt-card" id="ttCard">
+                    <div class="tt-step" id="ttStep"></div>
+                    <div class="tt-title" id="ttTitle"></div>
+                    <div class="tt-body" id="ttBody"></div>
+                    <div class="tt-actions">
+                        <button class="tt-skip" onclick="endTeamTour()">Skip</button>
+                        <button class="tt-next" id="ttNext" onclick="nextTeamTour()"></button>
+                    </div>
+                </div>`;
+            document.body.appendChild(wrap);
+            paintTeamTour();
+            window.addEventListener('resize', paintTeamTour);
+        }
+        function paintTeamTour() {
+            const wrap = document.querySelector('.tt-tour'); if (!wrap) return;
+            const step = TM_TOUR[tmStep];
+            const el = document.querySelector(step.sel);
+            if (!el) { return nextTeamTour(); }
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                const r = el.getBoundingClientRect(), pad = 8;
+                const cut = document.getElementById('ttCut');
+                cut.setAttribute('x', r.left - pad); cut.setAttribute('y', r.top - pad);
+                cut.setAttribute('width', r.width + pad * 2); cut.setAttribute('height', r.height + pad * 2);
+                const ring = document.getElementById('ttRing');
+                ring.style.left = (r.left - pad) + 'px'; ring.style.top = (r.top - pad) + 'px';
+                ring.style.width = (r.width + pad * 2) + 'px'; ring.style.height = (r.height + pad * 2) + 'px';
+                document.getElementById('ttStep').textContent = (tmStep + 1) + ' of ' + TM_TOUR.length;
+                document.getElementById('ttTitle').textContent = step.title;
+                document.getElementById('ttBody').textContent = step.body;
+                document.getElementById('ttNext').textContent = step.btn;
+                // park the card wherever there's actually room
+                const card = document.getElementById('ttCard');
+                const cw = 300, ch = card.offsetHeight || 190;
+                let left, top;
+                if (window.innerWidth - r.right > cw + 40) { left = r.right + 20; top = r.top + r.height / 2 - ch / 2; }
+                else if (r.left > cw + 40) { left = r.left - cw - 20; top = r.top + r.height / 2 - ch / 2; }
+                else if (window.innerHeight - r.bottom > ch + 30) { left = r.left; top = r.bottom + 16; }
+                else { left = r.left; top = r.top - ch - 16; }
+                card.style.left = Math.max(12, Math.min(left, window.innerWidth - cw - 12)) + 'px';
+                card.style.top = Math.max(12, Math.min(top, window.innerHeight - ch - 12)) + 'px';
+                card.classList.add('on');
+            }, 320);
+        }
+        window.nextTeamTour = function () {
+            tmStep++;
+            if (tmStep >= TM_TOUR.length) return endTeamTour();
+            const c = document.getElementById('ttCard'); if (c) c.classList.remove('on');
+            paintTeamTour();
+        };
+        window.endTeamTour = function () {
+            const w = document.querySelector('.tt-tour'); if (!w) return;
+            window.removeEventListener('resize', paintTeamTour);
+            w.classList.add('out');
+            setTimeout(() => w.remove(), 340);
+        };
+
+        /* ── week settlement: the result card, and the debt it may leave ── */
+        function myDebt() {
+            return (DRAFT.weeks || []).find(w =>
+                w.loser_id === (DRAFT.me || {}).id && w.debt_status === 'pending') || null;
+        }
+        function unseenResult() {
+            const me = (DRAFT.me || {}).id;
+            return (DRAFT.weeks || []).find(w =>
+                (w.seen_by || []).indexOf(me) === -1 && w.debt_status !== 'none') || null;
+        }
+        async function maybeWeekResult() {
+            const w = unseenResult();
+            if (!w || document.querySelector('.wr-fx')) return;
+            const iWon = w.winner_id === DRAFT.me.id;
+            const them = draftName(iWon ? w.loser_id : w.winner_id);
+            const amt = '$' + Number(w.transfer_amt || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+            try { await SL.ackWeek(DRAFT.id, w.week); } catch (e) {}
+            const fx = document.createElement('div');
+            fx.className = 'wr-fx';
+            fx.innerHTML = `
+                <div class="wr-card ${iWon ? 'won' : 'lost'}">
+                    <div class="wr-week">Week ${w.week}</div>
+                    <div class="wr-verdict">${iWon ? 'You beat ' + them : them + ' beat you'}</div>
+                    <div class="wr-amt">${iWon ? '+' : '−'}${amt}</div>
+                    <div class="wr-note">${iWon
+                        ? 'Capital transferred from ' + them + '. Put it to work.'
+                        : 'You owe ' + amt + ' to ' + them + '. Raise it before the window closes or it gets sold for you.'}</div>
+                    <button class="wr-go" onclick="closeWeekResult(${iWon ? 'true' : 'false'})">
+                        ${iWon ? 'Allocate capital' : 'Go to allocator'}
+                    </button>
+                </div>`;
+            document.body.appendChild(fx);
+        }
+        window.closeWeekResult = function () {
+            const fx = document.querySelector('.wr-fx');
+            if (fx) { fx.classList.add('out'); setTimeout(() => fx.remove(), 380); }
+            reAllocate();
+        };
+
+        // The forced-sell helper: shave the same slice off every holding.
+        window.sellProRata = function () {
+            const d = myDebt(); if (!d || !ALLOCV) return;
+            const owed = Number(d.transfer_amt) || 0;
+            let held = 0;
+            Object.values(ALLOCV.rows).forEach(x => { held += x.shares * x.price; });
+            const cashNow = Math.max(0, ALLOCV.budget - held);
+            const short = owed - cashNow;
+            if (short <= 0) { draftToast('YOU ALREADY HAVE THE CASH'); return; }
+            if (held <= 0) { alert('Nothing left to sell.'); return; }
+            const frac = Math.min(1, short / held);
+            Object.entries(ALLOCV.rows).forEach(([sym, x]) => {
+                const next = Math.max(0, Math.floor(x.shares * (1 - frac)));
+                x.shares = next;
+                const key = sym.replace(/[^A-Z0-9]/g, '');
+                const sl = document.getElementById('sl_' + key);
+                if (sl) { sl.value = next; previewShares(sym, sl); }
+                saveShares(sym, next);
+            });
+            allocRepaint();
+            draftToast('SOLD ' + (frac * 100).toFixed(1) + '% OF EACH HOLDING');
+        };
+
+        window.settleDebt = async function () {
+            const d = myDebt(); if (!d) return;
+            try {
+                await SL.payWeekDebt(DRAFT.id, d.week);
+                draftToast('DEBT SETTLED');
+                DRAFT.weeks = await SL.myWeekResults(DRAFT.id);
+                await draftRefresh();
+                TEAM_STAGE = null;
+                renderTeam();
+            } catch (e) { alert(e.message || 'Could not settle that yet'); }
+        };
+
+        /* ── the beat between the last pick and the rest of the season ──
+           Without this the board just vanished and the standings snapped in.
+           The card sits over the new view, so dismissing it reveals what's
+           already there rather than triggering another jump. */
+        let SAW_DRAFTING = false;
+        function draftEndKey() { return 'ftDraftEnd_' + (DRAFT.id || ''); }
+        function maybeDraftEndCard() {
+            const L = DRAFT.league || {};
+            if (L.status !== 'active') return;
+            let acked = false;
+            try { acked = localStorage.getItem(draftEndKey()) === '1'; } catch (e) {}
+            // Only the freshly-finished draft earns the card: either we watched
+            // it happen, or we've arrived during the prep window before Week 1.
+            const fresh = SAW_DRAFTING || weekInfo().prep;
+            if (acked || !fresh) return;
+            try { localStorage.setItem(draftEndKey(), '1'); } catch (e) {}
+            showDraftEndCard();
+        }
+        function showDraftEndCard() {
+            if (document.querySelector('.de-fx')) return;
+            const mine = (DRAFT.picks || []).filter(p => DRAFT.me && p.user_id === DRAFT.me.id).length;
+            const fx = document.createElement('div');
+            fx.className = 'de-fx';
+            fx.innerHTML = `
+                <div class="de-card">
+                    <svg class="de-check" viewBox="0 0 52 52" aria-hidden="true">
+                        <circle cx="26" cy="26" r="24"/>
+                        <path d="M15 27l8 8 15-17"/>
+                    </svg>
+                    <div class="de-title">Draft Complete</div>
+                    <div class="de-amount">${mine}</div>
+                    <div class="de-sub">stock${mine === 1 ? '' : 's'} drafted &middot; set your lineup next</div>
+                    <button class="de-next" onclick="closeDraftEndCard()">Next</button>
+                </div>`;
+            document.body.appendChild(fx);
+            setTimeout(() => { const b = fx.querySelector('.de-next'); if (b) b.focus(); }, 420);
+        }
+        window.closeDraftEndCard = function () {
+            const fx = document.querySelector('.de-fx');
+            if (!fx) return;
+            fx.classList.add('out');
+            setTimeout(() => fx.remove(), 420);
+        };
 
 
         /* ── Capital allocation (post-draft) ── */
@@ -3705,7 +4293,7 @@
                 <div>
                     <div class="wk-label" style="color:#5CB88A;">Week ${Math.min(w.week, w.totalWeeks)} of ${w.totalWeeks} · LIVE</div>
                     ${wkClockHtml(w.endsAt)}
-                    <div class="wk-sub">${w.over ? 'Season complete' : 'until this week locks and the transfer window opens'}</div>
+                    <div class="wk-sub">${w.over ? 'League over — view final standings' : 'until this week locks and the transfer window opens'}</div>
                 </div>
                 <div style="text-align:right;">
                     <div class="wk-label">Capital at stake</div>
@@ -3729,20 +4317,30 @@
             }
             const deployed = !!myMembership().deployed;
             const starters = rows.filter(r => r.active);
-            // Once you've deployed, Team Manager is the whole page.
-            if (deployed) {
+            // Once you've deployed, Team Manager is the whole page — unless you've
+            // deliberately stepped back to change your lineup or re-allocate.
+            if (deployed && !TEAM_STAGE) {
                 root.innerHTML = weekBannerHtml() + teamManagerHtml(rows);
                 drawTeamChart(rows);
                 drawTeamPerfChart(rows);
                 termSync();
+                setTimeout(maybeTeamTour, 500);
+                setTimeout(maybeWeekResult, 260);
                 return;
             }
+            // Which of the three stages are we standing on right now?
+            const stage = TEAM_STAGE === 'alloc' ? 'alloc'
+                        : TEAM_STAGE === 'lineup' ? 'lineup'
+                        : 'lineup';
+            const cls = n => stage === 'alloc'
+                ? (n === 1 ? 'done' : n === 2 ? 'now' : '')
+                : (n === 1 ? 'now' : '');
             const stepHtml = `<div class="team-steps">
-                    <div class="team-step ${starters.length === LINEUP_SIZE ? 'done' : 'now'}"><b>1 · Set your lineup</b><span>${starters.length}/${LINEUP_SIZE} starters chosen</span></div>
-                    <div class="team-step ${starters.length === LINEUP_SIZE ? 'now' : ''}"><b>2 · Deploy capital</b><span>Allocate up to $${myCapital().toLocaleString()}</span></div>
-                    <div class="team-step"><b>3 · Team manager</b><span>Unlocks after you deploy</span></div>
+                    <div class="team-step ${cls(1)}"><b>1 · Set your lineup</b><span>${starters.length}/${LINEUP_SIZE} starters chosen</span></div>
+                    <div class="team-step ${cls(2)}"><b>2 · Deploy capital</b><span>Allocate up to $${myCapital().toLocaleString()}</span></div>
+                    <div class="team-step ${cls(3)}"><b>3 · Team manager</b><span>${deployedBefore() ? 'Trade, track and manage' : 'Unlocks after you deploy'}</span></div>
                 </div>`;
-            if (starters.length < LINEUP_SIZE) { root.innerHTML = stepHtml + lineupPickerHtml(rows); return; }
+            if (stage === 'lineup') { root.innerHTML = stepHtml + lineupPickerHtml(rows); return; }
             root.innerHTML = stepHtml + allocationHtml(rows);
             allocRepaint();
             let tipSeen = false; try { tipSeen = localStorage.getItem('ftAllocTipSeen') === '1'; } catch (e) {}
@@ -3765,7 +4363,38 @@
                         <div class="pt-px">${r.price ? '$' + r.price.toFixed(2) : '—'}${r.dayChg != null ? ` <span style="color:${r.dayChg >= 0 ? '#5cb88a' : '#d9645c'}">${r.dayChg >= 0 ? '+' : ''}${r.dayChg.toFixed(1)}%</span>` : ''}</div>
                     </div>`).join('')}
                 </div>
+                ${on === LINEUP_SIZE ? `<div class="lu-confirm">
+                    <div>
+                        <div class="lu-q">Is your starting lineup correct?</div>
+                        <div class="lu-note">You can always change this later.</div>
+                    </div>
+                    <div style="display:flex;gap:.6rem;align-items:center;">
+                        ${deployedBefore() ? '<button class="lu-skip" onclick="skipToManager()">Skip to Team Manager</button>' : ''}
+                        <button class="lu-go" onclick="goToAllocate()">Continue</button>
+                    </div>
+                </div>` : ''}
             </div>`;
+        }
+
+        // Where the setup flow is standing. null = wherever the data says.
+        let TEAM_STAGE = null;
+        function deployedKey() { return 'ftDeployed_' + (DRAFT.id || ''); }
+        function deployedBefore() {
+            try { return localStorage.getItem(deployedKey()) === '1'; } catch (e) { return false; }
+        }
+        window.goToAllocate = function () { TEAM_STAGE = 'alloc'; renderTeam(); scrollTeamTop(); };
+        window.skipToManager = async function () {
+            TEAM_STAGE = null;
+            try {
+                await SL.client.from('league_members').update({ deployed: true })
+                    .eq('league_id', DRAFT.id).eq('user_id', DRAFT.me.id);
+            } catch (e) {}
+            const me = myMembership(); if (me) me.deployed = true;
+            renderTeam(); scrollTeamTop();
+        };
+        function scrollTeamTop() {
+            const tr = document.getElementById('teamRoot');
+            if (tr) tr.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         /* ── phase 2: allocate + deploy ──
@@ -3783,6 +4412,18 @@
             return `<div class="team-card team-glow">
                 <div class="team-head"><h3>Deploy your capital</h3>
                     <span class="team-sub"><b id="allocSpent" style="color:#F4EEE6;">$0</b> allocated · <b id="allocLeft" style="color:#5cb88a;">$0</b> cash left of $${cap.toLocaleString()}</span></div>
+                ${(() => { const d = myDebt(); if (!d) return '';
+                    const amt = '$' + Number(d.transfer_amt || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+                    return `<div class="debt-bar">
+                        <div>
+                            <div class="debt-k">You owe ${amt} to ${draftName(d.winner_id)}</div>
+                            <div class="debt-s">Sell down to raise it, then press Done. Miss the window and it's taken evenly from every holding.</div>
+                        </div>
+                        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                            <button class="debt-auto" onclick="sellProRata()">Sell evenly for me</button>
+                            <button class="debt-done" onclick="settleDebt()">Done</button>
+                        </div>
+                    </div>`; })()}
                 <div class="cap-bar" id="allocBar"></div>
                 <div class="alloc-tip" id="allocTip">
                     <span class="tip-txt">Slide to buy shares. You <b>can't overspend</b> &mdash; leftover cash sits idle.</span>
@@ -3792,7 +4433,6 @@
                 ${starters.map(r => {
                     const key = r.symbol.replace(/[^A-Z0-9]/g, '');
                     const soloMax = r.price > 0 ? Math.floor(budget / r.price) : 0;   // hard ceiling; live clamp is tighter
-                    const step = soloMax > 400 ? Math.max(1, Math.round(soloMax / 200)) : 1;   // calm the slider on huge positions
                     return `<div class="lineup-row">
                         <span>${logoHtml(r.symbol, r.sector)}</span>
                         <span><span class="sym">${r.symbol}</span><br><span style="font-size:.68rem;color:#7d746a;">${r.sector}</span></span>
@@ -3800,15 +4440,18 @@
                         <span><input class="alloc-num" id="shTxt_${key}" type="number" min="0" value="${r.shares}" ${r.price > 0 ? '' : 'disabled'}
                                 title="Type a share count" onfocus="this.select()" onclick="this.select()"
                                 onchange="typeShares('${r.symbol}', this.value)"></span>
-                        <span class="alloc-cell"><input class="alloc-mini" id="sl_${key}" type="range" min="0" max="${soloMax}" step="${step}" value="${r.shares}" ${r.price > 0 ? '' : 'disabled'}
+                        <span class="alloc-cell"><input class="alloc-mini" id="sl_${key}" type="range" min="0" max="${soloMax}" step="1" value="${r.shares}" ${r.price > 0 ? '' : 'disabled'}
+                                style="--fill:${SEC_COLORS[r.sector] || '#5CB88A'};--pct:${soloMax ? (r.shares / soloMax * 100).toFixed(2) : 0}%"
+                                onpointerdown="ALLOC_DRAG=true" onpointerup="ALLOC_DRAG=false" onpointercancel="ALLOC_DRAG=false"
                                 oninput="previewShares('${r.symbol}', this)" onchange="saveShares('${r.symbol}', this.value)"></span>
                         <span><input class="alloc-num alloc-dollar" id="costTxt_${key}" type="text" value="$${(r.shares * r.price).toLocaleString(undefined,{maximumFractionDigits:0})}" ${r.price > 0 ? '' : 'disabled'}
                                 title="Type a dollar amount" onfocus="this.select()" onclick="this.select()"
                                 onchange="typeDollars('${r.symbol}', this.value)"></span>
                     </div>`;
                 }).join('')}
-                <div style="display:flex;gap:.7rem;margin-top:1.3rem;">
+                <div style="display:flex;gap:.7rem;margin-top:1.3rem;flex-wrap:wrap;">
                     <button class="btn" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#B7ADA1;padding:.8rem 1.4rem;border-radius:10px;cursor:pointer;font-weight:700;" onclick="editLineup()">← Change lineup</button>
+                    ${deployedBefore() ? '<button class="lu-skip" onclick="skipToManager()">Skip to Team Manager</button>' : ''}
                     <button class="btn" style="background:linear-gradient(180deg,#63bf92,#4faa7d);color:#14110E;border:none;padding:.8rem 1.6rem;border-radius:10px;cursor:pointer;font:800 .9rem 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;" onclick="deployCapital()">Deploy Capital</button>
                 </div>
             </div>`;
@@ -3891,7 +4534,7 @@
                         <div class="stat-change" style="color:rgba(255,255,255,.55);">roster avg ${rosterBeta.toFixed(2)} · cash drags to 0</div></div>
                 </div>
 
-                <div style="background:#1E1A16;border:1px solid rgba(236,226,214,.08);padding:1rem 1.2rem;margin-bottom:1.2rem;">
+                <div id="tmChart" style="background:#1E1A16;border:1px solid rgba(236,226,214,.08);padding:1rem 1.2rem;margin-bottom:1.2rem;">
                     <div style="display:flex;justify-content:space-between;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:.6rem;">
                         <div class="team-sub" style="font-weight:700;color:#B7ADA1;">Team value</div>
                         <div style="display:flex;align-items:center;gap:.8rem;">
@@ -3906,10 +4549,11 @@
                     <div style="position:relative;height:210px;"><canvas id="tmPerfChart"></canvas></div>
                 </div>
 
-                <div style="background:#1E1A16;border:1px solid rgba(236,226,214,.08);padding:1.1rem 1.2rem;margin-bottom:1.2rem;">
+                <div id="tmTerminal" style="background:#1E1A16;border:1px solid rgba(236,226,214,.08);padding:1.1rem 1.2rem;margin-bottom:1.2rem;">
                     <div class="team-sub" style="margin-bottom:.7rem;font-weight:700;color:#B7ADA1;">Trade terminal</div>
                     <div class="tt-row">
                         <select id="ttSym" class="tt-input" onchange="termSync()">
+                            <option value="" selected>Choose a stock…</option>
                             ${held.map(r => `<option value="${r.symbol}">${r.symbol} — ${r.name}</option>`).join('')}
                             ${rows.filter(r => r.shares === 0).map(r => `<option value="${r.symbol}">${r.symbol} — ${r.name}</option>`).join('')}
                         </select>
@@ -3934,7 +4578,8 @@
                 <div style="margin-top:1.3rem;">${(() => { const wb = weekInfo();
                     return wb.phase === 'live'
                         ? '<span class="team-sub" style="border:1px dashed rgba(236,226,214,.2);padding:.55rem 1rem;display:inline-block;">Lineup locked while the week is live — bench swaps open in the transfer window (' + wb.days + 'd ' + wb.hours + 'h)</span>'
-                        : '<button class="btn" style="background:none;border:1px solid rgba(236,226,214,.2);color:#B7ADA1;padding:.6rem 1.2rem;border-radius:8px;cursor:pointer;font-weight:600;" onclick="editLineup()">Change lineup / re-allocate</button>'; })()}</div>
+                        : '<button class="btn tm-act" id="tmChangeLineup" onclick="editLineup()">Change starting lineup</button>' +
+                          '<button class="btn tm-act" id="tmReallocate" onclick="reAllocate()">Re-allocate</button>'; })()}</div>
             </div>`;
         }
 
@@ -4185,6 +4830,7 @@
             if (!symEl || !meta) return;
             const r = myRows().find(x => x.symbol === symEl.value);
             const qty = Math.max(1, Math.floor(Number(qtyEl && qtyEl.value) || 1));
+            if (!symEl.value) { meta.innerHTML = '<span style="color:#7d746a;">Pick a stock to trade.</span>'; return; }
             if (!r) { meta.textContent = ''; return; }
             const cash = myCash();
             const cost = qty * r.price;
@@ -4201,6 +4847,7 @@
         window.termTrade = async function (dir) {
             const symEl = document.getElementById('ttSym'), qtyEl = document.getElementById('ttQty');
             if (!symEl) return;
+            if (!symEl.value) { alert('Choose a stock first.'); return; }
             const r = myRows().find(x => x.symbol === symEl.value); if (!r) return;
             const qty = Math.max(1, Math.floor(Number(qtyEl && qtyEl.value) || 1));
             let next = r.shares + dir * qty;
@@ -4225,6 +4872,10 @@
             const maxN = row.price > 0 ? Math.floor((ALLOCV.budget - othersCost) / row.price) : 0;
             if (n > maxN) { n = Math.max(0, maxN); input.value = n; }
             row.shares = n;
+            // Fill the track up to the current value so the slider matches this
+            // ticker's slice of the capital bar underneath.
+            const mx = Number(input.max) || 0;
+            input.style.setProperty('--pct', (mx ? (n / mx * 100) : 0).toFixed(2) + '%');
             const key = sym.replace(/[^A-Z0-9]/g, '');
             const s = document.getElementById('shTxt_' + key); if (s) s.value = n;
             const c = document.getElementById('costTxt_' + key);
@@ -4247,10 +4898,33 @@
             const dollars = Number(String(val).replace(/[^0-9.]/g, '')) || 0;
             typeShares(sym, Math.floor(dollars / row.price));
         };
-        window.saveShares = async function (sym, val) {
-            const r = myRows().find(x => x.symbol === sym) || {};
-            try { await SL.setAllocation(DRAFT.id, sym, Number(val) || 0, r.price); await draftRefresh(); }
-            catch (e) { alert(e.message || 'Could not save that allocation'); await draftRefresh(); }
+        // Saving used to call draftRefresh(), which rebuilt the whole allocation
+        // screen — replacing the very slider under your finger. Dragging slowly
+        // fires change events mid-gesture, so the thumb kept snapping back. Now
+        // the save is debounced, patches DRAFT.picks in place, and never
+        // re-renders while a slider is being held.
+        let ALLOC_DRAG = false;
+        const SAVE_TIMERS = {};
+        window.saveShares = function (sym, val) {
+            const n = Number(val) || 0;
+            clearTimeout(SAVE_TIMERS[sym]);
+            SAVE_TIMERS[sym] = setTimeout(async () => {
+                const r = myRows().find(x => x.symbol === sym) || {};
+                try {
+                    await SL.setAllocation(DRAFT.id, sym, n, r.price);
+                    const pick = (DRAFT.picks || []).find(p => p.user_id === DRAFT.me.id && p.symbol === sym);
+                    if (pick) pick.shares = n;                    // keep local truth without a re-render
+                    const me = myMembership();
+                    if (me && ALLOCV) {
+                        let spent = 0;
+                        Object.values(ALLOCV.rows).forEach(x => { spent += x.shares * x.price; });
+                        me.cash = Math.max(0, ALLOCV.budget - spent);
+                    }
+                } catch (e) {
+                    alert(e.message || 'Could not save that allocation');
+                    if (!ALLOC_DRAG) await draftRefresh();
+                }
+            }, 350);
         };
         window.tradeShares = async function (sym, dir) {
             const r = myRows().find(x => x.symbol === sym); if (!r) return;
@@ -4302,6 +4976,8 @@
                 // Local-first: flip the flag immediately so Team Manager renders
                 // even if the realtime refresh lags or the network hiccups.
                 const me = myMembership(); if (me) me.deployed = true;
+                TEAM_STAGE = null;
+                try { localStorage.setItem(deployedKey(), '1'); } catch (e) {}
                 deployFx(invested);
                 renderTeam();
                 const tr = document.getElementById('teamRoot');
@@ -4316,21 +4992,32 @@
                 return;
             }
             try {
-                // Step back to "choose your starting 11": un-deploy AND bench everyone,
-                // otherwise renderTeam sees a full lineup and drops you right back on
-                // the allocation screen — which is why this button looked dead.
+                // Step back to the picker with your existing starters still ticked —
+                // benching everyone (the old behaviour) meant re-picking from scratch.
                 await SL.client.from('league_members').update({ deployed: false })
                     .eq('league_id', DRAFT.id).eq('user_id', DRAFT.me.id);
                 const me = myMembership(); if (me) me.deployed = false;
-                await SL.client.from('league_picks').update({ active: false })
-                    .eq('league_id', DRAFT.id).eq('user_id', DRAFT.me.id);
-                (DRAFT.picks || []).forEach(p => { if (p.user_id === DRAFT.me.id) p.active = false; });
+                TEAM_STAGE = 'lineup';
                 ALLOCV = null;
                 renderTeam();
-                const tr = document.getElementById('teamRoot');
-                if (tr) tr.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                await draftRefresh();
+                scrollTeamTop();
             } catch (e) { alert(e.message || 'Could not reopen your lineup'); }
+        };
+        window.reAllocate = async function () {
+            const wNow = weekInfo();
+            if ((DRAFT.league || {}).status === 'active' && wNow.phase === 'live' && myMembership().deployed) {
+                alert('Capital is locked while the week is live. It reopens in the transfer window (' + wNow.days + 'd ' + wNow.hours + 'h).');
+                return;
+            }
+            try {
+                await SL.client.from('league_members').update({ deployed: false })
+                    .eq('league_id', DRAFT.id).eq('user_id', DRAFT.me.id);
+                const me = myMembership(); if (me) me.deployed = false;
+                TEAM_STAGE = 'alloc';
+                ALLOCV = null;
+                renderTeam();
+                scrollTeamTop();
+            } catch (e) { alert(e.message || 'Could not reopen your allocation'); }
         };
         // The allocation tip's highlight ring stays up until the player says "Got it".
         window.dismissAllocTip = function () {
@@ -4376,6 +5063,37 @@
             });
             return map;
         }
+        /* ── the verdict slate: last week's result, before this week's fixtures ── */
+        function verdictHtml() {
+            const me = (DRAFT.me || {}).id;
+            const done = (DRAFT.weeks || [])
+                .filter(w => w.debt_status !== 'none')
+                .sort((a, b) => b.week - a.week);
+            if (!done.length) return '';
+            const w = done[0];
+            const iWon = w.winner_id === me;
+            const them = draftName(iWon ? w.loser_id : w.winner_id);
+            const amt = '$' + Number(w.transfer_amt || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+            return `<div class="verdict ${iWon ? 'won' : 'lost'}" id="verdictSlate">
+                <div class="vd-week">Week ${w.week} · Final</div>
+                <div class="vd-line">${iWon
+                    ? 'You defeated <b>' + them + '</b>'
+                    : '<b>' + them + '</b> defeated you'}</div>
+                <div class="vd-amt">${iWon ? '+' : '−'}${amt}</div>
+                <button class="vd-go" onclick="revealMatchups()">View new matchups</button>
+            </div>`;
+        }
+        // Wipe the slate away and let this week's fixtures rise underneath.
+        window.revealMatchups = function () {
+            const v = document.getElementById('verdictSlate');
+            const list = document.getElementById('muList');
+            if (v) { v.classList.add('gone'); setTimeout(() => v.remove(), 480); }
+            if (list) {
+                list.classList.add('reveal');
+                setTimeout(() => list.scrollIntoView({ behavior: 'smooth', block: 'start' }), 260);
+            }
+        };
+
         async function renderMatchups() {
             const root = document.getElementById('matchupsRoot');
             if (!root || !DRAFT.league) return;
@@ -4408,6 +5126,7 @@
             let history = [];
             try { const r = await SL.client.from('league_weeks').select('*').eq('league_id', DRAFT.id); history = r.data || []; } catch (e) {}
             const pairs = roundRobin(ids, w.week);
+            const verdict = verdictHtml();
             const cards = pairs.map(([a, b]) => {
                 if (!a || !b) {
                     const solo = vals[a || b] || {};
@@ -4441,7 +5160,8 @@
                     ${nextPairs.map(([a, b]) => `<div class="roster-pick"><span><b>${(vals[a]||{}).name || 'BYE'}</b> vs <b>${(vals[b]||{}).name || 'BYE'}</b></span><span class="rd">week ${w.week + 1}</span></div>`).join('')}
                 </div>`;
             }
-            root.innerHTML = weekBannerHtml() + cards + nextPreview +
+            root.innerHTML = weekBannerHtml() + verdict +
+                '<div id="muList" class="' + (verdict ? 'mu-hidden' : '') + '">' + cards + '</div>' + nextPreview +
                 (history.length ? `<div class="team-card" style="margin-top:1rem;"><div class="team-head"><h3>Week results</h3></div>` +
                     history.sort((x,y)=>y.week-x.week).map(r => `<div class="roster-pick"><span><b style="color:#5cb88a">${(vals[r.winner_id]||{}).name||'Winner'}</b> beat ${(vals[r.loser_id]||{}).name||'—'} in week ${r.week}</span><span class="rd">took ${r.stolen_symbol || '—'} · $${Number(r.transfer_amt||0).toLocaleString()}</span></div>`).join('') + '</div>' : '');
         }
@@ -4605,18 +5325,19 @@
         }
 
         window.draftStart = async () => {
+            // Belt and braces: the button is host-only, but the handler refuses
+            // outright so nothing can start a draft it doesn't own.
+            if ((DRAFT.league || {}).owner_id !== (DRAFT.me || {}).id) {
+                alert('Only the host can start this draft.');
+                return;
+            }
             const dAt = (DRAFT.league || {}).draft_at ? new Date(DRAFT.league.draft_at) : null;
             if (dAt && dAt.getTime() > Date.now()) {
                 const when = dAt.toLocaleString([], { weekday: 'long', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-                const ms = dAt.getTime() - Date.now();
-                const d = Math.floor(ms / 86400000), h = Math.floor(ms % 86400000 / 3600000), mn = Math.floor(ms % 3600000 / 60000);
-                const away = d ? `${d}d ${h}h` : h ? `${h}h ${mn}m` : `${mn}m`;
-                const waiting = (DRAFT.members || []).length;
                 const ok = await askConfirm({
-                    title: 'Start the draft early?',
-                    body: `This league is scheduled to draft <b style="color:#F4EEE6;">${when}</b> — that's still <b style="color:#F4EEE6;">${away}</b> away.`,
-                    warn: `Starting now pulls in all ${waiting} player${waiting === 1 ? '' : 's'} currently in the lobby. Anyone who hasn't joined yet will miss the draft entirely.`,
-                    ok: 'Start anyway', cancel: 'Wait for the scheduled time'
+                    title: 'Start early?',
+                    body: `Draft day is <b style="color:#F4EEE6;">${when}</b>. Are you sure you want to start the draft early?`,
+                    ok: "Let's draft", cancel: 'Hold'
                 });
                 if (!ok) return;
             }
@@ -4732,27 +5453,35 @@
 
         // Live prices for whatever the board is showing — one batch call,
         // results merged into DRAFT.prices, then a single quiet re-render.
-        const QUOTED = new Set();
+        // TRIES counts attempts per symbol instead of blacklisting on sight.
+        // The old Set was filled BEFORE the request went out and never cleared,
+        // so a single failed batch permanently banned 80 tickers for the rest of
+        // the session — which is what "no price" on half the board really was.
+        const TRIES = new Map();
+        const MAX_TRIES = 3;
+        const triedOut = s => (TRIES.get(s) || 0) >= MAX_TRIES;
+        const bump = s => TRIES.set(s, (TRIES.get(s) || 0) + 1);
         let quoteBusy = false;
         async function fetchBoardQuotes(symbols) {
             const need = symbols.filter(s => {
                 const p = DRAFT.prices && DRAFT.prices[s];
-                return !(p && p.price != null) && !QUOTED.has(s);
+                return !(p && p.price != null) && !triedOut(s);
             });
             if (!need.length || quoteBusy) return;
             quoteBusy = true;
             try {
                 let got = 0;
-                for (let i = 0; i < need.length; i += 80) {
-                    const chunk = need.slice(i, i + 80);
-                    chunk.forEach(s => QUOTED.add(s));       // mark ONLY what we actually request
+                for (let i = 0; i < need.length; i += 60) {
+                    const chunk = need.slice(i, i + 60);
                     const live = await SL.getLiveQuotes(chunk);
-                    Object.keys(live).forEach(s => { if (live[s] && live[s].price != null) { DRAFT.prices[s] = live[s]; got++; } });
+                    chunk.forEach(s => {
+                        if (live[s] && live[s].price != null) { DRAFT.prices[s] = live[s]; got++; }
+                        else bump(s);                     // only count the ones that actually came back empty
+                    });
                 }
                 if (got) renderDraftSidebar();
             } catch (e) { console.warn('board quotes', e); }
             quoteBusy = false;
-            // anything that appeared while we were busy gets picked up next render
         }
 
         // ── background quote pump: EVERY ticker on the board gets a real price ──
@@ -4767,22 +5496,32 @@
             const step = async () => {
                 if (quoteBusy) return setTimeout(step, 400);     // visible rows first, always
                 const chunk = [];
-                while (chunk.length < 80 && i < all.length) {
+                while (chunk.length < 60 && i < all.length) {
                     const s = all[i++];
                     const p = DRAFT.prices && DRAFT.prices[s];
-                    if (!(p && p.price != null) && !QUOTED.has(s)) chunk.push(s);
+                    if (!(p && p.price != null) && !triedOut(s)) chunk.push(s);
                 }
                 if (!chunk.length) {
-                    if (i >= all.length) { if (dirty) { try { renderDraftSidebar(); } catch (e) {} } return; }
+                    if (i >= all.length) {
+                        if (dirty) { try { renderDraftSidebar(); } catch (e) {} }
+                        // Sweep back over anything still blank and give it another
+                        // go, up to MAX_TRIES. Transient rate limits shouldn't
+                        // leave a ticker priceless for the whole draft.
+                        const left = all.filter(x => !(DRAFT.prices[x] && DRAFT.prices[x].price != null) && !triedOut(x));
+                        if (left.length) { i = 0; dirty = 0; return setTimeout(step, 1200); }
+                        return;
+                    }
                     return setTimeout(step, 200);
                 }
-                chunk.forEach(s => QUOTED.add(s));
                 try {
                     const live = await SL.getLiveQuotes(chunk);
-                    Object.keys(live).forEach(s => { if (live[s] && live[s].price != null) { DRAFT.prices[s] = live[s]; dirty++; } });
-                } catch (e) { /* next chunk anyway */ }
-                if (dirty >= 160) { dirty = 0; try { renderDraftSidebar(); } catch (e) {} }
-                setTimeout(step, 650);
+                    chunk.forEach(s => {
+                        if (live[s] && live[s].price != null) { DRAFT.prices[s] = live[s]; dirty++; }
+                        else bump(s);
+                    });
+                } catch (e) { chunk.forEach(bump); }
+                if (dirty >= 120) { dirty = 0; try { renderDraftSidebar(); } catch (e) {} }
+                setTimeout(step, 450);
             };
             step();
         }
@@ -4866,12 +5605,23 @@
                     const cont = lb.closest('.leaderboard-container') || lb.closest('table').parentElement;
                     cont.parentElement.insertBefore(pod, cont);
                 }
-                const top3 = standings.slice(0, 3);
+                // Three plinths always. They only take on names once the league is
+                // actually running — before that nobody has earned a place.
+                const seated = (DRAFT.league || {}).status === 'active';
+                const top3 = seated ? standings.slice(0, 3) : [];
                 const crown = `<svg width="26" height="20" viewBox="0 0 26 20" fill="none">
                     <path d="M2 17h22l2-13-6.5 5L13 1 6.5 9 0 4l2 13z" fill="#E0A24C"/>
                     <circle cx="13" cy="1.6" r="1.7" fill="#F6D07A"/></svg>`;
-                pod.innerHTML = top3.length ? `<div class="lb-podium">
-                    ${[1, 0, 2].filter(i => top3[i]).map(i => { const s = top3[i];
+                pod.innerHTML = `<div class="lb-podium">
+                    ${[1, 0, 2].map(i => { const s = top3[i];
+                        if (!s) return `<div class="pod vacant">
+                            <div class="pod-crown"></div>
+                            <div class="pod-medal m${i + 1}">${i + 1}</div>
+                            <div class="pod-name">&mdash;</div>
+                            <div class="pod-cap">&mdash;</div>
+                            <div class="pod-ret">&mdash;</div>
+                            <div class="pod-block p${i + 1}">${i + 1}</div>
+                        </div>`;
                         const nm = lbName(s);
                         const r = Number(s.returnPct) || 0;
                         return `<div class="pod">
@@ -4882,7 +5632,7 @@
                             <div class="pod-ret" style="color:${lbPrep ? '#7d746a' : (r >= 0 ? '#5CB88A' : '#D9645C')};">${lbPrep ? '—' : (r >= 0 ? '+' : '') + r.toFixed(2) + '%'}</div>
                             <div class="pod-block p${i + 1}">${i + 1}</div>
                         </div>`; }).join('')}
-                </div>` : '';
+                </div>`;
                 lb.innerHTML = standings.map((s, i) => {
                     const nm = lbName(s);
                     const cap = capOf(s.user_id);
@@ -4892,7 +5642,7 @@
                         : '$' + gap.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' behind';
                     const ret = lbPrep ? '—' : (s.returnPct >= 0 ? '+' : '') + s.returnPct.toFixed(2) + '%';
                     return `<tr style="cursor:pointer" onclick="showPlayerPerf('${s.user_id}')">
-                        <td class="rank-cell">${i + 1}</td>
+                        <td class="rank-cell">${seated ? i + 1 : 1}</td>
                         <td><div class="player-name">${nm}</div>${sub ? '<div class="lb-sub">' + sub + '</div>' : ''}</td>
                         <td style="font-variant-numeric:tabular-nums;font-weight:700;">$${cap.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
                         <td style="font-variant-numeric:tabular-nums;color:#B7ADA1;">${ret}</td>

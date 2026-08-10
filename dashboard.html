@@ -2187,6 +2187,161 @@
             .ann-lead-art { min-height: 110px; }
             .ann-grid { grid-template-columns: 1fr; }
         }
+
+        /* same face, weight and tracking as the BETA line above the wordmark */
+        .hero-tag {
+            font: 700 0.66rem 'Inter', sans-serif; letter-spacing: 0.24em;
+            text-transform: uppercase; color: #5CB88A;
+            margin: -0.45rem 0 1.6rem;
+        }
+        @media (max-height: 820px) { .hero-tag { margin: -0.25rem 0 1.15rem; } }
+
+        /* outlined envelope: the label has to switch from knockout to cream */
+        .inbox-word { color: #C9BEB0 !important; top: 66% !important; }
+        .inbox-icon-wrap:hover .inbox-word { color: #F4EEE6 !important; }
+
+        /* ── v9: tiny vertical nudges + a calmer, evenly-spaced tape ── */
+        .hero-stats { margin-top: 0.35rem; margin-bottom: 2.35rem !important; }
+        .hero-grid .main-actions { margin-top: 0.35rem !important; }
+        @media (max-height: 820px) {
+            .hero-stats { margin-top: 0.25rem; margin-bottom: 1.75rem !important; }
+        }
+
+        /* Uniform gaps: the tape used to lean on a 50px tail on each .ticker
+           block, which made one seam wider than every other gap. Even padding
+           on the items alone keeps every space identical. */
+        .ticker { padding-right: 0 !important; }
+        .ticker-item { padding: 0 1.5rem !important; }
+        .ticker-track { animation-duration: 74s !important; }
+        .ticker-track.reverse { animation-duration: 74s !important; }
+
+        /* ── v10 ──────────────────────────────────────────────────────── */
+
+        /* the hairline capping the bottom panel strip */
+        .panel-sections { border-top: none !important; }
+
+        /* tighter vertical rhythm: beta, wordmark, tagline, stats, boxes */
+        .hero-beta { margin-bottom: 0.45rem !important; }
+        .hero-grid .main-title { margin-bottom: 0.9rem !important; }
+        .hero-tag { margin: -0.15rem 0 1.15rem !important; }
+        .hero-stats { margin-top: 0 !important; margin-bottom: 1.5rem !important; }
+        .hero-grid .main-actions { margin-top: 0 !important; }
+        @media (max-height: 820px) {
+            .hero-grid .main-title { margin-bottom: 0.7rem !important; }
+            .hero-tag { margin: -0.1rem 0 0.85rem !important; }
+            .hero-stats { margin-bottom: 1.15rem !important; }
+        }
+
+        /* On very wide screens the text hugged the far left while the animals
+           sat on the far right, leaving a canyon between them. Cap the whole
+           composition and centre it so they stay in the same conversation. */
+        @media (min-width: 1700px) {
+            /* Cap and centre the whole hero. Padding inside a percentage column
+               squeezed the wordmark until it wrapped on ultrawide — constraining
+               the grid keeps the column a sane width at any monitor size. */
+            .hero-grid {
+                max-width: 1500px !important;
+                margin-left: auto !important; margin-right: auto !important;
+            }
+            .hero-left { padding-left: 0 !important; }
+            .hero-art-trace {
+                --artW: min(1120px, calc((100vh - 250px) * 1.7325)) !important;
+                right: calc((100vw - 1500px) / 2 - 185px) !important;
+            }
+        }
+
+        /* the inbox envelope, open and squared off */
+        .inbox-word { top: 79% !important; }
+
+        /* ── v11 ──────────────────────────────────────────────────────── */
+
+        /* the grey band under the panels goes; they sit on the page itself */
+        .panel-sections {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            box-shadow: none !important;
+        }
+
+        /* inbox: one solid grey envelope, nothing else */
+        .inbox-word { display: none !important; }
+        .inbox-icon-wrap { color: #B4A99C; }
+        .inbox-icon-wrap:hover { color: #E4DACD; }
+        .inbox-badge-mini {
+            top: -3px !important; right: -7px !important;
+            min-width: 20px; height: 20px; border-radius: 6px !important;
+            background: #E5484D !important; color: #fff !important;
+            font: 800 0.68rem 'Inter', sans-serif !important;
+            border: 2px solid #1A1714;
+        }
+
+        /* ── v12: the badge sits over the corner like a popup ──
+           A ring in the page colour separates it from the envelope, which is
+           what gives the reference icon its layered, floating look. */
+        .inbox-icon-wrap { overflow: visible; }
+        .inbox-badge-mini {
+            position: absolute !important;
+            top: -9px !important; right: -13px !important;
+            min-width: 27px !important; height: 27px !important;
+            padding: 0 7px !important;
+            display: flex !important; align-items: center; justify-content: center;
+            border-radius: 9px !important;
+            background: #E5484D !important; color: #fff !important;
+            font: 800 0.85rem 'Inter', sans-serif !important; letter-spacing: 0;
+            border: 3px solid #1A1714 !important;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.45);
+        }
+        .inbox-badge-mini[hidden] { display: flex !important; }
+        /* red at every count, zero included */
+
+        /* ── v13 ──────────────────────────────────────────────────────── */
+        .inbox-badge-mini {
+            top: -11px !important; right: -15px !important;
+            min-width: 30px !important; height: 30px !important;
+            border-radius: 10px !important;
+            font-size: 0.92rem !important;
+        }
+
+        /* (the tablet frame lived here — reverted to bare artwork) */
+
+        /* ── v14: give the device room, and stop clipping the badge ── */
+
+        /* back to the tighter spacing the bare artwork can carry */
+        .hero-art-trace { right: -15vw !important; }
+        @media (min-width: 1700px) {
+            .hero-art-trace { right: calc((100vw - 1500px) / 2 - 185px) !important; }
+        }
+
+        /* the envelope outgrew its panel — let the corner badge escape */
+        .panel-sections .panel-section:last-child { overflow: visible !important; }
+        .inbox-simple, .inbox-icon-wrap { overflow: visible !important; }
+        .inbox-icon-wrap svg { width: 82px !important; height: 86px !important; }
+        .inbox-badge-mini {
+            top: -8px !important; right: -12px !important;
+            min-width: 26px !important; height: 26px !important;
+            border-radius: 9px !important; font-size: 0.82rem !important;
+        }
+
+        /* ── v15: a soft depth wash off the right edge ──
+           Sits behind everything and fades out well before the text, so the
+           animals feel like they're emerging from shadow rather than pasted on. */
+        .dashboard-container::after {
+            content: '';
+            /* Anchored to the bottom-right CORNER and elliptical, so it reaches
+               zero in every direction before it meets an edge. The old version
+               was a left-facing linear at full strength down the whole right
+               side, which left a hard horizontal seam where its box stopped. */
+            position: fixed; inset: 0;
+            pointer-events: none; z-index: 0;
+            background: radial-gradient(135% 105% at 100% 100%,
+                rgba(6, 5, 4, 0.50) 0%,
+                rgba(6, 5, 4, 0.34) 22%,
+                rgba(6, 5, 4, 0.17) 44%,
+                rgba(6, 5, 4, 0.06) 62%,
+                rgba(6, 5, 4, 0) 78%);
+        }
+        /* keep the artwork and the copy above the wash */
+        .hero-art-trace { z-index: 1 !important; }
+        .hero-grid { position: relative; z-index: 2; }
 </style>
 </head>
 <body>
@@ -2254,6 +2409,7 @@
             <div class="hero-left">
                 <div class="hero-beta">&mdash; Beta &mdash;</div>
                 <h1 class="main-title">FantasyTrader</h1>
+                <div class="hero-tag">Like fantasy football for stocks</div>
 
                 <div class="hero-stats">
                     <div class="hstat">
@@ -2356,11 +2512,14 @@
         <div class="panel-section">
             <div class="panel-content inbox-simple">
                 <a href="mail.html" class="inbox-icon-wrap" title="Open your inbox">
-                    <span class="inbox-word">INBOX</span>
-                    <svg viewBox="0 0 24 24" width="84" height="84" aria-hidden="true">
-                        <path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/>
+                    <svg viewBox="0 0 24 25" width="96" height="100" aria-hidden="true">
+                        <!-- flap, thrown open -->
+                        <path fill="currentColor" d="M3 4.6h18a1.1 1.1 0 0 1 1.1 1.1v.5L12 12.9 1.9 6.2v-.5A1.1 1.1 0 0 1 3 4.6z"/>
+                        <!-- body, with the fold cut through it and a message tail
+                             running off the bottom-left corner -->
+                        <path fill="currentColor" d="M1.9 8.5l9.5 6.3a1.1 1.1 0 0 0 1.2 0l9.5-6.3v9.8a1.1 1.1 0 0 1-1.1 1.1H6.1L1.9 23.6V8.5z"/>
                     </svg>
-                    <span class="inbox-badge-mini" id="inboxCountBadge" hidden>0</span>
+                    <span class="inbox-badge-mini" id="inboxCountBadge">0</span>
                 </a>
             </div>
         </div>
@@ -2511,8 +2670,10 @@
             const n = parseInt(localStorage.getItem('inboxCount') || '0', 10);
             const b = document.getElementById('inboxCountBadge');
             if (!b) return;
-            if (n > 0) { b.textContent = n > 99 ? '99+' : n; b.hidden = false; }
-            else { b.hidden = true; }
+            // The bubble is permanent — it reads 0 when the inbox is clear.
+            b.textContent = n > 99 ? '99+' : n;
+            b.hidden = false;
+            b.classList.toggle('zero', n === 0);
         })();
 
         // Glowing outline trace: circle the bull in green, then the bear in red, forever.

@@ -272,14 +272,16 @@
       });
       if (missing.length && configured) {
         // FAST PATH: one batch call covers up to 100 symbols at once.
-        try {
-          for (let i = 0; i < missing.length; i += 80) {
-            const chunk = missing.slice(i, i + 80);
+        // Smaller chunks: the upstream quote endpoint silently truncates long
+        // symbol lists, which looked exactly like "this ticker has no price".
+        for (let i = 0; i < missing.length; i += 40) {
+          const chunk = missing.slice(i, i + 40);
+          try {
             const r = await fetch(
               cfg.url + "/functions/v1/market-data?type=quotes&symbols=" + encodeURIComponent(chunk.join(",")),
               { headers: { apikey: cfg.key, Authorization: "Bearer " + cfg.key } },
             );
-            if (!r.ok) break;
+            if (!r.ok) continue;   // a rate-limited chunk must not abandon the rest
             const j = await r.json();
             chunk.forEach((s) => {
               const q = j && j[s];
@@ -288,8 +290,8 @@
                 this._liveCache[s] = rec; map[s] = rec;
               }
             });
-          }
-        } catch (e) { /* fall through to per-symbol */ }
+          } catch (e) { /* this chunk only; keep going */ }
+        }
       }
       const still = want.filter((s) => !(map[s] && map[s].price != null));
       if (still.length && configured) {
@@ -313,10 +315,12 @@
             map[sym] = q;
           } catch (e) { /* leave missing */ }
         };
-        // per-symbol fallback, capped so a big board can't hammer the network
-        const cap = still.slice(0, 18);
-        for (let i = 0; i < cap.length; i += 6) {
-          await Promise.all(cap.slice(i, i + 6).map(fetchOne));
+        // Per-symbol rescue for whatever the batch missed. The old cap of 18
+        // silently abandoned the rest of the request, and the caller had
+        // already marked them all as "tried", so they never came back.
+        const cap = still.slice(0, 120);
+        for (let i = 0; i < cap.length; i += 8) {
+          await Promise.all(cap.slice(i, i + 8).map(fetchOne));
         }
       }
       return map;
@@ -510,6 +514,53 @@
     },
 
     // Live standings: each member's roster value using current prices.
+    // ── weekly settlement ───────────────────────────────────────────
+    // Nudge the server to settle any finished week. It's idempotent and
+    // the scheduled function is the real backstop, so calling it on page
+    // load just means results appear promptly for whoever is looking.
+    async settleLeague(leagueId) {
+      if (!configured) return 0;
+      const { data, error } = await client.rpc("ft_settle_league", { p_league: leagueId });
+      if (error) { console.warn("settle", error.message); return 0; }
+      return data || 0;
+    },
+
+    // Every week result I'm party to, newest first.
+    async myWeekResults(leagueId) {
+      if (!configured) return [];
+      const user = await this.currentUser();
+      if (!user) return [];
+      const { data } = await client
+        .from("league_weeks")
+        .select("*")
+        .eq("league_id", leagueId)
+        .order("week", { ascending: false });
+      return (data || []).filter((r) => r.winner_id === user.id || r.loser_id === user.id);
+    },
+
+    async allWeekResults(leagueId) {
+      if (!configured) return [];
+      const { data } = await client
+        .from("league_weeks").select("*").eq("league_id", leagueId)
+        .order("week", { ascending: false });
+      return data || [];
+    },
+
+    // The loser confirms once they've raised the cash. Throws with a
+    // readable message if they still haven't sold enough.
+    async payWeekDebt(leagueId, week) {
+      const { data, error } = await client.rpc("ft_pay_week_debt", {
+        p_league: leagueId, p_week: week,
+      });
+      if (error) throw new Error(error.message);
+      return data;
+    },
+
+    async ackWeek(leagueId, week) {
+      if (!configured) return;
+      await client.rpc("ft_ack_week", { p_league: leagueId, p_week: week }).catch(() => {});
+    },
+
     async leagueStandings(leagueId) {
       if (!configured) return [];
       const [members, picks] = await Promise.all([

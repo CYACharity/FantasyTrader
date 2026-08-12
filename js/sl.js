@@ -125,6 +125,13 @@
     },
 
     async logTrade(symbol, side, shares, price, leagueId = null) {
+      /* Mirror locally FIRST, always. This used to return early whenever there
+         was no signed-in user, so a logged-out player's trades were recorded
+         nowhere at all — the portfolio page then read an empty history and
+         concluded they had never traded, hiding real holdings. */
+      const row = { symbol, side, shares, price, league_id: leagueId,
+                    created_at: new Date().toISOString() };
+      try { ls.set("trades", [row, ...ls.get("trades", [])].slice(0, 200)); } catch {}
       if (!configured) return;
       const user = await this.currentUser();
       if (!user) return;
@@ -134,9 +141,10 @@
     },
 
     async recentTrades(limit = 25) {
-      if (!configured) return ls.get("trades", []);
+      if (!configured) return ls.get("trades", []).slice(0, limit);
       const user = await this.currentUser();
-      if (!user) return [];
+      // Signed out is not the same as "no trades" — fall back to the local log.
+      if (!user) return ls.get("trades", []).slice(0, limit);
       const { data } = await client
         .from("trades").select("*")
         .eq("user_id", user.id)

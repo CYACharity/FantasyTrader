@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- ft-canvas: the page background, declared before anything that can
+         block rendering. Every stylesheet on this page is render-blocking,
+         so when one is slow Chrome gives up holding the previous frame and
+         paints the default canvas — white — for a beat. That was the flash
+         between pages. Inline and first, it can never be white. -->
+    <style>html{background-color:#171310;}</style>
     <!-- how the link looks when someone shares it -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Fantasy Trader">
@@ -1264,6 +1270,7 @@
     </style>
     <script src="stock-data.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/ft-alert.js"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/sl.js"></script>
     <script src="js/draft-universe.js"></script>
@@ -2141,7 +2148,6 @@
         .tt-ring {
             position: absolute; border: 2px solid #E0A24C; border-radius: 10px; pointer-events: none;
             box-shadow: 0 0 0 3px rgba(224,162,76,0.16), 0 0 22px rgba(224,162,76,0.3);
-            transition: all .3s cubic-bezier(.3,.8,.3,1);
         }
         .tt-card {
             position: absolute; width: 300px; background: #241F1B;
@@ -2274,6 +2280,227 @@
         @keyframes muCard  { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
         @media (prefers-reduced-motion: reduce) {
             .verdict, #muList.reveal, #muList.reveal .mu-card { animation-duration: .01s !important; }
+        }
+
+        /* the finish card is a tick and a button now */
+        .de-amount {
+            font: 800 1.55rem 'Poppins', sans-serif !important;
+            margin-bottom: 1.4rem !important; letter-spacing: -0.01em;
+        }
+
+        /* ── welcome to Team Manager ── */
+        .tm-hi {
+            position: fixed; inset: 0; z-index: 100001; display: flex;
+            align-items: center; justify-content: center;
+            background: rgba(20,17,14,0.8); backdrop-filter: blur(3px);
+            animation: deIn .35s ease both;
+        }
+        .tm-hi.out { animation: deOut .32s ease both; }
+        .tm-hi-card {
+            width: min(430px, 92vw); text-align: center; background: #241F1B;
+            border: 2px solid rgba(92,184,138,0.5); padding: 2.2rem 2.3rem 1.9rem;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+            animation: deCard .5s cubic-bezier(.2,.9,.25,1) both .05s;
+        }
+        .tm-hi-kick {
+            font: 700 0.62rem 'Inter', sans-serif; letter-spacing: 0.24em;
+            text-transform: uppercase; color: #5CB88A; margin-bottom: 0.6rem;
+        }
+        .tm-hi-title { font: 800 1.55rem 'Poppins', sans-serif; color: #F4EEE6; margin-bottom: 0.6rem; }
+        .tm-hi-sub {
+            font: 400 0.88rem/1.55 'Inter', sans-serif; color: #B7ADA1;
+            margin: 0 auto 1.5rem; max-width: 21rem;
+        }
+        .tm-hi-go {
+            width: 100%; padding: .82rem 1rem; border: none; cursor: pointer;
+            background: linear-gradient(180deg,#63bf92,#4faa7d); color: #14110E;
+            font: 800 .78rem 'Poppins', sans-serif; letter-spacing: .14em; text-transform: uppercase;
+        }
+        .tm-hi-go:hover { filter: brightness(1.07); }
+
+        /* ══ podium v2: extruded blocks with a top face, edge light and a
+              floor reflection — read as objects rather than coloured bars ══ */
+        .lb-podium {
+            perspective: 900px;
+            padding: 2.4rem 1rem 2.2rem !important;
+            gap: 1.1rem !important;
+            background:
+                radial-gradient(ellipse at 50% 118%, rgba(224,162,76,0.16), transparent 58%),
+                linear-gradient(to bottom, transparent 62%, rgba(236,226,214,0.035) 100%) !important;
+        }
+        .pod { min-width: 168px !important; }
+
+        .pod-block {
+            position: relative !important;
+            border: none !important;
+            border-radius: 3px 3px 0 0 !important;
+            padding-top: 0.9rem !important;
+            align-items: flex-start !important;
+            /* front face: light along the top edge, falling into shadow */
+            background: linear-gradient(180deg,
+                var(--face-hi) 0%, var(--face) 34%, var(--face-lo) 100%) !important;
+            box-shadow:
+                inset 0 1px 0 var(--edge),
+                inset -10px 0 18px -10px rgba(0,0,0,0.55),
+                0 26px 34px -20px rgba(0,0,0,0.9);
+            font: 900 2.05rem 'Poppins', sans-serif !important;
+            color: var(--num) !important;
+            text-shadow:
+                0 1px 0 var(--num-hi),
+                0 -1px 0 rgba(0,0,0,0.45),
+                0 3px 7px rgba(0,0,0,0.55);
+        }
+        /* the top face, a shallow trapezoid so the block reads as solid */
+        .pod-block::before {
+            content: ''; position: absolute; left: 0; right: 0; top: -13px; height: 14px;
+            background: linear-gradient(180deg, var(--top-hi), var(--top));
+            clip-path: polygon(6% 0, 94% 0, 100% 100%, 0 100%);
+            border-radius: 2px 2px 0 0;
+        }
+        /* a thin reflection pooling at the foot of each block */
+        .pod-block::after {
+            content: ''; position: absolute; left: 6%; right: 6%; bottom: -9px; height: 9px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.5), transparent);
+            filter: blur(3px);
+        }
+
+        .pod-block.p1 {
+            --face: #C98F32; --face-hi: #F3D07C; --face-lo: #8A5C16;
+            --top: #E8B85C; --top-hi: #FBE6A8; --edge: rgba(255,235,180,0.8);
+            --num: #3A2606; --num-hi: rgba(255,240,200,0.55);
+            height: 116px !important; font-size: 2.5rem !important;
+        }
+        .pod-block.p2 {
+            --face: #A9B2BB; --face-hi: #E8EDF1; --face-lo: #6C757E;
+            --top: #C7CED5; --top-hi: #F2F5F8; --edge: rgba(255,255,255,0.75);
+            --num: #2B3138; --num-hi: rgba(255,255,255,0.5);
+            height: 84px !important;
+        }
+        .pod-block.p3 {
+            --face: #A9714A; --face-hi: #D9A277; --face-lo: #6E4527;
+            --top: #C08A5F; --top-hi: #E7BC93; --edge: rgba(255,220,190,0.7);
+            --num: #33200F; --num-hi: rgba(255,225,195,0.45);
+            height: 62px !important;
+        }
+        .pod.vacant .pod-block {
+            --face: #2A2521; --face-hi: #3A3430; --face-lo: #1D1916;
+            --top: #322C27; --top-hi: #423B35; --edge: rgba(236,226,214,0.14);
+            --num: #6b6259; --num-hi: rgba(236,226,214,0.08);
+            opacity: 1 !important; box-shadow: inset 0 1px 0 var(--edge), 0 20px 26px -20px rgba(0,0,0,0.8);
+        }
+
+        /* the plate above each block */
+        .pod-name {
+            font: 800 1rem 'Poppins', sans-serif !important; color: #F4EEE6 !important;
+            letter-spacing: -0.005em;
+        }
+        .pod-cap {
+            font: 800 0.9rem 'Poppins', sans-serif !important; color: #E8DCCB !important;
+            font-variant-numeric: tabular-nums;
+        }
+        .pod-ret { font: 800 0.74rem 'Poppins', sans-serif !important; letter-spacing: 0.02em; }
+        .pod-medal {
+            font: 900 1rem 'Poppins', sans-serif !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.45) !important;
+        }
+        .pod-medal.m1 { box-shadow: 0 0 20px rgba(224,162,76,0.55), inset 0 1px 0 rgba(255,255,255,0.6) !important; }
+        @media (max-width: 640px) { .pod { min-width: 104px !important; } }
+
+        /* ══ prep-window fixtures ══ */
+        .fx-wrap { display: flex; flex-direction: column; gap: 0.85rem; margin-top: 0.2rem; }
+        .fx-card {
+            background: #221E1A; border: 1px solid rgba(236,226,214,0.1);
+            border-radius: 14px; overflow: hidden;
+        }
+        .fx-card.mine { border-color: rgba(92,184,138,0.42); box-shadow: 0 0 0 1px rgba(92,184,138,0.14); }
+        .fx-grid { display: grid; grid-template-columns: 1fr 74px 1fr; align-items: start; }
+        .fx-vs {
+            display: flex; align-items: center; justify-content: center; align-self: stretch;
+            background: rgba(236,226,214,0.03);
+            border-left: 1px solid rgba(236,226,214,0.07);
+            border-right: 1px solid rgba(236,226,214,0.07);
+            min-height: 74px;
+        }
+        .fx-vs span {
+            font: 900 0.82rem 'Poppins', sans-serif; letter-spacing: 0.1em;
+            color: #E0A24C; text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+        }
+        .fx-card.bye .fx-vs span { color: #7d746a; }
+
+        .fx-head {
+            width: 100%; display: flex; align-items: center; gap: 0.7rem;
+            padding: 0.95rem 1rem; background: none; border: none; cursor: pointer; text-align: left;
+        }
+        .fx-side.right .fx-head { flex-direction: row-reverse; text-align: right; }
+        .fx-head:hover { background: rgba(236,226,214,0.03); }
+        .fx-av {
+            width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(160deg,#3A342E,#272320);
+            border: 1px solid rgba(236,226,214,0.14);
+            font: 800 0.9rem 'Poppins', sans-serif; color: #C9BEB0;
+        }
+        .fx-side.me .fx-av {
+            background: linear-gradient(160deg,#4d8f6c,#356b4f); border-color: rgba(92,184,138,0.6); color: #EAF7F0;
+        }
+        .fx-who { flex: 1; min-width: 0; }
+        .fx-who b { display: block; font: 800 0.98rem 'Poppins', sans-serif; color: #F4EEE6; }
+        .fx-who i {
+            display: block; font-style: normal; margin-top: 1px;
+            font: 600 0.68rem 'Inter', sans-serif; color: #7d746a;
+        }
+        .fx-caret { color: #7d746a; flex-shrink: 0; transition: transform .22s ease; }
+        .fx-side.open .fx-caret { transform: rotate(180deg); color: #B7ADA1; }
+
+        .fx-drop {
+            max-height: 0; overflow: hidden; transition: max-height .3s cubic-bezier(.3,.8,.3,1);
+            padding: 0 1rem;
+        }
+        .fx-side.open .fx-drop { max-height: 340px; padding-bottom: 0.95rem; }
+        .fx-side.right .fx-drop { text-align: right; }
+        .fx-grp {
+            font: 700 0.58rem 'Inter', sans-serif; letter-spacing: 0.18em; text-transform: uppercase;
+            color: #6b6259; margin: 0.5rem 0 0.4rem;
+        }
+        .fx-chips { display: flex; flex-wrap: wrap; gap: 0.32rem; }
+        .fx-side.right .fx-chips { justify-content: flex-end; }
+        .fx-chip {
+            font: 800 0.7rem 'Inter', sans-serif; letter-spacing: 0.02em;
+            padding: 0.26rem 0.5rem; border-radius: 6px;
+            background: rgba(236,226,214,0.05); border: 1px solid rgba(236,226,214,0.1); color: #A79C90;
+        }
+        .fx-chip.on {
+            background: rgba(92,184,138,0.13); border-color: rgba(92,184,138,0.4); color: #8FD9B2;
+        }
+        .fx-none { font: 400 0.75rem 'Inter', sans-serif; color: #6b6259; font-style: italic; }
+        .fx-foot {
+            text-align: center; margin-top: 0.9rem;
+            font: 700 0.66rem 'Inter', sans-serif; letter-spacing: 0.16em;
+            text-transform: uppercase; color: #8a8178;
+        }
+        @media (max-width: 720px) {
+            .fx-grid { grid-template-columns: 1fr; }
+            .fx-vs { min-height: 40px; border: none; border-top: 1px solid rgba(236,226,214,0.07);
+                     border-bottom: 1px solid rgba(236,226,214,0.07); }
+            .fx-side.right .fx-head { flex-direction: row; text-align: left; }
+            .fx-side.right .fx-drop { text-align: left; }
+            .fx-side.right .fx-chips { justify-content: flex-start; }
+        }
+
+        /* a bye reads as a rest week, not a missing opponent */
+        .fx-card.bye .fx-vs span { color: #9DB8D2 !important; }
+        .fx-card.bye { border-style: dashed; }
+        .fx-bye {
+            display: flex; flex-direction: column; align-items: flex-end; gap: 0.28rem;
+            padding: 1rem 1.05rem; text-align: right; color: #9DB8D2;
+        }
+        .fx-bye b { font: 800 0.95rem 'Poppins', sans-serif; color: #C4D3E2; }
+        .fx-bye i {
+            font-style: normal; font: 400 0.74rem/1.45 'Inter', sans-serif;
+            color: #7d746a; max-width: 17rem;
+        }
+        @media (max-width: 720px) {
+            .fx-bye { align-items: flex-start; text-align: left; }
         }
 </style>
 </head>
@@ -2558,6 +2785,8 @@
                         </h3>
                         <div class="rules-description">
                             <p>Standings rank players by <strong>total portfolio return</strong> — the live market value of your shares against what you paid. Prices track the real market, 9:30 AM – 4:00 PM ET.</p>
+                            <p>Each week you are drawn against one other player. Whoever holds the higher portfolio value when the week closes wins the matchup and takes a <strong>set percentage of the loser's portfolio</strong> as capital. The loser has the 24-hour transfer window to sell down and settle; miss it and the same fraction is sold from every holding automatically.</p>
+                            <p>A season runs in weekly cycles: a <strong>24-hour prep window</strong> to set your lineup and deploy, <strong>six days live</strong> where nothing can be changed, then a <strong>24-hour transfer window</strong> to settle up and reshuffle.</p>
                         </div>
                     </div>
 
@@ -2569,6 +2798,7 @@
                         <div class="rules-list">
                             <div class="rule-item"><span class="rule-label">Short Selling</span><span class="rule-value">Not allowed</span></div>
                             <div class="rule-item"><span class="rule-label">Day Trading</span><span class="rule-value">Not allowed</span></div>
+                            <div class="rule-item"><span class="rule-label">Lineup Changes</span><span class="rule-value">Prep and transfer windows only — locked while a week is live</span></div>
                             <div class="rule-item"><span class="rule-label">Winner</span><span class="rule-value">Highest return at season's end</span></div>
                             <div class="rule-item"><span class="rule-label">Tie-break</span><span class="rule-value">Total portfolio value</span></div>
                         </div>
@@ -3365,7 +3595,10 @@
                 const tr = await SL.client.from('league_trades').select('*').eq('league_id', DRAFT.id).eq('status', 'pending');
                 DRAFT.trades = tr.data || [];
             } catch (e) { DRAFT.trades = []; }
-            safely(renderTeam, 'team');
+            // A realtime event (often triggered by our OWN allocation save) used to
+            // rebuild this screen and replace the slider under the user's finger.
+            // Hold the re-render until the drag is done and saves have flushed.
+            if (allocBusy()) { ALLOC_RERENDER = true; } else { safely(renderTeam, 'team'); }
             safely(renderMatchups, 'matchups');
             safely(renderPortfolios, 'portfolios');
             const rc = document.getElementById('ruleCapital');
@@ -3479,12 +3712,7 @@
                     </div>
                     <div class="ov-cell">
                         <span class="ov-k">Weekly capital transfer</span>
-                        <span class="ov-v">${(() => {
-                            const pct = Number(L.capital_transfer_pct) || 5;
-                            const cap = Number(L.starting_capital) || 100000;
-                            return pct + '% &middot; $' + Math.round(cap * pct / 100).toLocaleString();
-                        })()}</span>
-                        <span class="ov-s">winner takes it from the loser each week</span>
+                        <span class="ov-v">${Number(L.capital_transfer_pct) || 5}%</span>
                     </div>
                     <div class="ov-cell code">
                         <span class="ov-k">Join code</span>
@@ -3800,6 +4028,7 @@
               body: 'Move capital between the stocks you already hold.', btn: 'Got it' },
         ];
         let tmStep = 0;
+        let TT_TARGET = null;   // what the ring is currently glued to
         function teamTourKey() { return 'ftTeamTour_' + (DRAFT.id || ''); }
         function maybeTeamTour() {
             let seen = false;
@@ -3807,6 +4036,25 @@
             if (seen) return;
             if (!document.querySelector('#tmTerminal')) return;
             try { localStorage.setItem(teamTourKey(), '1'); } catch (e) {}
+            // Say hello before hijacking the screen with a spotlight.
+            const hi = document.createElement('div');
+            hi.className = 'tm-hi';
+            hi.innerHTML = `
+                <div class="tm-hi-card">
+                    <div class="tm-hi-kick">Your team is set</div>
+                    <div class="tm-hi-title">Welcome to Team Manager</div>
+                    <div class="tm-hi-sub">This is where you trade, track your portfolio and manage your lineup each week. Quick tour?</div>
+                    <button class="tm-hi-go" onclick="startTeamTour()">Ready</button>
+                </div>`;
+            document.body.appendChild(hi);
+            setTimeout(() => { const b = hi.querySelector('.tm-hi-go'); if (b) b.focus(); }, 300);
+        }
+        window.startTeamTour = function () {
+            const hi = document.querySelector('.tm-hi');
+            if (hi) { hi.classList.add('out'); setTimeout(() => hi.remove(), 340); }
+            setTimeout(buildTeamTour, 260);
+        };
+        function buildTeamTour() {
             tmStep = 0;
             const wrap = document.createElement('div');
             wrap.className = 'tt-tour';
@@ -3838,7 +4086,18 @@
             const el = document.querySelector(step.sel);
             if (!el) { return nextTeamTour(); }
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            setTimeout(() => {
+            // Guessing when a smooth scroll has finished is unreliable — it left
+            // the ring 1600px adrift on the Change-lineup step. Instead, glue the
+            // ring to the element and re-measure on every scroll frame while the
+            // tour is up, so it simply cannot fall out of sync.
+            TT_TARGET = el;
+            place();
+            requestAnimationFrame(function follow() {
+                if (!document.querySelector('.tt-tour') || TT_TARGET !== el) return;
+                place();
+                requestAnimationFrame(follow);
+            });
+            function place() {
                 const r = el.getBoundingClientRect(), pad = 8;
                 const cut = document.getElementById('ttCut');
                 cut.setAttribute('x', r.left - pad); cut.setAttribute('y', r.top - pad);
@@ -3860,8 +4119,8 @@
                 else { left = r.left; top = r.top - ch - 16; }
                 card.style.left = Math.max(12, Math.min(left, window.innerWidth - cw - 12)) + 'px';
                 card.style.top = Math.max(12, Math.min(top, window.innerHeight - ch - 12)) + 'px';
-                card.classList.add('on');
-            }, 320);
+                if (!card.classList.contains('on')) setTimeout(() => card.classList.add('on'), 240);
+            }
         }
         window.nextTeamTour = function () {
             tmStep++;
@@ -3970,7 +4229,6 @@
         }
         function showDraftEndCard() {
             if (document.querySelector('.de-fx')) return;
-            const mine = (DRAFT.picks || []).filter(p => DRAFT.me && p.user_id === DRAFT.me.id).length;
             const fx = document.createElement('div');
             fx.className = 'de-fx';
             fx.innerHTML = `
@@ -3979,19 +4237,22 @@
                         <circle cx="26" cy="26" r="24"/>
                         <path d="M15 27l8 8 15-17"/>
                     </svg>
-                    <div class="de-title">Draft Complete</div>
-                    <div class="de-amount">${mine}</div>
-                    <div class="de-sub">stock${mine === 1 ? '' : 's'} drafted &middot; set your lineup next</div>
-                    <button class="de-next" onclick="closeDraftEndCard()">Next</button>
+                    <div class="de-amount">Draft complete</div>
+                    <button class="de-next" onclick="closeDraftEndCard()">Done</button>
                 </div>`;
             document.body.appendChild(fx);
             setTimeout(() => { const b = fx.querySelector('.de-next'); if (b) b.focus(); }, 420);
         }
         window.closeDraftEndCard = function () {
             const fx = document.querySelector('.de-fx');
-            if (!fx) return;
-            fx.classList.add('out');
-            setTimeout(() => fx.remove(), 420);
+            if (fx) { fx.classList.add('out'); setTimeout(() => fx.remove(), 420); }
+            // Straight into the setup flow: the draft tab is already retired by
+            // syncDraftBtn, so there's nowhere sensible to land except Your Team.
+            try { syncDraftBtn(); } catch (e) {}
+            selectSection('team');
+            try { renderTeam(); } catch (e) {}
+            const tr = document.getElementById('teamRoot');
+            if (tr) setTimeout(() => tr.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
         };
 
 
@@ -4442,7 +4703,7 @@
                                 onchange="typeShares('${r.symbol}', this.value)"></span>
                         <span class="alloc-cell"><input class="alloc-mini" id="sl_${key}" type="range" min="0" max="${soloMax}" step="1" value="${r.shares}" ${r.price > 0 ? '' : 'disabled'}
                                 style="--fill:${SEC_COLORS[r.sector] || '#5CB88A'};--pct:${soloMax ? (r.shares / soloMax * 100).toFixed(2) : 0}%"
-                                onpointerdown="ALLOC_DRAG=true" onpointerup="ALLOC_DRAG=false" onpointercancel="ALLOC_DRAG=false"
+                                onpointerdown="ALLOC_DRAG=true" onpointerup="ALLOC_DRAG=false;setTimeout(allocSettled,80)" onpointercancel="ALLOC_DRAG=false;setTimeout(allocSettled,80)"
                                 oninput="previewShares('${r.symbol}', this)" onchange="saveShares('${r.symbol}', this.value)"></span>
                         <span><input class="alloc-num alloc-dollar" id="costTxt_${key}" type="text" value="$${(r.shares * r.price).toLocaleString(undefined,{maximumFractionDigits:0})}" ${r.price > 0 ? '' : 'disabled'}
                                 title="Type a dollar amount" onfocus="this.select()" onclick="this.select()"
@@ -4904,11 +5165,26 @@
         // the save is debounced, patches DRAFT.picks in place, and never
         // re-renders while a slider is being held.
         let ALLOC_DRAG = false;
+        let ALLOC_RERENDER = false;
         const SAVE_TIMERS = {};
+        const SAVES_INFLIGHT = new Set();
+        // Any drag in progress, any debounce still counting down, or any write
+        // still in the air means the DOM must be left alone.
+        function allocBusy() {
+            return ALLOC_DRAG || SAVES_INFLIGHT.size > 0 || Object.keys(SAVE_TIMERS).length > 0;
+        }
+        function allocSettled() {
+            if (allocBusy()) return;
+            if (!ALLOC_RERENDER) return;
+            ALLOC_RERENDER = false;
+            try { renderTeam(); } catch (e) {}
+        }
         window.saveShares = function (sym, val) {
             const n = Number(val) || 0;
             clearTimeout(SAVE_TIMERS[sym]);
             SAVE_TIMERS[sym] = setTimeout(async () => {
+                delete SAVE_TIMERS[sym];
+                SAVES_INFLIGHT.add(sym);
                 const r = myRows().find(x => x.symbol === sym) || {};
                 try {
                     await SL.setAllocation(DRAFT.id, sym, n, r.price);
@@ -4922,7 +5198,10 @@
                     }
                 } catch (e) {
                     alert(e.message || 'Could not save that allocation');
-                    if (!ALLOC_DRAG) await draftRefresh();
+                    ALLOC_RERENDER = true;
+                } finally {
+                    SAVES_INFLIGHT.delete(sym);
+                    setTimeout(allocSettled, 60);
                 }
             }, 350);
         };
@@ -4937,8 +5216,10 @@
         };
         window.toggleStarter = async function (sym, on) {
             const wNow = weekInfo();
-            if ((DRAFT.league || {}).status === 'active' && wNow.phase === 'live' && myMembership().deployed) {
-                alert('Lineups are locked while the week is live — swaps open in the transfer window (' + (wNow.days) + 'd ' + wNow.hours + 'h).');
+            // Locked the moment the prep window closes, whether or not you ever
+            // deployed — the old check let undeployed players keep editing.
+            if ((DRAFT.league || {}).status === 'active' && wNow.phase === 'live') {
+                alert('Lineups locked. The week is live — swaps reopen in the transfer window (' + wNow.days + 'd ' + wNow.hours + 'h).');
                 return;
             }
             const mine = (DRAFT.picks || []).filter(p => p.user_id === DRAFT.me.id);
@@ -4987,8 +5268,8 @@
         };
         window.editLineup = async function () {
             const wNow = weekInfo();
-            if ((DRAFT.league || {}).status === 'active' && wNow.phase === 'live' && myMembership().deployed) {
-                alert('Lineups are locked while the week is live. Swaps reopen in the transfer window (' + wNow.days + 'd ' + wNow.hours + 'h).');
+            if ((DRAFT.league || {}).status === 'active' && wNow.phase === 'live') {
+                alert('Lineups locked. The week is live — swaps reopen in the transfer window (' + wNow.days + 'd ' + wNow.hours + 'h).');
                 return;
             }
             try {
@@ -5063,6 +5344,11 @@
             });
             return map;
         }
+        window.toggleFixture = function (btn) {
+            const side = btn.closest('.fx-side');
+            if (side) side.classList.toggle('open');
+        };
+
         /* ── the verdict slate: last week's result, before this week's fixtures ── */
         function verdictHtml() {
             const me = (DRAFT.me || {}).id;
@@ -5107,18 +5393,67 @@
                 const vals0 = await teamValues();
                 const ids0 = (DRAFT.members || []).map(m => m.user_id);
                 const pairs0 = roundRobin(ids0, 1);
-                root.innerHTML = weekBannerHtml() + pairs0.map(([a, b]) => {
-                    const A = vals0[a] || {}, B = vals0[b] || {};
-                    if (!a || !b) return '';
-                    return `<div class="mu-card" style="opacity:0.75;">
-                        <div class="mu-row">
-                            <div class="mu-side"><div class="mu-name">${A.name || '—'}</div><div class="mu-roster">${(A.all || []).join(' · ')}</div></div>
-                            <div class="mu-vs" style="color:#E0A24C;">WK 1</div>
-                            <div class="mu-side right"><div class="mu-name">${B.name || '—'}</div><div class="mu-roster">${(B.all || []).join(' · ')}</div></div>
+                const side = (uid, V, flip) => {
+                    const starters = (V.roster || []);
+                    const bench = (V.all || []).filter(x => starters.indexOf(x) === -1);
+                    const isMe = uid === (DRAFT.me || {}).id;
+                    return `<div class="fx-side ${flip ? 'right' : ''} ${isMe ? 'me' : ''}">
+                        <button class="fx-head" onclick="toggleFixture(this)">
+                            <span class="fx-av">${(V.name || '?').slice(0, 1).toUpperCase()}</span>
+                            <span class="fx-who">
+                                <b>${V.name || '—'}</b>
+                                <i>${starters.length} starting &middot; ${bench.length} benched</i>
+                            </span>
+                            <svg class="fx-caret" viewBox="0 0 24 24" width="14" height="14" fill="none"
+                                 stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m6 9 6 6 6-6"/>
+                            </svg>
+                        </button>
+                        <div class="fx-drop">
+                            <div class="fx-grp">Starting lineup</div>
+                            <div class="fx-chips">${starters.length
+                                ? starters.map(t => '<span class="fx-chip on">' + t + '</span>').join('')
+                                : '<span class="fx-none">Lineup not set yet</span>'}</div>
+                            <div class="fx-grp">Bench</div>
+                            <div class="fx-chips">${bench.length
+                                ? bench.map(t => '<span class="fx-chip">' + t + '</span>').join('')
+                                : '<span class="fx-none">Nobody benched</span>'}</div>
                         </div>
-                        <div style="text-align:center;font:700 0.68rem 'Inter',sans-serif;letter-spacing:0.14em;text-transform:uppercase;color:#8a8178;padding:0.5rem 0 0.2rem;">Locks in ${w.hours + w.days * 24}h ${w.mins}m — scores start counting then</div>
                     </div>`;
-                }).join('');
+                };
+                root.innerHTML = weekBannerHtml() + `<div class="fx-wrap">` + pairs0.map(([a, b]) => {
+                    if (!a || !b) {
+                        const uid = a || b;
+                        const solo = vals0[uid] || {};
+                        const isMe = uid === (DRAFT.me || {}).id;
+                        return `<div class="fx-card bye ${isMe ? 'mine' : ''}">
+                            <div class="fx-grid">
+                                ${side(uid, solo, false)}
+                                <div class="fx-vs"><span>BYE</span></div>
+                                <div class="fx-side right">
+                                    <div class="fx-bye">
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                                             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="9"/><path d="M8.5 12h7"/>
+                                        </svg>
+                                        <b>${isMe ? 'You have a bye' : 'Bye week'}</b>
+                                        <i>Odd number of players &mdash; no capital moves and nothing is at stake.</i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    }
+                    const A = vals0[a] || {}, B = vals0[b] || {};
+                    const mine = a === (DRAFT.me || {}).id || b === (DRAFT.me || {}).id;
+                    return `<div class="fx-card ${mine ? 'mine' : ''}">
+                        <div class="fx-grid">
+                            ${side(a, A, false)}
+                            <div class="fx-vs"><span>VS</span></div>
+                            ${side(b, B, true)}
+                        </div>
+                    </div>`;
+                }).join('') + `</div>
+                <div class="fx-foot">Locks in ${w.hours + w.days * 24}h ${w.mins}m &mdash; scoring starts then</div>`;
                 return;
             }
             const vals = await teamValues();
@@ -5616,20 +5951,14 @@
                     ${[1, 0, 2].map(i => { const s = top3[i];
                         if (!s) return `<div class="pod vacant">
                             <div class="pod-crown"></div>
-                            <div class="pod-medal m${i + 1}">${i + 1}</div>
                             <div class="pod-name">&mdash;</div>
-                            <div class="pod-cap">&mdash;</div>
-                            <div class="pod-ret">&mdash;</div>
                             <div class="pod-block p${i + 1}">${i + 1}</div>
                         </div>`;
                         const nm = lbName(s);
                         const r = Number(s.returnPct) || 0;
                         return `<div class="pod">
                             <div class="pod-crown">${i === 0 ? crown : ''}</div>
-                            <div class="pod-medal m${i + 1}">${i + 1}</div>
                             <div class="pod-name">${nm}</div>
-                            <div class="pod-cap">$${capOf(s.user_id).toLocaleString(undefined,{maximumFractionDigits:0})}</div>
-                            <div class="pod-ret" style="color:${lbPrep ? '#7d746a' : (r >= 0 ? '#5CB88A' : '#D9645C')};">${lbPrep ? '—' : (r >= 0 ? '+' : '') + r.toFixed(2) + '%'}</div>
                             <div class="pod-block p${i + 1}">${i + 1}</div>
                         </div>`; }).join('')}
                 </div>`;

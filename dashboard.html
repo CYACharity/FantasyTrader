@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- ft-canvas: the page background, declared before anything that can
+         block rendering. Every stylesheet on this page is render-blocking,
+         so when one is slow Chrome gives up holding the previous frame and
+         paints the default canvas — white — for a beat. That was the flash
+         between pages. Inline and first, it can never be white. -->
+    <style>html{background-color:#171310;}</style>
     <!-- how the link looks when someone shares it -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Fantasy Trader">
@@ -23,7 +29,7 @@
     <title>Stock League - Dashboard</title>
     <style>
         /* Add modern font */
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700;800&family=Permanent+Marker&family=Poppins:wght@500;600;700;800&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap');
 
         :root {
             --primary: #4A6785;
@@ -1542,8 +1548,10 @@
         html body .main-title { font-weight: 800 !important; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/ft-alert.js"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/sl.js"></script>
+    <script src="js/inbox.js"></script>
     <script src="stock-data.js"></script>
     <script src="js/guard.js"></script>
     <style>
@@ -1638,6 +1646,14 @@
         .hstat b.up { color: #5CB88A; }
         .hstat b.down { color: #D9645C; }
         .hstat b.flat { color: #B7ADA1; }
+        /* a brief tint when the live figure moves — noticeable, not noisy */
+        .hstat-tick-up   { animation: hstatUp   1.1s ease-out; }
+        .hstat-tick-down { animation: hstatDown 1.1s ease-out; }
+        @keyframes hstatUp   { 0%,32% { color: #7FD3A6; } 100% { color: #F4EEE6; } }
+        @keyframes hstatDown { 0%,32% { color: #E4837C; } 100% { color: #F4EEE6; } }
+        @media (prefers-reduced-motion: reduce) {
+            .hstat-tick-up, .hstat-tick-down { animation: none; }
+        }
         .hstat span {
             font: 700 0.6rem 'Inter', sans-serif; letter-spacing: 0.19em;
             text-transform: uppercase; color: #7d746a;
@@ -2342,6 +2358,454 @@
         /* keep the artwork and the copy above the wash */
         .hero-art-trace { z-index: 1 !important; }
         .hero-grid { position: relative; z-index: 2; }
+
+        /* ── announcements v3: two posts, and the lead carries a real stat ── */
+        .ann-modal-card { width: min(720px, 94vw) !important; }
+        .ann-lead {
+            grid-template-columns: 1fr 210px !important;
+            min-height: 0 !important; margin-bottom: 1rem !important;
+        }
+        .ann-lead-body { padding: 1.6rem 1.7rem !important; }
+        .ann-lead-body h3 { font-size: 1.5rem !important; }
+        .ann-lead-body p b { color: #F4EEE6; font-weight: 700; }
+        .ann-lead-stat {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 0.28rem; padding: 1.4rem 1rem;
+            background:
+                radial-gradient(ellipse at 50% 10%, rgba(92,184,138,0.15), transparent 68%),
+                linear-gradient(160deg, #2A2521, #201C18);
+            border-left: 1px solid rgba(236,226,214,0.08);
+        }
+        .als-from {
+            font: 700 0.88rem 'Poppins', sans-serif; color: #7d746a;
+            text-decoration: line-through; text-decoration-color: rgba(125,116,106,0.65);
+        }
+        .als-arrow { color: #5CB88A; line-height: 0; }
+        .als-arrow svg { width: 46px; height: 28px; filter: drop-shadow(0 2px 6px rgba(92,184,138,0.35)); }
+        .als-to {
+            font: 900 1.6rem 'Poppins', sans-serif; color: #8FD9B2; line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+        .als-tag {
+            margin-top: 0.35rem; font: 700 0.56rem 'Inter', sans-serif;
+            letter-spacing: 0.2em; text-transform: uppercase; color: #E0A24C;
+        }
+        .ann-story.wide { width: 100%; }
+        @media (max-width: 640px) {
+            .ann-lead { grid-template-columns: 1fr !important; }
+            .ann-lead-stat { flex-direction: row; gap: 0.7rem; border-left: none;
+                             border-top: 1px solid rgba(236,226,214,0.08); }
+        }
+
+        /* the arrow motif, echoed on the dashboard box */
+        .ann-panel .ann-pin { align-items: center; gap: 0.2rem; }
+        .ann-run { display: flex; align-items: center; gap: 0.4rem; }
+        .ar-from {
+            font: 700 0.74rem 'Poppins', sans-serif; color: #7d746a;
+            text-decoration: line-through; text-decoration-color: rgba(125,116,106,0.65);
+        }
+        .ar-arrow { width: 25px; height: 15px; color: #5CB88A; flex-shrink: 0; }
+        .ar-to { font: 800 0.84rem 'Poppins', sans-serif; color: #8FD9B2; font-variant-numeric: tabular-nums; }
+
+        /* the second post was hugging the left; centre it under the lead */
+        .ann-story.wide {
+            display: flex; flex-direction: column; align-items: center;
+            text-align: center; padding: 1.3rem 1.4rem 1.4rem;
+        }
+
+        /* the stat column sat high in its panel — sit it dead centre */
+        .ann-lead-stat { justify-content: center !important; padding: 1.7rem 1rem !important; }
+        .ann-lead { align-items: stretch !important; }
+        /* and the whole card was riding high in the viewport */
+        .ann-modal { align-items: center !important; }
+        .ann-modal-card { margin: auto 0 !important; }
+
+        /* The copy sat at the top of its half while the $10k→$15k column was
+           centred in the other, so the two halves read as misaligned. Centre
+           the text on the same axis. */
+        .ann-lead-body {
+            display: flex !important; flex-direction: column; justify-content: center;
+        }
+
+        /* Career centre: a "coming soon" footnote shouldn't be a full-width
+           slab under the contest — shrink it to a card and centre it. */
+        .ann-story.wide {
+            width: min(340px, 100%) !important;
+            margin: 0.2rem auto 0 !important;
+            padding: 1rem 1.2rem 1.1rem !important;
+            border-radius: 12px;
+            background: rgba(236, 226, 214, 0.025);
+            border: 1px solid rgba(236, 226, 214, 0.08);
+        }
+        .ann-story.wide h4 { font-size: 0.98rem !important; margin: 0.3rem 0 0.25rem !important; }
+        .ann-story.wide p  { font-size: 0.8rem !important; color: #8f867c !important; margin: 0 !important; }
+
+        /* ── the WIN $25 scrawl ───────────────────────────────────────────
+           Deliberately imperfect: the two loops don't line up, the stroke has
+           round caps, and the whole thing sits at an angle. A tidy, centred
+           badge would just read as another UI chip. */
+        /* The panel clipped the stamp: an earlier rule sets `overflow: hidden`
+           on `.panel-sections .panel-section.ann-panel`, which outranked a
+           two-class selector here, so the scrawl lost its top and right edge.
+           The clipping was only ever there to round off the faint diagonal
+           sweep — and that sweep is `inset: 0`, so it never escapes anyway.
+           Give the sweep its own radius and the panel can stop clipping. */
+        .panel-sections .panel-section.ann-panel { position: relative; overflow: visible; }
+        .panel-sections .panel-section.ann-panel::after { border-radius: 10px; }
+
+        /* ── the announcement box: hard corners ───────────────────────────
+           Boxed again, but with square 90° corners rather than the 10px
+           radius it used to carry — same reasoning as the stamp next to it.
+           The diagonal sheen that used to wash across the surface stays
+           gone; it was the part that read as decoration. */
+        .panel-sections .panel-section.ann-panel {
+            background: #221E1A !important;
+            border: 1px solid rgba(236,226,214,0.14) !important;
+            border-top: 1px solid rgba(236,226,214,0.14) !important;
+            border-radius: 0 !important;
+        }
+        .panel-sections .panel-section.ann-panel::after { display: none !important; }
+
+        /* Measured as one block — the ANNOUNCEMENTS label down to the
+           $10k→$15k line — the group sat 6px from the top edge and 20px from
+           the bottom, which is what read as "pushed up".
+
+           Padding on the panel did nothing, because the label is
+           `position: absolute` at a fixed `top` and so ignores it entirely.
+           Both pieces have to be moved on their own terms: the label by its
+           offset, the copy by a transform (which shifts it without changing
+           the flex layout that centres it).
+
+           The label itself belongs level with MARKET NEWS next door, so only
+           the copy moves. The +1px is real: MARKET NEWS is a normal in-flow
+           heading measured from the border box, this one is absolutely
+           positioned from the padding box, and they land a pixel apart. */
+        .panel-sections .ann-panel h3 { top: calc(0.32rem + 1px) !important; }
+        .panel-sections .ann-panel .panel-content { transform: translateY(7px); }
+        /* Sits ON the corner rather than inside it. Tucked in, it collided
+           with the centred headline as soon as the panel got narrow (246px at
+           1024). Straddling the edge clears the text at every width and reads
+           more like something scrawled onto the box afterwards. */
+        .ann-stamp {
+            position: absolute; top: -21px; right: -10px;
+            width: 92px; height: 36px;
+            transform: rotate(-9deg);
+            pointer-events: none; z-index: 3;
+        }
+        .ann-stamp svg { width: 100%; height: 100%; overflow: visible; }
+        .st-box {
+            fill: none; stroke: #E0A24C; stroke-width: 2.1;
+            stroke-linecap: round; stroke-linejoin: round;
+            opacity: 0.9;
+        }
+        /* the second pass is lighter, like the marker was lifting */
+        .st-box2 { stroke-width: 1.4; opacity: 0.45; }
+        .st-txt {
+            font-family: 'Permanent Marker', 'Fraunces', Georgia, cursive;
+            font-size: 17px; fill: #E9B368; letter-spacing: 0.5px;
+            text-anchor: middle;
+        }
+        .ann-panel:hover .st-box { opacity: 1; }
+
+        /* on a phone the strip is one column and the corner is tight */
+        @media (max-width: 560px) {
+            .ann-stamp { width: 78px; height: 31px; top: -18px; right: -4px; }
+        }
+
+        /* ── give feedback ────────────────────────────────────────────────
+           Sits above the BETA line, tucked up toward the ticker tape. Quiet
+           at rest so it never competes with the wordmark, and it only takes
+           colour when you reach for it. */
+        /* Pinned to the top-left of the hero rather than sitting in the flow.
+           The hero block is vertically centred, so in flow the button rode
+           down with it and ended up level with the wordmark — nowhere near
+           the ticker tape. Absolute against .hero-grid puts it directly under
+           the tape, and `left` tracks whatever padding .hero-left has at that
+           breakpoint so it lines up with the title. */
+        .fb-btn {
+            /* The navbar and ticker tape are position:fixed, so the container
+               they sit over starts at y=0 — anything under ~120px lands
+               beneath the tape. 148px leaves a clear gap below it rather than
+               tucking the button right up against the edge. */
+            position: absolute; top: 148px; left: 0; z-index: 4;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.56rem 1.1rem;
+            /* the old hover look, made permanent — it reads as something you
+               can press, where the grey version read as a label */
+            background: rgba(92, 184, 138, 0.12);
+            border: 1px solid rgba(92, 184, 138, 0.55);
+            border-radius: 999px; cursor: pointer;
+            font: 600 0.82rem 'Inter', sans-serif; letter-spacing: 0.01em;
+            color: #F4EEE6;
+            transition: filter .18s ease, border-color .18s ease, background .18s ease;
+        }
+        .fb-btn svg { width: 15px; height: 15px; }
+        .fb-btn:hover {
+            background: rgba(92, 184, 138, 0.2);
+            border-color: rgba(92, 184, 138, 0.8);
+        }
+
+        .fb-modal {
+            display: none; position: fixed; inset: 0; z-index: 4000;
+            background: rgba(10, 8, 7, 0.74);
+            align-items: center; justify-content: center; padding: 1.5rem;
+        }
+        .fb-modal.open { display: flex; }
+        .fb-card {
+            position: relative; width: min(520px, 100%);
+            background: #1C1815;
+            border: 1px solid rgba(236, 226, 214, 0.12);
+            border-radius: 16px; padding: 1.7rem 1.7rem 1.5rem;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+            animation: fbIn .22s cubic-bezier(.2,.9,.3,1.2) both;
+        }
+        @keyframes fbIn { from { opacity: 0; transform: translateY(10px) scale(.98); } }
+        .fb-x {
+            position: absolute; top: 12px; right: 12px;
+            width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+            background: none; border: none; border-radius: 8px; cursor: pointer; color: #7d746a;
+        }
+        .fb-x:hover { background: rgba(236, 226, 214, 0.1); color: #F4EEE6; }
+        .fb-x svg { width: 13px; height: 13px; }
+        .fb-kick {
+            display: block; font: 700 0.6rem 'Inter', sans-serif;
+            letter-spacing: 0.2em; text-transform: uppercase; color: #5CB88A;
+        }
+        .fb-card h2 {
+            margin: 0.4rem 0 0.3rem;
+            font: 600 1.5rem 'Fraunces', Georgia, serif !important; color: #F4EEE6;
+        }
+        .fb-sub { font: 400 0.86rem/1.5 'Inter', sans-serif; color: #A79C90; margin: 0 0 1.1rem; }
+        #fbText {
+            width: 100%; box-sizing: border-box; resize: vertical; min-height: 130px;
+            background: #141110; color: #F4EEE6;
+            border: 1px solid rgba(236, 226, 214, 0.14); border-radius: 10px;
+            padding: 0.85rem 0.95rem;
+            font: 400 0.92rem/1.55 'Inter', sans-serif;
+        }
+        #fbText:focus { outline: none; border-color: rgba(92, 184, 138, 0.6); }
+        #fbText::placeholder { color: #6b6259; }
+        .fb-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 0.9rem; }
+        .fb-count { font: 500 0.72rem 'Inter', sans-serif; color: #6b6259; font-variant-numeric: tabular-nums; }
+        .fb-send {
+            padding: 0.62rem 1.5rem; border: none; border-radius: 10px; cursor: pointer;
+            background: #5CB88A; color: #06170F;
+            font: 800 0.85rem 'Inter', sans-serif;
+            transition: filter .18s ease, opacity .18s ease;
+        }
+        .fb-send:hover { filter: brightness(1.08); }
+        .fb-send[disabled] { opacity: 0.55; cursor: default; filter: none; }
+
+        /* below the cap, .hero-left carries a padding — track it so the
+           button stays flush with the wordmark */
+        @media (max-width: 1440px) {
+            .fb-btn { left: calc(3.2vw - 20px); }
+        }
+        @media (max-width: 560px) {
+            .fb-card { padding: 1.4rem 1.2rem 1.2rem; }
+            /* the hero block starts higher on a phone, so the roomier desktop
+               offset pushed the button into the BETA line */
+            .fb-btn { font-size: 0.76rem; padding: 0.48rem 0.95rem; top: 128px; left: 20px; }
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+           RESPONSIVE — this hero was measured on a wide monitor
+           ------------------------------------------------------------------
+           The wide layout sets the artwork's size and bleed with !important
+           (it had to, to beat the older rules above it), which meant a 1024px
+           screen inherited a 75vw animal hanging 15vw off the edge: the bull
+           landed on the headline and the bear was sliced in half. Everything
+           below re-states those same properties per breakpoint.
+
+           The artwork's aspect ratio is safe to play with: the PNG and the
+           glowing outline share one viewBox with preserveAspectRatio="meet",
+           so whatever box we hand it, the art fits inside and the two layers
+           can never drift apart. That's what earlier versions got wrong.
+           ══════════════════════════════════════════════════════════════════ */
+
+        /* Nothing should be reachable by scrolling sideways. `clip` rather
+           than `hidden` because hidden still scrolls programmatically and on
+           iOS touch — clip genuinely can't. */
+        html { overflow-x: clip; }
+        body { overflow-x: clip; }
+        .dashboard-container { overflow-x: clip !important; overflow-y: visible !important; }
+
+        /* ── big monitors: freeze the composition instead of stretching it ─
+           The copy is vertically centred by the grid, but the artwork was
+           pinned to `top: 128px`. So the taller the monitor, the further the
+           two drifted apart — 114px of separation at 1080 tall, 306px at
+           1440. Centring the art on the same axis as the copy means the pair
+           holds its spacing at any size, and the whole hero reads as one
+           block that simply gets centred on wider screens. */
+        @media (min-width: 1081px) {
+            .hero-art-trace {
+                /* the grid's content centre: below its 132px top padding,
+                   halfway down whatever height is left */
+                top: calc(132px + (100% - 132px) / 2) !important;
+                /* +38px because the copy block's own optical centre sits a
+                   little below the grid's, thanks to the eyebrow above it */
+                transform: translateY(calc(-50% + 38px)) !important;
+            }
+        }
+
+        /* Horizontal spacing is already frozen above 1700 (the grid is capped
+           at 1500 and the art is offset from that cap, not from the viewport).
+           Start it at 1441 so it joins the laptop rules below with no gap in
+           between where the art would still be scaling on vw. */
+        @media (min-width: 1441px) {
+            .hero-grid { max-width: 1500px !important; margin-left: auto !important; margin-right: auto !important; }
+            .hero-left { padding-left: 0 !important; }
+            .hero-art-trace {
+                --artW: min(1120px, calc((100vh - 250px) * 1.7325)) !important;
+                right: calc((100vw - 1500px) / 2 - 185px) !important;
+            }
+        }
+
+        /* ── laptops: pull the animals in so they clear the copy ───────── */
+        @media (max-width: 1440px) {
+            .hero-art-trace {
+                --artW: min(64vw, calc((100vh - 250px) * 1.7325)) !important;
+                right: -8vw !important;
+            }
+            @supports (height: 100dvh) {
+                .hero-art-trace { --artW: min(64vw, calc((100dvh - 250px) * 1.7325)) !important; }
+            }
+        }
+        @media (max-width: 1240px) {
+            .hero-art-trace {
+                --artW: min(60vw, calc((100vh - 250px) * 1.7325)) !important;
+                right: -5vw !important;
+            }
+            @supports (height: 100dvh) {
+                .hero-art-trace { --artW: min(60vw, calc((100dvh - 250px) * 1.7325)) !important; }
+            }
+        }
+
+        /* ── tablets and below: stack, art becomes a band under the copy ── */
+        @media (max-width: 1080px) {
+            .hero-grid {
+                grid-template-columns: 1fr !important;
+                padding: 116px 0 calc(min(40vh, 56vw) + 18px) !important;
+                min-height: 0 !important;
+            }
+            .hero-right { display: none !important; }
+
+            /* sit the pair along the bottom of the hero instead of behind the
+               headline, and let `meet` scale them into whatever box is left */
+            .hero-art, .hero-art-trace {
+                top: auto !important;
+                bottom: 6px !important;
+                right: -3vw !important;
+                left: auto !important;
+                width: 103vw !important;
+                height: min(40vh, 56vw) !important;
+                min-height: 0 !important;
+                transform: none !important;
+            }
+            .hero-art-trace .trace-shift { transform: translate(-13px, -4px); }
+
+            /* the wash was aimed at a bottom-right corner that no longer has
+               anything in it — re-aim it at the band */
+            .dashboard-container::after {
+                background: radial-gradient(150% 70% at 78% 100%,
+                    rgba(6, 5, 4, 0.42) 0%,
+                    rgba(6, 5, 4, 0.24) 30%,
+                    rgba(6, 5, 4, 0.09) 55%,
+                    rgba(6, 5, 4, 0) 76%) !important;
+            }
+        }
+
+        /* ── navbar: three groups fighting over one row ─────────────────── */
+        /* The index chips and the clock were overlapping the welcome line
+           well before phone width — they go in that order because the clock
+           is the more useful of the two. */
+        @media (max-width: 1180px) { .navbar .header-tickers { display: none !important; } }
+        @media (max-width: 860px)  { .navbar { padding: 0 16px; } }
+        /* `min-width: 340px` plus a `!important` font size meant the greeting
+           refused to give up any room and simply shoved Profile off-screen. */
+        @media (max-width: 860px) {
+            .welcome-message {
+                min-width: 0 !important; flex: 0 1 auto; overflow: hidden;
+                white-space: nowrap; text-overflow: ellipsis;
+            }
+            .header-actions { flex: 0 0 auto; }
+        }
+        @media (max-width: 700px) {
+            .navbar .clock-chip { display: none !important; }
+            .welcome-message { font-size: 1.15rem !important; }
+        }
+        @media (max-width: 420px) {
+            .welcome-message { font-size: 1rem !important; }
+            .profile-button { padding: 8px 11px; }
+            .profile-button span { display: none; }
+        }
+
+        /* ── the bottom strip ───────────────────────────────────────────── */
+        /* Four columns across a phone gave each panel ~85px, which is why the
+           headline read "Headlines are unavailable right…". Below 900px it
+           stops being a fixed strip and just becomes the end of the page. */
+        /* Between 901 and 1080 the hero is already stacked but the strip is
+           still pinned to the bottom of the window, so the animals need to
+           stand ON it rather than disappear behind it. */
+        @media (max-width: 1080px) and (min-width: 901px) {
+            .hero-art, .hero-art-trace { bottom: 52px !important; }
+            .hero-grid { padding-bottom: calc(min(40vh, 56vw) + 66px) !important; }
+        }
+
+        @media (max-width: 1300px) and (min-width: 901px) {
+            /* Announcements gets the wider share here: it carries a serif
+               headline that has to stay on one line, where Market News can
+               simply wrap. Two lines pushed the headline up into both the
+               ANNOUNCEMENTS label and the corner stamp. */
+            .panel-sections { grid-template-columns: 0.85fr 1.25fr 1.3fr 0.5fr; gap: 0.6rem; }
+            .panel-sections .ann-panel .ann-head {
+                font-size: 0.94rem !important; line-height: 1.2; white-space: nowrap;
+            }
+            .panel-sections .ann-panel .panel-content { justify-content: center; }
+        }
+        @media (max-width: 900px) {
+            .panel-sections {
+                position: static !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.7rem !important;
+                padding: 1rem !important;
+                background: none !important;
+                border-top: none !important;
+                filter: none !important;
+            }
+            .panel-section { height: 88px !important; }
+            .dashboard-container { margin-bottom: 0 !important; min-height: 0 !important; }
+        }
+        @media (max-width: 560px) {
+            .panel-sections { grid-template-columns: 1fr !important; }
+            .panel-section { height: auto !important; min-height: 74px; padding: 0.6rem 0.8rem !important; }
+            /* the inbox is an icon in a box — it doesn't need a full row */
+            .panel-sections .panel-section:last-child { min-height: 0; }
+        }
+
+        /* ── hero type and buttons at small widths ──────────────────────── */
+        @media (max-width: 900px) {
+            .hero-grid .main-title { font-size: clamp(2.3rem, 8.4vw, 3.6rem) !important; margin-bottom: 1.3rem !important; }
+            .hero-stats { gap: 1.8rem !important; margin-bottom: 1.6rem !important; }
+            .hstat b { font-size: 1.5rem !important; }
+        }
+        @media (max-width: 560px) {
+            .hero-grid { padding-top: 104px !important; }
+            .hero-grid .main-title { font-size: clamp(2rem, 9.6vw, 2.9rem) !important; }
+            .hero-stats { gap: 1.4rem !important; }
+            .hstat b { font-size: 1.3rem !important; }
+            /* three buttons, one row, always — they used to wrap to two */
+            .hero-grid .main-actions { flex-wrap: nowrap !important; gap: 0.55rem !important; }
+            .hero-grid .main-actions .action-button,
+            .hero-grid .main-actions .action-button.league,
+            .hero-grid .main-actions .action-button.learn,
+            .hero-grid .main-actions .action-button.practice {
+                width: auto !important; flex: 1 1 0 !important; min-width: 0 !important;
+                height: 92px !important;
+            }
+            .hero-grid .action-button .ab-top svg { width: 26px !important; height: 26px !important; }
+            .hero-grid .action-button .ab-name { font-size: 0.66rem !important; }
+        }
 </style>
 </head>
 <body>
@@ -2407,6 +2871,13 @@
 
         <div class="hero-grid">
             <div class="hero-left">
+                <button type="button" class="fb-btn" onclick="openFeedback()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.5 9.5 0 0 1-3.4-.6L3 21l1.8-4.8A8.2 8.2 0 0 1 3.6 11.5 8.4 8.4 0 0 1 12 3.1h.5A8.4 8.4 0 0 1 21 11.5z"/>
+                    </svg>
+                    Give feedback
+                </button>
                 <div class="hero-beta">&mdash; Beta &mdash;</div>
                 <h1 class="main-title">FantasyTrader</h1>
                 <div class="hero-tag">Like fantasy football for stocks</div>
@@ -2417,8 +2888,8 @@
                         <span>Capital</span>
                     </div>
                     <div class="hstat">
-                        <b id="heroWeek" class="flat">+0.00%</b>
-                        <span>This week</span>
+                        <b id="heroDay" class="flat">+0.00%</b>
+                        <span>Today</span>
                     </div>
                 </div>
 
@@ -2505,8 +2976,35 @@
                 <path d="M7.2 14.5 8.6 20h2.6l-1.2-4.6"/>
                 <path d="M19 9.6a3.4 3.4 0 0 1 0 4.8"/>
             </svg>Announcements</h3>
+            <!-- scrawled in the corner like someone marked up a printout -->
+            <span class="ann-stamp" aria-hidden="true">
+                <svg viewBox="0 0 118 46">
+                    <!-- boxed in with a marker rather than circled. Drawn as
+                         one unbroken stroke that overshoots past where it
+                         started, so the top-left corner crosses itself — the
+                         tell that a hand drew it and not a border-radius.
+                         Every edge bows very slightly outward. -->
+                    <path class="st-box" d="M12.5 10.2C34 8.3 70 7.6 104.5 9.1c2.4 8.4 2.6 19.4 1.6 28.2-24.5 2.2-62 2.6-92.4.9-2.6-8.6-2.9-19.8-1.9-28.9"/>
+                    <!-- a second pass over the top and down the left, lighter
+                         and out of register, as if the marker was gone over
+                         twice and lifted before it finished the loop -->
+                    <path class="st-box st-box2" d="M15.6 12.8C37 11.1 71 10.5 102 11.7"/>
+                    <path class="st-box st-box2" d="M14.4 13.6c-1 7.4-.9 16.4.4 22.8"/>
+                    <text class="st-txt" x="58" y="30">WIN $25</text>
+                </svg>
+            </span>
             <div class="panel-content">
-                <div class="ann-head">The $25 returns race</div>
+                <div class="ann-pin">
+                    <div class="ann-head">The 50% returns race</div>
+                    <div class="ann-run">
+                        <span class="ar-from">$10k</span>
+                        <svg class="ar-arrow" viewBox="0 0 40 24" fill="none" stroke="currentColor"
+                             stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 19 13 9l7 6L38 4"/><path d="M29 4h9v9"/>
+                        </svg>
+                        <span class="ar-to">$15k</span>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="panel-section">
@@ -2665,15 +3163,18 @@
         function closeAnnModal() { document.getElementById('annModal').classList.remove('open'); }
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAnnModal(); });
 
-        // Inbox badge — count written by the mail page on each build
-        (function () {
-            const n = parseInt(localStorage.getItem('inboxCount') || '0', 10);
+        // Inbox badge — counted here from the same rules the inbox itself uses,
+        // rather than trusting a number the mail page left behind last visit.
+        (async function () {
             const b = document.getElementById('inboxCountBadge');
             if (!b) return;
-            // The bubble is permanent — it reads 0 when the inbox is clear.
-            b.textContent = n > 99 ? '99+' : n;
-            b.hidden = false;
-            b.classList.toggle('zero', n === 0);
+            const show = n => { b.textContent = n > 99 ? '99+' : n; b.hidden = false; };
+            show(parseInt(localStorage.getItem('inboxCount') || '0', 10));   // instant, then corrected
+            try {
+                const n = await FTInbox.unread(window.SL);
+                show(n);
+                localStorage.setItem('inboxCount', String(n));
+            } catch (e) { /* leave the cached figure up */ }
         })();
 
         // Glowing outline trace: circle the bull in green, then the bear in red, forever.
@@ -3212,32 +3713,220 @@
             }
         });
 
-        /* ── hero stats: straight off your paper portfolio ──
-           Cash plus the live value of everything you hold on the practice
-           account. "This week" is that portfolio's move against cost basis. */
-        (async function heroStats() {
-            const capEl = document.getElementById('heroCapital');
-            const wkEl  = document.getElementById('heroWeek');
-            if (!capEl || !window.SL || !SL.configured) return;
+        /* ── feedback ─────────────────────────────────────────────────────
+           Writes a row to public.feedback. RLS on that table allows insert
+           and nothing else, so a player can leave a note but can't read
+           anybody's — including their own — back out through the API. */
+        function openFeedback() {
+            const m = document.getElementById('fbModal');
+            m.classList.add('open');
+            setTimeout(() => document.getElementById('fbText').focus(), 40);
+        }
+        function closeFeedback() {
+            document.getElementById('fbModal').classList.remove('open');
+        }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeFeedback();
+        });
+        document.addEventListener('input', e => {
+            if (e.target && e.target.id === 'fbText') {
+                document.getElementById('fbCount').textContent =
+                    e.target.value.length + ' / 4000';
+            }
+        });
+
+        async function sendFeedback() {
+            const box  = document.getElementById('fbText');
+            const btn  = document.getElementById('fbSend');
+            const text = (box.value || '').trim();
+
+            if (!text) {
+                if (window.FT) FT.error('Write something first.');
+                box.focus();
+                return;
+            }
+            btn.disabled = true;
+            btn.textContent = 'Sending…';
             try {
-                const pf = await SL.loadPortfolio();
-                const syms = Object.keys(pf.stocks || {});
-                const prices = syms.length ? await SL.getPrices(syms) : {};
-                let val = 0, cost = 0;
-                syms.forEach(sym => {
-                    const pos = pf.stocks[sym] || {}, q = prices[sym];
-                    const px = q && q.price != null ? Number(q.price) : Number(pos.avgPrice || 0);
-                    val  += px * (pos.shares || 0);
-                    cost += (pos.avgPrice || px) * (pos.shares || 0);
+                if (!(window.SL && SL.configured && SL.client)) {
+                    throw new Error('Not connected to the server right now.');
+                }
+                // Signed out is fine — the note still arrives, just without a name.
+                let user = null;
+                try { user = await SL.currentUser(); } catch (e) {}
+
+                // No .select() chained: the table deliberately grants no read
+                // access, and asking for the row back would fail the request
+                // even though the insert itself succeeded.
+                const { error } = await SL.client.from('feedback').insert({
+                    user_id:  user ? user.id : null,
+                    username: localStorage.getItem('username') || (user && user.email) || null,
+                    message:  text.slice(0, 4000),
+                    page:     (location.pathname.split('/').pop() || 'dashboard.html'),
+                    user_agent: (navigator.userAgent || '').slice(0, 300),
                 });
-                capEl.textContent = '$' + ((pf.cash || 0) + val).toLocaleString(undefined, { maximumFractionDigits: 0 });
-                const pct = cost > 0 ? (val - cost) / cost * 100 : 0;
-                wkEl.className = pct > 0.005 ? 'up' : pct < -0.005 ? 'down' : 'flat';
-                wkEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
-            } catch (e) { /* leave the defaults up */ }
+                if (error) throw error;
+
+                box.value = '';
+                document.getElementById('fbCount').textContent = '0 / 4000';
+                closeFeedback();
+                if (window.FT) FT.success('Thanks — that went straight to Wyatt.');
+            } catch (e) {
+                const msg = (e && e.message) || 'Could not send that.';
+                if (window.FT) FT.error(msg);
+                else alert(msg);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Send it';
+            }
+        }
+
+        /* ── hero stats: straight off your paper portfolio, and LIVE ──
+           Cash plus the live value of everything you hold on the practice
+           account. "Today" is that portfolio's move since the day's baseline.
+
+           This used to run exactly once, as an IIFE, the moment the script
+           was parsed. Two things went wrong with that. If Supabase hadn't
+           finished signing you in yet the guard at the top returned early and
+           the figure sat on its hard-coded $10,000 for the rest of the
+           session. And even when it did land, it was a single snapshot —
+           trade on another tab, or watch a holding move, and the number was
+           already stale. Now it waits for the session, repeats while the tab
+           is in front, and refreshes the moment you come back to it. */
+        (function heroStats() {
+            const capEl = document.getElementById('heroCapital');
+            const dayEl = document.getElementById('heroDay');
+            if (!capEl) return;
+
+            const REFRESH = 45000;          // while you're actually looking
+            let timer = null, last = null, busy = false;
+
+            /* ── where the day started ─────────────────────────────────────
+               This used to sum each holding's move against its price five
+               days ago, fetched from the chart API. Two problems: the fetch
+               goes through the market-data function and any hiccup left the
+               figure sat on +0.00% with no way to tell, and it ignored the
+               cash side entirely — buy something and the "change" jumped
+               even though your money hadn't moved.
+
+               Instead: remember what the whole account was worth the first
+               time you looked today and compare against that. It's the right
+               definition for a paper portfolio (trades and cash are included
+               automatically), it needs no market history at all, and it can't
+               silently fail. The baseline rolls over at local midnight. */
+            const DAY_KEY = 'ftDayBaseline';
+
+            // Local calendar date, not UTC — the baseline should roll over at
+            // the player's midnight, not at some hour in the middle of their
+            // evening.
+            function dayKey(d) {
+                return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
+                     + '-' + String(d.getDate()).padStart(2, '0');
+            }
+
+            function dayBaseline(total) {
+                const key = dayKey(new Date());
+                let saved = null;
+                try { saved = JSON.parse(localStorage.getItem(DAY_KEY) || 'null'); } catch (e) {}
+                if (saved && saved.key === key && Number.isFinite(saved.value) && saved.value > 0) {
+                    return saved.value;
+                }
+                // first look of the day — this is the mark everything else
+                // gets measured against
+                try { localStorage.setItem(DAY_KEY, JSON.stringify({ key, value: total })); } catch (e) {}
+                return total;
+            }
+
+            const money = n => '$' + Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 });
+
+            // A quiet tick when the figure moves, so a change is noticed
+            // without turning the hero into a slot machine.
+            function paint(el, text, dir) {
+                if (el.textContent === text) return;
+                el.textContent = text;
+                el.classList.remove('hstat-tick-up', 'hstat-tick-down');
+                void el.offsetWidth;                       // restart the animation
+                if (dir) el.classList.add(dir > 0 ? 'hstat-tick-up' : 'hstat-tick-down');
+            }
+
+            async function pull() {
+                if (busy || !window.SL || !SL.configured) return;
+                busy = true;
+                try {
+                    const user = await SL.currentUser();
+                    if (!user) return;                     // signed out: leave the placeholder
+                    const pf = await SL.loadPortfolio();
+                    const syms = Object.keys(pf.stocks || {});
+                    // getLiveQuotes falls back to the stored price per symbol,
+                    // so a symbol the scraper hasn't reached still counts.
+                    const prices = syms.length ? await SL.getLiveQuotes(syms) : {};
+                    const live = {};
+                    let val = 0;
+                    syms.forEach(sym => {
+                        const pos = pf.stocks[sym] || {}, q = prices[sym];
+                        const px = q && q.price != null ? Number(q.price) : Number(pos.avgPrice || 0);
+                        live[sym] = px;
+                        val += px * (pos.shares || 0);
+                    });
+                    const total = (pf.cash || 0) + val;
+                    paint(capEl, money(total), last == null ? 0 : Math.sign(total - last));
+                    last = total;
+
+                    if (dayEl) {
+                        const start = dayBaseline(total);
+                        const pct = start > 0 ? ((total - start) / start) * 100 : 0;
+                        dayEl.className = pct > 0.005 ? 'up' : pct < -0.005 ? 'down' : 'flat';
+                        dayEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+                    }
+                } catch (e) {
+                    /* keep whatever is on screen rather than flashing an error */
+                } finally { busy = false; }
+            }
+
+            function start() {
+                stop();
+                pull();
+                timer = setInterval(pull, REFRESH);
+            }
+            function stop() { if (timer) { clearInterval(timer); timer = null; } }
+
+            // Don't burn requests on a tab nobody is looking at.
+            document.addEventListener('visibilitychange', () => {
+                document.hidden ? stop() : start();
+            });
+            window.addEventListener('focus', pull);
+            // A trade raised anywhere in the app moves this number too.
+            window.addEventListener('ft:portfolio-changed', pull);
+
+            // SL signs in asynchronously; poll briefly until the session lands
+            // rather than giving up on the first miss.
+            let tries = 0;
+            (function waitForSession() {
+                if (window.SL && SL.configured) return start();
+                if (++tries > 40) return;                  // ~10s, then leave it
+                setTimeout(waitForSession, 250);
+            })();
         })();
 
     </script>
+    <!-- Feedback -->
+    <div class="fb-modal" id="fbModal" onclick="if (event.target === this) closeFeedback()">
+        <div class="fb-card" role="dialog" aria-modal="true" aria-labelledby="fbTitle">
+            <button class="fb-x" onclick="closeFeedback()" aria-label="Close">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                     stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+            <span class="fb-kick">FantasyTrader</span>
+            <h2 id="fbTitle">Feedback</h2>
+            <p class="fb-sub">Bugs, recommendations or comments — anything at all.</p>
+            <textarea id="fbText" rows="6" maxlength="4000" placeholder="Type away…"></textarea>
+            <div class="fb-foot">
+                <span class="fb-count" id="fbCount">0 / 4000</span>
+                <button class="fb-send" id="fbSend" onclick="sendFeedback()">Send it</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Announcements popup -->
     <div id="annModal" class="ann-modal" onclick="if (event.target === this) closeAnnModal()">
         <div class="ann-modal-card">
@@ -3253,43 +3942,31 @@
                 </button>
             </div>
 
-            <a class="ann-lead" href="league.html">
-                <div class="ann-lead-art" aria-hidden="true">
-                    <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M10 4h12v7.5a6 6 0 0 1-12 0V4z"/>
-                        <path d="M10 6H5.6v1.8A4.6 4.6 0 0 0 10 12.4"/>
-                        <path d="M22 6h4.4v1.8A4.6 4.6 0 0 1 22 12.4"/>
-                        <path d="M16 17.5v4"/><path d="M10 28h12M11 25.5h10v2.5H11z"/>
-                        <path d="M12.2 25.5c.4-2.4 1.7-4 3.8-4s3.4 1.6 3.8 4"/>
-                    </svg>
-                </div>
+            <a class="ann-lead" href="practice.html">
                 <div class="ann-lead-body">
                     <span class="ann-kicker">Contest &middot; Live now</span>
-                    <h3>The $25 returns race</h3>
-                    <p>First player to double their league portfolio takes the pot.</p>
-                    <span class="ann-when">Go to leagues &rarr;</span>
+                    <h3>The 50% returns race</h3>
+                    <p>First to grow their <b>practice portfolio</b> 50% wins $25.</p>
+                    <span class="ann-when">Open practice &rarr;</span>
+                </div>
+                <div class="ann-lead-stat" aria-hidden="true">
+                    <span class="als-from">$10,000</span>
+                    <span class="als-arrow">
+                        <svg viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 19 13 9l7 6L38 4"/>
+                            <path d="M29 4h9v9"/>
+                        </svg>
+                    </span>
+                    <span class="als-to">$15,000</span>
+                    <span class="als-tag">+50%</span>
                 </div>
             </a>
 
-            <div class="ann-grid">
-                <a class="ann-story" href="learn.html">
-                    <span class="ann-kicker green">Learning</span>
-                    <h4>Alternative investments pathway</h4>
-                    <p>18 modules on crypto, real estate, commodities and private equity.</p>
-                    <span class="ann-when">New</span>
-                </a>
-                <div class="ann-story">
-                    <span class="ann-kicker blue">Product</span>
-                    <h4>5,000 draftable stocks</h4>
-                    <p>Small caps, REITs and ADRs, on the same live price feed.</p>
-                    <span class="ann-when">Shipped</span>
-                </div>
-                <div class="ann-story">
-                    <span class="ann-kicker mute">Coming</span>
-                    <h4>Career center</h4>
-                    <p>Internships and resume help, built into the dashboard.</p>
-                    <span class="ann-when">Soon</span>
-                </div>
+            <div class="ann-story wide">
+                <span class="ann-kicker mute">Coming soon</span>
+                <h4>Career center</h4>
+                <p>Internships and resume help, built in.</p>
             </div>
         </div>
     </div>

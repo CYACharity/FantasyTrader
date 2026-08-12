@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- ft-canvas: the page background, declared before anything that can
+         block rendering. Every stylesheet on this page is render-blocking,
+         so when one is slow Chrome gives up holding the previous frame and
+         paints the default canvas — white — for a beat. That was the flash
+         between pages. Inline and first, it can never be white. -->
+    <style>html{background-color:#171310;}</style>
     <!-- how the link looks when someone shares it -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Fantasy Trader">
@@ -25,6 +31,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="stock-data.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/ft-alert.js"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/sl.js"></script>
     <script src="js/draft-universe.js"></script>
@@ -1451,6 +1458,51 @@
             font: 700 0.58rem 'Inter', sans-serif; letter-spacing: 0.03em;
             padding: 2px 7px; border: 1px solid currentColor; border-radius: 0;
         }
+
+        /* ══════════════════════════════════════════════════════════════════
+           RESPONSIVE
+           ------------------------------------------------------------------
+           Three fixed panels (300 + 1fr + 300) only stopped being three at
+           900px, so every screen between 900 and 1200 — iPads, small
+           laptops — pushed the right-hand panel off the edge.
+           ══════════════════════════════════════════════════════════════════ */
+        html, body { overflow-x: clip; }
+
+        /* Bounded at both ends: below 900 the older rule stacks everything to
+           a single column, and an unbounded !important here would have
+           overridden it and left the phone layout two columns wide. */
+        @media (max-width: 1300px) and (min-width: 901px) {
+            /* research beside the chart, the trade panel full-width beneath */
+            .trading-layout { grid-template-columns: 280px 1fr !important; }
+            .right-panel { grid-column: 1 / -1; }
+        }
+
+        /* A grid item defaults to `min-width: auto`, meaning it refuses to
+           shrink below its widest unbreakable content. That's why the single
+           stacked column on a phone was still 130px wider than the screen. */
+        .trading-layout > * { min-width: 0; }
+        @media (max-width: 900px) {
+            .left-panel, .right-panel, .center-panel { padding: 1.1rem !important; }
+            .portfolio-title, .research-section h3, .metrics-section h3 { min-width: 0; }
+            /* ticker, company name and price on one un-wrapping row */
+            .symbol-header { flex-wrap: wrap; gap: 0.5rem 0.8rem; min-width: 0; }
+            .chart-header { flex-wrap: wrap; gap: 0.6rem; }
+        }
+
+        /* the three index readouts and the market pill were a single
+           un-wrapping row sitting next to an equally rigid title */
+        @media (max-width: 1080px) { .market-tickers-header { display: none !important; } }
+        @media (max-width: 860px) {
+            .header { flex-wrap: wrap; gap: 0.6rem; padding-left: 1rem; padding-right: 1rem; }
+            .header-left { flex: 1 1 100%; min-width: 0; flex-wrap: wrap; gap: 0.6rem; }
+            .header-right { flex: 1 1 100%; justify-content: flex-start; }
+            .page-title { font-size: 1.2rem; }
+        }
+        @media (max-width: 520px) {
+            /* Practice is reachable from Dashboard — drop the second link
+               rather than shrink the whole bar to illegibility */
+            .header-left .back-button:nth-of-type(2) { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -2625,11 +2677,19 @@
             // Render top holdings
             const topHoldingsDiv = document.getElementById('topHoldings');
             if (positions.length > 0) {
-                const sorted = positions.slice().sort((a, b) => (b.shares * currentPrice) - (a.shares * currentPrice));
+                /* Each holding is priced with its OWN quote via liveOf(). This
+                   used to multiply every position by `currentPrice` — the price
+                   of whatever symbol happened to be selected in the terminal.
+                   With nothing selected that's 0, so the whole list read
+                   "$0.00"; with something selected, every holding was priced as
+                   if it were that stock. The sort was wrong for the same
+                   reason: a shared multiplier just sorts by share count. */
+                const valueOf = s => s.shares * liveOf(s);
+                const sorted = positions.slice().sort((a, b) => valueOf(b) - valueOf(a));
                 topHoldingsDiv.innerHTML = '<div class="top-holdings-title">Top Holdings</div>' +
                     '<div class="top-holdings-list">' +
                     sorted.slice(0, 3).map(stock =>
-                        `<div class="top-holding-item"><span class="th-name">${window.logoHtml ? window.logoHtml(stock.symbol, stock.sector, 'sm') : ''}${stock.symbol}</span><span>$${(stock.shares * currentPrice).toFixed(2)}</span></div>`
+                        `<div class="top-holding-item"><span class="th-name">${window.logoHtml ? window.logoHtml(stock.symbol, stock.sector, 'sm') : ''}${stock.symbol}</span><span>$${valueOf(stock).toFixed(2)}</span></div>`
                     ).join('') + '</div>';
             } else {
                 topHoldingsDiv.innerHTML = '';

@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- ft-canvas: the page background, declared before anything that can
+         block rendering. Every stylesheet on this page is render-blocking,
+         so when one is slow Chrome gives up holding the previous frame and
+         paints the default canvas — white — for a beat. That was the flash
+         between pages. Inline and first, it can never be white. -->
+    <style>html{background-color:#171310;}</style>
     <!-- how the link looks when someone shares it -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Fantasy Trader">
@@ -1441,6 +1447,326 @@
             -webkit-text-fill-color: #F4EEE6 !important; color: #F4EEE6 !important;
             text-shadow: none !important;
         }
+
+        /* ══════════════════════════════════════════════════════════════════
+           RESPONSIVE — this page had no breakpoints at all
+           ══════════════════════════════════════════════════════════════════ */
+
+        /* ══════════════════════════════════════════════════════════════════
+           CREATE / JOIN — the two doors into the game
+           ------------------------------------------------------------------
+           Built in the same language as the signup survey: translucent
+           surfaces, hairline borders, a small bordered icon tile, and colour
+           held back until you interact. The previous pair leaned on filled
+           green slabs and drop shadows, which is what read as generic.
+           ══════════════════════════════════════════════════════════════════ */
+        .lg-choice {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+            /* .league-container is a flex column, so without an explicit width
+               this grid shrank to its content (649px) instead of taking the
+               840px it was allowed. */
+            width: 100%; align-self: center;
+            max-width: 840px; margin: 0 auto 2.5rem;
+        }
+        .lg-card {
+            /* bull green / bear red — the game's own language, and it makes
+               the two cards legible at a glance without reading a word */
+            --a: #4FCF9A;
+            --ink: #06170F;                       /* text that sits ON the accent */
+            position: relative; display: flex; flex-direction: column;
+            align-items: flex-start; text-align: left;
+            padding: 1.7rem 1.6rem 1.5rem;
+            border-radius: 18px; cursor: pointer; overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            border: 1px solid color-mix(in srgb, var(--a) 34%, transparent);
+            background:
+                /* a soft floor shadow inside the card so the button sits in
+                   the light rather than floating on a flat panel */
+                radial-gradient(120% 70% at 50% 118%, rgba(0, 0, 0, 0.45), transparent 70%),
+                radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--a) 16%, transparent), transparent 62%),
+                linear-gradient(165deg, #2A231C, #1B1714 78%, #161311);
+            /* lifted off the page at rest, not only on hover */
+            box-shadow:
+                0 10px 26px rgba(0, 0, 0, 0.42),
+                0 2px 6px rgba(0, 0, 0, 0.3),
+                0 1px 0 rgba(255, 255, 255, 0.055) inset;
+            transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+        }
+        .lg-join { --a: #E8705F; --ink: #23100C; }
+
+        /* The bull and the bear, lifted straight out of the hero artwork.
+           They were one PNG with the two animals interlocked — no vertical cut
+           separates them — so they were split by connected component instead,
+           which gives a clean silhouette of each.
+
+           The PNGs ship pre-tinted rather than being recoloured with a CSS
+           mask: Chromium refuses to load a file:// image as a mask
+           (net::ERR_FAILED), so a masked version renders as nothing at all if
+           anyone ever opens these pages straight off disk. A plain background
+           image has no such restriction. */
+        /* Top-right, where the card is empty. Along the bottom it sat behind
+           the button and got cropped into an unreadable wedge. */
+        .lg-card .lg-mark {
+            position: absolute; right: 6px; top: 8px;
+            width: 152px; height: 152px;
+            background: var(--mark) center / contain no-repeat;
+            opacity: 0.17; pointer-events: none;
+            transition: opacity .2s ease, transform .2s ease;
+        }
+        .lg-create { --mark: url('bull-mark.png'); }
+        .lg-join   { --mark: url('bear-mark.png'); }
+        .lg-card:hover .lg-mark { opacity: 0.27; transform: scale(1.06); }
+
+        .lg-card:hover {
+            transform: translateY(-3px);
+            border-color: color-mix(in srgb, var(--a) 70%, transparent);
+            box-shadow: 0 14px 34px rgba(0,0,0,0.45),
+                        0 0 0 1px color-mix(in srgb, var(--a) 22%, transparent);
+        }
+        .lg-card:focus-visible { outline: 2px solid var(--a); outline-offset: 3px; }
+
+        .lg-ico {
+            width: 52px; height: 52px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            background: color-mix(in srgb, var(--a) 16%, transparent);
+            border: 1px solid color-mix(in srgb, var(--a) 40%, transparent);
+            transition: background .2s ease, transform .2s ease;
+        }
+        /* same silhouette as the corner mark, at badge size */
+        .lg-ico::before {
+            content: ''; width: 32px; height: 32px;
+            background: var(--mark) center / contain no-repeat;
+        }
+        .lg-card:hover .lg-ico {
+            background: color-mix(in srgb, var(--a) 26%, transparent);
+            transform: scale(1.05) rotate(-2deg);
+        }
+
+        .lg-kick {
+            margin-top: 1.1rem;
+            font: 800 0.62rem 'Inter', sans-serif; letter-spacing: 0.2em;
+            text-transform: uppercase; color: var(--a);
+        }
+        .lg-title {
+            margin-top: 0.32rem;
+            font: 800 1.95rem 'Poppins', 'Inter', sans-serif;
+            letter-spacing: -0.025em; line-height: 1.05; color: #F4EEE6;
+        }
+
+        /* a real button: solid, high contrast, full width of the card */
+        .lg-go {
+            margin-top: 1.35rem; width: 100%;
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.85rem 1rem; border-radius: 11px;
+            background: var(--a); color: var(--ink);
+            font: 800 0.9rem 'Inter', sans-serif; letter-spacing: 0.01em;
+            box-shadow: 0 1px 0 rgba(255,255,255,0.28) inset;
+            transition: filter .2s ease, transform .2s ease;
+        }
+        .lg-go svg { width: 17px; height: 17px; transition: transform .2s ease; }
+        .lg-card:hover .lg-go { filter: brightness(1.08); }
+        .lg-card:hover .lg-go svg { transform: translateX(4px); }
+        .lg-card:active .lg-go { transform: translateY(1px); }
+
+        @media (prefers-reduced-motion: reduce) {
+            .lg-card, .lg-go svg { transition: none; }
+            .lg-card:hover { transform: none; }
+        }
+
+        /* ── the league board, in a device shell ──────────────────────────
+           Same bezel, camera dot and base bar as the laptop on the landing
+           page, so the two screens are recognisably the same object. */
+        /* The cards started ~16px under an 84px header, so the top of each
+           card — including the bull/bear mark that sits proud of it — was
+           crowding the bar. Give the whole column room to breathe. */
+        /* Measured, not eyeballed: the cards sat 58px under the header and
+           112px above the clipboard. Moving 27px of that from below to above
+           puts them dead centre in the band. */
+        .league-container { padding-top: 4.3rem !important; }
+        .lg-choice { margin-bottom: 1.7rem !important; }
+
+        /* ── the clipboard ────────────────────────────────────────────────
+           Full container width — it was capped at 840 to line up with the
+           cards, which made the league list smaller than it used to be.
+           Deliberately unfinished at the bottom: no closing edge, no radius,
+           extra padding so the board runs past the fold. */
+        .al-board {
+            /* this page doesn't set a global border-box, so width:100% plus
+               26px of padding a side put the board 10px past the viewport */
+            box-sizing: border-box;
+            position: relative; width: 100%; align-self: center;
+            max-width: 1120px; margin: 3.6rem auto 0;
+            /* the sheet starts high enough that the clip lands ON the paper
+               rather than on bare board above it */
+            padding: 48px 26px 120px;
+            border-radius: 10px 10px 0 0;
+            border: 1px solid rgba(0, 0, 0, 0.55);
+            border-bottom: none;
+            /* pressed hardboard: warm, faintly fibrous, lit from above. The
+               grain is deliberately near-invisible — at 2px bands it read as
+               corduroy rather than board. */
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.05), transparent 140px),
+                repeating-linear-gradient(96deg,
+                    rgba(255,255,255,0.007) 0 3px, rgba(0,0,0,0.009) 3px 7px),
+                linear-gradient(168deg, #3B322A 0%, #2F2721 45%, #251F1A 100%);
+            box-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.09) inset,
+                0 26px 60px rgba(0, 0, 0, 0.55);
+        }
+
+        /* The metal clip. The trick to it reading as metal rather than a grey
+           box is the gradient reversing partway down — bright at the top edge,
+           dark through the middle, then catching the light again underneath.
+           A single linear ramp looks like plastic. */
+        .al-clip {
+            /* sits low enough to bite the top of the paper, and holds the pen
+               underneath it */
+            position: absolute; top: 21px; left: 50%; transform: translateX(-50%);
+            width: 268px; height: 40px; z-index: 3;
+            border-radius: 5px;
+            background: linear-gradient(180deg,
+                #EFECE6 0%, #C8C2B9 20%, #948E86 48%,
+                #6B655F 68%, #8A847C 86%, #A9A39A 100%);
+            box-shadow:
+                0 3px 5px rgba(0, 0, 0, 0.55),
+                0 12px 22px rgba(0, 0, 0, 0.4),
+                0 1px 0 rgba(255, 255, 255, 0.6) inset;
+        }
+        /* the hinge groove across the jaw */
+        .al-clip::after {
+            content: ''; position: absolute; left: 9px; right: 9px; top: 62%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.42) 18%,
+                        rgba(0,0,0,0.42) 82%, transparent);
+        }
+        /* the raised lever, overlapping the jaw so it reads as sitting on it
+           rather than stacked above it */
+        .al-clip::before {
+            content: ''; position: absolute; left: 50%; transform: translateX(-50%);
+            top: -15px; width: 124px; height: 28px;
+            border-radius: 13px 13px 3px 3px;
+            background: linear-gradient(180deg,
+                #F5F2ED 0%, #D2CCC3 30%, #9C968E 64%, #746E68 100%);
+            box-shadow:
+                0 -1px 0 rgba(255, 255, 255, 0.6) inset,
+                0 4px 7px rgba(0, 0, 0, 0.5);
+        }
+        /* The hole punched through the lever — the one you hang the board on.
+           A real child rather than another pseudo-element, because ::before
+           and ::after are already the lever and the hinge groove. It paints
+           above ::before, so it reads as a hole in the metal rather than a
+           dot beside it: dark well, hard shadow on the inside top edge, and a
+           lit lip along the bottom where the light catches the far rim. */
+        .cl-hole {
+            position: absolute; left: 50%; top: -10px; transform: translateX(-50%);
+            width: 15px; height: 15px; border-radius: 50%;
+            background: radial-gradient(circle at 50% 34%, #14100D 0%, #241E19 100%);
+            box-shadow:
+                inset 0 2px 2.5px rgba(0, 0, 0, 0.9),
+                inset 0 -1.5px 0 rgba(255, 255, 255, 0.4),
+                0 1px 0 rgba(255, 255, 255, 0.28);
+        }
+
+        /* the sheet held under the clip */
+        .al-sheet {
+            position: relative;
+            border-radius: 4px;
+            background: #171310;
+            border: 1px solid rgba(236, 226, 214, 0.09);
+            box-shadow:
+                0 -2px 10px rgba(0, 0, 0, 0.5),
+                0 14px 30px rgba(0, 0, 0, 0.35);
+            padding: 1.1rem;
+        }
+        /* The top edge of the page curling up off the board: a shallow dome
+           lifting away from the sheet, lit along its lip because you're seeing
+           the underside, and casting a shadow down onto the page below it. */
+        .al-sheet::before {
+            content: ''; position: absolute; left: -1px; right: -1px; top: -17px;
+            height: 22px;
+            border-radius: 7px 7px 0 0 / 20px 20px 0 0;
+            background: linear-gradient(180deg,
+                #4A4038 0%, #362E27 26%, #241E19 62%, #1A1512 100%);
+            border-top: 1px solid rgba(236, 226, 214, 0.3);
+            box-shadow: 0 7px 12px rgba(0, 0, 0, 0.55);
+        }
+        /* the sliver of shadow the lifted edge throws across the page */
+        .al-sheet::after {
+            content: ''; position: absolute; left: 0; right: 0; top: 0; height: 16px;
+            pointer-events: none; border-radius: 4px 4px 0 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.45), transparent);
+        }
+        /* RULES: the league overview's button language — square corners,
+           green on black, nothing else. It was a rounded amber pill. */
+        .al-rules {
+            margin-left: auto;
+            display: inline-flex; align-items: center; gap: 8px;
+            background: #0F1512;
+            border: 1px solid rgba(92, 184, 138, 0.55);
+            border-radius: 0;
+            color: #5CB88A;
+            font: 700 0.78rem 'Inter', sans-serif;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            padding: 0.62rem 1.35rem;
+            text-decoration: none; cursor: pointer;
+            transition: background .18s ease, border-color .18s ease, color .18s ease;
+        }
+        .al-rules:hover {
+            background: rgba(92, 184, 138, 0.14);
+            border-color: #5CB88A; color: #8FD9B2;
+        }
+        .al-rules i { font-size: 0.85em; }
+
+        /* the sheet supplies the frame now, so the panel drops its own */
+        .al-sheet .active-leagues {
+            border: none !important; border-radius: 0 !important;
+            background: transparent !important; margin-top: 0 !important;
+            padding: 0.9rem 1rem 1.1rem !important;
+            max-height: none !important;
+        }
+
+        @media (max-width: 900px) {
+            /* Create and Join sat side by side in a centred flex row with a
+               fixed gap, so on a phone they simply hung off both edges. */
+            .lg-choice { grid-template-columns: 1fr; gap: 0.85rem; margin-bottom: 2rem; }
+            .league-container { padding: 0 1rem; }
+            .al-board { padding: 40px 12px 90px; margin-top: 2.6rem; }
+            /* `top` has to track the desktop value — at the original -15px the
+               clip floated above the board entirely once it moved down onto
+               the paper. */
+            .al-clip { width: 208px; height: 36px; top: 19px; }
+            .al-clip::before { width: 112px; height: 26px; top: -14px; }
+            .cl-hole { width: 13px; height: 13px; top: -9px; }
+            .lg-card { padding: 1.4rem 1.3rem 1.3rem; }
+            .lg-title { font-size: 1.6rem; }
+        }
+        @media (max-width: 560px) {
+            /* the serif heading was breaking "Your / Active / Leagues" across
+               three lines to make room for the RULES button beside it */
+            .active-leagues h2 { font-size: 1.5rem !important; gap: 0.6rem !important; }
+        }
+
+        @media (max-width: 760px) {
+            /* "Compete" was absolutely centred in the bar, which put it
+               directly underneath the back button. Let both sit in the flow. */
+            .compete-header {
+                height: auto; flex-wrap: wrap; gap: 0.7rem;
+                padding: 0.9rem 1rem; justify-content: space-between;
+            }
+            .compete-title {
+                position: static !important; transform: none !important;
+                font-size: 1.5rem !important; order: 2;
+            }
+            .back-button-hdr { padding: 0.6rem 0.9rem !important; font-size: 0.8rem !important; order: 1; }
+            .league-header h1 { font-size: 2.1rem; }
+            .league-header { margin-bottom: 26px; }
+        }
+
+        @media (max-width: 420px) {
+            .compete-title { font-size: 1.25rem !important; }
+            .league-header h1 { font-size: 1.75rem; }
+        }
 </style>
 </head>
 <body>
@@ -1450,33 +1776,50 @@
     </div>
 
     <div class="league-container">
-        <div class="league-header">
-            <h1>Stock Leagues</h1>
+<!-- The "Stock Leagues" slab is gone: the header bar already says Compete,
+         and the two cards below say Create League / Join League. It was the
+         third label for the same screen. -->
+
+        <!-- Deliberately new class names. The old .option-card is styled across
+             eleven separate blocks in this file, several with !important, so
+             restyling it in place would have been a fight. These start clean. -->
+        <div class="lg-choice">
+            <button type="button" class="lg-card lg-create" onclick="window.location.href='create-league.html'">
+                <span class="lg-mark" aria-hidden="true"></span>
+                <span class="lg-ico" aria-hidden="true"></span>
+                <span class="lg-kick">Be the commissioner</span>
+                <span class="lg-title">Create League</span>
+                <span class="lg-go">Start a league<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h13M12 5l7 7-7 7"/></svg></span>
+            </button>
+
+            <button type="button" class="lg-card lg-join" onclick="openJoinPopup()">
+                <span class="lg-mark" aria-hidden="true"></span>
+                <span class="lg-ico" aria-hidden="true"></span>
+                <span class="lg-kick">Got an invite</span>
+                <span class="lg-title">Join League</span>
+                <span class="lg-go">Enter code<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h13M12 5l7 7-7 7"/></svg></span>
+            </button>
         </div>
 
-        <div class="league-options">
-            <div class="option-card create">
-                <div class="opt-icon"><i class="fas fa-plus"></i></div>
-                <h2>Create League</h2>
-                <p>Start a new competition and draft against your friends with real market data.</p>
-                <button onclick="window.location.href='create-league.html'" class="opt-cta">Create League</button>
-            </div>
-
-            <div class="option-card join">
-                <div class="opt-icon"><i class="fas fa-users"></i></div>
-                <h2>Join League</h2>
-                <p>Got an invite? Enter the code and claim your spot before the draft starts.</p>
-                <button class="opt-cta" onclick="openJoinPopup()">Enter Code</button>
-            </div>
-        </div>
-
-        <div class="active-leagues">
+        <!-- A clipboard: the board runs off the bottom of the page rather
+             than closing, so it reads as a real object sitting on the desk
+             rather than a panel that happens to have a clip drawn on it. -->
+        <div class="al-board">
+          <span class="al-clip" aria-hidden="true"><i class="cl-hole"></i></span>
+          <div class="al-sheet">
+            <div class="active-leagues">
             <h2 style="display:flex;align-items:center;gap:1rem;"><i class="fas fa-trophy"></i> Your Active Leagues
-                <a href="rules.html" style="margin-left:auto;display:inline-flex;align-items:center;gap:8px;background:rgba(224,162,76,0.1);border:2px solid rgba(224,162,76,0.5);color:#E0A24C;font:700 0.85rem 'Inter',sans-serif;letter-spacing:0.08em;padding:0.7rem 1.6rem;border-radius:10px;cursor:pointer;text-decoration:none;"><i class="fas fa-book"></i> RULES</a>
+                <a href="rules.html" class="al-rules"><i class="fas fa-book"></i> RULES</a>
             </h2>
             <div id="leaguesList" class="leagues-grid">
                 <!-- League cards will be dynamically generated here -->
             </div>
+            </div>
+          </div>
         </div>
     </div>
 
@@ -1558,6 +1901,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/ft-alert.js"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/sl.js"></script>
     <script src="js/guard.js"></script>

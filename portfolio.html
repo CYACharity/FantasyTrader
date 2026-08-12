@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- ft-canvas: the page background, declared before anything that can
+         block rendering. Every stylesheet on this page is render-blocking,
+         so when one is slow Chrome gives up holding the previous frame and
+         paints the default canvas — white — for a beat. That was the flash
+         between pages. Inline and first, it can never be white. -->
+    <style>html{background-color:#171310;}</style>
     <!-- how the link looks when someone shares it -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Fantasy Trader">
@@ -171,7 +177,37 @@
         .summary-val {
             font: 700 1.4rem 'Poppins', sans-serif;
             color: #fff;
+            font-variant-numeric: tabular-nums;
         }
+        /* Cents are the least significant thing on the card, so they stop
+           competing with the dollars for attention. The old abbreviation
+           ("$10.00K") hid the actual figure to save four characters. */
+        .sv-cents {
+            font-size: 0.62em;
+            font-weight: 700;
+            opacity: 0.62;
+            margin-left: 0.5px;
+        }
+
+        /* the $ / % switch */
+        .summary-head {
+            display: flex; align-items: flex-start;
+            justify-content: space-between; gap: 0.5rem;
+        }
+        .dc-toggle {
+            display: inline-flex; flex: 0 0 auto;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 6px; overflow: hidden; margin-top: -2px;
+        }
+        .dc-opt {
+            appearance: none; border: none; cursor: pointer;
+            background: transparent; color: rgba(255, 255, 255, 0.42);
+            font: 700 0.68rem 'Inter', sans-serif; line-height: 1;
+            padding: 3px 7px; transition: background 0.15s ease, color 0.15s ease;
+        }
+        .dc-opt + .dc-opt { border-left: 1px solid rgba(255, 255, 255, 0.12); }
+        .dc-opt:hover { color: #F4EEE6; }
+        .dc-opt.is-on { background: rgba(236, 226, 214, 0.12); color: #F4EEE6; }
 
         /* Chart Section */
         .chart-section {
@@ -615,7 +651,41 @@
                 overflow-x: auto;
             }
         }
-    
+
+        /* ── the sticky top bar ────────────────────────────────────────────
+           Two back-links, a title and the action buttons all sat on one
+           un-wrapping row, so on a phone the buttons were simply pushed past
+           the right edge of the screen. */
+        @media (max-width: 860px) {
+            .top-header { flex-wrap: wrap; gap: 0.6rem; padding: 0.8rem 1rem; }
+            .th-left { gap: 0.6rem; min-width: 0; flex: 1 1 100%; }
+            .top-header .header-actions { flex: 1 1 100%; justify-content: flex-start; }
+            .page-title { font-size: 1.1rem; }
+        }
+        @media (max-width: 560px) {
+            /* Dashboard is one tap away from Practice, so the second link is
+               the one to lose rather than shrinking everything to illegible. */
+            .th-left .nav-btn:nth-of-type(2) { display: none; }
+            .top-header .header-actions { flex-wrap: wrap; }
+            .top-header .header-actions > * { flex: 1 1 auto; }
+        }
+
+        /* Chart.js sizes its canvas from the container on the first paint and
+           only re-measures on a resize event, so on a phone the chart kept the
+           width it was born with and stuck 187px out of the card. Pinning the
+           element to 100% means there is nothing for it to get wrong. */
+        #mainPerformanceChart { width: 100% !important; max-width: 100%; }
+        .chart-section { overflow: clip; }
+
+        /* nine timeframe buttons won't fit a phone; let them scroll as a strip */
+        .chart-tabs { min-width: 0; }
+        .chart-tabs::-webkit-scrollbar { height: 0; }
+        @media (max-width: 700px) {
+            .chart-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+            .chart-tab { flex: 0 0 auto; }
+            .chart-tabs > span[style*="flex"] { display: none; }
+        }
+
         /* expanders */
         .more-metrics { display: contents; }
         .more-metrics[hidden] { display: none; }
@@ -683,7 +753,13 @@
                 <div class="summary-val" id="totalValue">$0.00</div>
             </div>
             <div class="summary-card">
-                <div class="summary-label">Daily Change</div>
+                <div class="summary-head">
+                    <div class="summary-label">Daily Change</div>
+                    <div class="dc-toggle" role="group" aria-label="Show daily change as">
+                        <button type="button" class="dc-opt is-on" data-mode="pct" aria-pressed="true">%</button>
+                        <button type="button" class="dc-opt" data-mode="usd" aria-pressed="false">$</button>
+                    </div>
+                </div>
                 <div class="summary-val" id="dailyChange">+0.00%</div>
             </div>
             <div class="summary-card">
@@ -863,6 +939,101 @@
             }
         }
 
+        /* ── the headline figures ─────────────────────────────────────────
+           formatCurrency abbreviates, so a $10,000 balance read "$10.00K" —
+           it hid the number it was meant to show. These write the figure in
+           full and hand the cents back as a separate span so they can be set
+           smaller than the dollars. */
+        function moneyParts(n) {
+            const v = Number(n) || 0;
+            const neg = v < 0;
+            const [d, c] = Math.abs(v).toFixed(2).split('.');
+            const dollars = Number(d).toLocaleString();
+            return `${neg ? '−' : ''}$${dollars}<span class="sv-cents">.${c}</span>`;
+        }
+        function setMoney(el, n) { if (el) el.innerHTML = moneyParts(n); }
+
+        /* ── daily change, in either unit ─────────────────────────────────
+           Both numbers are worked out once and kept, so flipping the toggle
+           is a re-render rather than another pass over the holdings. */
+        window.__dayMove = { dollars: 0, pct: 0, known: false };
+
+        function dcMode() {
+            try { return localStorage.getItem('pfDailyMode') === 'usd' ? 'usd' : 'pct'; }
+            catch (e) { return 'pct'; }
+        }
+        /* ── the change card follows the chart's timeframe ─────────────────
+           Picking 1M and still reading a one-day move made the card look
+           broken. The label and the figure now both track whichever span is
+           selected, derived from the very series the chart is drawing. */
+        /* Keys are exactly the strings the chart tabs pass to switchTimeframe
+           (see the .chart-tab buttons) — not the labels printed on them. */
+        const TF_LABEL = {
+            'day':    'Daily Change', 'week':  '1W Change',
+            'month':  '1M Change',    '3month': '3M Change',
+            '6month': '6M Change',    'ytd':    'YTD Change',
+            '1year':  '1Y Change',    'all':    'All-Time Change',
+        };
+
+        function applyTimeframeChange(timeframe, series) {
+            const lbl = document.querySelector('.summary-head .summary-label')
+                     || document.querySelector('.summary-card .summary-label');
+            const key = String(timeframe || 'day');
+            if (lbl) lbl.textContent = TF_LABEL[key] || 'Change';
+
+            const d = (series && series.data) || [];
+            if (d.length < 2) { renderDailyChange(); return; }
+            const first = Number(d[0]), last = Number(d[d.length - 1]);
+            if (!isFinite(first) || !isFinite(last) || first <= 0) { renderDailyChange(); return; }
+
+            window.__dayMove = {
+                dollars: last - first,
+                pct: ((last - first) / first) * 100,
+                known: true,
+            };
+            renderDailyChange();
+        }
+
+        function renderDailyChange() {
+            const el = document.getElementById('dailyChange');
+            if (!el) return;
+            const { dollars, pct, known } = window.__dayMove;
+            const mode = dcMode();
+
+            document.querySelectorAll('.dc-opt').forEach(b => {
+                const on = b.dataset.mode === mode;
+                b.classList.toggle('is-on', on);
+                b.setAttribute('aria-pressed', on ? 'true' : 'false');
+            });
+
+            if (!known) {
+                // unknown is not zero — say so rather than quoting a figure
+                el.innerHTML = '—';
+                el.style.color = '#7d746a';
+                el.title = 'Live prices unavailable right now';
+                return;
+            }
+            el.removeAttribute('title');
+            /* The sign is written explicitly and the magnitude passed in as an
+               absolute. The old version stripped the minus out of the dollar
+               form and never put one back, so a $250 loss displayed as
+               "$250.00" — the right number with the wrong meaning. */
+            const v = mode === 'usd' ? dollars : pct;
+            const sign = v > 0 ? '+' : v < 0 ? '−' : '';
+            el.innerHTML = mode === 'usd'
+                ? sign + moneyParts(Math.abs(dollars))
+                : sign + Math.abs(pct).toFixed(2) + '%';
+            // colour from the dollar move: a 0.00% rounding can still be a loss
+            el.style.color = dollars > 0 ? '#5CB88A' : dollars < 0 ? '#D9645C' : '#B7ADA1';
+        }
+        document.addEventListener('click', e => {
+            const b = e.target.closest('.dc-opt');
+            if (!b) return;
+            try { localStorage.setItem('pfDailyMode', b.dataset.mode); } catch (err) {}
+            renderDailyChange();
+        });
+        document.addEventListener('DOMContentLoaded', renderDailyChange);
+
         // Map a ticker to a sector (for grouping + the pie chart)
         let __uniSectors = null;
         function getSectorForSymbol(symbol) {
@@ -900,16 +1071,40 @@
                 if (!pos || !pos.shares) return;
                 const sector = getSectorForSymbol(sym);
                 const live = prices[sym];
-                const currentPrice = live && live.price != null ? Number(live.price) : (pos.avgPrice || 0);
+                /* Only a genuinely live quote is allowed to move this position.
+                   If the market data missed, hold it at cost — that shows a
+                   flat, honest position instead of a random walk dressed up as
+                   a gain. */
+                const isLive = !!(live && live.isLive && live.price != null);
+                const currentPrice = isLive ? Number(live.price) : (pos.avgPrice || 0);
                 if (!data.stocks[sector]) data.stocks[sector] = [];
-                const dayCh = live && (live.changePercent != null ? Number(live.changePercent)
-                              : (live.change_percent != null ? Number(live.change_percent) : 0));
+                /* getQuotes hands back `change_pct` — it renames getStockQuote's
+                   `changePercent` on the way out. This was reading
+                   `changePercent` and `change_percent`, neither of which is on
+                   the object, so every holding got a day move of exactly zero
+                   and Daily Change was permanently 0.00% no matter what the
+                   market did. Read the real key first, keep the others as
+                   fallbacks, and derive from the raw change if the percentage
+                   is missing entirely. */
+                let dayCh = 0;
+                if (isLive) {
+                    const named = live.change_pct != null ? live.change_pct
+                                : live.changePercent != null ? live.changePercent
+                                : live.change_percent != null ? live.change_percent : null;
+                    if (named != null) {
+                        dayCh = Number(named);
+                    } else if (live.change != null && currentPrice) {
+                        const prev = currentPrice - Number(live.change);
+                        dayCh = prev ? (Number(live.change) / prev) * 100 : 0;
+                    }
+                }
                 data.stocks[sector].push({
                     symbol: sym,
                     shares: pos.shares,
                     price: pos.avgPrice || currentPrice,   // cost basis
                     currentPrice: currentPrice,             // live price
                     dayChangePct: isFinite(dayCh) ? dayCh : 0,
+                    isLive: isLive,                         // was this priced for real?
                     sector
                 });
             });
@@ -992,19 +1187,33 @@
         async function initializePortfolio() {
             let portfolioData = await buildPortfolioData();
 
-            // Nothing shows until the first REAL trade — no placeholder numbers anywhere.
-            let hasTraded = false;
-            try { hasTraded = ((await SL.recentTrades(1)) || []).length > 0; } catch (e) {}
+            /* Nothing shows until the first REAL trade — no placeholder numbers.
+               But "have you traded" must be answered by what you actually HOLD,
+               not by the trade log. SL.recentTrades() returns [] whenever there
+               is no signed-in user, and SL.logTrade() silently writes nothing in
+               that same case. So a logged-out player could buy $4,888 of NVDA —
+               cash correctly deducted, position correctly stored — and this page
+               would tell them they had no holdings and report a total of just
+               the leftover cash. Their money looked like it evaporated.
+
+               Holdings are the source of truth. The trade log is only consulted
+               when there is nothing held, which is the one case it answers
+               better: someone who traded and has since sold out. */
+            const heldNow = !!(portfolioData.stocks && Object.values(portfolioData.stocks)
+                .some(list => (list || []).some(s => s && Number(s.shares) > 0)));
+            let hasTraded = heldNow;
+            if (!hasTraded) {
+                try { hasTraded = ((await SL.recentTrades(1)) || []).length > 0; } catch (e) {}
+            }
             window.__hasTraded = hasTraded;
             if (!hasTraded) {
                 // Real numbers, no placeholders: your actual cash and value (no holdings yet).
                 const cash = Number(portfolioData.cash) || 0;
-                const tv = document.getElementById('totalValue');
-                if (tv) tv.textContent = formatCurrency(cash);
-                const dc = document.getElementById('dailyChange');
-                if (dc) { dc.textContent = '0.00%'; dc.style.color = '#B7ADA1'; }
-                const ca = document.getElementById('cashAvailable');
-                if (ca) ca.textContent = formatCurrency(cash);
+                setMoney(document.getElementById('totalValue'), cash);
+                // nothing held, so the day's move is genuinely nil rather than unknown
+                window.__dayMove = { dollars: 0, pct: 0, known: true };
+                renderDailyChange();
+                setMoney(document.getElementById('cashAvailable'), cash);
                 const hc = document.getElementById('holdingsContainer');
                 if (hc) hc.innerHTML = '<div style="padding:2.5rem 1rem;text-align:center;color:#B7ADA1;">No holdings yet — make your first trade on the <a href="trading.html" style="color:#5CB88A;">trading floor</a>.</div>';
                 const legend = document.getElementById('sectorLegend');
@@ -1022,10 +1231,8 @@
             }
 
             // Update cash balance
-            const cashElement = document.getElementById('cashAvailable');
-            if (cashElement) {
-                cashElement.textContent = formatCurrency(portfolioData.cash);
-            }
+            // full figure here too, so the three cards read consistently
+            setMoney(document.getElementById('cashAvailable'), portfolioData.cash);
 
             const holdingsContainer = document.getElementById('holdingsContainer');
             if (!holdingsContainer) {
@@ -1069,24 +1276,33 @@
             try { window.capHoldings(); } catch (e) {}
 
             // Update total value (holdings + cash)
-            const totalValueElement = document.getElementById('totalValue');
-            if (totalValueElement) {
-                totalValueElement.textContent = formatCurrency(totalPortfolioValue + portfolioData.cash);
-            }
+            setMoney(document.getElementById('totalValue'), totalPortfolioValue + portfolioData.cash);
 
-            // Real daily change: value-weighted sum of each holding's day move
-            const dcEl = document.getElementById('dailyChange');
-            if (dcEl) {
-                let dayDollars = 0;
-                Object.values(portfolioData.stocks).forEach(list => list.forEach(s => {
-                    const v = s.shares * (s.currentPrice || 0);
-                    dayDollars += v * ((s.dayChangePct || 0) / 100);
-                }));
-                const base = totalPortfolioValue + portfolioData.cash;
-                const pct = base > 0 ? (dayDollars / base) * 100 : 0;
-                dcEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
-                dcEl.style.color = pct >= 0 ? '#5CB88A' : '#D9645C';
-            }
+            /* Real daily change. Each holding's day move in dollars, summed —
+               derived from the price and the day's percentage rather than
+               re-deriving a percentage from a percentage, so the dollar figure
+               and the percentage can't disagree. */
+            let dayDollars = 0, livePositions = 0, heldPositions = 0;
+            Object.values(portfolioData.stocks).forEach(list => list.forEach(s => {
+                heldPositions++;
+                if (!s.isLive) return;          // priced at cost — contributes nothing
+                livePositions++;
+                const px = Number(s.currentPrice) || 0;
+                const pct = Number(s.dayChangePct) || 0;
+                // yesterday's close implied by today's price and its move
+                const prev = pct === -100 ? px : px / (1 + pct / 100);
+                dayDollars += (px - prev) * (Number(s.shares) || 0);
+            }));
+            const base = totalPortfolioValue + portfolioData.cash;
+            /* If nothing could be priced for real, the day's move is unknown —
+               not zero, and certainly not whatever the simulator produced. The
+               card says so rather than inventing a figure. */
+            window.__dayMove = {
+                dollars: dayDollars,
+                pct: base > 0 ? (dayDollars / base) * 100 : 0,
+                known: heldPositions === 0 || livePositions > 0
+            };
+            renderDailyChange();
 
             // Update sector pie chart
             setTimeout(() => {
@@ -1371,6 +1587,10 @@
             let chartData;
             try {
                 chartData = await buildRealSeries();
+                // The card follows the chart. Whatever span is on screen, the
+                // change reported underneath is the change across exactly that
+                // span — first point to last — so the two can never disagree.
+                applyTimeframeChange(timeframe, chartData);
             } catch (e) {
                 const pd = JSON.parse(localStorage.getItem('portfolioData') || '{}');
                 let v = Number(pd.cash) || 0;

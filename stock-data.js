@@ -362,7 +362,14 @@ class StockDataService {
         await Promise.all((symbols || []).map(async (sym) => {
             try {
                 const q = await this.getStockQuote(sym);
-                out[sym] = { price: q.price, change: q.change, change_pct: q.changePercent, name: q.name };
+                /* isLive has to survive this hop. getStockQuote falls back to a
+                   SIMULATED quote when Yahoo and the price cache both miss —
+                   `change` there is literally Math.random() — and without this
+                   flag the caller has no way to tell an invented move from a
+                   real one. That is how a portfolio that hadn't moved reported
+                   a gain. */
+                out[sym] = { price: q.price, change: q.change, change_pct: q.changePercent,
+                             name: q.name, isLive: q.isLive !== false };
             } catch (e) { /* skip */ }
         }));
         return out;

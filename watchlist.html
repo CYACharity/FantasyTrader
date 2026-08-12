@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- ft-canvas: the page background, declared before anything that can
+         block rendering. Every stylesheet on this page is render-blocking,
+         so when one is slow Chrome gives up holding the previous frame and
+         paints the default canvas — white — for a beat. That was the flash
+         between pages. Inline and first, it can never be white. -->
+    <style>html{background-color:#171310;}</style>
     <!-- how the link looks when someone shares it -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Fantasy Trader">
@@ -24,6 +30,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="stock-data.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/ft-alert.js"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/sl.js"></script>
     <script src="js/guard.js"></script>
@@ -397,11 +404,34 @@
                 text-align: center;
             }
 
-            .watchlist-table {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
+        }
+
+        /* ── small screens ─────────────────────────────────────────────── */
+        .watchlist-table.is-empty { display: none; }
+
+        /* Backstop: whatever the columns end up needing, the strip scrolls
+           inside its own box instead of dragging the page sideways. */
+        .table-container { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+        /* Six columns don't fit a phone, and squeezing them just clips the
+           numbers. Drop the two that are recoverable from the others —
+           "price when added" is implied by the total change, and the day's
+           move matters least on a watchlist you check occasionally. */
+        @media (max-width: 820px) {
+            .watchlist-table th:nth-child(3), .watchlist-table td:nth-child(3),
+            .watchlist-table th:nth-child(5), .watchlist-table td:nth-child(5) { display: none; }
+            .watchlist-table th, .watchlist-table td { padding: 13px 8px; }
+            .watchlist-table th { font-size: 0.68rem; letter-spacing: 0.5px; }
+        }
+        @media (max-width: 520px) {
+            .watchlist-table th:nth-child(2), .watchlist-table td:nth-child(2) { display: none; }
+            .watchlist-table { font-size: 0.82rem; }
+            .watchlist-table th, .watchlist-table td { padding: 11px 6px; }
+            /* the two icon buttons were being clipped by the ticker column */
+            .watchlist-table td:last-child, .watchlist-table th:last-child { width: 1%; white-space: nowrap; }
+            .stock-actions { gap: 4px; }
+            .action-btn { padding: 7px 8px; }
+            .company-name { display: none; }
         }
     </style>
     <link rel="stylesheet" href="css/theme.css">
@@ -527,13 +557,17 @@
             const watchlistTable = document.getElementById('watchlistTable');
             const emptyState = document.getElementById('emptyState');
             
+            // Toggle a class rather than an inline `display`. An inline style
+            // beats every media query, so setting display:table here was
+            // silently cancelling the small-screen table rules and leaving the
+            // watchlist 936px wide on a 390px phone.
             if (watchlistStocks.length === 0) {
-                watchlistTable.style.display = 'none';
+                watchlistTable.classList.add('is-empty');
                 emptyState.style.display = 'block';
                 return;
             }
-            
-            watchlistTable.style.display = 'table';
+
+            watchlistTable.classList.remove('is-empty');
             emptyState.style.display = 'none';
             
             watchlistBody.innerHTML = watchlistStocks.map(stock => {

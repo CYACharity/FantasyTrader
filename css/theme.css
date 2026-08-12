@@ -79,3 +79,39 @@ h1, h2, h3,
 ::-webkit-scrollbar-thumb { background: #3a332c; border-radius: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 :focus-visible { outline: 2px solid var(--sl-accent); outline-offset: 2px; }
+
+/* ============================================================
+ *  PAGE TRANSITIONS
+ *  ------------------------------------------------------------
+ *  Deliberately the simplest thing that works: each page fades
+ *  itself in. No view transitions, no cross-document snapshots,
+ *  no named shared elements.
+ *
+ *  The previous version used the View Transitions API, and it
+ *  kept flashing white. Snapshot-based transitions have several
+ *  ways to expose the canvas mid-flight — a slow render-blocking
+ *  stylesheet, or the hole left in the root snapshot where a
+ *  named element (the header) was lifted out. None of those can
+ *  happen here: nothing is snapshotted, nothing is lifted out,
+ *  and the canvas underneath is already painted dark by the
+ *  inline style at the top of every page.
+ * ============================================================ */
+html { background-color: #171310; }
+
+/* The canvas colour above exists purely to stop a white frame before the
+   stylesheets land. It must never actually be seen once the page renders —
+   and on any screen taller than the content it was, as a darker band under
+   the body. Making the body span the viewport means its own background
+   covers the canvas everywhere, so the html colour only ever shows for the
+   pre-paint frame it was added for. */
+body { min-height: 100vh; }
+
+@keyframes ft-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+body { animation: ft-fade-in 190ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  body { animation: none; }
+}

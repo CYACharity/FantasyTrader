@@ -86,6 +86,7 @@ declare
   v_win     uuid;
   v_lose    uuid;
   v_amt     numeric;
+  v_pct     numeric;
   v_made    int := 0;
 begin
   select * into v_lg from public.leagues where id = p_league;
@@ -101,8 +102,10 @@ begin
     raise exception 'Not a member of this league';
   end if;
 
-  v_amt := round(coalesce(v_lg.starting_capital, 100000)
-                 * coalesce(v_lg.capital_transfer_pct, 5) / 100.0, 2);
+  -- The stake is a PERCENTAGE OF THE LOSER'S PORTFOLIO, worked out per
+  -- matchup below — not a flat cut of starting capital, which would charge
+  -- the same dollars to a player who'd doubled and one who'd halved.
+  v_pct := coalesce(v_lg.capital_transfer_pct, 5);
 
   -- Seat order is the draft order, so matchups are reproducible.
   select coalesce(v_lg.draft_order, '{}'::uuid[]) into v_ids;
@@ -157,6 +160,7 @@ begin
       end if;
 
       if v_va > v_vb then v_win := v_a; v_lose := v_b; else v_win := v_b; v_lose := v_a; end if;
+      v_amt := round(least(v_va, v_vb) * v_pct / 100.0, 2);   -- % of the loser's book
 
       insert into public.league_weeks
         (league_id, week, winner_id, loser_id, transfer_amt,

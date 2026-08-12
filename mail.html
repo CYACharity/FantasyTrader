@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- ft-canvas: the page background, declared before anything that can
+         block rendering. Every stylesheet on this page is render-blocking,
+         so when one is slow Chrome gives up holding the previous frame and
+         paints the default canvas — white — for a beat. That was the flash
+         between pages. Inline and first, it can never be white. -->
+    <style>html{background-color:#171310;}</style>
     <!-- how the link looks when someone shares it -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Fantasy Trader">
@@ -28,6 +34,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/sl.js"></script>
+    <script src="js/inbox.js"></script>
     <script src="js/guard.js"></script>
     <link rel="stylesheet" href="css/theme.css">
     <style>
@@ -130,7 +137,17 @@
 
         @media (max-height: 880px) { .phone { transform: scale(0.92); } }
         @media (max-height: 800px) { .phone { transform: scale(0.84); } }
-    </style>
+    
+        /* circles carry a mark, not an initial */
+        .av { color: #17130F; }
+        .av svg { display: block; }
+        .av.brand {
+            background: #241F1B !important;
+            border: 1px solid rgba(236,226,214,0.16);
+            padding: 6px;
+        }
+        .av-logo { width: 100%; height: 100%; object-fit: contain; display: block; }
+</style>
 </head>
 <body>
     <a href="dashboard.html" class="room-back back-link">← Dashboard</a>
@@ -166,13 +183,13 @@
         let items = [];   // {type, icon, title, desc, time, link}
 
         // Dismissed messages persist locally — cleared mail stays cleared.
-        const DISMISSED = new Set(JSON.parse(localStorage.getItem('mailDismissed') || '[]'));
+        const DISMISSED = FTInbox.dismissed();
         // Key on something that does NOT move with the market. Prices used to be
         // part of this, so a cleared message reappeared on the next quote tick —
         // that's what pushed the dashboard badge up to a number with nothing behind it.
-        const mailKey = i => (i.key || (i.type + '|' + i.title)).slice(0, 140);
+        const mailKey = FTInbox.keyOf;
         function saveDismissed() {
-            localStorage.setItem('mailDismissed', JSON.stringify([...DISMISSED].slice(-400)));
+            FTInbox.saveDismissed(DISMISSED);
             syncBadge();
         }
         // Dashboard badge = messages you can still see, not everything ever sent.
@@ -195,6 +212,21 @@
 
         function esc(s){ return String(s || '').replace(/</g,'&lt;'); }
 
+        // A first initial told you nothing — "P" for a position update, "Y" for
+        // a league standing. Each kind of message gets its own mark instead,
+        // and the daily fact wears the FantasyTrader logo.
+        function avatarFor(i) {
+            if (i.brand) return '<img class="av-logo" src="ft-logo-mark.png" alt="">';
+            const p = {
+                up:   'M3 17 9 11l4 4 8-8M15 4h6v6',
+                down: 'M3 7 9 13l4-4 8 8M15 20h6v-6',
+                news: 'M4 5h16v14H4zM7 9h6M7 12h6M7 15h4M16 9h1.5v3H16z',
+                lg:   'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20a7 7 0 0 1 14 0M17 11a2.5 2.5 0 1 0 0-5M18 20h4a6 6 0 0 0-4-5.6',
+            }[i.icon] || 'M4 5h16v14H4z';
+            return '<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" ' +
+                   'stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="' + p + '"/></svg>';
+        }
+
         let activeFilter = 'all';
         function render(filter) {
             activeFilter = filter;
@@ -213,10 +245,9 @@
             list.innerHTML = rows.map(i => {
                 const tag = i.link ? 'a' : 'div';
                 const href = i.link ? ' href="' + i.link + '"' + (i.link.startsWith('http') ? ' target="_blank" rel="noopener"' : '') : '';
-                const letter = (i.title || '?').replace(/[^A-Za-z0-9]/g, '').charAt(0).toUpperCase() || '?';
                 const key = mailKey(i).replace(/'/g, '');
                 return '<' + tag + ' class="msg"' + href + '>' +
-                    '<div class="av ' + i.icon + '">' + letter + '</div>' +
+                    '<div class="av ' + i.icon + '">' + avatarFor(i) + '</div>' +
                     '<div class="body"><div class="mrow"><div class="mtitle">' + i.title + '</div>' +
                     '<div class="mtime">' + i.time + '</div></div>' +
                     '<div class="mdesc">' + i.desc + '</div></div>' +
@@ -230,111 +261,16 @@
             render(c.dataset.f);
         }));
 
-        // One market fact per day, delivered like any other message.
-        // Same fact all day; a new one tomorrow. Clear it and it stays cleared.
-        const DAILY_FACTS = [
-            ['The S&P 500 has returned about 10% a year since 1957', 'That average hides a lot: single years have swung from −37% to +38%. The average only shows up if you stay in.'],
-            ['Warren Buffett earned most of his fortune after turning 50', 'Not because he got better at picking stocks. Because compounding needs decades to do its heavy lifting.'],
-            ['The rule of 72', 'Divide 72 by your annual return to get the years it takes to double. At 8%, that is nine years.'],
-            ['Missing the ten best days costs you half your return', 'And the best days cluster right next to the worst ones, which is why selling in a panic hurts twice.'],
-            ['Diversification is the only free lunch in investing', 'Harry Markowitz\u2019s line. Spreading across uncorrelated assets lowers risk without lowering expected return.'],
-            ['The average investor trails the funds they own', 'Because they buy after a run and sell after a drop. The fund returns 9%, the investor gets 6%.'],
-            ['Fees compound too', 'A 1% annual fee eats roughly a quarter of your ending balance over 30 years.'],
-            ['Half of all stocks lose money over their lifetime', 'Index returns come from a small handful of enormous winners. That is the case for owning the whole haystack.'],
-            ['Bear markets are shorter than bull markets', 'The average bear runs under a year and a half. The average bull runs several years.'],
-            ['Dollar-cost averaging removes the timing question', 'Buy on a schedule and you accept the average price instead of betting on the bottom.'],
-            ['Cash is a position', 'Sitting out is a bet that prices fall. Inflation charges you rent for holding that bet.'],
-            ['Volatility is not the same as risk', 'A price that swings is uncomfortable. Permanent loss of capital is the thing that actually hurts.'],
-            ['Earnings drive prices over the long run', 'Over a decade, returns track profit growth. Over a week, they track mood.'],
-            ['Rebalancing forces you to sell high and buy low', 'Trimming what ran and topping up what lagged does mechanically what discipline struggles to do.']
-        ];
-        function dailyFactItem() {
-            const day = Math.floor(Date.now() / 86400000);
-            const f = DAILY_FACTS[day % DAILY_FACTS.length];
-            return { type: 'news', key: 'fact|' + day, icon: 'news', fa: 'fa-lightbulb',
-                     title: f[0], desc: f[1], time: 'Today', link: 'learn.html' };
-        }
-
+        // Every message comes from js/inbox.js, the same builder the dashboard
+        // badge counts — so what you see here and what the bubble says can't
+        // drift apart.
         async function build() {
-            items.push(dailyFactItem());
-            try {
-                // ---- Portfolio: price moves on your actual holdings ----
-                const pf = await SL.loadPortfolio();
-                const syms = Object.keys(pf.stocks || {});
-                if (syms.length) {
-                    const quotes = await stockDataService.getQuotes(syms.slice(0, 8));
-                    for (const sym of Object.keys(quotes)) {
-                        const q = quotes[sym];
-                        const pos = pf.stocks[sym];
-                        if (q.price == null || !pos) continue;
-                        const pct = q.change_pct || 0;
-                        const pl = (q.price - (pos.avgPrice || q.price)) * pos.shares;
-                        if (Math.abs(pct) >= 1) {
-                            items.push({
-                                type: 'portfolio', key: 'move|' + sym + '|' + new Date().toDateString(), icon: pct >= 0 ? 'up' : 'down',
-                                fa: pct >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down',
-                                title: sym + ' ' + (pct >= 0 ? 'jumped' : 'fell') + ' ' + Math.abs(pct).toFixed(1) + '% today',
-                                desc: 'Now $' + q.price.toFixed(2) + ' · your ' + pos.shares + ' share' + (pos.shares === 1 ? '' : 's') + ' are ' +
-                                      (pl >= 0 ? 'up $' + pl.toFixed(2) : 'down $' + Math.abs(pl).toFixed(2)) + ' overall.',
-                                time: 'Today', link: 'trading.html?symbol=' + sym
-                            });
-                        }
-                        items.push({
-                            type: 'portfolio', key: 'pos|' + sym + '|' + new Date().toDateString(), icon: pl >= 0 ? 'up' : 'down', fa: 'fa-briefcase',
-                            title: 'Position update: ' + sym,
-                            desc: pos.shares + ' shares · avg cost $' + (pos.avgPrice || 0).toFixed(2) + ' · last $' + q.price.toFixed(2) +
-                                  ' (' + (pl >= 0 ? '+' : '−') + '$' + Math.abs(pl).toFixed(2) + ')',
-                            time: 'Today', link: 'portfolio.html'
-                        });
-                    }
-                    // ---- News about your top holdings ----
-                    for (const sym of syms.slice(0, 3)) {
-                        try {
-                            const news = await SL.getStockNews(sym);
-                            (news || []).slice(0, 2).forEach(n => items.push({
-                                type: 'news', key: 'news|' + (n.link || n.title), icon: 'news', fa: 'fa-newspaper',
-                                title: esc(n.title),
-                                desc: sym + ' · ' + (n.source || 'Yahoo Finance'),
-                                time: n.pubDate ? new Date(n.pubDate).toLocaleDateString() : 'Recent',
-                                link: n.link
-                            }));
-                        } catch (e) { /* skip */ }
-                    }
-                }
-
-                // ---- Leagues: lobby status, drafts, your standings ----
-                const leagues = await SL.myLeagues();
-                for (const row of (leagues || [])) {
-                    const l = row.leagues; if (!l) continue;
-                    if (l.status === 'lobby') {
-                        items.push({ type: 'league', key: 'lobby|' + l.id, icon: 'lg', fa: 'fa-users',
-                            title: '“' + esc(l.name) + '” is waiting to draft',
-                            desc: 'Share code ' + l.join_code + ' with friends — the draft starts when the host begins.',
-                            time: 'League', link: 'your-league.html?league=' + l.id });
-                    } else if (l.status === 'drafting') {
-                        items.push({ type: 'league', key: 'drafting|' + l.id, icon: 'lg', fa: 'fa-bolt',
-                            title: 'Draft in progress in “' + esc(l.name) + '”',
-                            desc: 'Get in there — picks are happening right now.',
-                            time: 'League', link: 'your-league.html?league=' + l.id });
-                    } else {
-                        try {
-                            const standings = await SL.leagueStandings(l.id);
-                            const me = await SL.currentUser();
-                            const idx = standings.findIndex(s => s.user_id === (me && me.id));
-                            if (idx >= 0) {
-                                const s = standings[idx];
-                                items.push({ type: 'league', key: 'rank|' + l.id + '|' + new Date().toDateString(), icon: idx === 0 ? 'up' : 'lg', fa: idx === 0 ? 'fa-trophy' : 'fa-ranking-star',
-                                    title: (idx === 0 ? 'You lead “' : 'You are #' + (idx + 1) + ' in “') + esc(l.name) + '”',
-                                    desc: 'Roster value $' + s.value.toFixed(2) + ' · return ' + (s.returnPct >= 0 ? '+' : '') + s.returnPct.toFixed(2) + '%',
-                                    time: 'League', link: 'your-league.html?league=' + l.id });
-                            }
-                        } catch (e) { /* skip */ }
-                    }
-                }
-            } catch (e) { /* show whatever we have */ }
-
+            try { items = await FTInbox.build(window.SL, { withNews: true }); }
+            catch (e) { items = [FTInbox.dailyFact()]; }
+            const live = items.filter(i => !DISMISSED.has(mailKey(i))).length;
             document.getElementById('sub').textContent =
-                items.length ? items.length + ' updates from your portfolio and leagues' : 'Updates about your portfolio and leagues';
+                live ? live + ' update' + (live === 1 ? '' : 's') + ' from your portfolio and leagues'
+                     : 'Nothing new right now';
             syncBadge();
             render('all');
         }

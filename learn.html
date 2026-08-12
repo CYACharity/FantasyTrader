@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- ft-canvas: the page background, declared before anything that can
+         block rendering. Every stylesheet on this page is render-blocking,
+         so when one is slow Chrome gives up holding the previous frame and
+         paints the default canvas — white — for a beat. That was the flash
+         between pages. Inline and first, it can never be white. -->
+    <style>html{background-color:#171310;}</style>
     <!-- how the link looks when someone shares it -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Fantasy Trader">
@@ -963,6 +969,7 @@
     </style>
     <link rel="stylesheet" href="css/theme.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/ft-alert.js"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/sl.js"></script>
     <script src="js/guard.js"></script>
@@ -1252,6 +1259,35 @@
         .level-description.green  { color: #5CB88A !important; }
         .level-description.yellow { color: #E0A24C !important; }
         .level-description.red    { color: #D9645C !important; }
+
+        /* ══════════════════════════════════════════════════════════════════
+           RESPONSIVE
+           ══════════════════════════════════════════════════════════════════ */
+        @media (max-width: 820px) {
+            /* body and .learning-container each contributed 32px a side, so a
+               390px phone was spending a third of its width on margins. */
+            body { padding-left: 14px !important; padding-right: 14px !important; }
+            .learning-container { padding-left: 0 !important; padding-right: 0 !important; }
+
+            /* The pathway list is long text in a column; a grid item's default
+               `min-width: auto` refuses to shrink past its longest label, so
+               the whole panel bulged out of the page instead of wrapping. */
+            .edu-panel > *, .edu-left, .edu-right { min-width: 0 !important; }
+            .pathway-stack .pathway-tab { padding: 0.9rem 1rem !important; font-size: 0.86rem !important; }
+        }
+
+        @media (max-width: 700px) {
+            /* the fixed back button was sitting on top of the LEARNING HUB
+               banner, which starts at the very top of the page */
+            .dashboard-btn { padding: 0.55rem 0.85rem; font-size: 0.85rem; margin: 0.6rem; }
+            .title-container { padding-top: 3.4rem; }
+            .main-title { font-size: 2.4rem !important; }
+        }
+
+        /* The two "COMING SOON" tapes are set 3% wider than their card and
+           then rotated, which makes their bounding box wider still. Clip
+           them to the card they're taped across. */
+        .features-section { overflow: clip; }
 </style>
         <script>
             // ---------- Pathway switcher + real progress ----------

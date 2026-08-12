@@ -2262,19 +2262,34 @@
                 let title = '';
                 let desc = '';
 
+                /* These used to look for `.option-card.join` / `.option-card.create`.
+                   The cards were rebuilt as `.lg-card.lg-join` / `.lg-card.lg-create`
+                   and the old class now survives only in dead CSS — so both lookups
+                   returned null. The bail-out below fired AFTER the backdrop had
+                   already been switched on, which left the page under a black
+                   overlay with no tooltip and no way to dismiss it.
+
+                   Order follows the cards on screen, left to right: Create sits
+                   first, Join second. */
                 if (stepNum === 1) {
-                    // Step 1: Join League card
-                    target = document.querySelector('.option-card.join');
-                    title = 'Join a League';
-                    desc = "Enter a friend's league code to join their trading competition. Compete head-to-head to see who picks the best stocks!";
-                } else if (stepNum === 2) {
-                    // Step 2: Create League card
-                    target = document.querySelector('.option-card.create');
+                    target = document.querySelector('.lg-card.lg-create');
                     title = 'Create a League';
                     desc = 'Start your own stock trading competition. Invite friends, set the rules, and see who comes out on top!';
+                } else if (stepNum === 2) {
+                    target = document.querySelector('.lg-card.lg-join');
+                    title = 'Join a League';
+                    desc = "Enter a friend's league code to join their trading competition. Compete head-to-head to see who picks the best stocks!";
                 }
 
-                if (!target) return;
+                /* Never strand the user under the backdrop. If a target is
+                   missing, take the overlay back down and hand the tour on
+                   rather than freezing the page. */
+                if (!target) {
+                    backdrop.classList.remove('active');
+                    document.getElementById('tutTooltip').classList.remove('visible');
+                    if (stepNum === 1) { showStep(2); } else { tutBackToDash(); }
+                    return;
+                }
 
                 document.getElementById('tutStepLabel').textContent = (returnStep + stepNum - 1) + ' of ' + TOTAL;
                 document.getElementById('tutTitle').textContent = title;

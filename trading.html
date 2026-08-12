@@ -2620,23 +2620,39 @@
             const portfolioChange = document.getElementById('portfolioChange');
             const portfolioPositions = document.getElementById('portfolioPositions');
 
-            // Real per-symbol prices — never approximate with the selected stock.
+            /* Real per-symbol prices — never approximate with the selected stock.
+
+               PRICE SOURCE ORDER MATTERS. A trade is charged at the LIVE quote
+               (executeTrade uses `currentPrice`, which selectSymbol takes from
+               stockDataService). This used to mark positions from the
+               stock_prices table first and only reach for a live quote when
+               that table had no row at all — so a row that merely happened to
+               be STALE still won. Buy 2 shares charged at the live $222.65,
+               get marked at a cached $196.51, and the account shows an instant
+               loss the moment the order fills. Nothing moved; the two numbers
+               just came from different places.
+
+               So: value at the same source the trade was priced from. The
+               cached table is the fallback for anything the live feed can't
+               answer, not the other way round. */
             const syms = Object.keys(portfolio.stocks || {});
             let priceMap = {};
-            try { priceMap = syms.length ? await SL.getPrices(syms) : {}; } catch (e) {}
-            // Any symbol the scraper cache doesn't cover (like a small cap you
-            // just bought) gets a LIVE Yahoo quote so your value always tracks.
-            const missing = syms.filter(s => {
-                const r = priceMap[s];
-                return !r || !(Number(r.price) > 0);
-            });
-            if (missing.length) {
-                try {
-                    const live = await stockDataService.getQuotes(missing);
-                    Object.keys(live || {}).forEach(s => {
-                        if (live[s] && live[s].price > 0) priceMap[s] = { price: live[s].price };
-                    });
-                } catch (e) {}
+            let liveMap = {};
+            if (syms.length) {
+                const [storedRes, liveRes] = await Promise.allSettled([
+                    SL.getPrices(syms),
+                    stockDataService.getQuotes(syms),
+                ]);
+                if (storedRes.status === 'fulfilled') priceMap = storedRes.value || {};
+                if (liveRes.status === 'fulfilled') liveMap = liveRes.value || {};
+                // A genuinely live quote overrides the cache. `isLive === false`
+                // marks a simulated fallback price — never let that value money.
+                Object.keys(liveMap).forEach(s => {
+                    const q = liveMap[s];
+                    if (q && q.isLive !== false && Number(q.price) > 0) {
+                        priceMap[s] = { price: Number(q.price) };
+                    }
+                });
             }
             const liveOf = s => {
                 const r = priceMap[s.symbol];

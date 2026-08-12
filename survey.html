@@ -616,7 +616,12 @@
             <div class="step-dot" data-step="5">5</div>
         </div>
 
-        <form id="surveyForm">
+        <!-- novalidate is deliberate. With native validation on, a bad value on
+             a hidden step made the browser refuse to submit AND never fire the
+             submit event, so no script could report why — Finish Setup just
+             went dead. Validation is done in JS below, which can switch to the
+             offending step and show the message where it's actually visible. -->
+        <form id="surveyForm" novalidate>
             <!-- Step 1: Profile -->
             <div class="survey-step active" data-step="1">
                 <div class="survey-card">
@@ -628,7 +633,7 @@
 
                     <div class="field-group">
                         <label class="field-label" for="ageInput">Your Age</label>
-                        <input id="ageInput" class="field-input" type="number" min="13" max="100" placeholder="e.g. 21" required>
+                        <input id="ageInput" class="field-input" type="number" min="1" max="100" placeholder="e.g. 21" required>
                     </div>
                     <div class="field-group">
                         <span class="field-label">Gender</span>
@@ -912,10 +917,26 @@
             if (errEl) errEl.textContent = '';
 
             if (from === 1) {
-                const age = document.getElementById('ageInput').value;
+                const ageEl = document.getElementById('ageInput');
+                const age = ageEl.value;
                 const gender = document.querySelector('input[name="gender"]:checked');
                 if (!age || !gender) {
                     document.getElementById('error1').textContent = 'Please fill in all fields.';
+                    return;
+                }
+                /* The age must be checked against its RANGE here, not just for
+                   emptiness. The input carries min="13" max="100", and this
+                   step only asked "is it non-empty" — so 12 or 130 sailed
+                   through to step 2. The browser then refused the final submit
+                   because the field was invalid, but by that point step 1 is
+                   display:none, so it couldn't focus the field to explain and
+                   the whole thing failed silently. Catch it while it's still
+                   on screen and can be pointed at. */
+                const n = Number(age);
+                if (!Number.isFinite(n) || n < 1 || n > 100) {
+                    document.getElementById('error1').textContent =
+                        'Please enter an age between 1 and 100.';
+                    ageEl.focus();
                     return;
                 }
             }
@@ -986,6 +1007,30 @@
         /* ── Form Submit ── */
         document.getElementById('surveyForm').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            /* Fail loudly, never silently. Every step lives inside this one
+               form, so the browser validates fields on steps that are hidden.
+               When one of those is invalid it can't focus it to show the
+               bubble — Chrome logs "An invalid form control is not focusable"
+               and simply refuses to submit. To the person clicking Finish
+               Setup, the button is just dead.
+
+               So: find the first invalid field ourselves, walk back to the
+               step it lives on, and say what's wrong where they can see it. */
+            const form = this;
+            const firstBad = [...form.elements].find(el => el.willValidate && !el.checkValidity());
+            if (firstBad) {
+                const stepEl = firstBad.closest('.survey-step');
+                const stepNum = stepEl ? Number(stepEl.dataset.step) : 1;
+                showStep(stepNum);
+                const errEl = document.getElementById('error' + stepNum);
+                if (errEl) {
+                    errEl.textContent = firstBad.validationMessage ||
+                        'Please check this answer before continuing.';
+                }
+                setTimeout(() => { try { firstBad.focus(); } catch (err) {} }, 60);
+                return;
+            }
 
             const preferences = {
                 age: Number(document.getElementById('ageInput').value),

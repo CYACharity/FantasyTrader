@@ -31,7 +31,9 @@
     <title>Fantasy Trader — Fantasy sports for the stock market</title>
     <meta name="description" content="Draft real stocks with your friends, run $100,000 of virtual capital, and settle it head-to-head every week. Learn real investing by playing.">
     <link rel="preload" as="image" href="shots/dashboard.jpg">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,550;0,9..144,650;1,9..144,400;1,9..144,550;1,9..144,650&display=swap" rel="stylesheet">
+    <!-- Families must be listed alphabetically in a css2 request or Google
+         rejects the whole thing and you silently fall back to system fonts. -->
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #171310; --bg2: #14100D; --panel: #0F0C0A;
@@ -39,7 +41,10 @@
             --cream: #F4EEE6; --cream-ink: #201B16;
             --line: rgba(240, 232, 220, 0.08); --line2: rgba(240, 232, 220, 0.15);
             --sage: #5CB88A; --honey: #E0A24C; --red: #D9645C;
-            --serif: 'Fraunces', Georgia, serif; --sans: 'Inter', -apple-system, system-ui, sans-serif;
+            /* Display face. Still called --serif because every rule on the page
+               references it; the value is now a grotesque, not a serif. */
+            --serif: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
+            --sans: 'Inter', -apple-system, system-ui, sans-serif;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
@@ -178,8 +183,12 @@
         .kick img { width: 24px; }
         .kick:hover { color: var(--ink); border-color: rgba(240, 232, 220, 0.3); }
         h1 {
-            font: 650 clamp(2.7rem, 6.6vw, 4.4rem)/1.04 var(--serif);
-            letter-spacing: -0.02em; max-width: 820px; margin: 0 auto; font-weight: 550;
+            font: 700 clamp(2.7rem, 6.6vw, 4.4rem)/1.04 var(--serif);
+            /* 700, not the old 550/650. Fraunces was a soft serif that carried
+               at a lighter weight; a grotesque needs the extra mass to hold the
+               same presence. The shorthand above already sets it — the trailing
+               `font-weight: 550` that used to follow was silently overriding it. */
+            letter-spacing: -0.02em; max-width: 820px; margin: 0 auto;
         }
         h1 em { font-style: italic; color: var(--ink); }
         h1 .und { position: relative; white-space: nowrap; }

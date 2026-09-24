@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>html{background-color:#14100E;}</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Lesson — Fantasy Trader</title>
+    <meta name="robots" content="noindex">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <meta name="theme-color" content="#14100E">
+    <link rel="stylesheet" href="css/ft-lessons.css?v=9">
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
+    <link rel="stylesheet" href="css/ft-motion.css">
+    <script src="js/ft-back.js?v=2"></script>
+</head>
+<body class="lx">
+
+<div id="player" class="ft-arrive"></div>
+
+<script src="js/ft-illustrations.js"></script>
+<script src="js/ft-juice.js"></script>
+<script src="js/ft-bull.js?v=6"></script>
+<script src="js/ft-curriculum.js"></script>
+<script src="js/ft-courses.js"></script>
+<script src="js/ft-teach.js"></script>
+<script src="js/ft-progression.js"></script>
+<script src="js/ft-lesson-engine.js?v=6"></script>
+<script>
+(function () {
+    'use strict';
+
+    const params = new URLSearchParams(location.search);
+    const mount = document.getElementById('player');
+
+    let lesson = null;
+    let backTo = 'academy.html';
+    if (params.get('practice')) {
+        lesson = FTProgress.practiceLesson(8);
+        if (!lesson) { location.href = 'academy.html'; return; }
+    } else if (params.get('course')) {
+        /* One of the 60 course modules, taught rather than read. The object
+           already carries its own teach cards, so the engine picks them up
+           without a TEACH entry. */
+        const c = window.FTCourses && FTCourses.byId(params.get('course'));
+        if (c) {
+            lesson = c;
+            backTo = 'academy.html#' + c.track;
+        }
+    } else {
+        const id = params.get('id');
+        lesson = id ? FTCurriculum.lessonById(id) : null;
+    }
+
+    if (!lesson) {
+        mount.innerHTML =
+            '<div class="lx-nohearts">' +
+            (window.FTArt ? FTArt.get('book') : '') +
+            '<h2 class="lx-display">Lesson not found</h2>' +
+            '<p>Head back to the path and pick one.</p>' +
+            '<a class="lx-btn primary wide" href="academy.html">Back to the path</a></div>';
+        return;
+    }
+
+    document.title = lesson.title + ' — Fantasy Trader';
+
+    const engine = new FTLesson.Engine({
+        lesson: lesson,
+        mount: mount,
+        onExit: function () { location.href = backTo; },
+    });
+    engine.start();
+
+    addEventListener('beforeunload', function (e) {
+        if (engine.done > 0 && engine.queue.length > 0) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+})();
+</script>
+</body>
+</html>

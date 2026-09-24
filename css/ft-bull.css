@@ -1,0 +1,403 @@
+/* ============================================================
+ *  RALLY — the Fantasy Trader bull
+ *
+ *  A rigged SVG character. Every moving part is its own <g> with
+ *  a declared transform-origin, so the animations below can move
+ *  ears, brows, pupils, tail and legs independently rather than
+ *  sliding one flat picture around.
+ *
+ *  States are applied as a class on .bull-rig:
+ *      is-idle      breathing, blinking, occasional ear flick
+ *      is-happy     bounce, ears up, tail wagging fast
+ *      is-cheer     big jump, forelegs thrown up, confetti cue
+ *      is-sad       head drops, ears fold, tail still
+ *      is-think     head tilt, pupils drift, hoof taps
+ *      is-wave      one foreleg waves
+ *      is-walk      four-beat leg cycle with body bob
+ *      is-worry     small shake, brows angled in
+ *      is-sleep     eyes shut, slow breathing, Z's
+ *
+ *  Everything degrades to a static bull under
+ *  prefers-reduced-motion.
+ * ============================================================ */
+
+.bull-rig {
+    display: block;
+    overflow: visible;
+    transform-origin: 50% 92%;
+    will-change: transform;
+}
+
+/* declared origins — without these every rotation pivots from the
+   top-left of the SVG viewport and the rig tears itself apart */
+.bull-rig #bBody      { transform-origin: 106px 116px; }
+.bull-rig #bHeadGrp   { transform-origin: 100px 96px; }
+.bull-rig #bEarL      { transform-origin: 72px 64px; }
+.bull-rig #bEarR      { transform-origin: 128px 64px; }
+.bull-rig #bBrowL     { transform-origin: 82px 78px; }
+.bull-rig #bBrowR     { transform-origin: 118px 78px; }
+.bull-rig #bEyeLidL   { transform-origin: 82px 88px; }
+.bull-rig #bEyeLidR   { transform-origin: 118px 88px; }
+.bull-rig #bPupils    { transform-origin: 100px 88px; }
+.bull-rig #bTail      { transform-origin: 146px 114px; }
+/* legs pivot at the hip, which is where they now START (y=126) rather
+   than 10px down the shaft — a stride that swings from mid-thigh looks
+   like the leg is snapping in half */
+.bull-rig #bLegFL     { transform-origin: 87px 129px; }
+.bull-rig #bLegFR     { transform-origin: 101px 129px; }
+.bull-rig #bLegBL     { transform-origin: 115px 129px; }
+.bull-rig #bLegBR     { transform-origin: 129px 129px; }
+.bull-rig #bMouthGrp  { transform-origin: 100px 116px; }
+
+/* mouth shapes: only one is visible at a time */
+.bull-rig .mouth { opacity: 0; transition: opacity 0.14s ease; }
+.bull-rig .mouth.on { opacity: 1; }
+
+/* ── IDLE ─────────────────────────────────────────────────── */
+/* idle is never dead still: a soft bob on the whole character, like an
+   animated sprite waiting for input */
+.bull-rig.is-idle { animation: bullIdleBob 2.8s ease-in-out infinite; }
+@keyframes bullIdleBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.2%); } }
+@media (prefers-reduced-motion: reduce) { .bull-rig.is-idle { animation: none; } }
+.bull-rig.is-idle #bBody   { animation: bullBreathe 3.4s ease-in-out infinite; }
+.bull-rig.is-idle #bHeadGrp{ animation: bullHeadFloat 4.2s ease-in-out infinite; }
+.bull-rig.is-idle #bTail   { animation: bullTailSway 2.8s ease-in-out infinite; }
+.bull-rig.is-idle #bEarL   { animation: bullEarFlickL 5.5s ease-in-out infinite; }
+.bull-rig.is-idle #bEarR   { animation: bullEarFlickR 6.7s ease-in-out infinite; }
+
+@keyframes bullBreathe {
+    0%, 100% { transform: scale(1, 1); }
+    50%      { transform: scale(1.028, 1.035); }
+}
+@keyframes bullHeadFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    35%      { transform: translateY(-2.5px) rotate(-1.4deg); }
+    70%      { transform: translateY(1px) rotate(1deg); }
+}
+@keyframes bullTailSway {
+    0%, 100% { transform: rotate(-8deg); }
+    50%      { transform: rotate(14deg); }
+}
+@keyframes bullEarFlickL {
+    0%, 88%, 100% { transform: rotate(0deg); }
+    92%           { transform: rotate(-17deg); }
+    96%           { transform: rotate(4deg); }
+}
+@keyframes bullEarFlickR {
+    0%, 84%, 100% { transform: rotate(0deg); }
+    89%           { transform: rotate(16deg); }
+    94%           { transform: rotate(-4deg); }
+}
+
+/* blink is driven separately so any state can blink */
+.bull-rig .blinkable { animation: bullBlink 5.2s ease-in-out infinite; }
+@keyframes bullBlink {
+    0%, 92%, 100% { transform: scaleY(0); }
+    94%, 97%      { transform: scaleY(1); }
+}
+.bull-rig.is-sleep .blinkable { animation: none; transform: scaleY(1); }
+
+/* ── HAPPY ────────────────────────────────────────────────── */
+.bull-rig.is-happy            { animation: bullHop 0.62s cubic-bezier(0.28, 0.9, 0.3, 1.1) 2; }
+.bull-rig.is-happy #bTail     { animation: bullTailWag 0.26s ease-in-out infinite; }
+.bull-rig.is-happy #bEarL     { transform: rotate(-13deg); }
+.bull-rig.is-happy #bEarR     { transform: rotate(13deg); }
+.bull-rig.is-happy #bHeadGrp  { animation: bullHeadNod 0.62s ease-in-out 2; }
+
+@keyframes bullHop {
+    0%, 100% { transform: translateY(0) scaleY(1); }
+    18%      { transform: translateY(2px) scaleY(0.93); }
+    50%      { transform: translateY(-14px) scaleY(1.05); }
+    78%      { transform: translateY(1px) scaleY(0.97); }
+}
+@keyframes bullTailWag {
+    0%, 100% { transform: rotate(-22deg); }
+    50%      { transform: rotate(26deg); }
+}
+@keyframes bullHeadNod {
+    0%, 100% { transform: rotate(0deg) translateY(0); }
+    50%      { transform: rotate(-5deg) translateY(-3px); }
+}
+
+/* ── CHEER (big win) ──────────────────────────────────────── */
+.bull-rig.is-cheer           { animation: bullBigJump 0.95s cubic-bezier(0.25, 0.9, 0.3, 1.15); }
+.bull-rig.is-cheer #bLegFL   { animation: bullArmUpL 0.95s ease-out; }
+.bull-rig.is-cheer #bLegFR   { animation: bullArmUpR 0.95s ease-out; }
+.bull-rig.is-cheer #bTail    { animation: bullTailWag 0.2s ease-in-out infinite; }
+.bull-rig.is-cheer #bHeadGrp { animation: bullHeadBack 0.95s ease-out; }
+.bull-rig.is-cheer #bEarL    { transform: rotate(-22deg); }
+.bull-rig.is-cheer #bEarR    { transform: rotate(22deg); }
+
+@keyframes bullBigJump {
+    0%   { transform: translateY(0) scale(1, 1); }
+    12%  { transform: translateY(5px) scale(1.08, 0.88); }
+    45%  { transform: translateY(-37px) scale(0.95, 1.1); }
+    70%  { transform: translateY(-9px) scale(1, 1); }
+    86%  { transform: translateY(4px) scale(1.05, 0.93); }
+    100% { transform: translateY(0) scale(1, 1); }
+}
+@keyframes bullArmUpL {
+    0%, 100% { transform: rotate(0deg); }
+    45%      { transform: rotate(-58deg); }
+}
+@keyframes bullArmUpR {
+    0%, 100% { transform: rotate(0deg); }
+    45%      { transform: rotate(52deg); }
+}
+@keyframes bullHeadBack {
+    0%, 100% { transform: rotate(0deg); }
+    45%      { transform: rotate(-11deg) translateY(-4px); }
+}
+
+/* ── SAD ──────────────────────────────────────────────────── */
+.bull-rig.is-sad #bHeadGrp { animation: bullDroop 0.55s ease-out forwards; }
+.bull-rig.is-sad #bEarL    { animation: bullEarFoldL 0.5s ease-out forwards; }
+.bull-rig.is-sad #bEarR    { animation: bullEarFoldR 0.5s ease-out forwards; }
+.bull-rig.is-sad #bBrowL   { transform: rotate(17deg) translateY(2px); }
+.bull-rig.is-sad #bBrowR   { transform: rotate(-17deg) translateY(2px); }
+.bull-rig.is-sad #bTail    { animation: none; transform: rotate(-26deg); }
+.bull-rig.is-sad #bBody    { animation: bullBreathe 4.6s ease-in-out infinite; }
+
+@keyframes bullDroop {
+    from { transform: rotate(0deg) translateY(0); }
+    to   { transform: rotate(6deg) translateY(6px); }
+}
+@keyframes bullEarFoldL { from { transform: rotate(0deg); } to { transform: rotate(38deg); } }
+@keyframes bullEarFoldR { from { transform: rotate(0deg); } to { transform: rotate(-38deg); } }
+
+/* ── WORRY (heart lost) ───────────────────────────────────── */
+.bull-rig.is-worry          { animation: bullShake 0.5s ease-in-out; }
+.bull-rig.is-worry #bBrowL  { transform: rotate(19deg) translateY(1px); }
+.bull-rig.is-worry #bBrowR  { transform: rotate(-19deg) translateY(1px); }
+.bull-rig.is-worry #bEarL   { transform: rotate(26deg); }
+.bull-rig.is-worry #bEarR   { transform: rotate(-26deg); }
+
+@keyframes bullShake {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    15% { transform: translateX(-6px) rotate(-2.5deg); }
+    35% { transform: translateX(5px) rotate(2deg); }
+    55% { transform: translateX(-4px) rotate(-1.5deg); }
+    75% { transform: translateX(3px) rotate(1deg); }
+}
+
+/* ── THINK ────────────────────────────────────────────────── */
+.bull-rig.is-think #bHeadGrp { animation: bullTilt 2.6s ease-in-out infinite; }
+.bull-rig.is-think #bPupils  { animation: bullPupilDrift 3.2s ease-in-out infinite; }
+.bull-rig.is-think #bLegFR   { animation: bullHoofTap 0.85s ease-in-out infinite; }
+.bull-rig.is-think #bBrowL   { transform: rotate(-9deg) translateY(-1px); }
+
+@keyframes bullTilt {
+    0%, 100% { transform: rotate(-9deg); }
+    50%      { transform: rotate(-3deg); }
+}
+@keyframes bullPupilDrift {
+    0%, 100% { transform: translate(0, 0); }
+    30%      { transform: translate(3.5px, -1.5px); }
+    65%      { transform: translate(-3px, 1px); }
+}
+@keyframes bullHoofTap {
+    0%, 70%, 100% { transform: rotate(0deg); }
+    82%           { transform: rotate(-16deg); }
+}
+
+/* ── WAVE ─────────────────────────────────────────────────── */
+.bull-rig.is-wave #bLegFL   { animation: bullWave 0.85s ease-in-out 3; }
+.bull-rig.is-wave #bHeadGrp { animation: bullHeadFloat 3s ease-in-out infinite; }
+.bull-rig.is-wave #bTail    { animation: bullTailWag 0.36s ease-in-out infinite; }
+
+@keyframes bullWave {
+    0%, 100% { transform: rotate(0deg); }
+    25%      { transform: rotate(-52deg); }
+    50%      { transform: rotate(-32deg); }
+    75%      { transform: rotate(-52deg); }
+}
+
+/* ── WALK ─────────────────────────────────────────────────── */
+/* A real gait: each hoof is planted for 62% of the cycle and sweeps
+   back at constant speed (that is what carries him), then lifts and
+   swings forward quickly. Diagonal pairs move together. The old cycle
+   swept forward and back at the same speed, so he skated. */
+.bull-rig.is-walk           { animation: bullWalkBob 0.29s ease-in-out infinite; }
+.bull-rig.is-walk #bLegFL   { animation: bullStride 0.58s linear infinite; }
+.bull-rig.is-walk #bLegBR   { animation: bullStride 0.58s linear infinite; animation-delay: -0.04s; }
+.bull-rig.is-walk #bLegFR   { animation: bullStride 0.58s linear infinite; animation-delay: -0.29s; }
+.bull-rig.is-walk #bLegBL   { animation: bullStride 0.58s linear infinite; animation-delay: -0.33s; }
+.bull-rig.is-walk #bTail    { animation: bullTailSway 0.58s ease-in-out infinite; }
+.bull-rig.is-walk #bHeadGrp { animation: bullWalkNod 0.58s ease-in-out infinite; }
+.bull-rig.is-walk #bBody    { animation: bullWalkRoll 0.58s ease-in-out infinite; }
+
+@keyframes bullWalkBob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-1.8px); }
+}
+@keyframes bullStride {
+    0%   { transform: rotate(20deg); }
+    62%  { transform: rotate(-20deg); }
+    81%  { transform: translateY(-3.5px) rotate(0deg); }
+    100% { transform: rotate(20deg); }
+}
+@keyframes bullWalkNod {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25%      { transform: translateY(1.2px) rotate(-2deg); }
+    75%      { transform: translateY(1.2px) rotate(2deg); }
+}
+@keyframes bullWalkRoll {
+    0%, 100% { transform: rotate(0deg); }
+    50%      { transform: rotate(1.2deg); }
+}
+
+/* ── GRAZE ─────────────────────────────────────────────────
+   Head down, working at the ground, ears forward, tail idling.
+   The nibble is deliberately off-rhythm from the tail so the two
+   don't tick together and read as one mechanism. */
+.bull-rig.is-graze #bHeadGrp { animation: bullGraze 1.9s ease-in-out infinite; }
+.bull-rig.is-graze #bEarL    { transform: rotate(26deg); }
+.bull-rig.is-graze #bEarR    { transform: rotate(-26deg); }
+.bull-rig.is-graze #bTail    { animation: bullTailSway 3.1s ease-in-out infinite; }
+.bull-rig.is-graze #bBody    { animation: bullBreathe 4.2s ease-in-out infinite; }
+
+@keyframes bullGraze {
+    0%, 100% { transform: translateY(11px) rotate(-2.5deg); }
+    30%      { transform: translateY(16px) rotate(1deg); }
+    60%      { transform: translateY(13px) rotate(-1deg); }
+}
+
+/* ── SLEEP ────────────────────────────────────────────────── */
+.bull-rig.is-sleep #bBody    { animation: bullBreathe 5.4s ease-in-out infinite; }
+.bull-rig.is-sleep #bHeadGrp { transform: rotate(7deg) translateY(5px); }
+.bull-rig.is-sleep #bEarL    { transform: rotate(30deg); }
+.bull-rig.is-sleep #bEarR    { transform: rotate(-30deg); }
+
+/* ── the character's stage + speech ───────────────────────── */
+.bull-stage {
+    position: relative;
+    display: flex; align-items: flex-end; gap: 0.75rem;
+    pointer-events: none;
+}
+.bull-stage.left  { flex-direction: row; }
+.bull-stage.right { flex-direction: row-reverse; }
+
+.bull-holder { position: relative; flex-shrink: 0; }
+
+/* the shadow reacts to the jump so he doesn't look like he's flying */
+.bull-shadow {
+    position: absolute; left: 50%; bottom: 4%;
+    width: 46%; height: 9px; border-radius: 50%;
+    background: rgba(0, 0, 0, 0.42);
+    filter: blur(4px);
+    transform: translateX(-50%);
+    transition: all 0.2s ease;
+}
+.bull-rig.is-cheer ~ .bull-shadow { animation: bullShadowJump 0.95s ease-out; }
+.bull-rig.is-happy ~ .bull-shadow { animation: bullShadowHop 0.62s ease-in-out 2; }
+@keyframes bullShadowJump {
+    0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.42; }
+    45%      { transform: translateX(-50%) scale(0.55); opacity: 0.16; }
+}
+@keyframes bullShadowHop {
+    0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.42; }
+    50%      { transform: translateX(-50%) scale(0.75); opacity: 0.26; }
+}
+
+/* speech bubble */
+.bull-bubble {
+    position: relative;
+    max-width: 260px;
+    background: var(--lx-surface, #221D19);
+    border: 2px solid var(--lx-line-2, rgba(236,226,214,0.18));
+    border-radius: 16px;
+    padding: 0.72rem 0.95rem;
+    font: 600 0.86rem/1.45 'Inter', system-ui, sans-serif;
+    color: var(--lx-ink, #F4EEE6);
+    opacity: 0; transform: translateY(8px) scale(0.94);
+    transform-origin: bottom left;
+    transition: opacity 0.22s ease, transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+    pointer-events: none;
+}
+.bull-bubble.show { opacity: 1; transform: none; }
+.bull-bubble.ok   { border-color: rgba(92, 184, 138, 0.55); }
+.bull-bubble.no   { border-color: rgba(217, 100, 92, 0.5); }
+
+/* The little tail on the bubble, pointing at the bull.
+   The positioning selectors must cover BOTH containers: the corner dock
+   is `.bull-dock.left`, not `.bull-stage.left`, and when neither rule
+   matched the tail defaulted to the bubble's right edge — sitting on
+   top of the last words of every line. */
+.bull-bubble::after {
+    content: ''; position: absolute; bottom: 14px;
+    width: 11px; height: 11px;
+    background: inherit;
+    border-left: 2px solid; border-bottom: 2px solid;
+    border-color: inherit;
+    transform: rotate(45deg);
+}
+.bull-stage.left .bull-bubble::after,
+.bull-dock.left  .bull-bubble::after { left: -7px; right: auto; }
+.bull-stage.right .bull-bubble::after,
+.bull-dock.right  .bull-bubble::after { right: -7px; left: auto; transform: rotate(-135deg); }
+
+/* typewriter cursor while he's "speaking" */
+.bull-bubble .cursor {
+    display: inline-block; width: 2px; height: 1em;
+    background: var(--lx-sage, #5CB88A);
+    margin-left: 1px; vertical-align: -2px;
+    animation: bullCursor 0.7s steps(2) infinite;
+}
+@keyframes bullCursor { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+/* Z's for the sleep state */
+.bull-zzz {
+    position: absolute; top: 15%; right: 19%;
+    width: 0; height: 0; pointer-events: none;
+}
+.bull-z {
+    position: absolute; top: 0; right: 0;
+    font: 800 0.85rem 'Inter', sans-serif;
+    color: var(--lx-ink-3, #7D746A);
+    animation: bullZ 2.4s ease-out infinite;
+}
+.bull-zzz .bull-z:nth-child(2) { animation-delay: 0.8s; font-size: 0.7rem; }
+.bull-zzz .bull-z:nth-child(3) { animation-delay: 1.6s; font-size: 0.6rem; }
+@keyframes bullZ {
+    0%   { opacity: 0; transform: translate(0, 0) scale(0.6); }
+    25%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(16px, -30px) scale(1.25); }
+}
+
+/* ── corner dock: the bull that follows you through a lesson ─ */
+.bull-dock {
+    position: fixed; left: 14px; bottom: 14px; z-index: 65;
+    display: flex; align-items: flex-end; gap: 0.6rem;
+    pointer-events: none;
+    transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1), opacity 0.3s ease;
+}
+.bull-dock.hidden { transform: translateY(140%); opacity: 0; }
+.bull-dock .bull-rig { width: 118px; height: 118px; }
+
+/* when the feedback bar is up, the dock lifts above it */
+.bull-dock.lifted { transform: translateY(-122px); }
+
+@media (max-width: 720px) {
+    .bull-dock { left: 8px; bottom: 8px; }
+    .bull-dock .bull-rig { width: 88px; height: 88px; }
+    .bull-bubble { max-width: 190px; font-size: 0.78rem; padding: 0.6rem 0.75rem; }
+    .bull-dock.lifted { transform: translateY(-152px); }
+}
+@media (max-width: 460px) {
+    /* on a small phone the bubble competes with the answers, so the
+       dock keeps the character and drops the bubble unless he's
+       actually reacting to something */
+    .bull-dock .bull-bubble { display: none; }
+    .bull-dock.talking .bull-bubble { display: block; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bull-rig, .bull-rig * { animation: none !important; }
+    .bull-bubble { transition: opacity 0.2s ease; transform: none; }
+    .bull-zzz { display: none; }
+}
+
+/* A thin dark rim and a soft ground shadow. Flat colour on a dark page
+   let his green run into the background; this separates the silhouette
+   without drawing an outline on every shape. */
+.bull-rig { filter: drop-shadow(0 0 1px rgba(10,8,6,0.85)) drop-shadow(0 5px 7px rgba(0,0,0,0.32)); }

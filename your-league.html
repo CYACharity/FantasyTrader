@@ -6,7 +6,28 @@
          so when one is slow Chrome gives up holding the previous frame and
          paints the default canvas — white — for a beat. That was the flash
          between pages. Inline and first, it can never be white. -->
-    <style>html{background-color:#171310;}</style>
+    <style>html{background-color:#171310;}
+        /* the Academy column (play 06) */
+        .lb-ac-col { text-align: center; white-space: nowrap; }
+        .lb-ac-n {
+            font-variant-numeric: tabular-nums; font-weight: 800;
+            color: #5CB88A; font-size: 0.95rem;
+        }
+        .lb-ac-streak {
+            display: block; font-style: normal;
+            font-size: 0.66rem; font-weight: 700; letter-spacing: 0.03em;
+            color: #E0A24C; margin-top: 1px;
+        }
+        .lb-ac-none { color: rgba(236, 226, 214, 0.28); }
+        /* on a narrow window the money columns win */
+        @media (max-width: 720px) { .lb-ac-col { display: none; } }
+
+        /* The hidden attribute must win over any author display rule. Without
+           this, `el.hidden = true` on anything whose class sets a display is
+           silently ignored — which is how an empty daily card ended up
+           rendering as a bar across the dashboard. */
+        [hidden] { display: none !important; }
+</style>
     <!-- how the link looks when someone shares it -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Fantasy Trader">
@@ -29,7 +50,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your League - Fantasy Trader</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,700;1,800;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -253,7 +274,9 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('1f6c654f-09d9-4900-8f9f-492d3704ffe2.png') center/contain no-repeat;
+            /* was a url() to 1f6c654f-….png, which is not in the repo — a
+               404 on every load for a watermark at 8% opacity that has
+               therefore never actually rendered */
             opacity: 0.08;
             z-index: 0;
             pointer-events: none;
@@ -661,23 +684,23 @@
         .pod-medal {
             width: 34px; height: 34px; margin: 0 auto 0.45rem; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font: 800 0.95rem 'Poppins', sans-serif; color: #17130F;
+            font: 800 0.95rem 'Inter', sans-serif; color: #17130F;
         }
         .pod-medal.m1 { background: linear-gradient(160deg,#F6D07A,#E0A24C); box-shadow: 0 0 16px rgba(224,162,76,0.5); width: 40px; height: 40px; font-size: 1.1rem; }
         .pod-medal.m2 { background: linear-gradient(160deg,#E4E7EA,#A9B2BB); }
         .pod-medal.m3 { background: linear-gradient(160deg,#D9A277,#A9714A); }
-        .pod-name { font: 700 0.95rem 'Poppins', sans-serif; color: #F4EEE6; letter-spacing: .005em; }
+        .pod-name { font: 700 0.95rem 'Inter', sans-serif; color: #F4EEE6; letter-spacing: .005em; }
         .pod-cap {
-            font: 700 0.85rem 'Poppins', sans-serif; font-variant-numeric: tabular-nums;
+            font: 700 0.85rem 'Inter', sans-serif; font-variant-numeric: tabular-nums;
             color: #E8DCCB; margin: 0.12rem 0 0.1rem;
         }
-        .pod-ret { font: 700 0.7rem 'Poppins', sans-serif; margin-bottom: 0.55rem; }
+        .pod-ret { font: 700 0.7rem 'Inter', sans-serif; margin-bottom: 0.55rem; }
         .pod-block {
             display: flex; align-items: flex-start; justify-content: center; padding-top: .5rem;
             background: linear-gradient(180deg, #2E2822, #221E1A);
             border: 1px solid rgba(236, 226, 214, 0.12); border-bottom: none;
             border-radius: 8px 8px 0 0;
-            font: 800 1.5rem 'Poppins', sans-serif; color: #6b6259;
+            font: 800 1.5rem 'Inter', sans-serif; color: #6b6259;
         }
         .pod-block.p1 {
             height: 104px; font-size: 2rem;
@@ -1270,12 +1293,13 @@
     </style>
     <script src="stock-data.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/ft-alert.js"></script>
+    <script src="js/ft-alert.js?v=2"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
+    <script src="js/sl.js?v=3"></script>
     <script src="js/draft-universe.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <script src="js/guard.js"></script>
+    <script src="js/ft-daily.js"></script>
     <link rel="stylesheet" href="css/theme.css">
     <style>
         /* ── Draft board ── */
@@ -1331,7 +1355,7 @@
         /* Your Team */
         .team-card { background: #221E1A; border: 1px solid rgba(236,226,214,0.1); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
         .team-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem; }
-        .team-head h3 { font: 600 1.2rem 'Fraunces', Georgia, serif; }
+        .team-head h3 { font: 800 1.2rem 'Inter', system-ui, sans-serif; }
         .team-sub { font-size: 0.8rem; color: #B7ADA1; }
         .lineup-row {
             display: grid; grid-template-columns: 60px 1fr 88px 92px minmax(190px,1fr) 96px; gap: 0.6rem;
@@ -1392,11 +1416,11 @@
             background: rgba(224,162,76,0.10); border: 1px solid rgba(224,162,76,0.35);
         }
         .alloc-tip .tip-txt {
-            font: 700 .82rem 'Poppins', sans-serif; letter-spacing: .01em; color: #E8DCCB; flex: 1;
+            font: 700 .82rem 'Inter', sans-serif; letter-spacing: .01em; color: #E8DCCB; flex: 1;
         }
         .alloc-tip .tip-txt b { color: #E0A24C; }
         .alloc-tip .tip-ok {
-            font: 800 .7rem 'Poppins', sans-serif; letter-spacing: .1em; text-transform: uppercase;
+            font: 800 .7rem 'Inter', sans-serif; letter-spacing: .1em; text-transform: uppercase;
             background: #E0A24C; color: #1A1714; border: none; border-radius: 7px;
             padding: .45rem .95rem; cursor: pointer; white-space: nowrap;
         }
@@ -1493,13 +1517,13 @@
             border-left: 1px solid rgba(236,226,214,0.09); padding-left: 2rem;
         }
         .week-banner .wk-label { font: 700 0.6rem 'Inter', sans-serif; letter-spacing: 0.22em; text-transform: uppercase; color: #7d746a; margin-bottom: 0.3rem; }
-        .week-banner .wk-time { font: 800 2.1rem 'Poppins', 'Inter', sans-serif; letter-spacing: -0.01em; line-height: 1.1; font-variant-numeric: tabular-nums; color: #F4EEE6; }
+        .week-banner .wk-time { font: 800 2.1rem 'Inter', sans-serif; letter-spacing: -0.01em; line-height: 1.1; font-variant-numeric: tabular-nums; color: #F4EEE6; }
         /* segmented countdown — ticks every second like a real clock */
         .wk-clock { display: flex; align-items: baseline; gap: 0.5rem; }
         .wk-clock span { text-align: center; }
-        .wk-clock b { display: block; font: 800 2.1rem 'Poppins', 'Inter', sans-serif; letter-spacing: 0; line-height: 1.05; color: #F4EEE6; font-variant-numeric: tabular-nums; min-width: 2ch; }
+        .wk-clock b { display: block; font: 800 2.1rem 'Inter', sans-serif; letter-spacing: 0; line-height: 1.05; color: #F4EEE6; font-variant-numeric: tabular-nums; min-width: 2ch; }
         .wk-clock i { display: block; font: 700 0.52rem 'Inter', sans-serif; font-style: normal; letter-spacing: 0.24em; text-transform: uppercase; color: #7d746a; margin-top: 0.2rem; }
-        .wk-clock em { font: 300 1.7rem 'Poppins', sans-serif; font-style: normal; color: rgba(236, 226, 214, 0.22); transform: translateY(-0.25rem); }
+        .wk-clock em { font: 300 1.7rem 'Inter', sans-serif; font-style: normal; color: rgba(236, 226, 214, 0.22); transform: translateY(-0.25rem); }
         .week-banner .wk-sub { font-size: 0.74rem; color: #8a8178; max-width: 460px; margin-top: 0.15rem; }
         @media (max-width: 700px) { .week-banner > div:last-child { border-left: none; padding-left: 0; margin-left: 0; text-align: left; } }
 
@@ -1576,7 +1600,7 @@
         .oc-chip.empty { background: rgba(236, 226, 214, 0.04); color: #4d453e; }
         /* board search row */
         .board-top { display: flex; gap: 0.8rem; align-items: center; margin-bottom: 0.9rem; flex-wrap: wrap; }
-        .board-top h3 { font: 600 1.15rem 'Fraunces', Georgia, serif; margin-right: auto; }
+        .board-top h3 { font: 800 1.15rem 'Inter', system-ui, sans-serif; margin-right: auto; }
         #draftSearch { max-width: 340px; }
         .board-count { font: 600 0.72rem 'Inter', sans-serif; color: #7d746a; }
         #draftSuggestions { grid-template-columns: repeat(auto-fill, minmax(184px, 1fr)) !important; max-height: 520px !important; }
@@ -1658,7 +1682,7 @@
         }
         @keyframes dfxTick { to { stroke-dashoffset: 0; } }
         .dfx-card .dfx-title {
-            font: 600 1.7rem 'Fraunces', Georgia, serif; color: #F4EEE6;
+            font: 800 1.7rem 'Inter', system-ui, sans-serif; color: #F4EEE6;
         }
         .dfx-card .dfx-amount {
             margin-top: 0.55rem;
@@ -1758,7 +1782,7 @@
         }
         .ov-cell:last-child { border-right: none; }
         .ov-k { font: 700 0.64rem 'Inter', sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: #8a8178; }
-        .ov-v { font: 600 1.15rem 'Fraunces', Georgia, serif; color: #F4EEE6; }
+        .ov-v { font: 800 1.15rem 'Inter', system-ui, sans-serif; color: #F4EEE6; }
         .ov-s { font: 500 0.75rem 'Inter', sans-serif; color: #7d746a; }
         .ov-cell.code { flex-direction: row; align-items: center; gap: 0.9rem; }
         .ov-cell.code .ov-k { align-self: center; }
@@ -1779,7 +1803,7 @@
             display: flex; justify-content: space-between; align-items: baseline;
             padding: 1rem 1.3rem 0.75rem; border-bottom: 1px solid rgba(236, 226, 214, 0.1);
         }
-        .pl-head span:first-child { font: 600 1.05rem 'Fraunces', Georgia, serif; color: #F4EEE6; }
+        .pl-head span:first-child { font: 800 1.05rem 'Inter', system-ui, sans-serif; color: #F4EEE6; }
         .pl-count { font: 600 0.78rem 'Inter', sans-serif; color: #8a8178; font-variant-numeric: tabular-nums; }
         .pl-cols, .pl-row {
             display: grid; grid-template-columns: 44px 1.6fr 1fr 0.7fr;
@@ -1848,7 +1872,7 @@
         .tc-vs > .tc-team:first-child { margin-top: 2.45rem; }   /* lines up with the roster under the opponent picker */
         .tc-team { background: #241F1B; border: 1px solid rgba(236, 226, 214, 0.1); padding: 0.95rem 1rem; }
         .tc-team-head { display: flex; align-items: center; gap: 0.55rem; }
-        .tc-team-head b { font: 600 1rem 'Fraunces', Georgia, serif; }
+        .tc-team-head b { font: 800 1rem 'Inter', system-ui, sans-serif; }
         .tc-team-head em { margin-left: auto; font: 700 0.82rem 'Inter', sans-serif; font-style: normal; color: #5CB88A; font-variant-numeric: tabular-nums; }
         .tc-team-sub { font-size: 0.68rem; color: #7d746a; margin: 0.25rem 0 0.7rem; }
         .tc-list { display: flex; flex-direction: column; gap: 0.3rem; }
@@ -1866,7 +1890,7 @@
         .tc-ret.up { color: #5CB88A; } .tc-ret.dn { color: #D9645C; }
 
         .tc-mid { text-align: center; position: sticky; top: 5rem; padding-top: 1.4rem; }
-        .tc-vs-word { font: 550 1.5rem 'Fraunces', Georgia, serif; font-style: italic; color: #7d746a; }
+        .tc-vs-word { font: 800 1.5rem 'Inter', system-ui, sans-serif; font-style: italic; color: #7d746a; }
         .tc-deal { margin: 0.9rem 0; font: 700 0.95rem 'Inter', sans-serif; color: #F4EEE6; min-height: 44px; display: flex; align-items: center; justify-content: center; }
         .tc-deal span { font: 500 0.72rem 'Inter', sans-serif; color: #7d746a; line-height: 1.5; }
         .tc-arrows { color: #E0A24C; margin: 0 0.45rem; }
@@ -1894,7 +1918,7 @@
         .pf-player small { display: block; color: #7d746a; font-size: 0.68rem; font-weight: 500; font-variant-numeric: tabular-nums; }
         .pf-main { background: #241F1B; border: 1px solid rgba(236, 226, 214, 0.1); padding: 1.1rem 1.3rem; min-height: 200px; }
         .pf-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.7rem; }
-        .pf-head b { font: 600 1.1rem 'Fraunces', Georgia, serif; }
+        .pf-head b { font: 800 1.1rem 'Inter', system-ui, sans-serif; }
         .pf-head span { font: 700 0.95rem 'Inter', sans-serif; color: #5CB88A; font-variant-numeric: tabular-nums; }
         .pf-row {
             display: grid; grid-template-columns: 36px 1fr 60px 86px 76px 64px;
@@ -1980,7 +2004,7 @@
     
         /* the countdown caption reads like a game HUD, not a paragraph */
         .week-banner .wk-sub {
-            font: 700 0.74rem 'Poppins', sans-serif !important;
+            font: 700 0.74rem 'Inter', sans-serif !important;
             letter-spacing: 0.13em; text-transform: uppercase;
             color: #C9BEB0; margin-top: 0.45rem;
         }
@@ -2001,15 +2025,15 @@
 
         /* the confirm reads like a league prompt, not a system dialog */
         .ts-box h3 {
-            font: 800 1.5rem 'Poppins', sans-serif !important; letter-spacing: -0.01em;
+            font: 800 1.5rem 'Inter', sans-serif !important; letter-spacing: -0.01em;
             text-transform: none;
         }
         .ts-box .ts-ok {
-            font: 800 0.76rem 'Poppins', sans-serif !important;
+            font: 800 0.76rem 'Inter', sans-serif !important;
             letter-spacing: 0.1em; text-transform: uppercase;
         }
         .ts-box .ts-cancel {
-            font: 700 0.76rem 'Poppins', sans-serif !important;
+            font: 700 0.76rem 'Inter', sans-serif !important;
             letter-spacing: 0.1em; text-transform: uppercase;
         }
 
@@ -2077,14 +2101,14 @@
             text-transform: uppercase; color: #B7ADA1; margin-bottom: 0.5rem;
         }
         .de-amount {
-            font: 800 2.6rem 'Poppins', sans-serif; color: #F4EEE6;
+            font: 800 2.6rem 'Inter', sans-serif; color: #F4EEE6;
             line-height: 1; margin-bottom: 0.45rem; font-variant-numeric: tabular-nums;
         }
         .de-sub { font: 500 0.82rem 'Inter', sans-serif; color: #7d746a; margin-bottom: 1.4rem; }
         .de-next {
             width: 100%; padding: 0.78rem 1rem; border: none; cursor: pointer;
             background: linear-gradient(180deg,#63bf92,#4faa7d); color: #14110E;
-            font: 800 0.76rem 'Poppins', sans-serif; letter-spacing: 0.14em; text-transform: uppercase;
+            font: 800 0.76rem 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase;
         }
         .de-next:hover { filter: brightness(1.07); }
         @media (prefers-reduced-motion: reduce) {
@@ -2122,7 +2146,7 @@
         .lu-go {
             background: linear-gradient(180deg,#63bf92,#4faa7d); color: #14110E; border: none;
             padding: .72rem 1.5rem; border-radius: 9px; cursor: pointer;
-            font: 800 .78rem 'Poppins', sans-serif; letter-spacing: .12em; text-transform: uppercase;
+            font: 800 .78rem 'Inter', sans-serif; letter-spacing: .12em; text-transform: uppercase;
         }
         .lu-go:hover { filter: brightness(1.07); }
         .lu-skip {
@@ -2160,7 +2184,7 @@
             font: 700 0.6rem 'Inter', sans-serif; letter-spacing: 0.18em; text-transform: uppercase;
             color: #E0A24C; margin-bottom: 0.45rem;
         }
-        .tt-title { font: 800 1.05rem 'Poppins', sans-serif; color: #F4EEE6; margin-bottom: 0.4rem; }
+        .tt-title { font: 800 1.05rem 'Inter', sans-serif; color: #F4EEE6; margin-bottom: 0.4rem; }
         .tt-body { font: 400 0.85rem/1.5 'Inter', sans-serif; color: #B7ADA1; margin-bottom: 1rem; }
         .tt-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.7rem; }
         .tt-skip {
@@ -2171,7 +2195,7 @@
         .tt-next {
             background: linear-gradient(180deg,#63bf92,#4faa7d); color: #14110E; border: none;
             padding: .6rem 1.3rem; border-radius: 8px; cursor: pointer;
-            font: 800 .72rem 'Poppins', sans-serif; letter-spacing: .1em; text-transform: uppercase;
+            font: 800 .72rem 'Inter', sans-serif; letter-spacing: .1em; text-transform: uppercase;
         }
         .tt-next:hover { filter: brightness(1.07); }
 
@@ -2194,9 +2218,9 @@
             font: 700 0.62rem 'Inter', sans-serif; letter-spacing: 0.24em;
             text-transform: uppercase; color: #7d746a; margin-bottom: 0.7rem;
         }
-        .wr-verdict { font: 800 1.75rem 'Poppins', sans-serif; color: #F4EEE6; line-height: 1.15; margin-bottom: 0.5rem; }
+        .wr-verdict { font: 800 1.75rem 'Inter', sans-serif; color: #F4EEE6; line-height: 1.15; margin-bottom: 0.5rem; }
         .wr-amt {
-            font: 800 2.5rem 'Poppins', sans-serif; line-height: 1; margin-bottom: 0.7rem;
+            font: 800 2.5rem 'Inter', sans-serif; line-height: 1; margin-bottom: 0.7rem;
             font-variant-numeric: tabular-nums; color: #5CB88A;
         }
         .wr-card.lost .wr-amt { color: #D9645C; }
@@ -2204,7 +2228,7 @@
         .wr-go {
             width: 100%; padding: .8rem 1rem; border: none; cursor: pointer;
             background: linear-gradient(180deg,#63bf92,#4faa7d); color: #14110E;
-            font: 800 .76rem 'Poppins', sans-serif; letter-spacing: .13em; text-transform: uppercase;
+            font: 800 .76rem 'Inter', sans-serif; letter-spacing: .13em; text-transform: uppercase;
         }
         .wr-card.lost .wr-go { background: linear-gradient(180deg,#e0776e,#c9564d); }
         .wr-go:hover { filter: brightness(1.07); }
@@ -2215,7 +2239,7 @@
             flex-wrap: wrap; margin: 0 0 0.9rem; padding: 0.8rem 1rem; border-radius: 10px;
             background: rgba(217,100,92,0.1); border: 1px solid rgba(217,100,92,0.4);
         }
-        .debt-k { font: 800 0.95rem 'Poppins', sans-serif; color: #F4EEE6; }
+        .debt-k { font: 800 0.95rem 'Inter', sans-serif; color: #F4EEE6; }
         .debt-s { font: 400 0.76rem 'Inter', sans-serif; color: #C0938E; margin-top: 0.18rem; max-width: 34rem; }
         .debt-auto {
             background: none; border: 1px solid rgba(217,100,92,0.5); color: #E29A93;
@@ -2225,7 +2249,7 @@
         .debt-done {
             background: linear-gradient(180deg,#e0776e,#c9564d); color: #14110E; border: none;
             padding: .58rem 1.2rem; border-radius: 8px; cursor: pointer;
-            font: 800 .72rem 'Poppins', sans-serif; letter-spacing: .1em; text-transform: uppercase;
+            font: 800 .72rem 'Inter', sans-serif; letter-spacing: .1em; text-transform: uppercase;
         }
         .debt-done:hover { filter: brightness(1.07); }
 
@@ -2250,13 +2274,13 @@
             text-transform: uppercase; color: #8a8178; margin-bottom: 0.9rem;
         }
         .vd-line {
-            position: relative; font: 800 clamp(1.8rem, 4.4vw, 3.1rem) 'Poppins', sans-serif;
+            position: relative; font: 800 clamp(1.8rem, 4.4vw, 3.1rem) 'Inter', sans-serif;
             line-height: 1.1; color: #F4EEE6; margin-bottom: 0.5rem; letter-spacing: -0.015em;
         }
         .vd-line b { color: #5CB88A; }
         .verdict.lost .vd-line b { color: #D9645C; }
         .vd-amt {
-            position: relative; font: 800 1.5rem 'Poppins', sans-serif;
+            position: relative; font: 800 1.5rem 'Inter', sans-serif;
             font-variant-numeric: tabular-nums; color: #5CB88A; margin-bottom: 1.6rem;
         }
         .verdict.lost .vd-amt { color: #D9645C; }
@@ -2264,7 +2288,7 @@
             position: relative; border: none; cursor: pointer;
             padding: .85rem 2rem; border-radius: 10px;
             background: linear-gradient(180deg,#63bf92,#4faa7d); color: #14110E;
-            font: 800 .78rem 'Poppins', sans-serif; letter-spacing: .13em; text-transform: uppercase;
+            font: 800 .78rem 'Inter', sans-serif; letter-spacing: .13em; text-transform: uppercase;
         }
         .verdict.lost .vd-go { background: linear-gradient(180deg,#e0776e,#c9564d); }
         .vd-go:hover { filter: brightness(1.08); }
@@ -2284,7 +2308,7 @@
 
         /* the finish card is a tick and a button now */
         .de-amount {
-            font: 800 1.55rem 'Poppins', sans-serif !important;
+            font: 800 1.55rem 'Inter', sans-serif !important;
             margin-bottom: 1.4rem !important; letter-spacing: -0.01em;
         }
 
@@ -2306,7 +2330,7 @@
             font: 700 0.62rem 'Inter', sans-serif; letter-spacing: 0.24em;
             text-transform: uppercase; color: #5CB88A; margin-bottom: 0.6rem;
         }
-        .tm-hi-title { font: 800 1.55rem 'Poppins', sans-serif; color: #F4EEE6; margin-bottom: 0.6rem; }
+        .tm-hi-title { font: 800 1.55rem 'Inter', sans-serif; color: #F4EEE6; margin-bottom: 0.6rem; }
         .tm-hi-sub {
             font: 400 0.88rem/1.55 'Inter', sans-serif; color: #B7ADA1;
             margin: 0 auto 1.5rem; max-width: 21rem;
@@ -2314,7 +2338,7 @@
         .tm-hi-go {
             width: 100%; padding: .82rem 1rem; border: none; cursor: pointer;
             background: linear-gradient(180deg,#63bf92,#4faa7d); color: #14110E;
-            font: 800 .78rem 'Poppins', sans-serif; letter-spacing: .14em; text-transform: uppercase;
+            font: 800 .78rem 'Inter', sans-serif; letter-spacing: .14em; text-transform: uppercase;
         }
         .tm-hi-go:hover { filter: brightness(1.07); }
 
@@ -2343,7 +2367,7 @@
                 inset 0 1px 0 var(--edge),
                 inset -10px 0 18px -10px rgba(0,0,0,0.55),
                 0 26px 34px -20px rgba(0,0,0,0.9);
-            font: 900 2.05rem 'Poppins', sans-serif !important;
+            font: 900 2.05rem 'Inter', sans-serif !important;
             color: var(--num) !important;
             text-shadow:
                 0 1px 0 var(--num-hi),
@@ -2391,16 +2415,24 @@
 
         /* the plate above each block */
         .pod-name {
-            font: 800 1rem 'Poppins', sans-serif !important; color: #F4EEE6 !important;
+            font: 800 1rem 'Inter', sans-serif !important; color: #F4EEE6 !important;
             letter-spacing: -0.005em;
+            /* The block's ::before draws its 3D top face 13px ABOVE the block,
+               and the block is position:relative and later in the DOM — so it
+               was painting straight over the bottom half of every name. Two
+               fixes, because either alone is fragile: clear the 13px, and
+               stack the plate above the block whatever the geometry does. */
+            margin-bottom: 16px !important;
+            position: relative; z-index: 2;
         }
+        .pod-crown { position: relative; z-index: 2; }
         .pod-cap {
-            font: 800 0.9rem 'Poppins', sans-serif !important; color: #E8DCCB !important;
+            font: 800 0.9rem 'Inter', sans-serif !important; color: #E8DCCB !important;
             font-variant-numeric: tabular-nums;
         }
-        .pod-ret { font: 800 0.74rem 'Poppins', sans-serif !important; letter-spacing: 0.02em; }
+        .pod-ret { font: 800 0.74rem 'Inter', sans-serif !important; letter-spacing: 0.02em; }
         .pod-medal {
-            font: 900 1rem 'Poppins', sans-serif !important;
+            font: 900 1rem 'Inter', sans-serif !important;
             box-shadow: 0 4px 10px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.45) !important;
         }
         .pod-medal.m1 { box-shadow: 0 0 20px rgba(224,162,76,0.55), inset 0 1px 0 rgba(255,255,255,0.6) !important; }
@@ -2422,7 +2454,7 @@
             min-height: 74px;
         }
         .fx-vs span {
-            font: 900 0.82rem 'Poppins', sans-serif; letter-spacing: 0.1em;
+            font: 900 0.82rem 'Inter', sans-serif; letter-spacing: 0.1em;
             color: #E0A24C; text-shadow: 0 2px 6px rgba(0,0,0,0.5);
         }
         .fx-card.bye .fx-vs span { color: #7d746a; }
@@ -2438,13 +2470,13 @@
             display: flex; align-items: center; justify-content: center;
             background: linear-gradient(160deg,#3A342E,#272320);
             border: 1px solid rgba(236,226,214,0.14);
-            font: 800 0.9rem 'Poppins', sans-serif; color: #C9BEB0;
+            font: 800 0.9rem 'Inter', sans-serif; color: #C9BEB0;
         }
         .fx-side.me .fx-av {
             background: linear-gradient(160deg,#4d8f6c,#356b4f); border-color: rgba(92,184,138,0.6); color: #EAF7F0;
         }
         .fx-who { flex: 1; min-width: 0; }
-        .fx-who b { display: block; font: 800 0.98rem 'Poppins', sans-serif; color: #F4EEE6; }
+        .fx-who b { display: block; font: 800 0.98rem 'Inter', sans-serif; color: #F4EEE6; }
         .fx-who i {
             display: block; font-style: normal; margin-top: 1px;
             font: 600 0.68rem 'Inter', sans-serif; color: #7d746a;
@@ -2494,7 +2526,7 @@
             display: flex; flex-direction: column; align-items: flex-end; gap: 0.28rem;
             padding: 1rem 1.05rem; text-align: right; color: #9DB8D2;
         }
-        .fx-bye b { font: 800 0.95rem 'Poppins', sans-serif; color: #C4D3E2; }
+        .fx-bye b { font: 800 0.95rem 'Inter', sans-serif; color: #C4D3E2; }
         .fx-bye i {
             font-style: normal; font: 400 0.74rem/1.45 'Inter', sans-serif;
             color: #7d746a; max-width: 17rem;
@@ -2502,7 +2534,358 @@
         @media (max-width: 720px) {
             .fx-bye { align-items: flex-start; text-align: left; }
         }
-</style>
+
+        /* ============================================================
+         *  GAMIFIED PASS
+         *
+         *  Same layout — sidebar, main column, same sections. What
+         *  changes is the surface language, brought in line with the
+         *  Academy and the practice floor:
+         *
+         *    · slabs with a hard bottom edge that collapses on press,
+         *      so anything clickable physically travels
+         *    · real corner radii (the stat cards were border-radius: 0)
+         *    · the diagonal hatch over the stat cards removed — it was
+         *      texture competing with the number it sat on
+         *    · one accent per state instead of a gradient per card
+         *
+         *  Typeface stays Inter, which is what the rest of the app uses.
+         *  Headings just get the weight they were missing.
+         * ============================================================ */
+
+        /* ── stat cards ─────────────────────────────────────────── */
+        .stats-grid .stat-card {
+            background: #221D19;
+            border: 2px solid rgba(236, 226, 214, 0.10);
+            border-radius: 16px;
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.42);
+            padding: 1.15rem 1.25rem 1.2rem;
+            transition: border-color 0.16s ease, transform 0.14s ease;
+        }
+        /* the 45° hatch was laid over every card; it read as a disabled
+           state more than as texture */
+        .stats-grid .stat-card::before { display: none !important; }
+        .stats-grid .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(92, 184, 138, 0.45);
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.42);
+        }
+        .stats-grid .stat-card.accent {
+            background: #221D19;
+            border-color: rgba(224, 162, 76, 0.42);
+            box-shadow: 0 5px 0 rgba(122, 84, 30, 0.55);
+        }
+        .stats-grid .stat-card.accent:hover { border-color: rgba(224, 162, 76, 0.75); }
+        .stats-grid .stat-label {
+            font: 700 0.6rem 'Inter', sans-serif; letter-spacing: 0.15em;
+            text-transform: uppercase; color: #7d746a;
+        }
+        .stats-grid .stat-value {
+            font: 800 1.75rem 'Inter', sans-serif; letter-spacing: -0.025em;
+            font-variant-numeric: tabular-nums; color: #F4EEE6;
+        }
+        .stats-grid .stat-card.accent .stat-value { color: #E0A24C; }
+
+        /* ── sidebar ─────────────────────────────────────────────
+           The active tab becomes a solid block rather than a tinted
+           row with a 3px rail — it should read as the thing you are
+           standing on. */
+        .sidebar-tabs { padding: 0.6rem 0.55rem; gap: 0.15rem; }
+        .sidebar-tab {
+            border-radius: 12px;
+            border-left: none !important;
+            padding: 0.8rem 0.9rem;
+            font: 700 0.88rem 'Inter', sans-serif;
+            position: relative; top: 0;
+        }
+        .sidebar-tab:hover { background: rgba(236, 226, 214, 0.05); }
+        .sidebar-tab.active {
+            background: #5CB88A;
+            color: #0C1A13;
+            box-shadow: 0 3px 0 #3E8C65;
+            font-weight: 800;
+        }
+        .sidebar-tab.active:hover { background: #5CB88A; color: #0C1A13; }
+        .sidebar-tab.active i { color: #0C1A13; }
+
+        /* ── buttons ─────────────────────────────────────────────── */
+        .btn-primary, .btn-secondary {
+            border-radius: 12px;
+            font: 800 0.8rem 'Inter', sans-serif;
+            letter-spacing: 0.04em;
+            position: relative; top: 0;
+            transition: filter 0.15s ease, transform 0.07s ease, box-shadow 0.07s ease,
+                        background 0.15s ease, border-color 0.15s ease;
+        }
+        .btn-primary  { box-shadow: 0 4px 0 #3E8C65; }
+        .btn-secondary { box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35); }
+        .btn-primary:hover  { filter: brightness(1.07); transform: none; }
+        .btn-primary:active  { top: 4px; box-shadow: 0 0 0 #3E8C65; }
+        .btn-secondary:active { top: 4px; box-shadow: 0 0 0 rgba(0, 0, 0, 0.35); }
+
+        /* ── section headings ───────────────────────────────────── */
+        .section-title, .featured-matchups-title {
+            font-weight: 800 !important;
+            letter-spacing: -0.02em;
+        }
+
+        /* ── matchup cards ──────────────────────────────────────── */
+        .matchups-grid .matchup-item,
+        .matchups-list .matchup-item {
+            border-radius: 16px;
+            border: 2px solid rgba(236, 226, 214, 0.10);
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.4);
+            transition: border-color 0.16s ease, transform 0.14s ease, box-shadow 0.14s ease;
+        }
+        .matchups-grid .matchup-item:hover,
+        .matchups-list .matchup-item:hover {
+            transform: translateY(-3px);
+            border-color: rgba(92, 184, 138, 0.4);
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.4);
+        }
+        .matchup-player-value { font-weight: 800; font-variant-numeric: tabular-nums; }
+
+        /* ── player cards ───────────────────────────────────────── */
+        .player-card {
+            border-radius: 16px;
+            border: 2px solid rgba(236, 226, 214, 0.10);
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.4);
+            transition: border-color 0.16s ease, transform 0.14s ease, box-shadow 0.14s ease;
+        }
+        .player-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(92, 184, 138, 0.4);
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .stats-grid .stat-card:hover,
+            .matchup-item:hover, .player-card:hover { transform: none; }
+        }
+
+        /* ── daily close: today's head-to-head on the overview ── */
+        .dc-card {
+            background: #221E1A; border: 1px solid rgba(236, 226, 214, 0.1); border-left: 3px solid #7d746a;
+            padding: 1rem 1.3rem; margin-bottom: 1.2rem;
+        }
+        .dc-card.up { border-left-color: #5CB88A; }
+        .dc-card.down { border-left-color: #D9645C; }
+        .dc-card.tie { border-left-color: #E0A24C; }
+        .dc-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: 0.55rem; }
+        .dc-k { font: 700 0.62rem 'Inter', sans-serif; letter-spacing: 0.22em; text-transform: uppercase; color: #8a8178; }
+        .dc-verdict { font: 800 0.72rem 'Inter', sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #B7ADA1; }
+        .dc-card.up .dc-verdict { color: #5CB88A; }
+        .dc-card.down .dc-verdict { color: #D9645C; }
+        .dc-card.tie .dc-verdict { color: #E0A24C; }
+        .dc-nums { display: flex; align-items: center; gap: 1.2rem; }
+        .dc-side b { display: block; font: 800 1.6rem 'Inter', sans-serif; color: #F4EEE6; font-variant-numeric: tabular-nums; line-height: 1.1; }
+        .dc-side i { display: block; font: 600 0.68rem 'Inter', sans-serif; font-style: normal; color: #7d746a; margin-top: 0.15rem; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+        .dc-side.right { margin-left: auto; text-align: right; }
+        .dc-card.up .dc-side:not(.right) b { color: #5CB88A; }
+        .dc-card.down .dc-side:not(.right) b { color: #D9645C; }
+        .dc-vs { font: 300 1.1rem 'Inter', sans-serif; color: rgba(236, 226, 214, 0.25); }
+        .dc-note { font: 500 0.7rem 'Inter', sans-serif; color: #7d746a; margin-top: 0.6rem; }
+        /* the same two figures on my matchup card */
+        .dc-line { margin-top: 0.7rem; font: 600 0.8rem 'Inter', sans-serif; color: #B7ADA1; font-variant-numeric: tabular-nums; }
+        .dc-line-k { color: #7d746a; }
+        .dc-line b { color: #F4EEE6; }
+        .dc-line b.up { color: #5CB88A; }
+        .dc-line b.down { color: #D9645C; }
+        .dc-line-n { margin-left: 0.6rem; font-size: 0.66rem; color: #7d746a; letter-spacing: 0.08em; text-transform: uppercase; }
+
+        /* ── weekly loser title chip (overview list + leaderboard) ── */
+        .pl-loser {
+            font-style: normal; color: #D9645C; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; margin-left: 0.5rem; border: 1px solid rgba(217, 100, 92, 0.45);
+            background: rgba(217, 100, 92, 0.1); padding: 0.1rem 0.4rem; vertical-align: middle; white-space: nowrap;
+        }
+
+        /* ── share week card buttons ── */
+        .wr-share {
+            width: 100%; margin-top: 0.55rem; padding: 0.7rem 1rem; cursor: pointer;
+            background: transparent; color: #B7ADA1; border: 1px solid rgba(236, 226, 214, 0.18);
+            font: 700 0.72rem 'Inter', sans-serif; letter-spacing: 0.12em; text-transform: uppercase;
+        }
+        .wr-share:hover { color: #F4EEE6; border-color: rgba(236, 226, 214, 0.4); }
+        .wr-share i { margin-right: 0.35rem; }
+        .verdict .vd-share { width: auto; margin: 0 0 0 0.6rem; padding: 0.85rem 1.4rem; border-radius: 10px; vertical-align: middle; position: relative; }
+        .wk-share { color: #E0A24C; font-weight: 700; margin-left: 0.5rem; text-decoration: none; }
+        .wk-share:hover { text-decoration: underline; }
+
+        /* ── draft as an event: countdown card and live pick feed ── */
+        .dcount {
+            display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+            width: 100%; margin: 0.4rem 0 1.1rem; padding: 1.1rem 1.2rem 1rem;
+            background: rgba(224, 162, 76, 0.06); border: 1px solid rgba(224, 162, 76, 0.28);
+        }
+        .dcount.now { background: rgba(92, 184, 138, 0.07); border-color: rgba(92, 184, 138, 0.4); }
+        .dcount-k { font: 700 0.62rem 'Inter', sans-serif; letter-spacing: 0.24em; text-transform: uppercase; color: #E0A24C; }
+        .dcount.now .dcount-k { color: #5CB88A; }
+        .dcount .wk-clock { margin: 0.2rem 0 0.1rem; }
+        .dcount-big { font: 800 1.5rem 'Inter', sans-serif; color: #F4EEE6; }
+        .dcount-when { font: 500 0.78rem 'Inter', sans-serif; color: #B7ADA1; text-align: center; }
+        .draft-feed {
+            margin-top: 1.25rem; background: #201C18; border: 1px solid rgba(236, 226, 214, 0.1);
+            padding: 1rem 1.2rem; max-height: 320px; overflow-y: auto;
+        }
+        .feed-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
+        .feed-head span:first-child { font: 800 0.95rem 'Inter', sans-serif; color: #F4EEE6; }
+        .feed-live { font: 700 0.58rem 'Inter', sans-serif; letter-spacing: 0.18em; text-transform: uppercase; color: #D9645C; }
+        .feed-live::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #D9645C; margin-right: 0.35rem; vertical-align: middle; animation: clockPulse 1.4s ease-in-out infinite; }
+        .feed-row { padding: 0.45rem 0; border-bottom: 1px solid rgba(236, 226, 214, 0.06); font: 500 0.84rem 'Inter', sans-serif; color: #B7ADA1; display: flex; align-items: baseline; gap: 0.35rem; }
+        .feed-row:last-child { border-bottom: none; }
+        .feed-row b { color: #5CB88A; }
+        .feed-row.me .feed-who { color: #E0A24C; }
+        .feed-row.fresh { animation: rosterPop 0.6s ease; }
+        .feed-who { font-weight: 700; color: #F4EEE6; }
+        .feed-meta { margin-left: auto; font: 700 0.62rem 'Inter', sans-serif; color: #7d746a; letter-spacing: 0.08em; white-space: nowrap; }
+        .feed-empty { font: 500 0.8rem 'Inter', sans-serif; color: #7d746a; }
+        /* the chip a pick lands on lights up for a moment */
+        .oc-chip.fresh { background: rgba(92, 184, 138, 0.35); color: #F4EEE6; box-shadow: 0 0 0 1px rgba(92, 184, 138, 0.8); animation: rosterPop 0.6s ease; }
+
+        /* ============================================================
+         *  LEAGUE ROOM — game skin.
+         *  Condensed italic headings like the rest of the app, a menu of
+         *  tabs, a head-to-head scoreboard, ranked medals. Styling only:
+         *  every number here is computed by the code above.
+         * ============================================================ */
+        body { background: radial-gradient(ellipse 60% 40% at 50% -5%, rgba(92,184,138,0.10), transparent 70%), #14100E !important; }
+        .league-header { background: rgba(14,11,9,0.9) !important; backdrop-filter: blur(8px); border-bottom: 1px solid rgba(244,238,230,0.08) !important; }
+        .ft-logo-container { display: none !important; }
+        .league-info { position: relative; }
+        .league-info::before { content: 'League'; display: block; font: 800 0.72rem 'Barlow Condensed', sans-serif; font-style: italic; letter-spacing: 0.22em; text-transform: uppercase; color: #F0B865; }
+        .league-name { font: 900 2rem/1 'Barlow Condensed', sans-serif !important; font-style: italic !important; text-transform: uppercase; letter-spacing: 0.01em !important; color: #F4EEE6 !important; }
+        .header-actions .btn { border-radius: 0 !important; transform: skewX(-12deg); font: 900 1rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; text-transform: uppercase; letter-spacing: 0.04em; }
+        .header-actions .btn > * { display: inline-block; transform: skewX(12deg); }
+        .header-actions .btn-primary { background: #5CB88A !important; color: #0E0B09 !important; box-shadow: 0 4px 0 #2F6B4C !important; }
+
+        /* the tab menu */
+        .sidebar-tabs { background: rgba(14,11,9,0.6) !important; border-right: 1px solid rgba(244,238,230,0.06) !important; }
+        .sidebar-tab { border-radius: 0 !important; transform: skewX(-10deg); margin: 0.2rem 0.7rem !important; background: transparent !important;
+            font: 800 1.12rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; text-transform: uppercase; letter-spacing: 0.03em; color: rgba(244,238,230,0.7) !important;
+            transition: background 0.14s ease, color 0.14s ease, transform 0.14s ease !important; }
+        .sidebar-tab > * { transform: skewX(10deg); }
+        .sidebar-tab:hover { background: rgba(244,238,230,0.06) !important; color: #F4EEE6 !important; transform: skewX(-10deg) translateX(3px); }
+        .sidebar-tab.active { background: #5CB88A !important; color: #0E0B09 !important; box-shadow: 0 3px 0 #2F6B4C; }
+        .sidebar-tab.active i { color: #0E0B09 !important; }
+
+        .section-title { font: 900 2rem/1 'Barlow Condensed', sans-serif !important; font-style: italic !important; text-transform: uppercase; letter-spacing: 0.01em !important; }
+        .section-title i { color: #F0B865; font-size: 0.8em; }
+        .stat-card { border-radius: 14px !important; border-left: 4px solid #5CB88A !important; }
+        .stat-card:nth-child(2) { border-left-color: #F0B865 !important; }
+        .stat-card .stat-value { font: 800 2rem/1 'Barlow Condensed', sans-serif !important; font-style: italic !important; }
+
+        /* the clock strip */
+        .ov-strip { border-radius: 14px !important; }
+        .ov-k { font: 800 0.8rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; letter-spacing: 0.14em !important; color: #F0B865 !important; }
+        .ov-code { font: 900 1.5rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; letter-spacing: 0.18em !important; }
+
+        /* today's head-to-head: a scoreboard */
+        .dc-card { position: relative; overflow: hidden; border-radius: 16px !important; padding: 1.1rem 1.4rem !important;
+            background: linear-gradient(90deg, rgba(92,184,138,0.14), rgba(30,26,22,0.95) 40%, rgba(30,26,22,0.95) 60%, rgba(224,162,76,0.14)) !important;
+            border: 1px solid rgba(244,238,230,0.1) !important; border-bottom: 4px solid rgba(0,0,0,0.35) !important; }
+        .dc-card .dc-k { font: 800 0.85rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; letter-spacing: 0.16em !important; text-transform: uppercase; }
+        .dc-card .dc-verdict { padding: 0.2rem 0.7rem; transform: skewX(-12deg); font: 900 0.95rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; text-transform: uppercase; letter-spacing: 0.06em; background: rgba(244,238,230,0.08); }
+        .dc-card.up .dc-verdict { background: #5CB88A; color: #0E0B09 !important; }
+        .dc-card.down .dc-verdict { background: #D9645C; color: #0E0B09 !important; }
+        .dc-nums { justify-content: center; }
+        .dc-side { flex: 1; min-width: 0; }
+        .dc-side.right i { margin-left: auto; }
+        .dc-side b { font: 900 3rem/1 'Barlow Condensed', sans-serif !important; font-style: italic !important; }
+        .dc-side i { font: 800 0.8rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; letter-spacing: 0.14em !important; color: rgba(244,238,230,0.6) !important; }
+        .dc-vs { flex: 0 0 auto; width: 58px; height: 58px; display: grid; place-items: center; transform: skewX(-12deg);
+            background: linear-gradient(135deg, #5CB88A 0 50%, #E0A24C 50% 100%); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+            font: 900 1.4rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; color: #0E0B09 !important; text-transform: uppercase; }
+
+        /* members: ranked, with medals for the top three */
+        .pl-panel { border-radius: 16px !important; }
+        .pl-head span:first-child { font: 900 1.4rem 'Barlow Condensed', sans-serif; font-style: italic; text-transform: uppercase; }
+        .pl-rank { display: inline-grid; place-items: center; width: 28px; height: 28px; transform: skewX(-10deg);
+            font: 900 1rem 'Barlow Condensed', sans-serif !important; font-style: italic; background: rgba(244,238,230,0.06); color: rgba(244,238,230,0.7) !important; }
+          .pl-row.r1 .pl-rank { background: #F0C674; color: #1B1207 !important; }
+        .pl-row.r2 .pl-rank { background: #C9D1D8; color: #16191C !important; }
+        .pl-row.r3 .pl-rank { background: #C98A5B; color: #1B0F07 !important; }
+        .pl-name { font: 800 1.05rem 'Barlow Condensed', sans-serif !important; font-style: italic; text-transform: uppercase; letter-spacing: 0.02em; }
+        .pl-val, .pl-ret { font-variant-numeric: tabular-nums; }
+        .pl-ret { font-weight: 800 !important; }
+        .pl-row.me { background: linear-gradient(90deg, rgba(92,184,138,0.14), transparent 70%) !important; }
+
+        /* leaderboard + other tables */
+        .leaderboard-table th { font: 800 0.78rem 'Barlow Condensed', sans-serif !important; font-style: italic; letter-spacing: 0.14em !important; }
+        .leaderboard-table td:nth-child(2) { font-weight: 700; }
+        .pod-name { font: 900 1.1rem 'Barlow Condensed', sans-serif !important; font-style: italic; text-transform: uppercase; }
+        .pod-block { font-family: 'Barlow Condensed', sans-serif !important; font-style: italic !important; }
+
+        /* ── Team Manager: parts behind a tab bar ── */
+        .tmx-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.1rem; flex-wrap: wrap; }
+        .tmx-tab { padding: 0.5rem 1.2rem; transform: skewX(-12deg); cursor: pointer; background: rgba(244,238,230,0.05); border: 1px solid rgba(244,238,230,0.14); color: rgba(244,238,230,0.75); }
+        .tmx-tab span { display: inline-flex; align-items: center; gap: 0.45rem; transform: skewX(12deg); font: 900 1.15rem 'Barlow Condensed', sans-serif; font-style: italic; text-transform: uppercase; letter-spacing: 0.03em; }
+        .tmx-tab i { font: 800 0.72rem 'Inter', sans-serif; font-style: normal; padding: 0 0.4rem; background: rgba(244,238,230,0.12); border-radius: 3px; }
+        .tmx-tab:hover { color: #F4EEE6; border-color: rgba(244,238,230,0.3); }
+        .tmx-tab.on { background: #F0B865; border-color: #F0B865; color: #120E0B; box-shadow: 0 3px 0 #8A5E24; }
+        .tmx-tab.on i { background: rgba(0,0,0,0.15); }
+        .tmx-part { display: none; animation: tmxIn 0.3s cubic-bezier(0.2,0.9,0.3,1) both; }
+        .tmx[data-part="overview"] .tmx-part[data-p="overview"], .tmx[data-part="lineup"] .tmx-part[data-p="lineup"],
+        .tmx[data-part="trade"] .tmx-part[data-p="trade"], .tmx[data-part="capital"] .tmx-part[data-p="capital"] { display: block; }
+        @keyframes tmxIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        .tmx-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 12px; }
+        .tmx-stat { padding: 0.9rem 1rem; border-radius: 12px; background: linear-gradient(160deg, rgba(42,36,30,0.96), rgba(24,20,17,0.96));
+            border: 1px solid rgba(244,238,230,0.08); border-left: 4px solid #9A8F84; }
+        .tmx-stat.up { border-left-color: #5CB88A; } .tmx-stat.down { border-left-color: #D9645C; }
+        .tmx-stat span { display: block; font: 800 0.66rem 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244,238,230,0.5); }
+        .tmx-stat b { display: block; margin-top: 4px; font: 900 2rem/1 'Barlow Condensed', sans-serif; font-style: italic; font-variant-numeric: tabular-nums; }
+        .tmx-stat.up b { color: #7BD3A6; } .tmx-stat.down b { color: #E8867F; }
+        .tmx-panel { padding: 1rem 1.2rem; margin-bottom: 12px; border-radius: 14px; background: rgba(30,26,22,0.9); border: 1px solid rgba(244,238,230,0.08); }
+        .tmx-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
+        .tmx-panel-head h4 { margin: 0; font: 900 1.3rem 'Barlow Condensed', sans-serif; font-style: italic; text-transform: uppercase; }
+        .tmx-actions { display: flex; gap: 0.5rem; }
+        .tmx-btn { padding: 0.45rem 1rem; transform: skewX(-12deg); cursor: pointer; background: rgba(244,238,230,0.06); border: 1px solid rgba(244,238,230,0.2); color: #F4EEE6; }
+        .tmx-btn span { display: inline-block; transform: skewX(12deg); font: 900 1rem 'Barlow Condensed', sans-serif; font-style: italic; text-transform: uppercase; }
+        .tmx-btn:hover { border-color: #F0B865; color: #F0B865; }
+        .tmx-lock { padding: 0.35rem 0.8rem; transform: skewX(-12deg); display: inline-block; font: 800 0.72rem 'Inter', sans-serif; color: rgba(244,238,230,0.6); border: 1px dashed rgba(244,238,230,0.2); }
+        .tmx .tm-card { border-radius: 14px !important; background: linear-gradient(160deg, rgba(42,36,30,0.96), rgba(22,18,15,0.96)) !important;
+            border: 1px solid rgba(244,238,230,0.09) !important; border-bottom: 4px solid #2F6B4C !important; }
+        .tmx .tm-benched .tm-card { border-bottom-color: #3A332C !important; opacity: 0.75; }
+        .tmx .tm-sym { font: 900 1.35rem 'Barlow Condensed', sans-serif !important; font-style: italic; }
+        .tmx .tm-btn { border-radius: 0 !important; transform: skewX(-12deg); font: 900 0.95rem 'Barlow Condensed', sans-serif !important; font-style: italic; text-transform: uppercase; }
+        .team-step b { font: 900 1.05rem 'Barlow Condensed', sans-serif !important; font-style: italic; text-transform: uppercase; }
+
+        /* ── the podium: three player cards on steps ── */
+        .lbx { display: grid; grid-template-columns: 1fr 1.15fr 1fr; align-items: end; gap: 14px; max-width: 760px; margin: 0.5rem auto 1.6rem; }
+        .lbx-p { position: relative; text-align: center; padding: 1.1rem 0.8rem 0; border-radius: 16px 16px 0 0; overflow: hidden;
+            background: linear-gradient(180deg, color-mix(in srgb, var(--m) 18%, rgba(30,26,22,0.95)), rgba(22,18,15,0.96)); border: 1px solid color-mix(in srgb, var(--m) 40%, transparent); border-bottom: 0; }
+        .lbx-p.r1 { --m: #F0C674; } .lbx-p.r2 { --m: #C9D1D8; } .lbx-p.r3 { --m: #C98A5B; }
+        .lbx-p.vacant { --m: #3A332C; opacity: 0.6; }
+        .lbx-crown { height: 22px; }
+        .lbx-av { display: grid; place-items: center; margin: 0.2rem auto 0.4rem; }
+        .lbx-name { font: 900 1.3rem/1.05 'Barlow Condensed', sans-serif; font-style: italic; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .lbx-ret { margin-top: 2px; font: 800 0.9rem 'Inter', sans-serif; font-variant-numeric: tabular-nums; color: rgba(244,238,230,0.75); }
+        .lbx-ret.up { color: #7BD3A6; } .lbx-ret.down { color: #E8867F; }
+        .lbx-step { margin: 0.8rem -0.8rem 0; display: grid; place-items: center; background: var(--m); color: #120E0B;
+            font: 900 2.6rem/1 'Barlow Condensed', sans-serif; font-style: italic; }
+        .lbx-p.r1 .lbx-step { height: 96px; } .lbx-p.r2 .lbx-step { height: 66px; } .lbx-p.r3 .lbx-step { height: 46px; }
+        .lbx-p.vacant .lbx-step { color: rgba(244,238,230,0.3); }
+        @media (max-width: 640px) { .lbx { gap: 6px; } .lbx-name { font-size: 1rem; } .lbx-step { font-size: 1.8rem; } }
+
+        /* less subtext: labels and numbers carry it */
+        .week-banner .wk-sub, .dc-note, .ov-s, .stat-change { display: none !important; }
+        .week-banner .wk-sub:first-letter { text-transform: uppercase; }
+        .pl-name { display: flex; align-items: center; gap: 0.55rem; }
+        .pl-av { display: inline-grid; place-items: center; width: 30px; height: 31px; flex-shrink: 0; font-style: normal; }
+
+        /* capital allocator in the Capital tab */
+        .cap-alloc .cap-read { font: 700 0.8rem 'Inter', sans-serif; color: rgba(244,238,230,0.6); }
+        .cap-alloc .cap-read b { font: 900 1.15rem 'Barlow Condensed', sans-serif; font-style: italic; color: #F4EEE6; }
+        .cap-alloc #allocLeft { color: #7BD3A6; }
+        .cap-alloc .cap-bar { margin-bottom: 0.8rem; }
+        .cap-alloc .lineup-row .sym { font: 900 1.15rem 'Barlow Condensed', sans-serif; font-style: italic; }
+        .cap-alloc.locked .lineup-row:not(.head) { opacity: 0.6; }
+        .cap-alloc.locked input { cursor: not-allowed; }
+    </style>
+    <script src="js/ft-back.js?v=2"></script>
+    <script src="js/ft-progression.js"></script>
+    <script src="js/ft-bull.js?v=6"></script>
+    <script src="js/ft-avatar.js?v=5"></script>
 </head>
 <body>
     <!-- Header -->
@@ -2519,7 +2902,7 @@
                 </div>
             </div>
             <div class="header-actions">
-                <a href="league.html" class="btn btn-secondary">
+                <a href="league.html" class="btn btn-secondary" data-back>
                     <i class="fas fa-arrow-left"></i> Back
                 </a>
                 <button class="btn btn-primary" id="enterDraftBtn" onclick="enterDraft()">
@@ -2543,7 +2926,7 @@
             </button>
             <button class="sidebar-tab" onclick="switchSection('team')">
                 <i class="fas fa-user-shield"></i>
-                <span>Your Team</span>
+                <span>Team Manager</span>
             </button>
             <button class="sidebar-tab" onclick="switchSection('leaderboard')">
                 <i class="fas fa-trophy"></i>
@@ -2667,6 +3050,7 @@
                             <div id="draftSuggestions" style="max-height:460px; overflow-y:auto; display:grid; grid-template-columns:1fr 1fr; gap:.45rem;"></div>
                         </div>
                     </div>
+                    <aside id="draftFeed" class="draft-feed" hidden></aside>
                 </div>
             </div>
 
@@ -2674,7 +3058,7 @@
             <div id="team" class="content-section">
                 <h2 class="section-title" style="margin-bottom:1.25rem;">
                     <i class="fas fa-user-shield"></i>
-                    Your Team
+                    Team Manager
                 </h2>
                 <div id="teamRoot"></div>
             </div>
@@ -2698,6 +3082,7 @@
                                 <th>Player</th>
                                 <th>Capital</th>
                                 <th>Return</th>
+                                <th class="lb-ac-col" title="Daily Academy question: correct answers, and the current streak">Academy</th>
                                 <th style="text-align:right;"></th></tr>
                         </thead>
                         <tbody id="leaderboardBody">
@@ -3126,6 +3511,11 @@
                         <td class="change-cell ${changeClass}" style="text-align: right;">
                             ${changeSign}$${Math.abs(player.change).toLocaleString()} (${changeSign}${player.changePercent}%)
                         </td>
+                        <!-- The sample players have no Academy score and are not
+                             getting an invented one: a made-up number in a column
+                             that is real everywhere else is the exact thing that
+                             makes the rest of the table untrustworthy. -->
+                        <td class="lb-ac-col"><span class="lb-ac-none">&mdash;</span></td>
                         <td class="top-stock-cell" style="text-align: right;">
                             ${player.topStocks[0].symbol} ${changeSign}${player.topStocks[0].change}%
                         </td>
@@ -3488,12 +3878,41 @@
         //  this page's design, driving the #draft section.
         // ============================================================
         const DRAFT = { id: new URLSearchParams(location.search).get('league'), me:null,
-                        league:null, members:[], picks:[], prices:{}, universe:[], booted:false };
+                        league:null, members:[], picks:[], prices:{}, universe:[], booted:false,
+                        weeks:[], allWeeks:[], daily:null, toasted:new Set() };
 
         function draftName(uid){
             const m = DRAFT.members.find(x=>x.user_id===uid);
             const p = m && m.profiles;
             return (p && (p.full_name || p.username)) || (uid===(DRAFT.me&&DRAFT.me.id)?'You':'Player');
+        }
+        // Names come from user profiles, so anything we build into markup goes through this.
+        function escHtml(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        /* ── titles and records from settled weeks ──
+           league_weeks rows with debt_status 'none' are draws with an
+           arbitrary winner/loser, so they never count as a result. */
+        function settledWeeks() {
+            return (DRAFT.allWeeks || []).filter(r => r && r.debt_status !== 'none');
+        }
+        // 'weekly loser' while the most recent settled week involving uid was a loss.
+        function playerTitle(uid) {
+            if (!uid) return null;
+            const rows = settledWeeks()
+                .filter(r => r.winner_id === uid || r.loser_id === uid)
+                .sort((a, b) => Number(b.week) - Number(a.week));
+            if (!rows.length) return null;
+            return rows[0].loser_id === uid ? 'weekly loser' : null;
+        }
+        function playerRecord(uid) {
+            let w = 0, l = 0;
+            settledWeeks().forEach(r => { if (r.winner_id === uid) w++; else if (r.loser_id === uid) l++; });
+            return { w, l };
+        }
+        function loserChip(uid) {
+            return playerTitle(uid) ? '<i class="pl-loser">weekly loser</i>' : '';
         }
 
         async function draftBoot(){
@@ -3539,7 +3958,21 @@
                 DRAFT.filter.cap = b.dataset.cap; renderDraftSidebar();
             });
             await draftRefresh();
-            SL.subscribeLeague(DRAFT.id, () => draftRefresh());
+            // Supabase hands the change payload straight to the callback:
+            // {table, eventType, new, old}. A fresh pick announces itself to
+            // everyone in the room before the full reload lands.
+            SL.subscribeLeague(DRAFT.id, (p) => {
+                try {
+                    if (p && p.table === 'league_picks' && p.eventType === 'INSERT' && p.new && p.new.symbol) {
+                        if (!DRAFT.picks.some(x => x.symbol === p.new.symbol)) DRAFT.picks.push(p.new);
+                        DRAFT.freshPick = p.new.symbol;
+                        const mine = p.new.user_id === (DRAFT.me || {}).id;
+                        draftToast(p.new.symbol, mine ? null : draftName(p.new.user_id));
+                        renderDraftFeed();
+                    }
+                } catch (e) {}
+                draftRefresh();
+            });
             DRAFT.booted = true;
         }
 
@@ -3578,6 +4011,31 @@
                     ]);
                 } catch (e) { console.warn('settle', e); }
             }
+            // Every settled week in the league: titles, W–L records, share cards.
+            DRAFT.allWeeks = await SL.allWeekResults(DRAFT.id).catch(() => []);
+
+            // Daily close: record what every lineup is worth right now so today's
+            // head-to-head can be scored against the first value seen this ET day.
+            DRAFT.daily = null;
+            if (window.FTDaily && DRAFT.league && DRAFT.league.status === 'active') {
+                try {
+                    const wk = FTDaily.weekOf(DRAFT.league, DRAFT.picks);
+                    const vals = {};
+                    (DRAFT.members || []).forEach(m => {
+                        // a value built on a stale or missing quote would poison the
+                        // day's base, so only fully-priced lineups are recorded
+                        if (!FTDaily.fresh(m.user_id, DRAFT.picks, DRAFT.prices)) return;
+                        const v = FTDaily.lineupValue(m.user_id, DRAFT.picks, DRAFT.prices, cashOf(m));
+                        if (v != null) vals[m.user_id] = v;
+                    });
+                    FTDaily.snapshot(DRAFT.id, vals);
+                    if (FTDaily.isAfterClose()) FTDaily.close(DRAFT.id);
+                    const meId = (DRAFT.me || {}).id;
+                    const oppId = FTDaily.opponentOf(DRAFT.league.draft_order, wk.week, meId);
+                    DRAFT.daily = { week: wk.week, phase: wk.phase, oppId,
+                                    result: oppId ? FTDaily.result(DRAFT.id, meId, oppId) : null };
+                } catch (e) { console.warn('daily', e); }
+            }
 
             // Header reflects the real league
             const nm = document.getElementById('leagueName'); if (nm) nm.textContent = DRAFT.league.name;
@@ -3591,6 +4049,7 @@
             safely(startQuotePump, 'quotePump');   // price the entire board in the background
             safely(renderRealLeaderboard, 'leaderboard');
             safely(renderOverviewExtras, 'overview');
+            safely(renderDraftFeed, 'draftFeed');
             try {
                 const tr = await SL.client.from('league_trades').select('*').eq('league_id', DRAFT.id).eq('status', 'pending');
                 DRAFT.trades = tr.data || [];
@@ -3656,7 +4115,7 @@
             const [stTitle, stSub] = statusMap[L.status] || ['—', ''];
 
             let standings = [];
-            try { standings = await SL.leagueStandings(DRAFT.id); } catch (e) {}
+            try { standings = liveStandings(await SL.leagueStandings(DRAFT.id)); } catch (e) {}
             const inPrep = L.status === 'active' && weekInfo().prep;
             const valueOf = uid => {
                 // Before the season is live, everyone is exactly at starting capital.
@@ -3683,6 +4142,9 @@
             // The overview headline is the same segmented clock the matchups tab
             // uses, so both screens agree on how long is left.
             function ovClock() {
+                if (L.status === 'lobby' && draftAt && draftAt > Date.now()) {
+                    return { label: 'Draft starts in', html: wkClockHtml(draftAt), sub: draftLine };
+                }
                 if (L.status !== 'active') return { label: 'Status', html: '<span class="ov-v">' + stTitle + '</span>', sub: stSub };
                 const w = weekInfo();
                 if (w.over) return {
@@ -3699,9 +4161,8 @@
 
             // Rank members like a real standings table
             const ranked = DRAFT.members.slice().sort((a, b) => {
-                const va = (standings.find(x => x.user_id === a.user_id) || {}).value || 0;
-                const vb = (standings.find(x => x.user_id === b.user_id) || {}).value || 0;
-                return vb - va;
+                const sa = standings.find(x => x.user_id === a.user_id) || {}, sb = standings.find(x => x.user_id === b.user_id) || {};
+                return (Number(sb.returnPct) || 0) - (Number(sa.returnPct) || 0);
             });
             box.innerHTML = `
                 <div class="ov-strip">
@@ -3734,9 +4195,9 @@
                         const nm = draftName(m.user_id);
                         const s = standings.find(x => x.user_id === m.user_id) || {};
                         const p = s.returnPct;
-                        return `<div class="pl-row ${isMe ? 'me' : ''}">
+                        return `<div class="pl-row ${isMe ? 'me' : ''} ${L.status === 'active' && i < 3 ? 'r' + (i + 1) : ''}">
                             <span class="pl-rank">${L.status === 'active' ? i + 1 : 1}</span>
-                            <span class="pl-name">${nm}${isMe ? '<em>you</em>' : ''}${isHost ? '<i class="pl-host">host</i>' : ''}</span>
+                            <span class="pl-name"><i class="pl-av">${avatarFor(m.user_id, 30)}</i>${nm}${isMe ? '<em>you</em>' : ''}${isHost ? '<i class="pl-host">host</i>' : ''}${loserChip(m.user_id)}</span>
                             <span class="pl-val">${valueOf(m.user_id)}</span>
                             <span class="pl-ret ${p == null || L.status === 'lobby' ? '' : (p >= 0 ? 'up' : 'down')}">${p == null || L.status === 'lobby' ? '—' : (p >= 0 ? '+' : '') + p.toFixed(2) + '%'}</span>
                         </div>`;
@@ -3749,6 +4210,70 @@
                             <span class="pl-ret">&mdash;</span>
                         </div>`).join('')}
                 </div>`;
+            renderDailyCard();
+        }
+
+        /* ── today's head-to-head (device-local daily close via the FTDaily helper) ── */
+        function dailySides(a, b) {
+            // per-side percentages for a pair; a side without fresh quotes reads null
+            const out = { a: null, b: null, res: null, fresh: false };
+            if (!window.FTDaily || !DRAFT.id) return out;
+            const fa = a && FTDaily.fresh(a, DRAFT.picks, DRAFT.prices);
+            const fb = b && FTDaily.fresh(b, DRAFT.picks, DRAFT.prices);
+            const res = (a && b) ? FTDaily.result(DRAFT.id, a, b) : null;
+            out.res = res;
+            out.a = fa ? (res ? res.mine : FTDaily.dailyPct(DRAFT.id, a)) : null;
+            out.b = fb ? (res ? res.theirs : FTDaily.dailyPct(DRAFT.id, b)) : null;
+            out.fresh = !!(fa && fb && res && out.a != null && out.b != null);
+            return out;
+        }
+        function dailyCardHtml() {
+            const d = DRAFT.daily, meId = (DRAFT.me || {}).id;
+            if (!d || !window.FTDaily) return '';
+            const oppName = d.oppId ? draftName(d.oppId) : null;
+            const s = dailySides(meId, d.oppId);
+            let verdict = 'Waiting for prices', tone = 'wait';
+            const myTxt = FTDaily.fmt(s.a), opTxt = d.oppId ? FTDaily.fmt(s.b) : '—';
+            if (!d.oppId) { verdict = 'No opponent this week'; tone = 'bye'; }
+            else if (d.phase === 'prep') { verdict = 'Scoring starts after prep'; tone = 'wait'; }
+            else if (!FTDaily.isWeekday()) { verdict = 'Markets closed'; tone = 'wait'; }
+            else if (!FTDaily.isAfterClose() && typeof marketOpen === 'function' && !marketOpen()) { verdict = 'Opens 9:30am ET'; tone = 'wait'; }
+            else if (s.fresh) {
+                const r = s.res;
+                if (r.tie) { verdict = 'Tied'; tone = 'tie'; }
+                else if (r.final) { verdict = r.won ? 'Won today' : 'Lost today'; tone = r.won ? 'up' : 'down'; }
+                else { verdict = r.won ? 'Leading' : 'Trailing'; tone = r.won ? 'up' : 'down'; }
+            }
+            return `<div class="dc-card ${tone}" id="dailyCard">
+                <div class="dc-head">
+                    <span class="dc-k">Today vs ${oppName ? escHtml(oppName) : 'nobody'}</span>
+                    <span class="dc-verdict">${verdict}</span>
+                </div>
+                <div class="dc-nums">
+                    <span class="dc-side"><b>${myTxt}</b><i>You</i></span>
+                    <span class="dc-vs">vs</span>
+                    <span class="dc-side right"><b>${opTxt}</b><i>${oppName ? escHtml(oppName) : 'Bye'}</i></span>
+                </div>
+                <div class="dc-note">Closes 4:00pm ET &middot; resets each trading day</div>
+            </div>`;
+        }
+        // Idempotent: one card, directly under the overview strip.
+        function renderDailyCard() {
+            const box = document.getElementById('overviewExtras');
+            if (!box) return;
+            const old = document.getElementById('dailyCard');
+            if (old) old.remove();
+            const html = dailyCardHtml();
+            if (!html) return;
+            const strip = box.querySelector('.ov-strip');
+            if (strip) strip.insertAdjacentHTML('afterend', html);
+            else box.insertAdjacentHTML('afterbegin', html);
+        }
+        function dailyLineHtml(a, b) {
+            if (!window.FTDaily || !DRAFT.daily) return '';
+            const s = dailySides(a, b);
+            const note = s.fresh ? (s.res.final ? 'final' : 'live') : 'waiting for prices';
+            return `<div class="dc-line"><span class="dc-line-k">Today:</span> <b class="${s.a == null ? '' : s.a >= 0 ? 'up' : 'down'}">${FTDaily.fmt(s.a)}</b> vs <b class="${s.b == null ? '' : s.b >= 0 ? 'up' : 'down'}">${FTDaily.fmt(s.b)}</b><span class="dc-line-n">${note}</span></div>`;
         }
         // the overview clock needs the same heartbeat as the banner one
         setInterval(() => { try { tickWkClocks(); } catch (e) {} }, 500);
@@ -3956,9 +4481,19 @@
                         ${(() => {
                             const dAt = L.draft_at ? new Date(L.draft_at).getTime() : null;
                             const early = dAt && dAt > Date.now();
-                            const clock = early
-                                ? `<div class="wk-label" style="color:#E0A24C;text-align:center;">Draft opens in</div>${wkClockHtml(dAt)}`
-                                : '';
+                            const whenTxt = dAt ? escHtml(new Date(dAt).toLocaleString([], { weekday: 'long', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) : '';
+                            const clock = !dAt ? '' : early
+                                ? `<div class="dcount">
+                                        <span class="dcount-k">Draft starts in</span>
+                                        ${wkClockHtml(dAt)}
+                                        <span class="dcount-when">${whenTxt}</span>
+                                   </div>`
+                                : `<div class="dcount now">
+                                        <span class="dcount-k">Draft time</span>
+                                        <span class="dcount-big">It's draft time</span>
+                                        <span class="dcount-when">Scheduled for ${whenTxt}${isOwner ? ' &mdash; start the draft below' : ' &mdash; waiting for the host'}</span>
+                                   </div>`;
+                            scheduleDraftStart(dAt, isOwner);
                             const who = isOwner
                                 ? `<button class="btn btn-primary" id="draftStartBtn" ${canStart ? '' : 'disabled'} onclick="draftStart()">${canStart ? '<i class="fas fa-play"></i> Start Draft' : 'Waiting for players'}</button>`
                                 : `<div class="stat-label" style="text-align:center;">Only the host can start the draft.</div>`;
@@ -3974,6 +4509,12 @@
                 const myTurn = t && t.userId === DRAFT.me.id;
                 const order = L.draft_order || [];
                 const uni = {}; (DRAFT.universe||[]).forEach(u => uni[u.symbol] = u);
+                // paint the clock's real value into the markup so a refresh never flashes "30"
+                const secsNow = (() => {
+                    const a = clockSecsNow();
+                    if (a != null) return a;
+                    return CLOCK.key === L.id + ':' + L.current_pick ? CLOCK.secs : pickSeconds();
+                })();
                 const cards = order.map((uid, seat) => {
                     const mine = DRAFT.picks.filter(p=>p.user_id===uid).sort((a,b)=>a.pick_number-b.pick_number);
                     const onClock = t && t.userId===uid;
@@ -3984,7 +4525,7 @@
                         <div class="oc-head">
                             <span><span class="oc-seat">SEAT ${seat+1}</span><br><span class="oc-name">${isMe?'You':draftName(uid)}</span></span>
                             <span style="text-align:right;">
-                                ${onClock?`<span class="oc-clock" id="clockNum">30</span><br>`:''}
+                                ${onClock?`<span class="clock-num${secsNow <= 5 ? ' crit' : secsNow <= 10 ? ' warn' : ''}" id="clockNum">${secsNow}</span><br>`:''}
                                 <span class="oc-count">${mine.length}/${L.roster_size}</span>
                             </span>
                         </div>
@@ -3996,16 +4537,18 @@
                             <b>${myTurn ? "You're on the clock" : (t ? draftName(t.userId) + ' is picking' : '—')}</b>
                             <span>Pick ${L.current_pick+1} of ${total} · Round ${(t?t.round+1:1)} of ${L.roster_size} · ${(t && t.round % 2 === 1) ? 'reverse order' : 'forward order'}</span>
                         </div>
-                        <div class="clock-bar" style="max-width:340px;"><div class="clock-fill" id="clockFill" style="width:100%"></div></div>
+                        <div class="clock-bar" style="max-width:340px;"><div class="clock-fill" id="clockFill" style="width:${Math.max(0, Math.min(100, secsNow / pickSeconds() * 100))}%"></div></div>
                     </div>`;
                 root.innerHTML = clockBar + `<div class="order-strip">${cards}</div>`;
                 startPickClock();
+                renderDraftFeed();
                 setTimeout(() => { DRAFT.freshPick = null; }, 900);
                 return;
             }
 
             // active / complete -> allocate capital + standings
             stopPickClock();
+            renderDraftFeed();
             badge.textContent = L.status==='active' ? 'LIVE' : 'COMPLETE';
             document.getElementById('draftSidebar').style.display = 'none';
             // Post-draft: final rosters + the road to Your Team (capital is
@@ -4031,6 +4574,7 @@
         let TT_TARGET = null;   // what the ring is currently glued to
         function teamTourKey() { return 'ftTeamTour_' + (DRAFT.id || ''); }
         function maybeTeamTour() {
+            return;   // Team Manager explains itself with its tabs; the long spotlight tour is retired
             let seen = false;
             try { seen = localStorage.getItem(teamTourKey()) === '1'; } catch (e) {}
             if (seen) return;
@@ -4165,6 +4709,7 @@
                     <button class="wr-go" onclick="closeWeekResult(${iWon ? 'true' : 'false'})">
                         ${iWon ? 'Allocate capital' : 'Go to allocator'}
                     </button>
+                    <button class="wr-share" onclick="shareWeekCard(${Number(w.week) || 0})"><i class="fas fa-share-nodes"></i> Share week card</button>
                 </div>`;
             document.body.appendChild(fx);
         }
@@ -4373,19 +4918,36 @@
         };
 
 
-        /* ── 30-second pick clock ── */
+        /* ── pick clock ──
+           30s by default (leagues.pick_seconds when present). When the server
+           stamps leagues.pick_started_at (see supabase-schema-events.sql) every
+           browser derives the same remaining time from it; otherwise each
+           client counts down on its own from the moment it saw the pick. */
         const CLOCK = { secs: 30, timer: null, key: null };
+        function pickSeconds() { return Math.max(5, Number((DRAFT.league || {}).pick_seconds) || 30); }
+        function clockSecsNow() {
+            const L = DRAFT.league || {};
+            if (!L.pick_started_at) return null;
+            const t = new Date(L.pick_started_at).getTime();
+            if (!isFinite(t)) return null;
+            return Math.max(0, pickSeconds() - Math.floor((Date.now() - t) / 1000));
+        }
         function startPickClock() {
             const L = DRAFT.league;
             if (!L || L.status !== 'drafting') { stopPickClock(); return; }
             const key = L.id + ':' + L.current_pick;
-            if (CLOCK.key === key) return;            // same pick, keep counting
+            const anchored = clockSecsNow();
+            if (CLOCK.key === key) {                  // same pick, keep counting (resync if anchored)
+                if (anchored != null) { CLOCK.secs = anchored; paintClock(); }
+                return;
+            }
             CLOCK.key = key;
-            CLOCK.secs = 30;
+            CLOCK.secs = anchored != null ? anchored : pickSeconds();
             clearInterval(CLOCK.timer);
             paintClock();
             CLOCK.timer = setInterval(() => {
-                CLOCK.secs--;
+                const a = clockSecsNow();
+                CLOCK.secs = a != null ? a : CLOCK.secs - 1;
                 paintClock();
                 if (CLOCK.secs <= 0) {
                     clearInterval(CLOCK.timer);
@@ -4399,7 +4961,7 @@
             if (!n || !f) return;
             n.textContent = CLOCK.secs;
             n.className = 'clock-num' + (CLOCK.secs <= 5 ? ' crit' : CLOCK.secs <= 10 ? ' warn' : '');
-            f.style.width = (CLOCK.secs / 30 * 100) + '%';
+            f.style.width = Math.max(0, Math.min(100, CLOCK.secs / pickSeconds() * 100)) + '%';
             f.style.background = CLOCK.secs <= 5 ? '#D9645C' : CLOCK.secs <= 10 ? '#E0A24C' : '#5cb88a';
         }
         async function autoPick() {
@@ -4408,6 +4970,47 @@
             const taken = new Set(DRAFT.picks.map(p => p.symbol));
             const best = DRAFT.universe.filter(u => !taken.has(u.symbol)).sort((a, b) => b.cap - a.cap)[0];
             if (best) { try { await SL.makePick(DRAFT.id, best.symbol); await draftRefresh(); } catch (e) {} }
+        }
+
+        /* ── scheduled draft: one timer per league+draft_at, however often the lobby re-renders ── */
+        const DRAFT_AT_TIMER = { key: null, id: null };
+        function scheduleDraftStart(dAt, isOwner) {
+            if (!dAt || !isFinite(dAt)) return;
+            const key = DRAFT.id + ':' + dAt + ':' + (isOwner ? 'h' : 'g');
+            if (DRAFT_AT_TIMER.key === key) return;
+            clearTimeout(DRAFT_AT_TIMER.id);
+            DRAFT_AT_TIMER.key = key;
+            const wait = dAt - Date.now();
+            if (wait > 2147000000) return;                      // > ~24 days: setTimeout would overflow; a later refresh re-arms
+            // A scheduled time that passed long ago is not an instruction to start
+            // the draft the moment the host opens the page a week later.
+            if (wait < -10 * 60000) return;
+            DRAFT_AT_TIMER.id = setTimeout(() => {
+                const L = DRAFT.league || {};
+                if (L.status !== 'lobby') return;
+                if (isOwner && L.owner_id === (DRAFT.me || {}).id) draftStart();
+                else draftRefresh();
+            }, Math.max(0, wait));
+        }
+
+        /* ── live pick feed: newest first, survives #draftRoot rewrites ── */
+        function renderDraftFeed() {
+            const el = document.getElementById('draftFeed');
+            if (!el) return;
+            const L = DRAFT.league;
+            const picks = (DRAFT.picks || []).slice().sort((a, b) => (Number(b.pick_number) || 0) - (Number(a.pick_number) || 0));
+            if (!L || L.status !== 'drafting') { el.hidden = true; el.innerHTML = ''; return; }
+            const uni = {}; (DRAFT.universe || []).forEach(u => uni[u.symbol] = u);
+            el.hidden = false;
+            el.innerHTML = `<div class="feed-head"><span>Pick feed</span><span class="feed-live">Live</span></div>` +
+                (picks.length ? picks.slice(0, 60).map(p => {
+                    const isMe = p.user_id === (DRAFT.me || {}).id;
+                    const who = isMe ? 'You' : draftName(p.user_id);
+                    return `<div class="feed-row ${isMe ? 'me' : ''} ${DRAFT.freshPick === p.symbol ? 'fresh' : ''}">
+                        <span class="feed-who">${escHtml(who)}</span> drafted <b>${escHtml(p.symbol)}</b>
+                        <span class="feed-meta">R${(Number(p.round) || 0) + 1} &middot; #${(Number(p.pick_number) || 0) + 1}</span>
+                    </div>`;
+                }).join('') : '<div class="feed-empty">No picks yet &mdash; the first one lands here.</div>');
         }
 
 
@@ -4438,6 +5041,41 @@
         // saved shares without ever debiting cash (cash_adj stayed 0), which
         // made players look twice as rich. If a member holds shares but their
         // cash was never touched, we reconstruct cash as capital − cost held.
+        /* Standings priced off the SAME quotes this page shows. The server's
+           standings use a cached price table; mixing the two put a $117k
+           account below a $105k one. Return is the whole account (cash plus
+           holdings) against that player's capital, so it matches the dollars. */
+        function acctOf(uid) {
+            const m = (DRAFT.members || []).find(x => x.user_id === uid) || {};
+            const base = (Number((DRAFT.league || {}).starting_capital) || 100000) + (Number(m.capital_adj) || 0);
+            const picks = (DRAFT.picks || []).filter(p => p.user_id === uid);
+            const allocated = picks.some(p => Number(p.shares) > 0);
+            const held = picks.reduce((t, p) => {
+                const live = (DRAFT.prices || {})[p.symbol];
+                const px = live && live.price != null ? Number(live.price) : Number(p.price_at_pick || 0);
+                return t + (Number(p.shares) || 0) * px;
+            }, 0);
+            const value = cashOf(m) + held;
+            return { value, base, ret: allocated && base > 0 ? (value - base) / base * 100 : null };
+        }
+        // a player's avatar: yours as you chose it, theirs from their profile, or a
+        // steady pick from their id so it never changes between visits
+        function avatarFor(uid, size) {
+            if (!window.FTAvatar) return '';
+            if (uid === (DRAFT.me || {}).id) return FTAvatar.mine({ size, tag: false });
+            const m = (DRAFT.members || []).find(x => x.user_id === uid) || {};
+            const saved = m.profiles && m.profiles.avatar;
+            if (saved) return FTAvatar.forProfile(saved, 15, { size, tag: false });
+            let h = 0; String(uid).split('').forEach(c => { h = (h * 31 + c.charCodeAt(0)) | 0; });
+            const A = Object.keys(FTAvatar.CHAR), B = ['pine', 'ember', 'slate'];
+            return FTAvatar.svg({ a: A[Math.abs(h) % A.length], f: 'plain', b: B[Math.abs(h) % 3] }, 15, { size, tag: false });
+        }
+        function liveStandings(list) {
+            return (list || []).map(s => {
+                const a = acctOf(s.user_id);
+                return Object.assign({}, s, { accountValue: a.value, returnPct: a.ret != null ? a.ret : s.returnPct });
+            }).sort((a, b) => (Number(b.returnPct) || 0) - (Number(a.returnPct) || 0));
+        }
         function cashOf(m) {
             const L = DRAFT.league || {};
             const cap = (Number(L.starting_capital) || 100000) + (Number(m.capital_adj) || 0);
@@ -4552,7 +5190,7 @@
             }
             return `<div class="week-banner">
                 <div>
-                    <div class="wk-label" style="color:#5CB88A;">Week ${Math.min(w.week, w.totalWeeks)} of ${w.totalWeeks} · LIVE</div>
+                    <div class="wk-label" style="color:#5CB88A;">${w.over ? 'League over' : 'Week ' + Math.min(w.week, w.totalWeeks) + ' of ' + w.totalWeeks + ' · Live'}</div>
                     ${wkClockHtml(w.endsAt)}
                     <div class="wk-sub">${w.over ? 'League over — view final standings' : 'until this week locks and the transfer window opens'}</div>
                 </div>
@@ -4571,7 +5209,7 @@
             const rows = myRows();
             if (!rows.length) {
                 root.innerHTML = `<div class="team-card" style="text-align:center;padding:3.5rem 2rem;">
-                        <div style="font:600 1.5rem 'Fraunces',Georgia,serif;margin-bottom:.6rem;">Waiting to draft your team</div>
+                        <div style="font: 800 1.5rem 'Inter', system-ui, sans-serif;margin-bottom:.6rem;">Waiting to draft your team</div>
                         <div class="team-sub">Your ${(DRAFT.league.roster_size)||14} stocks appear here the moment the draft begins.</div>
                     </div>`;
                 return;
@@ -4582,6 +5220,7 @@
             // deliberately stepped back to change your lineup or re-allocate.
             if (deployed && !TEAM_STAGE) {
                 root.innerHTML = weekBannerHtml() + teamManagerHtml(rows);
+                allocRepaint();
                 drawTeamChart(rows);
                 drawTeamPerfChart(rows);
                 termSync();
@@ -4599,7 +5238,7 @@
             const stepHtml = `<div class="team-steps">
                     <div class="team-step ${cls(1)}"><b>1 · Set your lineup</b><span>${starters.length}/${LINEUP_SIZE} starters chosen</span></div>
                     <div class="team-step ${cls(2)}"><b>2 · Deploy capital</b><span>Allocate up to $${myCapital().toLocaleString()}</span></div>
-                    <div class="team-step ${cls(3)}"><b>3 · Team manager</b><span>${deployedBefore() ? 'Trade, track and manage' : 'Unlocks after you deploy'}</span></div>
+                    <div class="team-step ${cls(3)}"><b>3 · Manage</b><span>${deployedBefore() ? 'Ready' : 'After you deploy'}</span></div>
                 </div>`;
             if (stage === 'lineup') { root.innerHTML = stepHtml + lineupPickerHtml(rows); return; }
             root.innerHTML = stepHtml + allocationHtml(rows);
@@ -4639,6 +5278,17 @@
 
         // Where the setup flow is standing. null = wherever the data says.
         let TEAM_STAGE = null;
+        // Team Manager is split into parts; which one is open survives re-renders
+        let TEAM_PART = (() => { try { return sessionStorage.getItem('ftTeamPart') || 'overview'; } catch (e) { return 'overview'; } })();
+        window.setTeamPart = function (k) {
+            TEAM_PART = k;
+            try { sessionStorage.setItem('ftTeamPart', k); } catch (e) {}
+            const box = document.querySelector('.tmx');
+            if (!box) return;
+            box.dataset.part = k;
+            box.querySelectorAll('.tmx-tab').forEach(t => t.classList.toggle('on', t.dataset.part === k));
+            if (k === 'trade') { try { termSync(); } catch (e) {} }
+        };
         function deployedKey() { return 'ftDeployed_' + (DRAFT.id || ''); }
         function deployedBefore() {
             try { return localStorage.getItem(deployedKey()) === '1'; } catch (e) { return false; }
@@ -4717,6 +5367,44 @@
                 </div>
             </div>`;
         }
+        /* The capital allocator inside Team Manager's Capital tab: the same
+           sliders as the deploy step, saving each change as you make it. While
+           a week is live, capital is locked (the same rule as Re-allocate), so
+           the sliders show where your money is but can't move it. */
+        function capitalAllocatorHtml(rows) {
+            const starters = rows.filter(r => r.active);
+            const cash = myCash();
+            const budget = cash + starters.reduce((s, r) => s + r.shares * r.price, 0);
+            const w = weekInfo();
+            const locked = (DRAFT.league || {}).status === 'active' && w.phase === 'live';
+            ALLOCV = { budget, rows: {} };
+            starters.forEach(r => { ALLOCV.rows[r.symbol] = { price: r.price, shares: r.shares, sector: r.sector }; });
+            const dis = r => (locked || !(r.price > 0)) ? 'disabled' : '';
+            return `<div class="tmx-panel cap-alloc ${locked ? 'locked' : ''}">
+                <div class="tmx-panel-head"><h4>Capital allocator</h4>
+                    ${locked ? '<span class="tmx-lock">Locked while the week is live \u00b7 opens in ' + w.days + 'd ' + w.hours + 'h</span>'
+                             : '<span class="cap-read"><b id="allocSpent">$0</b> in \u00b7 <b id="allocLeft">$0</b> free</span>'}</div>
+                <div class="cap-bar" id="allocBar"></div>
+                <div class="lineup-row head"><span></span><span>Stock</span><span>Price</span><span>Shares</span><span>Allocate</span><span>Cost</span></div>
+                ${starters.map(r => {
+                    const key = r.symbol.replace(/[^A-Z0-9]/g, '');
+                    const soloMax = r.price > 0 ? Math.floor(budget / r.price) : 0;
+                    return `<div class="lineup-row">
+                        <span>${logoHtml(r.symbol, r.sector)}</span>
+                        <span><span class="sym">${r.symbol}</span></span>
+                        <span>${r.price ? '$' + r.price.toFixed(2) : '<span style="color:#d9645c">no price</span>'}</span>
+                        <span><input class="alloc-num" id="shTxt_${key}" type="number" min="0" value="${r.shares}" ${dis(r)}
+                                onfocus="this.select()" onchange="typeShares('${r.symbol}', this.value)"></span>
+                        <span class="alloc-cell"><input class="alloc-mini" id="sl_${key}" type="range" min="0" max="${soloMax}" step="1" value="${r.shares}" ${dis(r)}
+                                style="--fill:${SEC_COLORS[r.sector] || '#5CB88A'};--pct:${soloMax ? (r.shares / soloMax * 100).toFixed(2) : 0}%"
+                                onpointerdown="ALLOC_DRAG=true" onpointerup="ALLOC_DRAG=false;setTimeout(allocSettled,80)" onpointercancel="ALLOC_DRAG=false;setTimeout(allocSettled,80)"
+                                oninput="previewShares('${r.symbol}', this)" onchange="saveShares('${r.symbol}', this.value)"></span>
+                        <span><input class="alloc-num alloc-dollar" id="costTxt_${key}" type="text" value="$${(r.shares * r.price).toLocaleString(undefined,{maximumFractionDigits:0})}" ${dis(r)}
+                                onfocus="this.select()" onchange="typeDollars('${r.symbol}', this.value)"></span>
+                    </div>`;
+                }).join('')}
+            </div>`;
+        }
         // Refresh the allocated/cash-left readout + the colour bar from ALLOC.
         function allocRepaint() {
             if (!ALLOCV) return;
@@ -4748,7 +5436,9 @@
             let dayPnl = held.reduce((s, r) => s + (r.dayChg != null ? r.shares * r.price * (r.dayChg / 100) : 0), 0);
             // Prep window: nothing scores yet — everyone sits at starting capital.
             const inPrep = weekInfo().prep;
-            let dispTotal = totalValue, dispPnl = pnl, dispPnlPct = pnlPct;
+            // Return is the whole account against your capital, the same number
+            // the table and podium rank you by (stocks-only return overstated it)
+            let dispTotal = totalValue, dispPnl = totalValue - cap, dispPnlPct = cap > 0 ? (totalValue - cap) / cap * 100 : 0;
             if (inPrep) { dispTotal = cap; dispPnl = 0; dispPnlPct = 0; dayPnl = 0; }
 
             const card = r => {
@@ -4776,71 +5466,78 @@
                 </div>`;
             };
             const bench = rows.filter(r => !r.active);
-            return `<div class="team-card team-glow">
-                <div class="team-head"><h3>Team Manager</h3>
-                    <span class="team-sub">${starters.length} starters · $${mktVal.toLocaleString(undefined,{maximumFractionDigits:0})} invested · $${Math.max(0,cash).toLocaleString(undefined,{maximumFractionDigits:0})} cash</span></div>
-
-                <div class="stats-grid" style="margin-bottom:1.2rem;">
-                    <div class="stat-card"><div class="stat-label">Total Value</div>
-                        <div class="stat-value">$${dispTotal.toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2})}</div>
-                        <div class="stat-change" style="color:rgba(255,255,255,.55);">${inPrep ? 'locked at starting capital until matchups go live' : 'of $' + cap.toLocaleString() + ' starting'}</div></div>
-                    <div class="stat-card"><div class="stat-label">Total Return</div>
-                        <div class="stat-value" style="color:${dispPnl >= 0 ? '#5cb88a' : '#d9645c'}">${dispPnl === 0 ? '0.00%' : (dispPnl > 0 ? '+' : '') + dispPnlPct.toFixed(2) + '%'}</div>
-                        <div class="stat-change" style="color:rgba(255,255,255,.55);">${inPrep ? 'scoring starts after the prep window' : (dispPnl >= 0 ? '+' : '−') + '$' + Math.abs(dispPnl).toFixed(2) + ' on $' + spent.toLocaleString(undefined,{maximumFractionDigits:0}) + ' invested'}</div></div>
-                    <div class="stat-card"><div class="stat-label">Day Change</div>
-                        <div class="stat-value" style="color:${dayPnl >= 0 ? '#5cb88a' : '#d9645c'}">${dayPnl >= 0 ? '+' : '−'}$${Math.abs(dayPnl).toFixed(2)}</div>
-                        <div class="stat-change" style="color:rgba(255,255,255,.55);">${inPrep ? 'frozen during prep' : 'across your holdings'}</div></div>
-                    <div class="stat-card accent"><div class="stat-label">Portfolio Beta</div>
-                        <div class="stat-value">${wBeta.toFixed(2)}</div>
-                        <div class="stat-change" style="color:rgba(255,255,255,.55);">roster avg ${rosterBeta.toFixed(2)} · cash drags to 0</div></div>
+            const P = TEAM_PART;
+            const tab = (k, label, n) => `<button class="tmx-tab ${P === k ? 'on' : ''}" data-part="${k}" onclick="setTeamPart('${k}')"><span>${label}${n != null ? '<i>' + n + '</i>' : ''}</span></button>`;
+            const wb = weekInfo();
+            const lineupActions = wb.phase === 'live'
+                ? '<span class="tmx-lock">Lineup locked until the transfer window · ' + wb.days + 'd ' + wb.hours + 'h</span>'
+                : '<button class="tmx-btn" id="tmChangeLineup" onclick="editLineup()"><span>Change lineup</span></button>' +
+                  '<button class="tmx-btn" id="tmReallocate" onclick="reAllocate()"><span>Re-allocate</span></button>';
+            return `<div class="tmx" data-part="${P}">
+                <div class="tmx-tabs">
+                    ${tab('overview', 'Overview')}
+                    ${tab('lineup', 'Lineup', starters.length)}
+                    ${tab('trade', 'Trade')}
+                    ${tab('capital', 'Capital')}
                 </div>
 
-                <div id="tmChart" style="background:#1E1A16;border:1px solid rgba(236,226,214,.08);padding:1rem 1.2rem;margin-bottom:1.2rem;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:.6rem;">
-                        <div class="team-sub" style="font-weight:700;color:#B7ADA1;">Team value</div>
-                        <div style="display:flex;align-items:center;gap:.8rem;">
-                            <div class="team-sub" id="tmPerfNote" style="font-size:.72rem;"></div>
-                            <div class="tf-group" id="tmTf">
-                                <button class="tf-btn" data-tf="1w" onclick="setChartTf('1w')">1W</button>
-                                <button class="tf-btn" data-tf="1m" onclick="setChartTf('1m')">1M</button>
-                                <button class="tf-btn on" data-tf="all" onclick="setChartTf('all')">Season</button>
+                <section class="tmx-part" data-p="overview">
+                    <div class="tmx-stats">
+                        <div class="tmx-stat"><span>Team value</span><b>$${dispTotal.toLocaleString(undefined,{maximumFractionDigits:0})}</b></div>
+                        <div class="tmx-stat ${inPrep ? '' : dispPnl >= 0 ? 'up' : 'down'}"><span>Return</span><b>${dispPnl === 0 ? '0.00%' : (dispPnl > 0 ? '+' : '') + dispPnlPct.toFixed(2) + '%'}</b></div>
+                        <div class="tmx-stat ${inPrep ? '' : dayPnl >= 0 ? 'up' : 'down'}"><span>Today</span><b>${dayPnl >= 0 ? '+' : '−'}$${Math.abs(dayPnl).toFixed(0)}</b></div>
+                        <div class="tmx-stat"><span>Beta</span><b>${wBeta.toFixed(2)}</b></div>
+                    </div>
+                    <div id="tmChart" class="tmx-panel">
+                        <div class="tmx-panel-head"><h4>Team value</h4>
+                            <div style="display:flex;align-items:center;gap:.8rem;">
+                                <div class="team-sub" id="tmPerfNote" style="font-size:.72rem;"></div>
+                                <div class="tf-group" id="tmTf">
+                                    <button class="tf-btn" data-tf="1w" onclick="setChartTf('1w')">1W</button>
+                                    <button class="tf-btn" data-tf="1m" onclick="setChartTf('1m')">1M</button>
+                                    <button class="tf-btn on" data-tf="all" onclick="setChartTf('all')">Season</button>
+                                </div>
                             </div>
                         </div>
+                        <div style="position:relative;height:230px;"><canvas id="tmPerfChart"></canvas></div>
                     </div>
-                    <div style="position:relative;height:210px;"><canvas id="tmPerfChart"></canvas></div>
-                </div>
+                </section>
 
-                <div id="tmTerminal" style="background:#1E1A16;border:1px solid rgba(236,226,214,.08);padding:1.1rem 1.2rem;margin-bottom:1.2rem;">
-                    <div class="team-sub" style="margin-bottom:.7rem;font-weight:700;color:#B7ADA1;">Trade terminal</div>
-                    <div class="tt-row">
-                        <select id="ttSym" class="tt-input" onchange="termSync()">
-                            <option value="" selected>Choose a stock…</option>
-                            ${held.map(r => `<option value="${r.symbol}">${r.symbol} — ${r.name}</option>`).join('')}
-                            ${rows.filter(r => r.shares === 0).map(r => `<option value="${r.symbol}">${r.symbol} — ${r.name}</option>`).join('')}
-                        </select>
-                        <input id="ttQty" class="tt-input" type="number" min="1" step="1" value="1" oninput="termSync()">
-                        <button class="tt-btn buy" onclick="termTrade(1)">Buy</button>
-                        <button class="tt-btn sell" onclick="termTrade(-1)">Sell</button>
+                <section class="tmx-part" data-p="lineup">
+                    <div class="tmx-panel-head"><h4>Starters · ${starters.length}</h4><div class="tmx-actions">${lineupActions}</div></div>
+                    <div class="tm-grid">${starters.map(card).join('')}</div>
+                    ${bench.length ? `<div class="tmx-panel-head" style="margin-top:1.2rem;"><h4>Bench · ${bench.length}</h4></div>
+                        <div class="tm-grid">${bench.map(r => '<div class="tm-benched">' + card(r) + '</div>').join('')}</div>` : ''}
+                </section>
+
+                <section class="tmx-part" data-p="trade">
+                    <div id="tmTerminal" class="tmx-panel">
+                        <div class="tmx-panel-head"><h4>Trade terminal</h4></div>
+                        <div class="tt-row">
+                            <select id="ttSym" class="tt-input" onchange="termSync()">
+                                <option value="" selected>Choose a stock…</option>
+                                ${held.map(r => `<option value="${r.symbol}">${r.symbol} — ${r.name}</option>`).join('')}
+                                ${rows.filter(r => r.shares === 0).map(r => `<option value="${r.symbol}">${r.symbol} — ${r.name}</option>`).join('')}
+                            </select>
+                            <input id="ttQty" class="tt-input" type="number" min="1" step="1" value="1" oninput="termSync()">
+                            <button class="tt-btn buy" onclick="termTrade(1)">Buy</button>
+                            <button class="tt-btn sell" onclick="termTrade(-1)">Sell</button>
+                        </div>
+                        <div class="tt-meta" id="ttMeta"></div>
                     </div>
-                    <div class="tt-meta" id="ttMeta"></div>
-                </div>
+                    <div class="tmx-panel"><div class="tmx-panel-head"><h4>Swap with a rival</h4></div>
+                        <button class="tmx-btn" onclick="switchSection('trade-history')"><span>Open the trade center</span></button></div>
+                </section>
 
-                <div style="background:#1E1A16;border:1px solid rgba(236,226,214,.08);padding:1rem 1.2rem;margin-bottom:1.2rem;">
-                    <div class="team-sub" style="margin-bottom:.75rem;font-weight:700;color:#B7ADA1;">Position sizes — how your capital is split</div>
-                    ${posBarsHtml(rows, cash)}
-                </div>
-
-                <div class="team-sub" style="margin:0 0 .7rem;font-weight:700;color:#B7ADA1;">Starting lineup · ${starters.length}</div>
-                <div class="tm-grid">
-                    ${starters.map(card).join('')}
-                    ${bench.length ? `<div class="tm-divider">Bench · ${bench.length} — not scoring this week</div>` : ''}
-                    ${bench.map(r => '<div class="tm-benched">' + card(r) + '</div>').join('')}
-                </div>
-                <div style="margin-top:1.3rem;">${(() => { const wb = weekInfo();
-                    return wb.phase === 'live'
-                        ? '<span class="team-sub" style="border:1px dashed rgba(236,226,214,.2);padding:.55rem 1rem;display:inline-block;">Lineup locked while the week is live — bench swaps open in the transfer window (' + wb.days + 'd ' + wb.hours + 'h)</span>'
-                        : '<button class="btn tm-act" id="tmChangeLineup" onclick="editLineup()">Change starting lineup</button>' +
-                          '<button class="btn tm-act" id="tmReallocate" onclick="reAllocate()">Re-allocate</button>'; })()}</div>
+                <section class="tmx-part" data-p="capital">
+                    <div class="tmx-stats">
+                        <div class="tmx-stat"><span>Invested</span><b>$${mktVal.toLocaleString(undefined,{maximumFractionDigits:0})}</b></div>
+                        <div class="tmx-stat"><span>Cash</span><b>$${Math.max(0,cash).toLocaleString(undefined,{maximumFractionDigits:0})}</b></div>
+                        <div class="tmx-stat"><span>Capital</span><b>$${cap.toLocaleString()}</b></div>
+                    </div>
+                    ${capitalAllocatorHtml(rows)}
+                    <div class="tmx-panel"><div class="tmx-panel-head"><h4>Whole book</h4></div>${posBarsHtml(rows, cash)}</div>
+                </section>
             </div>`;
         }
 
@@ -5214,6 +5911,11 @@
             if (next > maxShares) next = maxShares;
             await saveShares(sym, next);
         };
+        /* Picking a starter used to wait on an UPDATE and then a full
+           draftRefresh() before the tile so much as changed colour — two
+           round-trips of nothing happening on every tap, which is what made
+           setting a lineup feel broken. The tile flips now and the write
+           follows; if the write fails it flips back and says so. */
         window.toggleStarter = async function (sym, on) {
             const wNow = weekInfo();
             // Locked the moment the prep window closes, whether or not you ever
@@ -5224,12 +5926,30 @@
             }
             const mine = (DRAFT.picks || []).filter(p => p.user_id === DRAFT.me.id);
             if (on && mine.filter(p => p.active).length >= LINEUP_SIZE) { alert('Your lineup is full — bench a stock first.'); return; }
+
+            const row = mine.find(p => p.symbol === sym);
+            if (!row) return;
+            if (row._saving) return;                 // ignore a double tap mid-flight
+
+            // 1. flip locally and repaint — this is what the user sees
+            const before = row.active;
+            row.active = on;
+            row._saving = true;
+            renderTeam();
+
+            // 2. persist behind it
             try {
                 const { error } = await SL.client.from('league_picks').update({ active: on })
                     .eq('league_id', DRAFT.id).eq('user_id', DRAFT.me.id).eq('symbol', sym);
                 if (error) throw new Error(/active/.test(error.message || '') ? 'Run the draft SQL in Supabase to enable lineups.' : error.message);
-                await draftRefresh();
-            } catch (e) { alert(e.message || 'Could not update your lineup'); }
+                row._saving = false;
+            } catch (e) {
+                // 3. put it back exactly as it was, then explain
+                row.active = before;
+                row._saving = false;
+                renderTeam();
+                alert(e.message || 'Could not update your lineup');
+            }
         };
         function deployFx(total) {
             const fx = document.createElement('div');
@@ -5309,6 +6029,30 @@
 
 
         /* ══ Weekly matchups, standings, and the end-of-week steal ══ */
+        /* Whose matchup is whose.
+
+           The server settles weeks over leagues.draft_order (see
+           ft_settle_league). This page used to pair over DRAFT.members
+           query order instead, so on any league where the two differ the
+           Matchups tab could show you against one person while the money
+           moved against another — and the new daily card, which follows
+           the server, would disagree with the card right below it.
+
+           draft_order is the truth because it is what pays out. Fall back
+           to member order only before the draft has assigned one. */
+        function pairingIds() {
+            const order = (DRAFT.league || {}).draft_order;
+            const members = (DRAFT.members || []).map(m => m.user_id);
+            if (Array.isArray(order) && order.length) {
+                // keep only ids still in the league, then append anyone the
+                // order predates (a late joiner) so nobody vanishes
+                const live = order.filter(id => members.indexOf(id) !== -1);
+                members.forEach(id => { if (live.indexOf(id) === -1) live.push(id); });
+                return live;
+            }
+            return members;
+        }
+
         function roundRobin(ids, week) {
             // circle method: fixed first seat, everyone else rotates each week
             const a = ids.slice();
@@ -5322,7 +6066,7 @@
             return pairs;
         }
         async function teamValues() {
-            const standings = await SL.leagueStandings(DRAFT.id).catch(() => []);
+            const standings = liveStandings(await SL.leagueStandings(DRAFT.id).catch(() => []));
             const map = {};
             (DRAFT.members || []).forEach(m => {
                 const s = standings.find(x => x.user_id === m.user_id) || {};
@@ -5367,6 +6111,7 @@
                     : '<b>' + them + '</b> defeated you'}</div>
                 <div class="vd-amt">${iWon ? '+' : '−'}${amt}</div>
                 <button class="vd-go" onclick="revealMatchups()">View new matchups</button>
+                <button class="wr-share vd-share" onclick="shareWeekCard(${Number(w.week) || 0})"><i class="fas fa-share-nodes"></i> Share week card</button>
             </div>`;
         }
         // Wipe the slate away and let this week's fixtures rise underneath.
@@ -5391,7 +6136,7 @@
             if (w.prep) {
                 // 24-hour research window: matchups are visible but locked.
                 const vals0 = await teamValues();
-                const ids0 = (DRAFT.members || []).map(m => m.user_id);
+                const ids0 = pairingIds();
                 const pairs0 = roundRobin(ids0, 1);
                 const side = (uid, V, flip) => {
                     const starters = (V.roster || []);
@@ -5457,7 +6202,7 @@
                 return;
             }
             const vals = await teamValues();
-            const ids = (DRAFT.members || []).map(m => m.user_id);
+            const ids = pairingIds();
             let history = [];
             try { const r = await SL.client.from('league_weeks').select('*').eq('league_id', DRAFT.id); history = r.data || []; } catch (e) {}
             const pairs = roundRobin(ids, w.week);
@@ -5484,6 +6229,7 @@
                             <div class="mu-roster">${(B.roster||[]).join(' · ') || 'lineup not set'}</div>
                         </div>
                     </div>
+                    ${mine ? dailyLineHtml(a, b) : ''}
                     ${mine ? claimHtml(a, b, A, B, w.week, history) : ''}
                 </div>`;
             }).join('');
@@ -5498,7 +6244,11 @@
             root.innerHTML = weekBannerHtml() + verdict +
                 '<div id="muList" class="' + (verdict ? 'mu-hidden' : '') + '">' + cards + '</div>' + nextPreview +
                 (history.length ? `<div class="team-card" style="margin-top:1rem;"><div class="team-head"><h3>Week results</h3></div>` +
-                    history.sort((x,y)=>y.week-x.week).map(r => `<div class="roster-pick"><span><b style="color:#5cb88a">${(vals[r.winner_id]||{}).name||'Winner'}</b> beat ${(vals[r.loser_id]||{}).name||'—'} in week ${r.week}</span><span class="rd">took ${r.stolen_symbol || '—'} · $${Number(r.transfer_amt||0).toLocaleString()}</span></div>`).join('') + '</div>' : '');
+                    history.sort((x,y)=>y.week-x.week).map(r => {
+                        const meIn = r.debt_status !== 'none' && (r.winner_id === DRAFT.me.id || r.loser_id === DRAFT.me.id);
+                        const share = meIn ? ` <a href="#" class="wk-share" onclick="shareWeekCard(${Number(r.week) || 0});return false;">Share</a>` : '';
+                        return `<div class="roster-pick"><span><b style="color:#5cb88a">${(vals[r.winner_id]||{}).name||'Winner'}</b> beat ${(vals[r.loser_id]||{}).name||'—'} in week ${r.week}</span><span class="rd">took ${r.stolen_symbol || '—'} · $${Number(r.transfer_amt||0).toLocaleString()}${share}</span></div>`;
+                    }).join('') + '</div>' : '');
         }
         function claimHtml(a, b, A, B, week, history) {
             const meId = DRAFT.me.id;
@@ -5681,6 +6431,109 @@
             catch(e){ alert(e.message||'Could not start draft'); if(b){ b.disabled=false; b.innerHTML='<i class="fas fa-play"></i> Start Draft'; } }
         };
 
+        /* ── share card: a 1200x630 PNG of one settled week ──
+           Uses the league_weeks row (winner_value / loser_value are the
+           settled figures), so it says what the server said. */
+        window.shareWeekCard = async function (week) {
+            const meId = (DRAFT.me || {}).id;
+            const wk = Number(week);
+            const row = (DRAFT.allWeeks || []).find(r => r && Number(r.week) === wk && r.debt_status !== 'none' &&
+                (r.winner_id === meId || r.loser_id === meId));
+            if (!row) { alert('No settled result for week ' + wk + ' yet.'); return; }
+            const iWon = row.winner_id === meId;
+            const oppId = iWon ? row.loser_id : row.winner_id;
+            const oppName = draftName(oppId) || 'Opponent';
+            const myVal = Number(iWon ? row.winner_value : row.loser_value);
+            const theirVal = Number(iWon ? row.loser_value : row.winner_value);
+            const startCap = allocCapital();
+            const pctOf = v => (isFinite(v) && v > 0 && startCap > 0) ? (v / startCap - 1) * 100 : null;
+            const myPct = pctOf(myVal), theirPct = pctOf(theirVal);
+            const fmtPct = p => p == null ? '\u2014' : (p < 0 ? '\u2212' : '+') + Math.abs(p).toFixed(2) + '%';
+            const fmtUsd = v => isFinite(v) && v > 0 ? '$' + v.toLocaleString(undefined, { maximumFractionDigits: 0 }) : '';
+            const rec = playerRecord(meId);
+            const best = myRows().filter(r => r.cost > 0 && r.price > 0)
+                .map(r => ({ symbol: r.symbol, ret: (r.price / r.cost - 1) * 100 }))
+                .sort((a, b) => b.ret - a.ret)[0] || null;
+
+            // Without the native share sheet the card opens in a tab; open it now,
+            // inside the click, so popup blockers leave it alone.
+            const canNative = !!(navigator.share && navigator.canShare && typeof File === 'function');
+            let win = null;
+            if (!canNative) { try { win = window.open('', '_blank'); } catch (e) { win = null; } }
+
+            try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+            const c = document.createElement('canvas'); c.width = 1200; c.height = 630;
+            const g = c.getContext('2d');
+            const FONT = (w, px) => w + ' ' + px + 'px Inter, "Helvetica Neue", Arial, sans-serif';
+            const tone = iWon ? '#5CB88A' : '#D9645C';
+            g.fillStyle = '#14100E'; g.fillRect(0, 0, 1200, 630);
+            g.fillStyle = tone; g.fillRect(0, 0, 14, 630);
+            g.fillStyle = 'rgba(236,226,214,0.06)'; g.fillRect(80, 448, 1040, 1);
+            g.textBaseline = 'alphabetic';
+            try { g.letterSpacing = '0.22em'; } catch (e) {}
+            g.fillStyle = '#8a8178'; g.font = FONT(700, 22);
+            g.fillText(('WEEK ' + wk + ' \u00b7 FINAL').toUpperCase(), 80, 96);
+            try { g.letterSpacing = '0px'; } catch (e) {}
+            g.fillStyle = tone; g.font = FONT(800, 84);
+            g.fillText((iWon ? 'WON WEEK ' : 'LOST WEEK ') + wk, 80, 186);
+            g.fillStyle = '#B7ADA1'; g.font = FONT(600, 34);
+            g.fillText('vs ' + oppName, 80, 236);
+            // my side
+            g.fillStyle = '#F4EEE6'; g.font = FONT(800, 132);
+            g.fillText(fmtPct(myPct), 80, 392);
+            g.fillStyle = '#8a8178'; g.font = FONT(700, 22);
+            g.fillText('YOU' + (fmtUsd(myVal) ? '  \u00b7  ' + fmtUsd(myVal) : ''), 84, 428);
+            // their side
+            g.textAlign = 'right';
+            g.fillStyle = '#B7ADA1'; g.font = FONT(800, 68);
+            g.fillText(fmtPct(theirPct), 1120, 392);
+            g.fillStyle = '#8a8178'; g.font = FONT(700, 22);
+            g.fillText(oppName.toUpperCase() + (fmtUsd(theirVal) ? '  \u00b7  ' + fmtUsd(theirVal) : ''), 1120, 428);
+            g.textAlign = 'left';
+            // record + best pick
+            g.fillStyle = '#B7ADA1'; g.font = FONT(600, 28);
+            const facts = ['Record ' + rec.w + '\u2013' + rec.l];
+            if (best) facts.push('Best pick ' + best.symbol + ' ' + fmtPct(best.ret));
+            g.fillText(facts.join('    \u00b7    '), 80, 500);
+            g.fillStyle = '#7d746a'; g.font = FONT(500, 20);
+            g.fillText('Returns vs starting capital', 80, 536);
+            // wordmark
+            g.fillStyle = '#E0A24C'; g.font = FONT(800, 28);
+            g.fillText('Fantasy Trader', 80, 586);
+
+            const blob = await new Promise(res => { try { c.toBlob(res, 'image/png'); } catch (e) { res(null); } });
+            const fname = 'fantasy-trader-week-' + wk + '.png';
+            if (canNative && blob) {
+                const file = new File([blob], fname, { type: 'image/png' });
+                try {
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({ files: [file], title: 'Fantasy Trader \u2014 Week ' + wk });
+                        return;
+                    }
+                } catch (e) { if (e && e.name === 'AbortError') return; }
+                try { win = window.open('', '_blank'); } catch (e) { win = null; }
+            }
+            const url = c.toDataURL('image/png');
+            if (win && !win.closed) {
+                try {
+                    win.document.title = 'Week ' + wk + ' card';
+                    win.document.body.style.cssText = 'margin:0;background:#14100E;display:flex;align-items:center;justify-content:center;min-height:100vh;';
+                    const img = win.document.createElement('img');
+                    img.src = url; img.alt = 'Week ' + wk + ' card'; img.style.cssText = 'max-width:100%;height:auto;';
+                    win.document.body.appendChild(img);
+                    return;
+                } catch (e) {}
+            }
+            // last resort: show it in-page
+            const old = document.getElementById('shareCardOverlay'); if (old) old.remove();
+            const m = document.createElement('div');
+            m.id = 'shareCardOverlay'; m.className = 'ts-overlay';
+            m.innerHTML = '<div class="ts-box" style="max-width:640px;"><img src="' + url + '" alt="Week ' + wk + ' card" style="width:100%;height:auto;display:block;">' +
+                '<div class="team-sub" style="margin-top:.7rem;">Long-press or right-click the image to save it.</div></div>';
+            m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+            document.body.appendChild(m);
+        };
+
         window.toggleDesc = function (btn) {
             const card = btn.closest('.df-card');
             const d = card && card.querySelector('.df-desc');
@@ -5704,11 +6557,17 @@
                 await draftRefresh();
             }
         };
-        function draftToast(sym) {
+        // who: null for your own pick ("Drafted NVDA"), a name for everyone else's
+        // ("Alice drafted NVDA"). Each symbol toasts once, so the realtime echo of
+        // your own pick does not show twice.
+        function draftToast(sym, who) {
+            if (!sym) return;
+            if (DRAFT.toasted.has(sym)) return;
+            DRAFT.toasted.add(sym);
             const uni = (DRAFT.universe || []).find(u => u.symbol === sym) || {};
             const el = document.createElement('div');
             el.className = 'draft-toast';
-            el.innerHTML = 'Drafted <b>' + sym + '</b>' + (uni.name ? ' · ' + uni.name : '');
+            el.innerHTML = (who ? escHtml(who) + ' drafted ' : 'Drafted ') + '<b>' + escHtml(sym) + '</b>' + (uni.name ? ' · ' + escHtml(uni.name) : '');
             document.body.appendChild(el);
             setTimeout(() => { el.style.transition = 'opacity .4s'; el.style.opacity = '0'; }, 1800);
             setTimeout(() => el.remove(), 2300);
@@ -5862,7 +6721,7 @@
         }
 
         async function renderRealLeaderboard(targetEl){
-            const standings = await SL.leagueStandings(DRAFT.id);
+            const standings = liveStandings(await SL.leagueStandings(DRAFT.id));
             // Real stats: total roster value across all players.
             const cap = document.getElementById('statCapital');
             // "Total Capital" is the CAPITAL line — starting capital plus weekly
@@ -5926,9 +6785,23 @@
             // Your own row shows your real username with "(You)" beside it — not just "You".
             const lbName = (s) => {
                 const raw = s.name || draftName(s.user_id) || 'Player';
-                return s.user_id === (DRAFT.me || {}).id
+                return (s.user_id === (DRAFT.me || {}).id
                     ? raw + ' <span style="color:#5CB88A;font-weight:700;">(You)</span>'
-                    : raw;
+                    : raw) + loserChip(s.user_id);
+            };
+            /* Play 06: the Academy column. A player who has never answered has
+               no row on the server — that is a dash, not a zero, because
+               "0 correct" and "has not started" are different things and the
+               table should not accuse anyone of the first. */
+            const academyCell = (a) => {
+                if (!a || !Number(a.answered)) return '<span class="lb-ac-none">&mdash;</span>';
+                const streak = Number(a.streak) || 0;
+                return '<b class="lb-ac-n">' + (Number(a.correct) || 0) + '</b>' +
+                       (streak > 1 ? '<i class="lb-ac-streak">' + streak + ' day streak</i>' : '');
+            };
+            const lbRecord = (uid) => {
+                const r = playerRecord(uid);
+                return (r.w + r.l) ? r.w + '\u2013' + r.l : '';
             };
             if (lb) {
                 const leadCap = standings.length ? capOf(standings[0].user_id) : 0;
@@ -5947,34 +6820,37 @@
                 const crown = `<svg width="26" height="20" viewBox="0 0 26 20" fill="none">
                     <path d="M2 17h22l2-13-6.5 5L13 1 6.5 9 0 4l2 13z" fill="#E0A24C"/>
                     <circle cx="13" cy="1.6" r="1.7" fill="#F6D07A"/></svg>`;
-                pod.innerHTML = `<div class="lb-podium">
+                const avOf = uid => avatarFor(uid, 84);
+                pod.innerHTML = `<div class="lbx">
                     ${[1, 0, 2].map(i => { const s = top3[i];
-                        if (!s) return `<div class="pod vacant">
-                            <div class="pod-crown"></div>
-                            <div class="pod-name">&mdash;</div>
-                            <div class="pod-block p${i + 1}">${i + 1}</div>
-                        </div>`;
-                        const nm = lbName(s);
+                        if (!s) return `<div class="lbx-p vacant r${i + 1}"><div class="lbx-crown"></div>
+                            <div class="lbx-av" style="height:88px"></div><div class="lbx-name">&mdash;</div><div class="lbx-ret">&nbsp;</div>
+                            <div class="lbx-step">${i + 1}</div></div>`;
                         const r = Number(s.returnPct) || 0;
-                        return `<div class="pod">
-                            <div class="pod-crown">${i === 0 ? crown : ''}</div>
-                            <div class="pod-name">${nm}</div>
-                            <div class="pod-block p${i + 1}">${i + 1}</div>
+                        return `<div class="lbx-p r${i + 1}" onclick="showPlayerPerf('${s.user_id}')" style="cursor:pointer">
+                            <div class="lbx-crown">${i === 0 ? crown : ''}</div>
+                            <div class="lbx-av">${avOf(s.user_id)}</div>
+                            <div class="lbx-name">${escHtml(s.user_id === (DRAFT.me || {}).id ? 'You' : (s.name || draftName(s.user_id)))}</div>
+                            <div class="lbx-ret ${lbPrep ? '' : r >= 0 ? 'up' : 'down'}">${lbPrep ? '&nbsp;' : (r >= 0 ? '+' : '') + r.toFixed(2) + '%'}</div>
+                            <div class="lbx-step">${i + 1}</div>
                         </div>`; }).join('')}
                 </div>`;
                 lb.innerHTML = standings.map((s, i) => {
                     const nm = lbName(s);
                     const cap = capOf(s.user_id);
                     const gap = leadCap - cap;
-                    const sub = lbPrep ? (i === 0 ? '' : '')
+                    const sub0 = lbPrep ? (i === 0 ? '' : '')
                         : i === 0 ? 'league leader'
                         : '$' + gap.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' behind';
+                    const rec = lbRecord(s.user_id);
+                    const sub = [rec, sub0].filter(Boolean).join(' &middot; ');
                     const ret = lbPrep ? '—' : (s.returnPct >= 0 ? '+' : '') + s.returnPct.toFixed(2) + '%';
                     return `<tr style="cursor:pointer" onclick="showPlayerPerf('${s.user_id}')">
                         <td class="rank-cell">${seated ? i + 1 : 1}</td>
                         <td><div class="player-name">${nm}</div>${sub ? '<div class="lb-sub">' + sub + '</div>' : ''}</td>
                         <td style="font-variant-numeric:tabular-nums;font-weight:700;">$${cap.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
                         <td style="font-variant-numeric:tabular-nums;color:#B7ADA1;">${ret}</td>
+                        <td class="lb-ac-col">${academyCell(s.academy)}</td>
                         <td style="text-align:right;"><button class="lb-port-btn" onclick="event.stopPropagation();showPlayerPerf('${s.user_id}')">Portfolio</button></td></tr>`;
                 }).join('');
             }
@@ -6069,5 +6945,8 @@
         </div>
     </div>
 
+<!-- the dashboard's "check your league" quest -->
+<script>try{localStorage.setItem('ftQuestLeague',(function(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');})(new Date()))}catch(e){}</script>
+<script src="js/ft-tour.js?v=3"></script>
 </body>
 </html>

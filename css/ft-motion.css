@@ -1,0 +1,87 @@
+/* ============================================================
+ *  FT MOTION — how things move, everywhere.
+ *
+ *  One file so every page eases the same way. Three ideas:
+ *
+ *    1. Pages arrive, they don't appear. A short fade-and-lift on
+ *       load, and a cross-fade between pages where the browser
+ *       supports view transitions — so clicking through the app
+ *       stops feeling like a sequence of reloads.
+ *    2. One easing curve for everything interactive. Mixed curves
+ *       are what make an interface feel assembled from parts.
+ *    3. Nothing moves for anyone who asked it not to.
+ * ============================================================ */
+
+:root {
+    --ease-out:  cubic-bezier(0.22, 0.9, 0.28, 1);     /* arrives, settles */
+    --ease-in:   cubic-bezier(0.4, 0, 1, 1);           /* leaves */
+    --ease-pop:  cubic-bezier(0.2, 0.9, 0.3, 1.25);    /* overshoots, for the chunky buttons */
+    --dur-fast:  0.14s;
+    --dur-base:  0.24s;
+    --dur-slow:  0.42s;
+}
+
+/* ── page arrival ──────────────────────────────────────────────
+   Applied to the page's main content wrapper by the host. Staggered
+   children read as a sequence rather than a single block landing. */
+.ft-arrive {
+    animation: ftArrive var(--dur-slow) var(--ease-out) both;
+}
+.ft-arrive > * {
+    animation: ftArrive var(--dur-slow) var(--ease-out) both;
+}
+.ft-arrive > :nth-child(1) { animation-delay: 0.04s; }
+.ft-arrive > :nth-child(2) { animation-delay: 0.10s; }
+.ft-arrive > :nth-child(3) { animation-delay: 0.16s; }
+.ft-arrive > :nth-child(4) { animation-delay: 0.22s; }
+.ft-arrive > :nth-child(5) { animation-delay: 0.28s; }
+.ft-arrive > :nth-child(n+6) { animation-delay: 0.34s; }
+@keyframes ftArrive {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* ── cross-page ────────────────────────────────────────────────
+   Same-document view transitions where supported. The old page
+   fades down while the new one fades up; together they read as one
+   continuous surface. Browsers without support simply navigate. */
+@view-transition { navigation: auto; }
+::view-transition-old(root) {
+    animation: ftLeave 0.18s var(--ease-in) both;
+}
+::view-transition-new(root) {
+    animation: ftArrive 0.28s var(--ease-out) both;
+}
+@keyframes ftLeave {
+    to { opacity: 0; transform: translateY(-6px); }
+}
+
+/* ── interaction ───────────────────────────────────────────────
+   Every button, link, card and chip on one curve. These are the
+   properties that actually change on hover across the app; nothing
+   else transitions, so nothing lags behind a click. */
+a, button, [role="button"], .lx-btn, .lx-choice, .lx-tile, .lx-node,
+.practice-card, .lg-card, .lg-row, .pf-tile, .ac-track, .ac-mod,
+.rc-launch, .rc-chip, .tool-chip, .ts-btn, .chart-button, .summary-card,
+.panel-section, .header-btn, .nav-btn {
+    transition-property: transform, box-shadow, border-color, background-color, color, opacity, filter;
+    transition-duration: var(--dur-fast);
+    transition-timing-function: var(--ease-out);
+}
+
+/* focus is visible, and it uses the accent so it belongs to the app */
+:focus-visible {
+    outline: 2px solid #5CB88A;
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+
+/* ── smooth everything the browser can smooth ──────────────── */
+html { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+    .ft-arrive, .ft-arrive > * { animation: none; }
+    ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+    html { scroll-behavior: auto; }
+    * { transition-duration: 0.01ms !important; }
+}

@@ -1,13 +1,97 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <!-- ft-canvas: the page background, declared before anything that can
-         block rendering. Every stylesheet on this page is render-blocking,
-         so when one is slow Chrome gives up holding the previous frame and
-         paints the default canvas — white — for a beat. That was the flash
-         between pages. Inline and first, it can never be white. -->
-    <style>html{background-color:#171310;}</style>
-    <!-- how the link looks when someone shares it -->
+    <!-- charset first, and before any text. Without it the browser sniffed
+         Windows-1252 and every em-dash, arrow and tick on this page rendered
+         as mojibake — that was the "âœ" in front of each bullet. -->
+    <meta charset="UTF-8">
+    <!-- ft-canvas: declared before anything render-blocking so a slow
+         stylesheet can never flash white between pages. -->
+    <style>html{background-color:#14100E;}
+/* ============================================================
+ *  PRACTICE, simpler.
+ *
+ *  Four equal tiles and two cards with bullet lists was a lot of
+ *  reading for a page whose job is to get you to the trading
+ *  screen. Now there is one thing to chase — the +50% race from the
+ *  dashboard announcement, as a progress bar — and two big doors.
+ * ============================================================ */
+.pf-race {
+    display: block !important;
+    margin-top: 1.4rem; padding: 1.1rem 1.2rem 1rem;
+    background: rgba(30, 26, 22, 0.86);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 2px solid rgba(236,226,214,0.10); border-bottom-width: 5px;
+    border-radius: 20px;
+}
+.pr-head { display: flex; align-items: center; justify-content: space-between; }
+.pr-kick {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font: 800 0.7rem 'Inter', sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: #5CB88A;
+}
+.pr-kick svg { width: 15px; height: 15px; }
+.pr-prize {
+    font: 800 0.72rem 'Inter', sans-serif; color: #F0B865;
+    padding: 0.25rem 0.65rem; border-radius: 999px;
+    background: rgba(224,162,76,0.12); border: 1px solid rgba(224,162,76,0.3);
+}
+.pr-line { display: flex; align-items: baseline; gap: 0.6rem; margin: 0.55rem 0 0.6rem; }
+.pr-pct { font: 900 2.3rem/1 'Inter', sans-serif; letter-spacing: -0.03em; color: #F4EEE6; font-variant-numeric: tabular-nums; }
+.pr-pct.up { color: #7BD3A6; }
+.pr-pct.down { color: #E8867F; }
+.pr-goal { font: 600 0.82rem 'Inter', sans-serif; color: #9A8F84; }
+.pr-bar {
+    position: relative; height: 14px; border-radius: 999px;
+    background: rgba(236,226,214,0.07); overflow: visible;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
+}
+.pr-bar i {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0; min-width: 14px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #3E8C65, #6FCB9B);
+    box-shadow: 0 0 14px rgba(92,184,138,0.55);
+    transition: width 1.2s cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+.pr-bar.down i { background: linear-gradient(90deg, #A8433C, #E8867F); box-shadow: 0 0 12px rgba(217,100,92,0.5); }
+.pr-flag {
+    position: absolute; right: 0; top: -1.35rem;
+    font: 800 0.62rem 'Inter', sans-serif; color: #9A8F84;
+}
+.pr-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 0.95rem; }
+.pr-stats .pf-tile {
+    background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(236,226,214,0.08) !important;
+    border-radius: 12px !important; padding: 0.55rem 0.7rem !important; box-shadow: none !important;
+    min-height: 0 !important;
+}
+.pr-stats .pf-tile b { font-size: 1rem !important; }
+.pr-stats .pf-tile span { font-size: 0.6rem !important; }
+
+.pf-cards { gap: 0.8rem !important; margin-top: 0.9rem !important; }
+.practice-card {
+    display: grid !important; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem;
+    padding: 1rem 1.1rem !important; min-height: 0 !important;
+    border-radius: 18px !important;
+    border-bottom-width: 5px !important;
+}
+.practice-card .card-features, .practice-card .card-cta { display: none !important; }
+.practice-card .pf-disc { margin: 0 !important; }
+.practice-card .card-title { margin: 0 !important; font-size: 1.25rem !important; }
+.pc-txt { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.pc-sub { font: 600 0.8rem 'Inter', sans-serif; color: #9A8F84; }
+.pc-go {
+    width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center;
+    background: rgba(255,255,255,0.06); color: #F4EEE6;
+    transition: transform 0.18s ease, background 0.18s ease;
+}
+.pc-go svg { width: 18px; height: 18px; }
+.practice-card:hover .pc-go { transform: translateX(3px); background: rgba(255,255,255,0.14); }
+@media (prefers-reduced-motion: reduce) { .pr-bar i { transition: none; } }
+@media (max-width: 700px) { .pr-stats { grid-template-columns: repeat(2, 1fr); } }
+</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Practice — Fantasy Trader</title>
+    <meta name="description" content="The practice floor. Run a paper account, make every mistake for free.">
+
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Fantasy Trader">
     <meta property="og:url" content="https://fantasytrader.co/">
@@ -21,1500 +105,1002 @@
     <meta name="twitter:title" content="Come play Fantasy Trader">
     <meta name="twitter:description" content="Fantasy football, but your players are real companies. Draft stocks, run $100,000, and beat your friends every week.">
     <meta name="twitter:image" content="https://fantasytrader.co/og-image.jpg">
+
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <meta name="theme-color" content="#171310">
-    <title>Practice Trading - Stock League</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #4a6785;
-            --secondary: #6aa08d;
-            --accent: #e0a24c;
-            --background: #1a1714;
-            --surface: #241f1b;
-            --success: #5cb88a;
-            --danger: #d9645c;
-            --text-primary: #ffffff;
-            --text-secondary: #b2b5be;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-            background: var(--background);
-            color: var(--text-primary);
-            overflow-x: hidden;
-            position: relative;
-            min-height: 100vh;
-        }
-
-        /* Animated Background */
-        .animated-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        .grid-overlay {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(236, 226, 214, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(236, 226, 214, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridMove 20s linear infinite;
-        }
-
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
-
-        .floating-shapes {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-
-        .shape {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.1;
-            animation: float 20s infinite ease-in-out;
-        }
-
-        .shape-1 {
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, var(--success) 0%, transparent 70%);
-            top: 10%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-
-        .shape-2 {
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
-            top: 60%;
-            right: 15%;
-            animation-delay: 5s;
-        }
-
-        .shape-3 {
-            width: 250px;
-            height: 250px;
-            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
-            bottom: 20%;
-            left: 20%;
-            animation-delay: 10s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -30px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-
-        .chart-lines {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0.15;
-        }
-
-        .chart-line {
-            position: absolute;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--success), transparent);
-            animation: chartMove 15s infinite linear;
-        }
-
-        .chart-line:nth-child(1) {
-            top: 20%;
-            width: 400px;
-            animation-delay: 0s;
-        }
-
-        .chart-line:nth-child(2) {
-            top: 40%;
-            width: 300px;
-            animation-delay: 3s;
-        }
-
-        .chart-line:nth-child(3) {
-            top: 60%;
-            width: 500px;
-            animation-delay: 6s;
-        }
-
-        .chart-line:nth-child(4) {
-            top: 80%;
-            width: 350px;
-            animation-delay: 9s;
-        }
-
-        @keyframes chartMove {
-            0% { left: -400px; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { left: 100%; opacity: 0; }
-        }
-
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, rgba(26, 23, 20, 0.95) 0%, rgba(36, 31, 27, 0.95) 100%);
-            border-bottom: 1px solid rgba(236, 226, 214, 0.2);
-            padding: 0 2rem;
-            height: 84px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .back-button {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(236, 226, 214, 0.15));
-            border: 1px solid rgba(92, 184, 138, 0.3);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .back-button:hover {
-            background: linear-gradient(135deg, rgba(236, 226, 214, 0.25), rgba(224, 162, 76, 0.25));
-            border-color: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-        }
-
-        .page-title {
-            font-size: 2rem;
-            font-weight: 800;
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #ffffff 0%, var(--success) 50%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-top: 90px;
-            padding: 1.5rem 2rem;
-            position: relative;
-            z-index: 1;
-            min-height: calc(100vh - 60px);
-        }
-
-        .hero-section {
-            text-align: center;
-            margin-bottom: 2rem;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .hero-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            font-family: 'Poppins', sans-serif;
-            margin-bottom: 0.5rem;
-            line-height: 1.1;
-            background: linear-gradient(135deg, #ffffff 0%, var(--success) 50%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 40px rgba(92, 184, 138, 0.3);
-            letter-spacing: -1px;
-        }
-
-        .hero-subtitle {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.25rem;
-            font-weight: 500;
-        }
-
-        .hero-tagline {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.6);
-            font-style: italic;
-        }
-
-        .practice-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 1.5rem;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 1rem 0;
-        }
-
-        .practice-card {
-            background: linear-gradient(135deg, rgba(36, 31, 27, 0.8) 0%, rgba(26, 23, 20, 0.9) 100%);
-            border: 2px solid rgba(236, 226, 214, 0.2);
-            border-radius: 16px;
-            padding: 2rem;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            min-height: 450px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        }
-
-        /* Background decorative elements */
-        .practice-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            opacity: 0.08;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Chart icon background for trading card */
-        .practice-card.trading-card::after {
-            background-image: 
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Cpath d='M10 250 L50 220 L90 200 L130 180 L150 160 L170 140 L190 120 L210 100 L230 85 L250 70 L270 60 L290 50 L310 45 L330 40 L350 35 L370 30 L390 25' stroke='%2300FF88' stroke-width='3' fill='none' stroke-linecap='round' opacity='0.15'/%3E%3Cpath d='M20 240 L60 210 L100 190 L140 170 L160 150 L180 130 L200 110 L220 95 L240 80 L260 70 L280 60 L300 55 L320 50 L340 45 L360 40 L380 35' stroke='%2300FF88' stroke-width='2.5' fill='none' stroke-linecap='round' opacity='0.12'/%3E%3Cpath d='M15 260 L55 230 L95 210 L135 190 L155 170 L175 150 L195 130 L215 115 L235 100 L255 90 L275 80 L295 75 L315 70 L335 65 L355 60 L375 55 L395 50' stroke='%2300FF88' stroke-width='2' fill='none' stroke-linecap='round' opacity='0.1'/%3E%3Cpath d='M30 230 L70 200 L110 180 L150 160 L170 140 L190 120 L210 105 L230 90 L250 80 L270 70 L290 65 L310 60 L330 55 L350 50 L370 45 L390 40' stroke='%2300FF88' stroke-width='2' fill='none' stroke-linecap='round' opacity='0.13'/%3E%3Cpath d='M25 245 L65 215 L105 195 L145 175 L165 155 L185 135 L205 115 L225 100 L245 85 L265 75 L285 65 L305 60 L325 55 L345 50 L365 45 L385 40' stroke='%2300FF88' stroke-width='2.5' fill='none' stroke-linecap='round' opacity='0.11'/%3E%3Cpath d='M5 270 L45 240 L85 220 L125 200 L145 180 L165 160 L185 140 L205 120 L225 105 L245 90 L265 80 L285 70 L305 65 L325 60 L345 55 L365 50 L385 45' stroke='%2300FF88' stroke-width='2' fill='none' stroke-linecap='round' opacity='0.09'/%3E%3Cpath d='M10 250 L10 280 M50 220 L50 280 M90 200 L90 280 M130 180 L130 280 M150 160 L150 280 M170 140 L170 280 M190 120 L190 280 M210 100 L210 280 M230 85 L230 280 M250 70 L250 280 M270 60 L270 280 M290 50 L290 280 M310 45 L310 280 M330 40 L330 280 M350 35 L350 280 M370 30 L370 280 M390 25 L390 280' stroke='%2300FF88' stroke-width='1' opacity='0.08'/%3E%3Cpath d='M0 250 L400 250 M0 220 L400 220 M0 190 L400 190 M0 160 L400 160 M0 130 L400 130 M0 100 L400 100 M0 70 L400 70 M0 40 L400 40' stroke='%2300FF88' stroke-width='1' opacity='0.06'/%3E%3C/svg%3E"),
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Cpath d='M10 100 L30 85 L50 70 L70 60 L90 55 L110 50 L130 45 L150 40 L170 35 L190 30' stroke='%2300FF88' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M10 100 L30 90 L50 75 L70 65 L90 58 L110 52 L130 48 L150 42 L170 38 L190 32' stroke='%2300FF88' stroke-width='2' fill='none' stroke-linecap='round' opacity='0.6'/%3E%3Ccircle cx='190' cy='30' r='4' fill='%2300FF88'/%3E%3Cpath d='M10 100 L10 110 M30 85 L30 110 M50 70 L50 110 M70 60 L70 110 M90 55 L90 110 M110 50 L110 110 M130 45 L130 110 M150 40 L150 110 M170 35 L170 110 M190 30 L190 110' stroke='%2300FF88' stroke-width='1' opacity='0.3'/%3E%3C/svg%3E");
-            background-size: 100% 100%, 180px 120px;
-            background-position: center, right -20px bottom -20px;
-            background-repeat: no-repeat, no-repeat;
-        }
-
-        /* Numbers background for portfolio card */
-        .practice-card.portfolio-card::after {
-            background-image: 
-                repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 40px,
-                    rgba(236, 226, 214, 0.03) 40px,
-                    rgba(236, 226, 214, 0.03) 41px
-                ),
-                repeating-linear-gradient(
-                    90deg,
-                    transparent,
-                    transparent 40px,
-                    rgba(236, 226, 214, 0.03) 40px,
-                    rgba(236, 226, 214, 0.03) 41px
-                );
-        }
-
-        .practice-card.portfolio-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Ctext x='20' y='40' font-family='Courier New' font-size='14' fill='%2300FF88' opacity='0.12'%3E+24.5%%3C/text%3E%3Ctext x='180' y='60' font-family='Courier New' font-size='12' fill='%2300FF88' opacity='0.1'%3E$1,234,567%3C/text%3E%3Ctext x='30' y='100' font-family='Courier New' font-size='13' fill='%2300FF88' opacity='0.11'%3E$89.45%3C/text%3E%3Ctext x='200' y='120' font-family='Courier New' font-size='14' fill='%2300FF88' opacity='0.13'%3E+$12.34%3C/text%3E%3Ctext x='50' y='160' font-family='Courier New' font-size='12' fill='%2300FF88' opacity='0.1'%3E-2.1%%3C/text%3E%3Ctext x='220' y='180' font-family='Courier New' font-size='13' fill='%2300FF88' opacity='0.12'%3E$456,789%3C/text%3E%3Ctext x='80' y='220' font-family='Courier New' font-size='14' fill='%2300FF88' opacity='0.11'%3E+18.2%%3C/text%3E%3Ctext x='250' y='240' font-family='Courier New' font-size='12' fill='%2300FF88' opacity='0.1'%3E$2,891,234%3C/text%3E%3Ctext x='120' y='280' font-family='Courier New' font-size='13' fill='%2300FF88' opacity='0.12'%3E$156.78%3C/text%3E%3C/svg%3E");
-            background-size: 100% 100%;
-            background-position: center;
-            background-repeat: no-repeat;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .practice-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(236, 226, 214, 0.1), transparent);
-            transition: left 0.5s;
-            z-index: 1;
-        }
-
-        .practice-card:hover::before {
-            left: 100%;
-        }
-
-        .practice-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            border-color: var(--success);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-        }
-
-        .card-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 2rem;
-            background: linear-gradient(135deg, rgba(236, 226, 214, 0.2), rgba(236, 226, 214, 0.05));
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            transition: all 0.4s ease;
-            z-index: 2;
-        }
-
-        .practice-card:hover .card-icon {
-            transform: scale(1.1) rotate(5deg);
-            background: linear-gradient(135deg, rgba(92, 184, 138, 0.3), rgba(236, 226, 214, 0.15));
-            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-        }
-
-        .card-icon svg {
-            width: 45px;
-            height: 45px;
-            fill: var(--success);
-            filter: drop-shadow(0 0 10px rgba(92, 184, 138, 0.5));
-        }
-
-        .card-title {
-            font-size: 1.6rem;
-            font-weight: 700;
-            font-family: 'Poppins', sans-serif;
-            color: #ffffff;
-            margin-bottom: 0.75rem;
-            text-align: center;
-            position: relative;
-            z-index: 2;
-        }
-
-        .card-description {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            line-height: 1.5;
-            text-align: center;
-            margin-bottom: 1rem;
-            position: relative;
-            z-index: 2;
-        }
-
-        .card-features {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            position: relative;
-            z-index: 2;
-        }
-
-        .portfolio-card .card-features {
-            margin-top: 0.5rem;
-        }
-        
-        .card-features {
-            margin-top: 0.5rem;
-        }
-
-        .card-features li {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
-            font-family: 'Poppins', sans-serif;
-            padding-left: 1.5rem;
-            position: relative;
-            display: flex;
-            margin-bottom: 0.75rem;
-            align-items: center;
-            line-height: 1.6;
-        }
-
-        .card-features li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: var(--success);
-            font-weight: 700;
-            font-size: 1.2rem;
-            width: 24px;
-            height: 24px;
-            background: rgba(236, 226, 214, 0.15);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .card-cta {
-            margin-top: 2rem;
-            text-align: center;
-            padding: 1.2rem 2rem;
-            background: linear-gradient(135deg, var(--success) 0%, #54b082 100%);
-            border: 3px solid var(--success);
-            border-radius: 20px;
-            color: #1a1714;
-            font-weight: 900;
-            font-size: 1.3rem;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            z-index: 2;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-            transform-style: preserve-3d;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            clip-path: polygon(
-                0% 0%,
-                100% 0%,
-                100% calc(100% - 8px),
-                calc(100% - 8px) 100%,
-                8px 100%,
-                0% calc(100% - 8px)
-            );
-        }
-
-        .card-cta::before {
-            content: '';
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            right: -4px;
-            bottom: -4px;
-            background: linear-gradient(135deg, rgba(92, 184, 138, 0.4), rgba(236, 226, 214, 0.2));
-            border-radius: 16px;
-            z-index: -1;
-            filter: blur(8px);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .card-cta::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 3px,
-                    rgba(0, 0, 0, 0.08) 3px,
-                    rgba(0, 0, 0, 0.08) 6px
-                ),
-                repeating-linear-gradient(
-                    90deg,
-                    transparent,
-                    transparent 3px,
-                    rgba(255, 255, 255, 0.1) 3px,
-                    rgba(255, 255, 255, 0.1) 6px
-                );
-            border-radius: 20px;
-            pointer-events: none;
-            opacity: 0.4;
-            mix-blend-mode: overlay;
-        }
-
-        .practice-card:hover .card-cta {
-            background: linear-gradient(135deg, #5cb88a 0%, var(--success) 100%);
-            transform: translateY(-6px) scale(1.08);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-            border-color: #5cb88a;
-            clip-path: polygon(
-                0% 0%,
-                100% 0%,
-                100% calc(100% - 10px),
-                calc(100% - 10px) 100%,
-                10px 100%,
-                0% calc(100% - 10px)
-            );
-        }
-
-        .practice-card:hover .card-cta::before {
-            opacity: 1;
-        }
-
-        .stats-bar {
-            max-width: 900px;
-            margin: 2rem auto 0;
-            padding: 1.5rem;
-            background: linear-gradient(135deg, rgba(36, 31, 27, 0.6), rgba(26, 23, 20, 0.8));
-            border: 1px solid rgba(236, 226, 214, 0.2);
-            border-radius: 16px;
-            backdrop-filter: blur(20px);
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            gap: 2rem;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: 800;
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--success), var(--accent));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Sector prompt modal */
-        .sector-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(8, 14, 20, 0.85);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            padding: 1.5rem;
-        }
-
-        .sector-modal.active {
-            display: flex;
-        }
-
-        .sector-modal-content {
-            max-width: 900px;
-            width: 100%;
-            background: linear-gradient(135deg, rgba(36, 31, 27, 0.95), rgba(26, 23, 20, 0.98));
-            border: 2px solid rgba(92, 184, 138, 0.3);
-            border-radius: 18px;
-            padding: 2rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        }
-
-        .sector-modal-header {
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .sector-modal-title {
-            font-size: 2rem;
-            font-weight: 800;
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #ffffff 0%, var(--success) 60%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.4rem;
-        }
-
-        .sector-modal-subtitle {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-
-        .sector-count {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-
-        .sectors-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 0.8rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .sector-button {
-            background: var(--surface);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 10px;
-            padding: 0.7rem 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.85);
-        }
-
-        .sector-button:hover {
-            transform: translateY(-2px);
-            border-color: var(--accent);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-        }
-
-        .sector-button.selected {
-            border-color: var(--success);
-            background: rgba(236, 226, 214, 0.18);
-            color: var(--success);
-            box-shadow: 0 0 15px rgba(236, 226, 214, 0.25);
-        }
-
-        .sector-modal-actions {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-        }
-
-        .sector-save {
-            padding: 0.9rem 2.2rem;
-            border-radius: 12px;
-            border: none;
-            background: linear-gradient(135deg, var(--success), #54b082);
-            color: #1a1714;
-            font-weight: 800;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-transform: uppercase;
-        }
-
-        .sector-save:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-        }
-
-        .sector-error {
-            text-align: center;
-            margin-top: 0.8rem;
-            color: var(--danger);
-            font-size: 0.9rem;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 968px) {
-            .hero-title {
-                font-size: 3rem;
-            }
-            
-            .practice-cards {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-            
-            .practice-card {
-                padding: 2.5rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.5rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1.2rem;
-            }
-            
-            .main-content {
-                padding: 2rem 1rem;
-            }
-            
-            .practice-card {
-                padding: 2rem;
-            }
-            
-            .card-title {
-                font-size: 1.8rem;
-            }
-            
-            .card-cta {
-                padding: 1rem 1.5rem;
-                font-size: 1.1rem;
-                letter-spacing: 1px;
-            }
-            
-            .practice-card {
-                min-height: 400px;
-            }
-            
-            .stats-bar {
-                flex-direction: column;
-                gap: 1.5rem;
-            }
-        }
-
-        /* ── Tutorial Overlay ── */
-        .tut-backdrop { display: none; position: fixed; inset: 0; z-index: 5000; pointer-events: none; }
-        .tut-backdrop.active { display: block; }
-        .tut-backdrop-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.55); pointer-events: auto; }
-        /* ── Tutorial ── */
-        .tut-backdrop { display:none; position:fixed; inset:0; z-index:5000; }
-        .tut-backdrop.active { display:block; }
-        .tut-overlay-svg { position:fixed; inset:0; width:100%; height:100%; z-index:5000; pointer-events:auto; }
-        .tut-highlight-border { display:none; }
-        .tut-tooltip { position:fixed; z-index:5002; background:#241f1b; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:1.25rem 1.4rem; width:300px; pointer-events:auto; opacity:0; box-shadow:0 16px 48px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.04); }
-        .tut-tooltip.visible { animation:tutFadeIn 0.3s ease forwards; }
-        @keyframes tutFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-        .tut-tooltip-step { font-size:0.7rem; font-weight:600; letter-spacing:0.5px; color:rgba(92,184,138,0.7); margin-bottom:0.5rem; font-family:'Poppins','Inter',sans-serif; }
-        .tut-tooltip-title { font-size:1.05rem; font-weight:700; color:#fff; margin-bottom:0.4rem; font-family:'Poppins','Inter',sans-serif; letter-spacing:-0.3px; }
-        .tut-tooltip-desc { font-size:0.82rem; color:rgba(255,255,255,0.65); line-height:1.55; margin-bottom:1.1rem; font-family:'Inter',sans-serif; }
-        .tut-tooltip-progress { display:flex; gap:4px; margin-bottom:1rem; }
-        .tut-tooltip-pip { height:3px; border-radius:2px; background:rgba(255,255,255,0.1); flex:1; transition:background 0.3s ease; }
-        .tut-tooltip-pip.done { background:rgba(92,184,138,0.5); }
-        .tut-tooltip-pip.active { background:#5cb88a; }
-        .tut-tooltip-actions { display:flex; justify-content:space-between; align-items:center; }
-        .tut-skip-btn { background:none; border:none; color:rgba(255,255,255,0.3); font-size:0.78rem; font-weight:500; cursor:pointer; padding:0.3rem 0; font-family:'Inter',sans-serif; transition:color 0.2s; }
-        .tut-skip-btn:hover { color:rgba(255,255,255,0.55); }
-        .tut-next-btn { background:#5cb88a; color:#1a1714; border:none; padding:0.5rem 1.2rem; border-radius:8px; font-size:0.8rem; font-weight:600; cursor:pointer; font-family:'Poppins','Inter',sans-serif; transition:all 0.2s ease; letter-spacing:-0.2px; }
-        .tut-next-btn:hover { background:#54b082; box-shadow:0 4px 14px rgba(236, 226, 214, 0.25); }
-    </style>
-    <link rel="stylesheet" href="css/theme.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
-    <script src="js/guard.js"></script>
-    <style>
-        /* League-style clean theme for Practice */
-        .animated-bg, .grid-overlay, .floating-shapes, .chart-lines { display: none !important; }
-        body { background: #1A1714 !important; }
-        .hero-title {
-            background: none !important; -webkit-text-fill-color: #F4EEE6 !important;
-            text-shadow: none !important; font-family: 'Poppins','Inter',sans-serif !important; font-weight: 800 !important;
-        }
-        .hero-subtitle, .hero-tagline { color: #B7ADA1 !important; text-shadow: none !important; }
-        .practice-card, .practice-cards > div {
-            background: #221E1A !important;
-            border: 1px solid rgba(236,226,214,0.08) !important;
-            border-radius: 16px !important;
-            box-shadow: none !important;
-            backdrop-filter: none !important;
-        }
-        .practice-card::before, .practice-card::after { display: none !important; }
-        .practice-card:hover { transform: translateY(-3px) !important; border-color: rgba(236,226,214,0.22) !important;
-            box-shadow: 0 8px 22px rgba(0,0,0,0.3) !important; }
-        .card-cta {
-            background: #5CB88A !important; color: #14110E !important;
-            border: none !important; box-shadow: none !important; text-shadow: none !important;
-            border-radius: 10px !important; font-weight: 700 !important;
-        }
-        .card-icon { background: rgba(92,184,138,0.1) !important; border: 1px solid rgba(92,184,138,0.25) !important;
-            box-shadow: none !important; border-radius: 12px !important; }
-
-        /* Sleek stats strip */
-        .stats-bar {
-            background: #221E1A !important;
-            border: 1px solid rgba(236,226,214,0.08) !important;
-            border-radius: 14px !important;
-            box-shadow: none !important;
-            padding: 1.1rem 1.5rem !important;
-            display: flex !important; justify-content: space-around !important; align-items: center !important;
-            gap: 1rem !important; max-width: 760px !important; margin: 2rem auto 3rem !important;
-        }
-        .stat-item { text-align: center !important; }
-        .stat-value {
-            font: 700 1.25rem 'Poppins','Inter',sans-serif !important;
-            color: #5CB88A !important; text-shadow: none !important; display: block !important;
-        }
-        .stat-label {
-            font: 500 0.68rem 'Inter',sans-serif !important; text-transform: uppercase !important;
-            letter-spacing: 0.07em !important; color: #B7ADA1 !important;
-        }
-    </style>
-    <style>
-        .header { position: relative !important; }
-        .page-title {
-            font: 600 3.1rem 'Fraunces', Georgia, serif !important;
-            position: absolute !important; left: 50% !important; top: 50% !important;
-            transform: translate(-50%, -50%) !important; margin: 0 !important;
-            letter-spacing: -0.01em;
-        }
-        .hero-title { font-size: 2.6rem !important; }
-    </style>
-    <style>
-        .fact-rotator { max-width: 340px; text-align: right; z-index: 2; position: absolute; right: 2.25rem; top: 50%; transform: translateY(-50%); }
-        .fact-kicker {
-            font: 700 0.7rem 'Inter', sans-serif; text-transform: uppercase;
-            letter-spacing: 0.12em; color: #E0A24C; margin-bottom: 0.35rem;
-        }
-        .fact-line {
-            font: 500 0.84rem/1.55 'Inter', sans-serif; color: #D8CFC2;
-            transition: opacity 0.45s ease;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-        }
-        @media (max-width: 900px) { .fact-rotator { display: none; } }
-    </style>
-    <style>
-        html, body { overflow: hidden !important; height: 100vh !important; }
-        .main-content { min-height: 0 !important; }
-    </style>
-    <style>
-        .header .back-button {
-            display: inline-flex !important; align-items: center !important; gap: 0.5rem !important;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(236, 226, 214, 0.15)) !important;
-            border: 1px solid rgba(92, 184, 138, 0.3) !important;
-            color: #ffffff !important; padding: 0.8rem 1.5rem !important; border-radius: 10px !important;
-            font: 600 0.9rem 'Inter', sans-serif !important;
-            text-decoration: none !important; cursor: pointer !important;
-            transition: all 0.3s ease !important; box-shadow: none !important; text-shadow: none !important;
-        }
-        .header .back-button:hover {
-            background: linear-gradient(135deg, rgba(236, 226, 214, 0.25), rgba(224, 162, 76, 0.25)) !important;
-            border-color: #E0A24C !important; transform: translateY(-2px) !important;
-        }
-    </style>
+    <meta name="theme-color" content="#14100E">
+
+    <link rel="stylesheet" href="css/ft-lessons.css?v=9">
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
+    <link rel="stylesheet" href="css/ft-ambient.css?v=6">
+    <link rel="stylesheet" href="css/ft-motion.css">
+    <link rel="stylesheet" href="css/ft-rally-chat.css?v=3">
+<style>
+/* ============================================================
+ *  THE PRACTICE FLOOR
+ *
+ *  Same design system as the Academy — the lx- tokens, the chunky
+ *  buttons with a hard bottom edge that collapses on press, the
+ *  same header furniture — so moving between learning and doing
+ *  doesn't feel like moving between two products.
+ *
+ *  What's here that the Academy doesn't have: a live paper-account
+ *  readout, and two destination cards big enough to be the point
+ *  of the page.
+ * ============================================================ */
+
+.pf-wrap { max-width: 860px; margin: 0 auto; padding: 0 1.1rem 4rem; }
+
+/* ── hero ───────────────────────────────────────────────────
+   Copy left, Rally right. They swap to stacked below 760px, where
+   `flex-wrap` alone does the work — no second layout to maintain. */
+.pf-hero {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap;
+    padding: 1.9rem 0 0.4rem;
+}
+.pf-hero-copy { flex: 1 1 340px; min-width: 0; }
+.pf-kicker {
+    font: 800 0.68rem var(--lx-display); letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--lx-sage);
+    margin: 0 0 0.5rem;
+}
+.pf-hero h1 {
+    margin: 0; font: 800 clamp(2rem, 5vw, 2.7rem)/1.04 var(--lx-display);
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #ffffff 22%, var(--lx-sage) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.pf-hero-bull {
+    flex: 0 0 auto; margin-bottom: -0.4rem;
+    display: flex; flex-direction: column; align-items: center; gap: 0;
+}
+/* The rig keeps 6.1% of its box empty below the hooves so a jump has
+   somewhere to land — 11px at 186px, 9px at the phone's 150px. Pull the
+   button back up through most of that, but not through the hooves: the
+   tuck has to scale with him or it clips his feet on a phone. */
+.pf-hero-bull .rc-launch { margin-top: -0.45rem; }
+.pf-hero-bull .bull-rig { width: 186px; height: 186px; }
+/* The stage bottom-aligns by default, which parks the bubble down at his
+   hooves. Centred, it sits about where his mouth is. */
+.pf-hero-bull .bull-stage { align-items: center; }
+
+/* He reads the facts out now, so the bubble holds a whole sentence — and a
+   sentence-sized bubble sitting in the flex row was widening the hero every
+   time he opened his mouth, squeezing the headline column and, on a narrower
+   desktop, bumping him onto his own line and back. Out of flow it can't move
+   anything. 240px is what fits between the headline and him at this width. */
+@media (min-width: 761px) {
+    .pf-hero-bull .bull-stage { position: relative; }
+    .pf-hero-bull .bull-bubble {
+        position: absolute; right: calc(100% + 8px); top: 46%;
+        width: 240px; max-width: 240px;
+        /* the entrance transform has to keep the -50% or he'd drop half a
+           bubble-height every time he speaks */
+        transform: translateY(-50%) translateY(8px) scale(0.94);
+    }
+    .pf-hero-bull .bull-bubble.show { transform: translateY(-50%); }
+}
+/* He is inert by default — pointer-events are off all the way down the rig
+   so he can never swallow a click meant for the page. Here he IS the click
+   target, so it goes back on for this one instance only. */
+.pf-hero-bull .bull-stage,
+.pf-hero-bull .bull-holder,
+.pf-hero-bull .bull-rig { pointer-events: auto; }
+.pf-hero-bull .bull-holder { cursor: pointer; }
+.pf-hero-bull .bull-holder .bull-rig {
+    transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+.pf-hero-bull .bull-holder:hover .bull-rig { transform: translateY(-4px) scale(1.03); }
+
+/* ── the paper account ──────────────────────────────────────
+   Real numbers off the same portfolio the trading screen writes to.
+   Four tiles rather than three so "cash" and "invested" can sit
+   side by side, which is the comparison that actually matters. */
+.pf-desk {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem;
+    margin: 1.5rem 0 0;
+}
+.pf-tile {
+    border-radius: 14px; padding: 0.85rem 0.7rem;
+    border: 2px solid var(--lx-line); background: var(--lx-surface);
+    border-bottom-width: 4px;
+}
+.pf-tile b {
+    display: block; font: 800 1.28rem var(--lx-display);
+    font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+    color: var(--lx-ink); line-height: 1.15;
+}
+.pf-tile span {
+    display: block; margin-top: 0.3rem;
+    font: 700 0.58rem var(--lx-sans); letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--lx-ink-3);
+}
+.pf-tile.value b { color: var(--lx-sage); }
+.pf-tile.cash  b { color: var(--lx-honey); }
+.pf-tile.held  b { color: var(--lx-blue); }
+.pf-tile.pnl.up   b { color: var(--lx-sage); }
+.pf-tile.pnl.down b { color: var(--lx-red); }
+/* numbers arrive a beat after the page — they fade rather than snap */
+.pf-tile b.pending { color: var(--lx-ink-3) !important; opacity: 0.5; }
+
+/* ── the two destinations ───────────────────────────────────
+   The signature move of this design system: a solid slab under the
+   card that collapses when you press it, so the card physically
+   travels. Cheap, and it is the whole difference between a link
+   and a button you want to hit. */
+.pf-cards {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem;
+    margin-top: 0.9rem;
+}
+.practice-card {
+    position: relative; top: 0;
+    display: flex; flex-direction: column;
+    padding: 1.4rem 1.3rem 1.2rem;
+    border-radius: 20px; text-decoration: none;
+    background: var(--lx-surface);
+    border: 2px solid var(--c-line, var(--lx-line));
+    box-shadow: 0 6px 0 var(--c-edge, rgba(0,0,0,0.45));
+    transition: transform 0.13s ease, box-shadow 0.09s ease,
+                border-color 0.16s ease, background 0.16s ease;
+    cursor: pointer;
+    /* the glow sits behind the content, so it can never wash the text */
+    overflow: hidden; isolation: isolate;
+}
+.practice-card::before {
+    content: ''; position: absolute; inset: -40% -20% auto -20%; height: 150%;
+    z-index: -1; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 0%, var(--c-glow, transparent) 0%, transparent 62%);
+    opacity: 0; transition: opacity 0.28s ease;
+}
+.practice-card:hover { border-color: var(--c-line-hi, var(--lx-line-2)); }
+.practice-card:hover::before { opacity: 1; }
+.practice-card:active { top: 6px; box-shadow: 0 0 0 var(--c-edge, rgba(0,0,0,0.45)); }
+
+.trading-card   { --c-line: rgba(92,184,138,0.30);  --c-line-hi: var(--lx-sage);
+                  --c-edge: var(--lx-sage-dk);      --c-glow: rgba(92,184,138,0.20); }
+.portfolio-card { --c-line: rgba(157,184,210,0.30); --c-line-hi: var(--lx-blue);
+                  --c-edge: #5C7691;                --c-glow: rgba(157,184,210,0.18); }
+
+/* The icon disc borrows the lesson node's shape language — round, with a
+   solid slab under it. It stays DARK rather than taking the card's colour:
+   this art set is full-colour (candles are sage-and-red, the allocation
+   ring is four-way), so a filled disc would need the glyph flattened to a
+   single tone, and flattening a pie chart leaves a plain circle. */
+.pf-disc {
+    width: 62px; height: 62px; border-radius: 50%;
+    display: grid; place-items: center; margin-bottom: 0.85rem;
+    background: var(--d-fill); border: 2px solid var(--d-line);
+    box-shadow: 0 5px 0 var(--d-edge);
+    transition: transform 0.18s cubic-bezier(0.2,0.9,0.3,1.3);
+}
+.pf-disc svg { width: 38px; height: 38px; }
+.trading-card   .pf-disc { --d-fill: rgba(92,184,138,0.13);  --d-line: rgba(92,184,138,0.4);  --d-edge: rgba(62,140,101,0.55); }
+.portfolio-card .pf-disc { --d-fill: rgba(157,184,210,0.13); --d-line: rgba(157,184,210,0.4); --d-edge: rgba(92,118,145,0.55); }
+.practice-card:hover .pf-disc { transform: translateY(-3px) rotate(-5deg); }
+
+.card-title {
+    margin: 0 0 0.7rem; font: 800 1.24rem var(--lx-display);
+    letter-spacing: -0.02em; color: var(--lx-ink);
+}
+.card-features { list-style: none; margin: 0 0 1.15rem; padding: 0; flex: 1; }
+.card-features li {
+    position: relative; padding-left: 1.35rem; margin-bottom: 0.42rem;
+    font: 600 0.83rem var(--lx-sans); color: var(--lx-ink-2); line-height: 1.45;
+}
+/* a drawn tick, not a text glyph — the old bullets were a literal "✔"
+   that the missing charset turned into three bytes of noise */
+.card-features li::before {
+    content: ''; position: absolute; left: 0; top: 0.42em;
+    width: 9px; height: 5px;
+    border-left: 2.2px solid var(--tick, var(--lx-sage));
+    border-bottom: 2.2px solid var(--tick, var(--lx-sage));
+    transform: rotate(-45deg);
+}
+.portfolio-card .card-features li { --tick: var(--lx-blue); }
+
+.card-cta {
+    display: flex; align-items: center; justify-content: center; gap: 0.45rem;
+    padding: 0.8rem 1rem; border-radius: 13px;
+    font: 800 0.82rem var(--lx-display);
+    letter-spacing: 0.06em; text-transform: uppercase;
+}
+.trading-card   .card-cta { background: var(--lx-sage); color: #0C1A13; }
+.portfolio-card .card-cta { background: var(--lx-blue); color: #101820; }
+.card-cta .arw { transition: transform 0.18s ease; }
+.practice-card:hover .card-cta .arw { transform: translateX(4px); }
+
+
+
+.pf-legal {
+    text-align: center; color: var(--lx-ink-3);
+    font-size: 0.7rem; line-height: 1.65;
+    max-width: 34rem; margin: 1.8rem auto 0;
+}
+
+/* ── header extras ──────────────────────────────────────────
+   The academy header minus hearts: you cannot lose one on the
+   practice floor, so showing five of them would be a lie. */
+.pf-back {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    color: var(--lx-ink-3); text-decoration: none;
+    font: 700 1rem var(--lx-sans); flex-shrink: 0;
+    padding: 0.2rem 0.3rem; border-radius: 8px;
+    transition: color 0.15s ease;
+}
+.pf-back:hover { color: var(--lx-ink); }
+.pf-wordmark {
+    font: 800 0.95rem var(--lx-display); letter-spacing: -0.01em;
+    color: var(--lx-ink-2);
+}
+.pf-mute {
+    flex-shrink: 0; width: 32px; height: 32px; padding: 0;
+    display: grid; place-items: center;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--lx-line);
+    border-radius: 999px; cursor: pointer; color: var(--lx-ink-2);
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+.pf-mute:hover { color: var(--lx-ink); border-color: var(--lx-line-2); }
+.pf-mute.off { color: var(--lx-ink-3); }
+.pf-mute svg { width: 17px; height: 17px; }
+
+/* ── sector sheet ──────────────────────────────────────────── */
+.pf-sector-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    gap: 0.45rem; margin: 0.9rem 0 1rem;
+    max-height: 46vh; overflow-y: auto; padding: 0.2rem;
+}
+.sector-button {
+    padding: 0.6rem 0.5rem; border-radius: 11px; cursor: pointer;
+    background: var(--lx-surface-2); border: 2px solid var(--lx-line);
+    border-bottom-width: 4px;
+    font: 700 0.76rem var(--lx-sans); color: var(--lx-ink-2);
+    text-align: center; transition: all 0.13s ease; user-select: none;
+}
+.sector-button:hover    { border-color: var(--lx-line-2); color: var(--lx-ink); }
+.sector-button.selected {
+    border-color: var(--lx-sage); color: var(--lx-ink);
+    background: rgba(92,184,138,0.15);
+}
+.sector-count {
+    font: 800 0.62rem var(--lx-display); letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--lx-ink-3);
+}
+.sector-error {
+    color: var(--lx-red); font: 600 0.78rem var(--lx-sans);
+    min-height: 1.1rem; margin-top: 0.6rem;
+}
+
+/* ── responsive ────────────────────────────────────────────── */
+@media (max-width: 760px) {
+    .pf-hero { padding-top: 1.3rem; }
+    .pf-hero-bull { margin: 0.4rem auto -0.4rem; }
+    .pf-hero-bull .bull-rig { width: 150px; height: 150px; }
+    .pf-hero-bull .rc-launch { margin-top: -0.25rem; }
+    .pf-cards { grid-template-columns: 1fr; }
+    .pf-desk  { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    /* The bubble competes with the headline on a narrow screen, so it only
+       appears while he is actually saying something. `talking` lands on the
+       stage the controller builds, not on this slot. */
+    .pf-hero-bull .bull-stage .bull-bubble { display: none; }
+    .pf-hero-bull .bull-stage.talking .bull-bubble { display: block; }
+}
+
+/* ── tutorial overlay (unchanged behaviour, restyled) ──────── */
+.tut-backdrop {
+    position: fixed; inset: 0; z-index: 90;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+.tut-backdrop.active { opacity: 1; pointer-events: auto; }
+.tut-overlay-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tut-highlight-border {
+    position: absolute; border: 2px solid var(--lx-sage);
+    border-radius: 14px; pointer-events: none;
+    box-shadow: 0 0 0 4px rgba(92,184,138,0.18);
+    transition: all 0.32s cubic-bezier(0.2,0.8,0.3,1);
+}
+.tut-tooltip {
+    position: absolute; width: 300px;
+    background: var(--lx-surface); border: 2px solid var(--lx-line-2);
+    border-radius: 16px; padding: 1rem 1.1rem;
+    box-shadow: 0 18px 46px rgba(0,0,0,0.55);
+    opacity: 0; transform: translateY(8px); transition: all 0.28s ease;
+}
+.tut-tooltip.visible { opacity: 1; transform: none; }
+.tut-tooltip-step {
+    font: 800 0.58rem var(--lx-display); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--lx-sage); margin-bottom: 0.35rem;
+}
+.tut-tooltip-title { font: 800 1.02rem var(--lx-display); margin-bottom: 0.35rem; }
+.tut-tooltip-desc  { font-size: 0.84rem; line-height: 1.55; color: var(--lx-ink-2); }
+.tut-tooltip-progress { display: flex; gap: 4px; margin: 0.9rem 0; }
+.tut-tooltip-pip { flex: 1; height: 4px; border-radius: 999px; background: rgba(236,226,214,0.12); }
+.tut-tooltip-pip.done   { background: var(--lx-sage-dk); }
+.tut-tooltip-pip.active { background: var(--lx-sage); }
+.tut-tooltip-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+.tut-skip-btn, .tut-next-btn {
+    padding: 0.55rem 0.95rem; border-radius: 11px; cursor: pointer;
+    font: 800 0.74rem var(--lx-display); letter-spacing: 0.05em;
+    text-transform: uppercase; border: none;
+}
+.tut-skip-btn { background: none; color: var(--lx-ink-3); }
+.tut-skip-btn:hover { color: var(--lx-ink); }
+.tut-next-btn { background: var(--lx-sage); color: #0C1A13; box-shadow: 0 3px 0 var(--lx-sage-dk); }
+</style>
+    <link rel="stylesheet" href="css/ft-legal.css">
+<script>
+/* the race bar: return against the +50% goal. Defined early because the
+   account loads asynchronously and calls it as soon as it knows. */
+window.pfRace = function (total, start) {
+    const pctEl = document.getElementById('racePct');
+    const fill = document.getElementById('raceFill');
+    const goal = document.getElementById('raceGoal');
+    if (!pctEl || !fill || !(start > 0)) return;
+    const pct = (total - start) / start * 100;
+    pctEl.textContent = (pct >= 0 ? '+' : '−') + Math.abs(pct).toFixed(2) + '%';
+    pctEl.className = 'pr-pct' + (pct > 0 ? ' up' : pct < 0 ? ' down' : '');
+    fill.parentNode.classList.toggle('down', pct < 0);
+    // progress toward +50%; a loss shows how far below the start line you are, on the same scale
+    const share = Math.min(1, Math.abs(pct) / 50);
+    setTimeout(() => { fill.style.width = (share * 100).toFixed(1) + '%'; }, 200);
+    goal.textContent = pct >= 50 ? 'you hit the goal' :
+                       pct > 0 ? (50 - pct).toFixed(1) + ' points to go' :
+                       pct < 0 ? 'below where you started' : 'first to +50% wins';
+};
+</script>
+    <link rel="stylesheet" href="css/ft-screen.css?v=1">
+    <script src="js/ft-back.js?v=2"></script>
+<style>/* less subtext: the headings say it */
+.pc-sub { display: none !important; }
+</style>
 </head>
-<body>
-    <!-- Animated Background -->
-    <div class="animated-bg">
-        <div class="grid-overlay"></div>
-        <div class="floating-shapes">
-            <div class="shape shape-1"></div>
-            <div class="shape shape-2"></div>
-            <div class="shape shape-3"></div>
+<body class="lx">
+
+<canvas class="ft-scene" aria-hidden="true"></canvas>
+
+
+
+<header class="lx-path-head">
+    <div class="lx-path-head-in" style="max-width:860px">
+        <!-- Level, streak, gems and the daily ring are Academy mechanics.
+             None of them move on this page, so all they did here was fill
+             the bar up. Back, and a sound switch. -->
+        <a class="pf-back" href="dashboard.html" title="Back to dashboard" aria-label="Back to dashboard" data-back>&#8592;</a>
+        <span class="pf-wordmark">Practice</span>
+        <div style="flex:1"></div>
+        <button class="pf-mute" id="muteBtn" title="Sound"></button>
+    </div>
+</header>
+
+<div class="pf-wrap ft-arrive">
+
+    <section class="pf-hero">
+        <div class="pf-hero-copy">
+            <p class="pf-kicker">The practice floor</p>
+            <h1 class="ft-screen-title">Blow up the account<br>that doesn't matter</h1>
         </div>
-        <div class="chart-lines">
-            <div class="chart-line"></div>
-            <div class="chart-line"></div>
-            <div class="chart-line"></div>
-            <div class="chart-line"></div>
+        <div class="pf-hero-bull">
+            <div id="bullSlot"></div>
+            <button class="rc-launch" id="rallyChatBtn">
+                <span class="dot"></span>Chat with Rally
+            </button>
+        </div>
+    </section>
+
+    <!-- The race: your return against the +50% goal from the dashboard
+         announcement, with the paper account under it. Same ids as the old
+         four tiles, so the code that fills them is unchanged. -->
+    <section class="pf-race" id="desk">
+        <div class="pr-head">
+            <span class="pr-kick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></svg>The +50% race</span>
+            <span class="pr-prize">$25 prize</span>
+        </div>
+        <div class="pr-line">
+            <b class="pr-pct" id="racePct">+0.00%</b>
+            <span class="pr-goal" id="raceGoal">first to +50% wins</span>
+        </div>
+        <div class="pr-bar"><i id="raceFill"></i><span class="pr-flag">+50%</span></div>
+        <div class="pr-stats">
+            <div class="pf-tile value"><b class="pending" id="statValue">—</b><span>Account</span></div>
+            <div class="pf-tile cash"><b class="pending" id="statCash">—</b><span>Cash</span></div>
+            <div class="pf-tile held"><b class="pending" id="statHeld">—</b><span>Positions</span></div>
+            <div class="pf-tile pnl" id="pnlTile"><b class="pending" id="statPnl">—</b><span>P&amp;L</span></div>
+        </div>
+    </section>
+
+    <section class="pf-cards">
+        <a href="trading.html" class="practice-card trading-card" data-sfx>
+            <span class="pf-disc" id="discTrade"></span>
+            <span class="pc-txt"><h2 class="card-title">Trade</h2><span class="pc-sub">Real prices, fake money</span></span>
+            <span class="pc-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></span>
+        </a>
+        <a href="portfolio.html" class="practice-card portfolio-card" data-sfx>
+            <span class="pf-disc" id="discFolio"></span>
+            <span class="pc-txt"><h2 class="card-title">Portfolio</h2><span class="pc-sub">See what's working</span></span>
+            <span class="pc-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></span>
+        </a>
+    </section>
+</div>
+
+<!-- sector picker: available via openSectorModal(), not shown on arrival -->
+<div class="lx-sheet-back" id="sectorModal">
+    <div class="lx-sheet" style="max-width:460px">
+        <div class="lx-sheet-kicker">Personalise</div>
+        <h3 class="lx-display">Pick your sectors</h3>
+        <p style="margin-bottom:0.4rem">Choose up to 5 and the practice floor leans toward them.</p>
+        <div class="sector-count">Selected: <span id="sectorCount">0</span>/5</div>
+        <div class="pf-sector-grid" id="sectorsGrid">
+            <div class="sector-button" data-value="FINANCE">Finance</div>
+            <div class="sector-button" data-value="TECHNOLOGY">Technology</div>
+            <div class="sector-button" data-value="HEALTHCARE">Healthcare</div>
+            <div class="sector-button" data-value="CONSUMER">Consumer</div>
+            <div class="sector-button" data-value="INDUSTRIAL">Industrial</div>
+            <div class="sector-button" data-value="ENERGY">Energy</div>
+            <div class="sector-button" data-value="MATERIALS">Materials</div>
+            <div class="sector-button" data-value="UTILITIES">Utilities</div>
+            <div class="sector-button" data-value="REAL_ESTATE">Real Estate</div>
+            <div class="sector-button" data-value="TELECOM">Telecom</div>
+            <div class="sector-button" data-value="AI">AI</div>
+            <div class="sector-button" data-value="BIOTECH">Biotech</div>
+            <div class="sector-button" data-value="CRYPTO">Crypto</div>
+            <div class="sector-button" data-value="GREEN">Green Energy</div>
+            <div class="sector-button" data-value="AEROSPACE">Aerospace</div>
+            <div class="sector-button" data-value="AGRICULTURE">Agriculture</div>
+            <div class="sector-button" data-value="ENTERTAINMENT">Entertainment</div>
+            <div class="sector-button" data-value="RETAIL">Retail</div>
+            <div class="sector-button" data-value="AUTOMOTIVE">Automotive</div>
+            <div class="sector-button" data-value="GAMING">Gaming</div>
+        </div>
+        <button class="lx-btn primary wide" id="sectorSave">Save &amp; continue</button>
+        <button class="lx-btn ghost wide" id="sectorClose" style="margin-top:0.55rem">Not now</button>
+        <div class="sector-error" id="sectorError"></div>
+    </div>
+</div>
+
+<!-- guided tour, entered as practice.html?tutorial -->
+<div class="tut-backdrop" id="tutBackdrop">
+    <svg class="tut-overlay-svg" id="tutOverlay">
+        <defs><mask id="tutMask"><rect width="100%" height="100%" fill="white"/><rect id="tutCutout" rx="14" ry="14" fill="black"/></mask></defs>
+        <rect width="100%" height="100%" fill="rgba(8,6,5,0.72)" mask="url(#tutMask)"/>
+    </svg>
+    <div class="tut-highlight-border" id="tutBorder"></div>
+    <div class="tut-tooltip" id="tutTooltip">
+        <div class="tut-tooltip-step" id="tutStepLabel"></div>
+        <div class="tut-tooltip-title" id="tutTitle"></div>
+        <div class="tut-tooltip-desc" id="tutDesc"></div>
+        <div class="tut-tooltip-progress" id="tutProgress"></div>
+        <div class="tut-tooltip-actions">
+            <button class="tut-skip-btn" onclick="endTutorial()">Skip tour</button>
+            <button class="tut-next-btn" id="tutNextBtn" onclick="tutNext()">Next</button>
         </div>
     </div>
+</div>
 
-    <!-- Header -->
-    <div class="header">
-        <div class="header-left">
-            <a href="dashboard.html" class="back-button">
-                ← Back to Dashboard
-            </a>
-            <h1 class="page-title">Practice</h1>
-        </div>
-        <div class="fact-rotator">
-            <div class="fact-kicker">Why practice matters</div>
-            <div class="fact-line" id="factLine">Studies find that up to 95% of day traders lose money over time.</div>
-        </div>
-    </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/sl.js?v=3"></script>
+<script src="js/guard.js"></script>
+<script src="js/ft-illustrations.js"></script>
+<script src="js/ft-juice.js"></script>
+<script src="js/ft-bull.js?v=6"></script>
+<script src="js/ft-rally-chat.js?v=6"></script>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <div class="practice-banner">
-            <div class="pb-text">
-                <div class="pb-kicker">The Practice Floor</div>
-                <div class="pb-line">Where you blow up the account that doesn't matter</div>
-            </div>
-        </div>
+<script>
+/* ============================================================
+ *  Header, art, Rally and the sound layer.
+ * ============================================================ */
+(function () {
+    'use strict';
 
-        <!-- both cards live inside one monitor. Screen only — no stand, no
-             base; the bezel is the whole device. -->
-        <div class="pc-screen">
-          <span class="pc-cam" aria-hidden="true"></span>
-          <div class="practice-cards">
-            <a href="trading.html" class="practice-card trading-card">
-                <div class="card-icon">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
-                    </svg>
-                </div>
-                <h2 class="card-title">Live Trading</h2>
-                <p class="card-description">
-                    Execute trades in real-time with live market data. Practice your strategies and learn from every decision.
-                </p>
-                <ul class="card-features">
-                    <li>Real-time market prices</li>
-                    <li>Performance analytics</li>
-                    <li>Risk-free environment</li>
-                </ul>
-                <div class="card-cta">Start Trading</div>
-            </a>
+    /* ── sound ────────────────────────────────────────────────
+       Four cues on the whole page, and a switch. A landing screen
+       that chirps at every hover is worse than a silent one, so
+       nothing fires on hover — only on a press the user meant. */
+    const S = window.FTJuice;
+    function sfx(name, arg) { if (S && S.sfx[name]) S.sfx[name](arg); }
 
-            <a href="portfolio.html" class="practice-card portfolio-card">
-                <div class="card-icon">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4V6h11v12zm5 0h-3V6h3v12z"/>
-                        <path d="M7 12h2v5H7zm8-5h2v10h-2zm-4 7h2v3h-2zm0-4h2v2h-2z"/>
-                    </svg>
-                </div>
-                <h2 class="card-title">Portfolio Builder</h2>
-                <p class="card-description">
-                    Construct and manage a diversified portfolio. Track performance, analyze holdings, and optimize your strategy.
-                </p>
-                <ul class="card-features">
-                    <li>Performance tracking</li>
-                    <li>Diversification analysis</li>
-                    <li>Historical insights</li>
-                </ul>
-                <div class="card-cta">View Portfolio</div>
-                </a>
-            </div><!-- /.practice-cards -->
-          </div><!-- /.pc-screen -->
-        </div><!-- /.main-content -->
+    const muteBtn = document.getElementById('muteBtn');
+    const ICON_ON =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+        'stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/>' +
+        '<path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+    const ICON_OFF =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+        'stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 5 6"/><path d="m21 9-5 6"/></svg>';
+    function paintMute() {
+        const off = S ? S.muted() : true;
+        muteBtn.innerHTML = off ? ICON_OFF : ICON_ON;
+        muteBtn.classList.toggle('off', off);
+        muteBtn.title = off ? 'Sound off' : 'Sound on';
+    }
+    muteBtn.onclick = () => {
+        if (!S) return;
+        const next = !S.muted();
+        S.setMuted(next);
+        paintMute();
+        if (!next) { S.unlock(); sfx('pop'); }
+    };
+    paintMute();
 
+    /* ── art ──────────────────────────────────────────────────
+       Same illustration set as the Academy, so a chart icon means
+       the same thing on both screens. */
+    function paintArt() {
+        if (!window.FTArt) return;
+        document.getElementById('discTrade').innerHTML  = FTArt.node('candles', 34);
+        document.getElementById('discFolio').innerHTML  = FTArt.node('diversify', 34);
+    }
 
-    <div class="sector-modal" id="sectorModal">
-        <div class="sector-modal-content">
-            <div class="sector-modal-header">
-                <h2 class="sector-modal-title">Pick Your Sectors</h2>
-                <p class="sector-modal-subtitle">Choose up to 5 sectors to personalize your practice experience.</p>
-            </div>
-            <div class="sector-count">Selected: <span id="sectorCount">0</span>/5</div>
-            <div class="sectors-grid" id="sectorsGrid">
-                <div class="sector-button" data-value="FINANCE">Finance</div>
-                <div class="sector-button" data-value="TECHNOLOGY">Technology</div>
-                <div class="sector-button" data-value="HEALTHCARE">Healthcare</div>
-                <div class="sector-button" data-value="CONSUMER">Consumer</div>
-                <div class="sector-button" data-value="INDUSTRIAL">Industrial</div>
-                <div class="sector-button" data-value="ENERGY">Energy</div>
-                <div class="sector-button" data-value="MATERIALS">Materials</div>
-                <div class="sector-button" data-value="UTILITIES">Utilities</div>
-                <div class="sector-button" data-value="REAL_ESTATE">Real Estate</div>
-                <div class="sector-button" data-value="TELECOM">Telecom</div>
-                <div class="sector-button" data-value="AI">AI</div>
-                <div class="sector-button" data-value="BIOTECH">Biotech</div>
-                <div class="sector-button" data-value="CRYPTO">Crypto</div>
-                <div class="sector-button" data-value="GREEN">Green Energy</div>
-                <div class="sector-button" data-value="AEROSPACE">Aerospace</div>
-                <div class="sector-button" data-value="AGRICULTURE">Agriculture</div>
-                <div class="sector-button" data-value="ENTERTAINMENT">Entertainment</div>
-                <div class="sector-button" data-value="RETAIL">Retail</div>
-                <div class="sector-button" data-value="AUTOMOTIVE">Automotive</div>
-                <div class="sector-button" data-value="GAMING">Gaming</div>
-            </div>
-            <div class="sector-modal-actions">
-                <button class="sector-save" id="sectorSave">Save & Continue</button>
-            </div>
-            <div class="sector-error" id="sectorError"></div>
-        </div>
-    </div>
+    /* ── Rally ────────────────────────────────────────────────
+       Same character, same controller. He greets, reacts to the two
+       destinations, and goes quiet if you leave him alone. */
+    let bull = null;
+    let lastPoke = 0;   // last time the user did something he reacted to
+    let greetedAt = 0;  // when the hello landed, so the first observation waits its turn
+    const GREET_MS = 3400;
+    const HELLO = [
+        "Real prices. Fake money. Go on then.",
+        "None of this costs you anything.",
+        "The floor's yours. Break something.",
+        "Stuck? Just ask me.",
+    ];
+    const CARD_LINES = {
+        'trading-card':   "Live prices. Buy, sell, find out.",
+        'portfolio-card': "Where you find out what actually worked.",
+    };
+    function makeBull() {
+        if (!window.FTBull) return;
+        bull = FTBull.create({ dock: false, facing: 'left' });
+        bull.mount(document.getElementById('bullSlot'));
+        /* The controller writes width/height straight onto the rig for an
+           undocked bull, and an inline style beats the stylesheet — so the
+           sizes in the CSS above (and the phone breakpoint) were being
+           silently ignored. Clear them and let CSS own his size. */
+        bull.rig.style.width = '';
+        bull.rig.style.height = '';
+        // he arrives walking on, then settles
+        bull.setState('walk');
+        setTimeout(() => {
+            bull.setState('wave');
+            greetedAt = performance.now();
+            bull.say(HELLO[Math.floor(Math.random() * HELLO.length)], { ms: GREET_MS });
+        }, 900);
 
-    <script>
-        const sectorModal = document.getElementById('sectorModal');
-        const sectorsGrid = document.getElementById('sectorsGrid');
-        const sectorCount = document.getElementById('sectorCount');
-        const sectorError = document.getElementById('sectorError');
-        const sectorSave = document.getElementById('sectorSave');
-        const maxSectors = 5;
-        let selectedSectors = [];
+        // any deliberate interaction pushes his ambient chatter back, so a
+        // fact never lands on top of something the user just triggered
+        ['pointerdown', 'keydown'].forEach(ev =>
+            addEventListener(ev, () => { lastPoke = performance.now(); }, { passive: true }));
+    }
 
-        function updateSectorCount() {
-            sectorCount.textContent = selectedSectors.length;
-        }
-
-        function loadExistingSectors() {
-            const preferences = JSON.parse(localStorage.getItem('userPreferences') || '{}');
-            if (Array.isArray(preferences.sectors)) {
-                selectedSectors = [...preferences.sectors];
-            }
-
-            document.querySelectorAll('.sector-button').forEach(button => {
-                if (selectedSectors.includes(button.dataset.value)) {
-                    button.classList.add('selected');
-                }
+    /* ── press feel ───────────────────────────────────────────
+       One tap cue, a ring where the pointer landed, and a whoosh
+       as the page hands off. The navigation is delayed by exactly
+       as long as the cue takes so it is heard, not clipped. */
+    function wirePresses() {
+        /* Rally comments on a card the first time the pointer crosses it, then
+           holds his tongue for a bit. Without this, sweeping the mouse over
+           both cards turns him into a chatterbox. */
+        let lastSaid = 0, lastKey = null;
+        document.querySelectorAll('[data-sfx]').forEach(el => {
+            el.addEventListener('pointerenter', () => {
+                const key = [...el.classList].find(c => CARD_LINES[c]);
+                if (!key || !bull) return;
+                const now = performance.now();
+                if (key === lastKey && now - lastSaid < 12000) return;
+                if (now - lastSaid < 2600) return;
+                lastSaid = now; lastKey = key; lastPoke = now;
+                bull.setState('happy');
+                bull.say(CARD_LINES[key], { ms: 2400 });
             });
-            updateSectorCount();
-        }
-
-        function openSectorModal() {
-            sectorModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeSectorModal() {
-            sectorModal.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        function bindSectorButtons() {
-            document.querySelectorAll('.sector-button').forEach(button => {
-                button.addEventListener('click', () => {
-                    const sector = button.dataset.value;
-                    const index = selectedSectors.indexOf(sector);
-
-                    if (index === -1) {
-                        if (selectedSectors.length >= maxSectors) {
-                            sectorError.textContent = 'Please select no more than 5 sectors.';
-                            return;
-                        }
-                        selectedSectors.push(sector);
-                        button.classList.add('selected');
-                    } else {
-                        selectedSectors.splice(index, 1);
-                        button.classList.remove('selected');
-                    }
-
-                    sectorError.textContent = '';
-                    updateSectorCount();
-                });
+            el.addEventListener('click', e => {
+                const href = el.getAttribute('href');
+                if (!href || e.metaKey || e.ctrlKey || e.shiftKey) return;
+                /* No sound, no burst, no delay. The tap-and-whoosh pair on every
+                   card read as odd, and holding the navigation back 130ms for
+                   them made the page feel slow to answer. The card's own
+                   press-down is the feedback. */
+                e.preventDefault();
+                location.href = href;
             });
+        });
+    }
+
+    /* ── the paper account ────────────────────────────────────
+       One batched price lookup for everything held, then the four
+       tiles fill in together. If any of it fails the tiles say so
+       rather than showing a confident zero. */
+    const START_CASH = 10000;
+    /* Last known state of the paper account. The chat panel reads this so
+       "how am I doing" answers with the real number instead of a shrug. */
+    let book = { start: START_CASH, cash: null, total: null, pnl: null,
+                 positions: null, symbols: [], movers: [] };
+    const money = n => '$' + Math.round(n).toLocaleString('en-US');
+    const moneyShort = n => Math.abs(n) >= 100000
+        ? '$' + (n / 1000).toFixed(0) + 'k'
+        : money(n);
+
+    function setTile(id, text, pending) {
+        const el = document.getElementById(id);
+        el.textContent = text;
+        el.classList.toggle('pending', !!pending);
+    }
+
+    async function paintDesk() {
+        if (!window.SL) { setTile('statValue', 'n/a', true); return; }
+        let pf;
+        try { pf = await SL.loadPortfolio(); }
+        catch (e) { pf = null; }
+        if (!pf) {
+            ['statValue', 'statCash', 'statHeld', 'statPnl']
+                .forEach(id => setTile(id, '—', true));
+            return;
         }
 
-        function saveSectors() {
-            if (selectedSectors.length === 0) {
-                sectorError.textContent = 'Please select at least one sector to continue.';
-                return;
-            }
+        const held = Object.values(pf.stocks || {});
+        const cash = Number(pf.cash) || 0;
 
-            const preferences = JSON.parse(localStorage.getItem('userPreferences') || '{}');
-            preferences.sectors = selectedSectors;
-            localStorage.setItem('userPreferences', JSON.stringify(preferences));
-            localStorage.setItem('sectorPreferencesComplete', 'true');
-            closeSectorModal();
+        // value the book at live prices where we can, at cost where we can't.
+        // getLiveQuotes fills the gaps the scraper missed and carries today's
+        // change_pct, which is what Rally's opening observation is built on.
+        let invested = 0;
+        let priced = {};
+        if (held.length) {
+            try { priced = await SL.getLiveQuotes(held.map(h => h.symbol)) || {}; }
+            catch (e) { priced = {}; }
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            bindSectorButtons();
-            loadExistingSectors();
-            // The sector picker no longer ambushes people on arrival. It stays
-            // available via openSectorModal() if we ever want to offer it.
+        held.forEach(h => {
+            const live = priced[h.symbol] && Number(priced[h.symbol].price);
+            const px = (live && isFinite(live)) ? live : Number(h.avgPrice) || 0;
+            invested += px * (Number(h.shares) || 0);
         });
 
-        sectorSave.addEventListener('click', saveSectors);
-    </script>
+        const total = cash + invested;
+        const pnl = total - START_CASH;
+        book = { start: START_CASH, cash: cash, total: total, pnl: pnl,
+                 positions: held.length, symbols: held.map(h => h.symbol) };
+        // today's moves, biggest first. A stale or missing quote is not a
+        // move — he must never say "today" off yesterday's number.
+        book.movers = held.map(h => {
+            const q = priced[h.symbol];
+            return q && q.price != null && q.stale !== true && q.change_pct != null
+                ? { symbol: h.symbol, change_pct: Number(q.change_pct), shares: Number(h.shares) || 0 }
+                : null;
+        }).filter(Boolean).sort((a, b) => Math.abs(b.change_pct) - Math.abs(a.change_pct));
 
-    <div class="tut-backdrop" id="tutBackdrop">
-        <svg class="tut-overlay-svg" id="tutOverlay">
-            <defs><mask id="tutMask"><rect width="100%" height="100%" fill="white"/><rect id="tutCutout" rx="10" ry="10" fill="black"/></mask></defs>
-            <rect width="100%" height="100%" fill="rgba(0,0,0,0.6)" mask="url(#tutMask)"/>
-        </svg>
-        <div class="tut-highlight-border" id="tutBorder"></div>
-        <div class="tut-tooltip" id="tutTooltip">
-            <div class="tut-tooltip-step" id="tutStepLabel"></div>
-            <div class="tut-tooltip-title" id="tutTitle"></div>
-            <div class="tut-tooltip-desc" id="tutDesc"></div>
-            <div class="tut-tooltip-progress" id="tutProgress"></div>
-            <div class="tut-tooltip-actions">
-                <button class="tut-skip-btn" onclick="endTutorial()">Skip tour</button>
-                <button class="tut-next-btn" id="tutNextBtn" onclick="tutNext()">Next</button>
-            </div>
-        </div>
-    </div>
+        setTile('statValue', moneyShort(total), false);
+        setTile('statCash',  moneyShort(cash), false);
+        setTile('statHeld',  String(held.length), false);
+        setTile('statPnl',   (pnl === 0 ? '' : pnl > 0 ? '+' : '−') + money(Math.abs(pnl)), false);
+        if (window.pfRace) pfRace(total, START_CASH);
+        const tile = document.getElementById('pnlTile');
+        tile.classList.toggle('up', pnl > 0);
+        tile.classList.toggle('down', pnl < 0);
 
-    <script>
-    (function() {
-        if (!window.location.search.includes('tutorial')) return;
+        // Rally notices one thing on arrival, once, and only if there is a
+        // book to notice anything about. A real move in something they own
+        // beats the P&L comment; the P&L comment beats a fact. Never both.
+        if (bull && held.length) {
+            const top = book.movers[0];
+            const OBS_MIN_PCT = 2;
+            if (top && Math.abs(top.change_pct) >= OBS_MIN_PCT && isFinite(top.change_pct)) {
+                // ~2.2s after the hello has cleared, so he doesn't cut himself off
+                const notBefore = (greetedAt || performance.now()) + GREET_MS + 2200;
+                setTimeout(() => {
+                    if (!bull) return;
+                    const pct = top.change_pct, sym = top.symbol;
+                    bull.setState(pct >= 0 ? 'happy' : 'worry');
+                    bull.say(sym + ' is ' + (pct >= 0 ? 'up ' : 'down ') + Math.abs(pct).toFixed(1) +
+                             '% today and you own it.', { tone: pct >= 0 ? 'ok' : 'no', ms: 4200 });
+                    lastPoke = performance.now();   // the fact rotation waits its turn
+                }, Math.max(0, notBefore - performance.now()));
+            } else {
+                setTimeout(() => {
+                    if (!bull) return;
+                    if (pnl > 0) { bull.setState('happy'); bull.say('Up ' + money(pnl) + ' on paper.', { tone: 'ok', ms: 2800 }); }
+                    else if (pnl < -500) { bull.setState('worry'); bull.say('Down ' + money(-pnl) + '. Ask me why.', { tone: 'no', ms: 3200 }); }
+                }, 5200);
+            }
+        }
+    }
 
-        const practiceSteps = [
-            { selector: '.practice-card.trading-card', title: 'Trading Platform', desc: 'Buy and sell stocks in real-time with your virtual portfolio.' },
-            { selector: '.practice-card.portfolio-card', title: 'Your Portfolio', desc: 'Track your holdings, performance, and risk analysis here.' }
-        ];
+    /* ── the fact strip ───────────────────────────────────────
+       Real figures about how badly this goes for most people — the
+       one piece of the old page worth keeping verbatim. */
+    /* ── the facts, in his mouth ──────────────────────────────
+       These used to sit in a panel at the bottom of the page with a
+       warning triangle next to them. They read better said out loud
+       by the bull than printed under a heading nobody reads, so they
+       are worded the way he'd say them rather than the way a footnote
+       would print them. */
+    const FACTS = [
+        "About 95% of day traders lose money over time. That's not a warning, it's the base rate.",
+        "Only about 1 in 3 adults can pass a basic financial literacy test. That's a low bar.",
+        "Miss the ten best market days in twenty years and you halve your return.",
+        "The S&P 500 has never lost money over any twenty-year stretch. Not once.",
+        "The average investor does worse than the funds they own. Buying high, selling low.",
+        "Nearly 60% of Americans couldn't cover a surprise $1,000 bill.",
+        "A dollar in the S&P in 1980 is over $100 now. That's compounding, not picking.",
+        "Over fifteen years, about 90% of professional managers fail to beat the index.",
+        "A 2x levered position is wiped out by a 50% drop. Leverage cuts both ways.",
+        "People who check daily trade more and earn less than people who check monthly.",
+        "Inflation at 3% halves what your money buys in about 24 years.",
+        "Some of the best accounts on record belonged to people who forgot they had them.",
+    ];
 
-        let step = 0;
-        const TOTAL = 9;
-        const returnStep = Number(localStorage.getItem('tutorialReturnStep') || '4');
+    /* He works through them in a shuffled order rather than looping the
+       same list from the top, so coming back to the page twice doesn't
+       open with the same line. */
+    function shuffled(a) {
+        const out = a.slice();
+        for (let i = out.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [out[i], out[j]] = [out[j], out[i]];
+        }
+        return out;
+    }
 
-        function position(target) {
-            const rect = target.getBoundingClientRect();
-            const pad = 8;
+    /* Occasionally he points at himself instead of reading out a number —
+       otherwise the only thing that ever tells you he answers questions is
+       a button, and buttons are easy to miss. */
+    const NUDGES = [
+        "Stuck on a word? Ask me.",
+        "I'll explain anything on this page. Just ask.",
+        "Ask me how you're doing and I'll actually tell you.",
+    ];
 
-            const cutout = document.getElementById('tutCutout');
-            cutout.setAttribute('x', rect.left - pad);
-            cutout.setAttribute('y', rect.top - pad);
-            cutout.setAttribute('width', rect.width + pad * 2);
-            cutout.setAttribute('height', rect.height + pad * 2);
+    function rotateFacts() {
+        if (!bull) return;
+        let queue = shuffled(FACTS), at = 0, turn = 0;
 
-            const border = document.getElementById('tutBorder');
-            border.style.left = (rect.left - pad) + 'px';
-            border.style.top = (rect.top - pad) + 'px';
-            border.style.width = (rect.width + pad * 2) + 'px';
-            border.style.height = (rect.height + pad * 2) + 'px';
+        const speak = () => {
+            // never talk over himself, over the chat panel, or over a
+            // reaction the user just triggered
+            if (!bull) return;
+            if (window.FTRallyChat && FTRallyChat.isOpen()) return;
+            if (bull.bubble.classList.contains('show')) return;
+            if (performance.now() - lastPoke < 5000) return;
 
-            const tip = document.getElementById('tutTooltip');
-            requestAnimationFrame(() => {
-                const tipH = tip.offsetHeight;
-                const spaceBelow = window.innerHeight - rect.bottom - pad;
-                let top = spaceBelow >= tipH + 14 ? rect.bottom + pad + 12 : Math.max(12, rect.top - pad - 12 - tipH);
-                if (top + tipH > window.innerHeight - 12) top = window.innerHeight - tipH - 12;
-                let left = rect.left + rect.width / 2 - 150;
-                left = Math.max(12, Math.min(left, window.innerWidth - 312));
-                tip.style.top = top + 'px';
-                tip.style.left = left + 'px';
-                tip.classList.add('visible');
+            if (++turn % 5 === 0) {
+                bull.setState('happy');
+                bull.say(NUDGES[Math.floor(Math.random() * NUDGES.length)], { ms: 4000 });
+                return;
+            }
+            if (at >= queue.length) { queue = shuffled(FACTS); at = 0; }
+            bull.setState('think', 2200);
+            bull.say(queue[at++], { ms: 7500 });
+        };
+
+        setTimeout(speak, 9000);
+        setInterval(speak, 17000);
+    }
+    /* ── the mentor ───────────────────────────────────────────
+       Two ways in: the button under him, or Rally himself. He is the
+       obvious thing to click on a page with a cartoon bull on it, so
+       not wiring him up would just read as broken. */
+    function wireChat() {
+        if (!window.FTRallyChat) return;
+        FTRallyChat.init({ context: () => book });
+
+        const btn = document.getElementById('rallyChatBtn');
+        if (btn) btn.onclick = () => { sfx('tap'); FTRallyChat.open(); };
+
+        const holder = document.querySelector('#bullSlot .bull-holder');
+        if (holder) {
+            holder.setAttribute('role', 'button');
+            holder.setAttribute('tabindex', '0');
+            holder.setAttribute('aria-label', 'Chat with Rally');
+            holder.addEventListener('click', () => { sfx('tap'); FTRallyChat.open(); });
+            holder.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); FTRallyChat.open(); }
             });
         }
+    }
 
-        function showStep() {
-            document.getElementById('tutTooltip').classList.remove('visible');
-            const s = practiceSteps[step];
-            const el = document.querySelector(s.selector);
-            if (!el) return;
+    /* ── boot ─────────────────────────────────────────────── */
+    paintArt();
+    makeBull();
+    wireChat();
+    wirePresses();
+    rotateFacts();
+    paintDesk();
+})();
+</script>
 
-            const globalStep = returnStep + step;
-            document.getElementById('tutStepLabel').textContent = globalStep + ' of ' + TOTAL;
-            document.getElementById('tutTitle').textContent = s.title;
-            document.getElementById('tutDesc').textContent = s.desc;
-            document.getElementById('tutNextBtn').textContent = step < practiceSteps.length - 1 ? 'Next' : 'Back to Dashboard';
+<script>
+/* ============================================================
+ *  Sector picker. Same storage contract as before — it just wears
+ *  the sheet the rest of the system uses now.
+ * ============================================================ */
+(function () {
+    'use strict';
+    const modal   = document.getElementById('sectorModal');
+    const count   = document.getElementById('sectorCount');
+    const error   = document.getElementById('sectorError');
+    const MAX     = 5;
+    let selected  = [];
 
-            const pipsHtml = Array.from({length: TOTAL}, (_, i) => {
+    function paintCount() { count.textContent = selected.length; }
+
+    function loadExisting() {
+        let prefs = {};
+        try { prefs = JSON.parse(localStorage.getItem('userPreferences') || '{}'); } catch (e) {}
+        if (Array.isArray(prefs.sectors)) selected = [...prefs.sectors];
+        document.querySelectorAll('.sector-button').forEach(b => {
+            b.classList.toggle('selected', selected.includes(b.dataset.value));
+        });
+        paintCount();
+    }
+
+    window.openSectorModal = function () {
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        if (window.FTJuice) FTJuice.sfx.pop();
+    };
+    function close() {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    window.closeSectorModal = close;
+
+    document.querySelectorAll('.sector-button').forEach(b => {
+        b.addEventListener('click', () => {
+            const v = b.dataset.value;
+            const at = selected.indexOf(v);
+            if (at === -1) {
+                if (selected.length >= MAX) {
+                    error.textContent = 'Five is the limit — drop one first.';
+                    if (window.FTJuice) FTJuice.sfx.wrong();
+                    return;
+                }
+                selected.push(v);
+                b.classList.add('selected');
+                if (window.FTJuice) FTJuice.sfx.pop();
+            } else {
+                selected.splice(at, 1);
+                b.classList.remove('selected');
+                if (window.FTJuice) FTJuice.sfx.tap();
+            }
+            error.textContent = '';
+            paintCount();
+        });
+    });
+
+    document.getElementById('sectorSave').addEventListener('click', () => {
+        if (!selected.length) {
+            error.textContent = 'Pick at least one to continue.';
+            if (window.FTJuice) FTJuice.sfx.wrong();
+            return;
+        }
+        let prefs = {};
+        try { prefs = JSON.parse(localStorage.getItem('userPreferences') || '{}'); } catch (e) {}
+        prefs.sectors = selected;
+        try {
+            localStorage.setItem('userPreferences', JSON.stringify(prefs));
+            localStorage.setItem('sectorPreferencesComplete', 'true');
+        } catch (e) {}
+        if (window.FTJuice) FTJuice.sfx.correct();
+        close();
+    });
+
+    document.getElementById('sectorClose').addEventListener('click', close);
+    modal.addEventListener('click', e => { if (e.target === modal) close(); });
+    addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+
+    loadExisting();
+})();
+</script>
+
+<script>
+/* ============================================================
+ *  Guided tour — entered as practice.html?tutorial. Behaviour is
+ *  unchanged; it just points at the new cards.
+ * ============================================================ */
+(function () {
+    'use strict';
+    if (!window.location.search.includes('tutorial')) return;
+
+    const steps = [
+        { selector: '.practice-card.trading-card',   title: 'Trading Platform', desc: 'Buy and sell stocks in real time with your paper account.' },
+        { selector: '.practice-card.portfolio-card', title: 'Your Portfolio',   desc: 'Track your holdings, performance and risk here.' },
+    ];
+
+    let step = 0;
+    const TOTAL = 9;
+    const returnStep = Number(localStorage.getItem('tutorialReturnStep') || '4');
+
+    function position(target) {
+        const rect = target.getBoundingClientRect();
+        const pad = 8;
+
+        const cutout = document.getElementById('tutCutout');
+        cutout.setAttribute('x', rect.left - pad);
+        cutout.setAttribute('y', rect.top - pad);
+        cutout.setAttribute('width', rect.width + pad * 2);
+        cutout.setAttribute('height', rect.height + pad * 2);
+
+        const border = document.getElementById('tutBorder');
+        border.style.left   = (rect.left - pad) + 'px';
+        border.style.top    = (rect.top - pad) + 'px';
+        border.style.width  = (rect.width + pad * 2) + 'px';
+        border.style.height = (rect.height + pad * 2) + 'px';
+
+        const tip = document.getElementById('tutTooltip');
+        requestAnimationFrame(() => {
+            const tipH = tip.offsetHeight;
+            const spaceBelow = window.innerHeight - rect.bottom - pad;
+            let top = spaceBelow >= tipH + 14 ? rect.bottom + pad + 12
+                                              : Math.max(12, rect.top - pad - 12 - tipH);
+            if (top + tipH > window.innerHeight - 12) top = window.innerHeight - tipH - 12;
+            let left = rect.left + rect.width / 2 - 150;
+            left = Math.max(12, Math.min(left, window.innerWidth - 312));
+            tip.style.top = top + 'px';
+            tip.style.left = left + 'px';
+            tip.classList.add('visible');
+        });
+    }
+
+    function showStep() {
+        document.getElementById('tutTooltip').classList.remove('visible');
+        const s = steps[step];
+        const el = document.querySelector(s.selector);
+        if (!el) return;
+
+        const globalStep = returnStep + step;
+        document.getElementById('tutStepLabel').textContent = globalStep + ' of ' + TOTAL;
+        document.getElementById('tutTitle').textContent = s.title;
+        document.getElementById('tutDesc').textContent = s.desc;
+        document.getElementById('tutNextBtn').textContent =
+            step < steps.length - 1 ? 'Next' : 'Back to Dashboard';
+
+        document.getElementById('tutProgress').innerHTML =
+            Array.from({ length: TOTAL }, (_, i) => {
                 const cls = i + 1 < globalStep ? 'done' : i + 1 === globalStep ? 'active' : '';
                 return '<div class="tut-tooltip-pip ' + cls + '"></div>';
             }).join('');
-            document.getElementById('tutProgress').innerHTML = pipsHtml;
 
-            el.scrollIntoView({behavior: 'smooth', block: 'center'});
-            setTimeout(() => position(el), 400);
-        }
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => position(el), 400);
+    }
 
-        window.tutNext = function() {
-            step++;
-            if (step >= practiceSteps.length) {
-                window.location.href = 'dashboard.html';
-                return;
+    window.tutNext = function () {
+        step++;
+        if (step >= steps.length) { window.location.href = 'dashboard.html'; return; }
+        document.getElementById('tutTooltip').classList.remove('visible');
+        showStep();
+    };
+
+    window.endTutorial = function () {
+        ['showTutorial', 'tutorialStep', 'tutorialActive', 'tutorialReturnStep']
+            .forEach(k => localStorage.removeItem(k));
+        window.location.href = 'dashboard.html';
+    };
+
+    setTimeout(() => {
+        document.getElementById('tutBackdrop').classList.add('active');
+        showStep();
+    }, 600);
+
+    let rt;
+    window.addEventListener('resize', () => {
+        clearTimeout(rt);
+        rt = setTimeout(() => {
+            if (step < steps.length) {
+                const el = document.querySelector(steps[step].selector);
+                if (el) position(el);
             }
-            const tip = document.getElementById('tutTooltip');
-            tip.classList.remove('visible');
-            showStep();
-        };
-
-        window.endTutorial = function() {
-            localStorage.removeItem('showTutorial');
-            localStorage.removeItem('tutorialStep');
-            localStorage.removeItem('tutorialActive');
-            localStorage.removeItem('tutorialReturnStep');
-            window.location.href = 'dashboard.html';
-        };
-
-        setTimeout(() => {
-            document.getElementById('tutBackdrop').classList.add('active');
-            showStep();
-        }, 600);
-
-        let rt;
-        window.addEventListener('resize', () => {
-            clearTimeout(rt);
-            rt = setTimeout(() => {
-                if (step < practiceSteps.length) {
-                    const el = document.querySelector(practiceSteps[step].selector);
-                    if (el) position(el);
-                }
-            }, 250);
-        });
-    })();
-    </script>
-<style>
-    /* The <header> is 84px tall and sits in normal flow, so the old 84px
-       top margin here was double-counting it — that was the big empty gap
-       above the banner. Just a little breathing room now. */
-    .main-content { padding-top: 0 !important; margin-top: 0.6rem !important; }
-    .practice-cards { margin-top: 0.5rem !important; gap: 2.5rem !important; }
-    .practice-card { min-height: 0 !important; padding: 1.8rem 2.4rem 2rem !important; }
-    .practice-card .card-icon svg { width: 58px !important; height: 58px !important; }
-    .stats-bar { display: none !important; }
-
-    /* Short laptops were cutting the buttons off the bottom of the cards. */
-    @media (max-height: 860px) {
-        .practice-banner { height: 92px !important; margin: 0 auto 0.7rem !important; }
-        .practice-cards { gap: 2rem !important; }
-        .practice-card { padding: 1.4rem 2rem 1.6rem !important; }
-        .practice-card .card-icon { margin-bottom: 0.5rem !important; }
-        .practice-card .card-icon svg { width: 48px !important; height: 48px !important; }
-        .pb-line { font-size: 1.18rem !important; }
-    }
-
-    /* ── Candlestick banner ── */
-    .practice-banner {
-        max-width: 1200px; margin: 0 auto 0.9rem; height: 104px;
-        background:
-            linear-gradient(90deg, rgba(26, 23, 20, 0.55) 0%, rgba(26, 23, 20, 0.78) 50%, rgba(26, 23, 20, 0.55) 100%),
-            url('practice-banner.png') center 30% / cover no-repeat;
-        border: 1px solid rgba(236, 226, 214, 0.14);
-        display: flex; align-items: center; justify-content: center;
-        text-align: center; padding: 0 2.25rem;
-        position: relative; z-index: 1;
-    }
-    .pb-kicker {
-        font: 700 0.7rem 'Inter', sans-serif; letter-spacing: 0.14em;
-        text-transform: uppercase; color: #5CB88A; margin-bottom: 0.45rem;
-    }
-    .pb-line { font: 600 1.35rem 'Fraunces', Georgia, serif; color: #F4EEE6; }
-
-    .practice-footnote {
-        text-align: center; color: #7d746a; font: 500 0.85rem 'Inter', sans-serif;
-        letter-spacing: 0.04em; margin-top: 0.6rem;
-    }
-    .practice-footnote b { color: #B7ADA1; font-weight: 600; }
-
-    /* ── Vertically balance the page ──────────────────────────────────
-       Flex column + auto margins: the leftover space gets split EVENLY
-       between above the banner and below the footnote, so the block is
-       always centred between the header and the bottom of the screen —
-       on any monitor, without hardcoding a number. */
-    body { display: flex; flex-direction: column; min-height: 100vh; }
-    .main-content { margin-top: auto !important; }
-    .practice-footnote { margin-bottom: auto !important; }
-
-    /* solid white page titles — no green ombre */
-    .page-title, .page-title span, .practice-title { background: none !important;
-        -webkit-text-fill-color: #F4EEE6 !important; color: #F4EEE6 !important;
-        text-shadow: none !important; }
-
-    /* ── everything moves up ──────────────────────────────────────────
-       The footnote used to hold the bottom auto-margin that centred this
-       block. It's gone, so the block was falling to the bottom of the
-       screen. Pin it near the top and let the spare room sit underneath. */
-    body { justify-content: flex-start !important; }
-    .main-content { margin-top: 0.4rem !important; margin-bottom: auto !important; }
-    .practice-cards { margin-top: 1.4rem !important; }
-
-    @media (max-height: 860px) {
-        .practice-cards { margin-top: 1rem !important; }
-    }
-
-    /* ── centre the block between header and bottom ───────────────────
-       A fixed top margin with `margin-bottom: auto` pinned everything to
-       the top, so on a 1080-tall screen there were 118px above the banner
-       and 320px below the monitor. Auto margins on both sides let the flex
-       column split the free space evenly — the block sits in the middle at
-       any height, and on short screens there's simply less to split. */
-    .main-content { margin-top: auto !important; margin-bottom: auto !important; }
-
-    /* ── the monitor ──────────────────────────────────────────────────
-       Screen only: a bezel with a camera pinhole and the glass sheen, no
-       stand and no base. Both cards sit on the display. */
-    .pc-screen {
-        box-sizing: border-box;
-        position: relative; width: 100%;
-        max-width: 1000px; margin: 0 auto;
-        padding: 26px 20px 20px;
-        border-radius: 18px;
-        background: #0C0A08;
-        border: 1px solid rgba(240, 232, 220, 0.16);
-        box-shadow:
-            0 1px 0 rgba(255, 255, 255, 0.08) inset,
-            0 30px 70px rgba(0, 0, 0, 0.55),
-            0 90px 150px rgba(0, 0, 0, 0.32);
-    }
-    /* The diagonal sheen read as a fade washing across the panel rather than
-       glass. Replaced with an actual display surface inset inside the bezel:
-       flat, evenly lit, with a hairline edge and the shadow the bezel casts
-       onto it. Nothing gradients across the picture. */
-    .pc-screen::before {
-        content: ''; position: absolute;
-        inset: 20px 14px 14px;
-        border-radius: 8px;
-        background: #131110;
-        box-shadow:
-            inset 0 0 0 1px rgba(255, 255, 255, 0.045),
-            inset 0 3px 12px rgba(0, 0, 0, 0.55);
-        pointer-events: none;
-    }
-    /* the cards are the picture, so they sit on the display, not under it */
-    .pc-screen .practice-cards { position: relative; z-index: 1; }
-
-    /* Nudge the banner up without moving the cards with it — but only where
-       there's room. On a phone the auto margins collapse to nothing, so the
-       same 10px pushed the banner up underneath the header. */
-    @media (min-width: 901px) {
-        .practice-banner { transform: translateY(-10px); }
-    }
-
-    /* ── the candlesticks, unboxed ────────────────────────────────────
-       Was a panel: fixed width, a border, and a dark gradient laid over the
-       artwork. Now the chart streaks the full width of the page with no
-       container at all.
-
-       The transparency is baked into the asset rather than done with a blend
-       mode. Both `screen` and `lighten` left the card visible as a rectangle:
-       mix-blend-mode only composites within its own stacking context, and an
-       ancestor here forms one, so the blend never reached the page at all.
-       practice-banner-cut.png is the same artwork with alpha derived from
-       luminance — the near-black card (88% of the pixels) is simply gone, the
-       candles are opaque, and the grid lines keep a faint presence in between.
-       Nothing to blend, nothing to isolate, and it looks the same on every
-       background. A radial mask then feathers the edges to nothing. */
-    .practice-banner {
-        position: relative; z-index: auto !important;
-        /* Full bleed. The parent is already the full width — it just has
-           horizontal padding — so setting an explicit 100vw overshot by
-           exactly that padding (32px) and by the scrollbar. Negative margins
-           on BOTH sides with an auto width cancel whatever the padding
-           happens to be, and never reach past the edge. */
-        width: auto;
-        /* !important on all three: a leftover `margin-right: 0 !important`
-           further down this very rule was quietly cancelling the right-hand
-           bleed, so the banner stopped 32px short on the right. */
-        margin-left: calc(50% - 50vw) !important;
-        margin-right: calc(50% - 50vw) !important;
-        margin-bottom: 1.1rem !important;
-        max-width: none !important;
-        height: 168px !important;
-        background: none !important;
-        border: none !important;
-        overflow: visible; isolation: auto;
-    }
-    .practice-banner::before {
-        content: ''; position: absolute; inset: -10% 0;
-        background: url('practice-banner-cut.png') center 42% / cover no-repeat;
-        opacity: 0.85;
-        /* Two masks intersected: one feathers the left and right ends, the
-           other the top and bottom. A single radial couldn't do both — its
-           vertical radius had to reach past the element to avoid pinching the
-           middle, which left the candles cut off flat along the bottom. */
-        -webkit-mask-image:
-            linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%),
-            linear-gradient(180deg, transparent 0%, #000 26%, #000 62%, transparent 100%);
-                mask-image:
-            linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%),
-            linear-gradient(180deg, transparent 0%, #000 26%, #000 62%, transparent 100%);
-        -webkit-mask-composite: source-in;
-                mask-composite: intersect;
-        pointer-events: none;
-    }
-    /* No panel. Instead the candles behind the copy are dimmed by a soft
-       ellipse that has no edge of its own — it reaches zero long before it
-       runs out of room, so the text is legible without anything being drawn
-       around it. */
-    .practice-banner .pb-text {
-        position: relative; z-index: 2;
-        display: inline-block;
-        padding: 0.9rem 3.2rem 0.95rem;
-    }
-    .practice-banner .pb-text::before {
-        content: ''; position: absolute; inset: -60% -10%;
-        z-index: -1; pointer-events: none;
-        background: radial-gradient(ellipse at 50% 50%,
-            rgba(20, 16, 13, 0.94) 0%,
-            rgba(20, 16, 13, 0.86) 34%,
-            rgba(20, 16, 13, 0.55) 60%,
-            rgba(20, 16, 13, 0) 82%);
-    }
-    /* The kicker is back above the line, in green. It was pulled earlier
-       because green-on-green over the candlesticks was unreadable — but that
-       was before the soft ellipse went in behind this block. The copy now
-       sits on a dimmed patch, so the green reads cleanly. It gets a little
-       more tracking and its own shadow so it holds up over the brightest
-       part of the artwork rather than relying on the fade alone. */
-    .pb-kicker {
-        display: block !important;
-        font: 700 0.82rem 'Inter', sans-serif !important;
-        letter-spacing: 0.2em; text-transform: uppercase;
-        color: #6FCF9C !important;
-        margin: 0 0 0.55rem !important;
-        text-shadow: 0 1px 10px rgba(20, 16, 13, 0.9);
-    }
-    /* Bigger. This is the line the page is built around, and at 1.35rem it
-       was competing with the body copy below it instead of leading. */
-    .pb-line {
-        font: 600 clamp(1.7rem, 3.1vw, 2.5rem) 'Fraunces', Georgia, serif !important;
-        line-height: 1.12;
-        text-shadow: 0 2px 14px rgba(20, 16, 13, 0.75);
-        margin: 0;
-    }
-
-    @media (max-width: 700px) {
-        .practice-banner .pb-text { padding: 0.7rem 1.4rem 0.75rem; }
-    }
-
-    @media (max-height: 860px) {
-        .practice-banner { height: 140px !important; }
-    }
-    @media (max-width: 700px) {
-        /* The line wraps to two or three rows on a narrow screen, so the band
-           has to grow with it — at 118px the copy spilled past the artwork
-           and collided with what sits above and below. */
-        .practice-banner { height: 172px !important; }
-        .practice-banner::before { opacity: 0.5; }
-        .pb-kicker { font-size: 0.72rem !important; margin-bottom: 0.4rem !important; }
-        .pb-line { font-size: 1.42rem !important; }
-    }
-
-    /* ── phone header ─────────────────────────────────────────────────
-       "Practice" is absolutely centred in the bar while the back link sits
-       in the flow, so below ~700px the title printed straight over it. */
-    @media (max-width: 700px) {
-        .header { padding: 0 0.9rem; }
-        .page-title { font-size: 1.45rem !important; position: static !important;
-                      transform: none !important; margin-left: auto !important; }
-        .header-left { width: 100%; display: flex; align-items: center; gap: 0.6rem; }
-        .back-button { font-size: 0.82rem; padding: 0.5rem 0.8rem; white-space: nowrap; }
-        /* content outgrows the viewport here so the auto margins resolve to
-           zero — the banner ends up flush against the bar without this */
-        .main-content { margin-top: 0.9rem !important; }
-    }
-    .pc-cam {
-        position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-        width: 5px; height: 5px; border-radius: 50%;
-        background: rgba(240, 232, 220, 0.18);
-    }
-    /* the cards are the picture on the display, so they lose their own gap
-       to the page and sit tight inside the bezel */
-    .pc-screen .practice-cards { margin-top: 0 !important; }
-
-    @media (max-width: 900px) {
-        .pc-screen { padding: 20px 12px 14px; border-radius: 14px; }
-        /* the display surface tracks the tighter bezel */
-        .pc-screen::before { inset: 15px 8px 8px; border-radius: 7px; }
-    }
-
-    /* ── cards: the bullets already say it ────────────────────────────
-       "Execute trades in real-time with live market data" and then a
-       bullet reading "Real-time market prices" is the same sentence
-       twice. Keep the list, lose the paragraph. */
-    .practice-card .card-description { display: none !important; }
-    .practice-card .card-features { margin-top: 0.15rem !important; }
-</style>
-
-
-    <script>
-    // Rotating real-world stats: trading risk, long-term investing, financial literacy.
-    (function () {
-        const FACTS = [
-            'Studies find that up to 95% of day traders lose money over time.',
-            'Only about 1 in 3 adults worldwide can pass a basic financial literacy test.',
-            'Missing just the 10 best market days over 20 years can cut your returns roughly in half.',
-            'The S&P 500 has never lost money over any 20-year holding period in its history.',
-            'The average investor underperforms their own funds — mostly by buying high and selling low.',
-            'Nearly 60% of Americans could not cover a surprise $1,000 expense from savings.',
-            'A dollar invested in the S&P 500 in 1980 is worth over $100 today with dividends reinvested.',
-            'Over 15-year periods, roughly 90% of professional fund managers fail to beat the index.',
-            'Leverage cuts both ways: a 2x levered position loses 100% on a 50% drawdown.',
-            'People who check their portfolio daily trade more and earn less than those who check monthly.',
-            'Inflation at just 3% halves your purchasing power in about 24 years.',
-            'The best-performing retail accounts in several studies belonged to people who forgot they had them.',
-        ];
-        const el = document.getElementById('factLine');
-        if (!el) return;
-        let i = 0;
-        setInterval(() => {
-            el.style.opacity = 0;
-            setTimeout(() => {
-                i = (i + 1) % FACTS.length;
-                el.textContent = FACTS[i];
-                el.style.opacity = 1;
-            }, 450);
-        }, 6500);
-    })();
-    </script>
+        }, 250);
+    });
+})();
+</script>
+<script src="js/ft-practice-scene.js?v=5"></script>
+<p class="ft-legal-foot">A simulation for education and entertainment — not investment advice. Prices may be delayed. No real money changes hands.</p>
+<script src="js/ft-tour.js?v=3"></script>
 </body>
 </html>

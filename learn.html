@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <!-- ft-canvas: the page background, declared before anything that can
          block rendering. Every stylesheet on this page is render-blocking,
          so when one is slow Chrome gives up holding the previous frame and
@@ -26,10 +27,22 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#171310">
-    <title>Stock League - Learning Hub</title>
+    <title>Learn — Fantasy Trader</title>
     <style>
         /* Modern Typography */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        /* Bricolage Grotesque, matching the landing page. The academy was
+           running system-ui with Poppins accents and Fraunces headings from
+           theme.css — three faces, none of them chosen. */
+        /* Apple system stack — SF Pro on Apple devices, best native
+           equivalent elsewhere. Nothing webfont-flavoured. */
+        h1, h2, h3, h4, .path-title, .module-title, .section-title,
+        .hub-title, .edu-title, .tut-tooltip-title, .tut-tooltip-step,
+        .main-title, .learning, .hub {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display',
+                         'Helvetica Neue', 'Segoe UI', sans-serif !important;
+            letter-spacing: -0.02em;
+        }
 
         :root {
             --primary: #4a6785;
@@ -44,7 +57,7 @@
         }
 
         body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             margin: 0;
             padding: 0;
             background: #1a1714;
@@ -369,74 +382,14 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.18);
         }
 
-        /* Enhanced Features Section */
-        .features-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin: 2rem auto;
-            max-width: 1400px;
-            padding: 0 2rem;
-        }
 
-        .feature-card {
-            background: rgba(26, 23, 20, 0.95);
-            border-radius: 16px;
-            padding: 2.5rem;
-            text-align: center;
-            border: 1px solid rgba(236, 226, 214, 0.1);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
 
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--success), #5cb88a);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
 
-        .feature-card:hover::before {
-            opacity: 1;
-        }
 
-        .feature-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--success);
-            box-shadow: 0 10px 30px rgba(236, 226, 214, 0.1);
-        }
 
-        .feature-icon {
-            margin-bottom: 1.5rem;
-            color: var(--success);
-        }
 
-        .feature-card h2 {
-            color: #fff;
-            font-size: 1.8rem;
-            margin: 0 0 1rem 0;
-            font-weight: 600;
-        }
 
-        .feature-card p {
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 2rem;
-            line-height: 1.6;
-            font-size: 0.95rem;
-        }
 
-        .feature-stats {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
 
         .stat {
             text-align: center;
@@ -456,53 +409,12 @@
             letter-spacing: 0.5px;
         }
 
-        .feature-button {
-            background: rgba(236, 226, 214, 0.1);
-            color: var(--success);
-            border: 1px solid rgba(92, 184, 138, 0.3);
-            width: 100%;
-            padding: 1rem;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
 
-        .feature-button:hover {
-            background: rgba(236, 226, 214, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(236, 226, 214, 0.2);
-        }
 
-        .quiz-card {
-            border-color: rgba(236, 226, 214, 0.2);
-        }
 
-        .career-card {
-            border-color: rgba(224, 162, 76, 0.2);
-        }
 
-        .career-card .feature-icon {
-            color: var(--accent);
-        }
 
-        .career-card .feature-button {
-            background: rgba(224, 162, 76, 0.1);
-            color: var(--accent);
-            border-color: rgba(224, 162, 76, 0.3);
-        }
 
-        .career-card .feature-button:hover {
-            background: rgba(224, 162, 76, 0.2);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-        }
 
         /* Module Modal Styles */
         .module-modal {
@@ -919,17 +831,8 @@
             gap: 1.5rem;
         }
 
-        /* Coming Soon Overlay */
-        .coming-soon-overlay {
-            position: relative;
-        }
 
-        .coming-soon-overlay::after { display: none; }
 
-        .career-card.disabled {
-            opacity: 0.5;
-            pointer-events: none;
-        }
 
         @media (max-width: 768px) {
             .main-title {
@@ -939,9 +842,6 @@
                 grid-template-columns: 1fr;
             }
             .markets-grid {
-                grid-template-columns: 1fr;
-            }
-            .features-section {
                 grid-template-columns: 1fr;
             }
         }
@@ -954,8 +854,8 @@
         .tut-tooltip { position:fixed; z-index:5002; background:#241f1b; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:1.25rem 1.4rem; width:300px; pointer-events:auto; opacity:0; box-shadow:0 16px 48px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.04); }
         .tut-tooltip.visible { animation:tutFadeIn 0.3s ease forwards; }
         @keyframes tutFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-        .tut-tooltip-step { font-size:0.7rem; font-weight:600; letter-spacing:0.5px; color:rgba(92,184,138,0.7); margin-bottom:0.5rem; font-family:'Poppins','Inter',sans-serif; }
-        .tut-tooltip-title { font-size:1.05rem; font-weight:700; color:#fff; margin-bottom:0.4rem; font-family:'Poppins','Inter',sans-serif; letter-spacing:-0.3px; }
+        .tut-tooltip-step { font-size:0.7rem; font-weight:600; letter-spacing:0.5px; color:rgba(92,184,138,0.7); margin-bottom:0.5rem; font-family:'Inter',sans-serif; }
+        .tut-tooltip-title { font-size:1.05rem; font-weight:700; color:#fff; margin-bottom:0.4rem; font-family:'Inter',sans-serif; letter-spacing:-0.3px; }
         .tut-tooltip-desc { font-size:0.82rem; color:rgba(255,255,255,0.65); line-height:1.55; margin-bottom:1.1rem; font-family:'Inter',sans-serif; }
         .tut-tooltip-progress { display:flex; gap:4px; margin-bottom:1rem; }
         .tut-tooltip-pip { height:3px; border-radius:2px; background:rgba(255,255,255,0.1); flex:1; transition:background 0.3s ease; }
@@ -964,14 +864,26 @@
         .tut-tooltip-actions { display:flex; justify-content:space-between; align-items:center; }
         .tut-skip-btn { background:none; border:none; color:rgba(255,255,255,0.3); font-size:0.78rem; font-weight:500; cursor:pointer; padding:0.3rem 0; font-family:'Inter',sans-serif; transition:color 0.2s; }
         .tut-skip-btn:hover { color:rgba(255,255,255,0.55); }
-        .tut-next-btn { background:#5cb88a; color:#1a1714; border:none; padding:0.5rem 1.2rem; border-radius:8px; font-size:0.8rem; font-weight:600; cursor:pointer; font-family:'Poppins','Inter',sans-serif; transition:all 0.2s ease; letter-spacing:-0.2px; }
+        .tut-next-btn { background:#5cb88a; color:#1a1714; border:none; padding:0.5rem 1.2rem; border-radius:8px; font-size:0.8rem; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s ease; letter-spacing:-0.2px; }
         .tut-next-btn:hover { background:#54b082; box-shadow:0 4px 14px rgba(236, 226, 214, 0.25); }
     </style>
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
     <link rel="stylesheet" href="css/theme.css">
+    <style>
+        /* Placed after theme.css on purpose: theme.css forces Fraunces on
+           headings with !important, and later-in-cascade is the only way
+           to beat an equal-specificity !important rule. */
+        .main-title, .learning, .hub, h1, h2, h3, h4,
+        .path-title, .module-title, .section-title, .hub-title, .edu-title {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display',
+                         'Helvetica Neue', 'Segoe UI', sans-serif !important;
+            letter-spacing: -0.02em !important;
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/ft-alert.js"></script>
+    <script src="js/ft-alert.js?v=2"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
+    <script src="js/sl.js?v=3"></script>
     <script src="js/guard.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -983,9 +895,13 @@
             border-radius: 16px;
             overflow: hidden;
             border: 1px solid rgba(236,226,214,0.08);
+            /* the skyline itself is the <img> below; this is just the wash
+               over it. The url() here pointed at skyline.webp, which is not
+               in the repo — a 404 on every page load for a layer that was
+               never visible. */
             background:
                 linear-gradient(180deg, #1A1714 0%, rgba(26,23,20,0.35) 55%, rgba(26,23,20,0.15) 100%),
-                url("skyline.webp") center bottom/100% auto no-repeat #221E1A;
+                #221E1A;
         }
         .skyline-banner .main-title { position: relative; z-index: 2; font-size: 2.9rem !important; }
         .title-sub { position: relative; z-index: 2; color: #CFC5B8; font-size: 0.9rem; margin-top: 0.6rem;
@@ -1011,7 +927,6 @@
         }
         .pathway-tab:hover { color: #F4EEE6; border-color: rgba(236,226,214,0.25); }
         .pathway-tab.active { background: rgba(92,184,138,0.14); border-color: rgba(92,184,138,0.5); color: #5CB88A; }
-        .career-card { opacity: 0.4; filter: grayscale(0.7); pointer-events: none; position: relative; }
     </style>
     <style>
         .all-courses-section { padding: 1.1rem 1.25rem !important; margin: 1.25rem auto !important; }
@@ -1038,7 +953,7 @@
         /* Keep Learning: bigger ring, symmetric type, cooler pathway toggle */
         .keep-learning-progress svg { width: 96px !important; height: 96px !important; }
         .all-courses-content h2 {
-            font-family: 'Poppins','Inter',sans-serif !important; font-weight: 700 !important;
+            font-family: 'Inter',sans-serif !important; font-weight: 700 !important;
             font-size: 1.45rem !important; letter-spacing: 0 !important;
         }
         .all-courses-content p {
@@ -1047,7 +962,7 @@
         }
         .pathway-tabs { gap: 0.75rem !important; margin: 1.1rem 0 1.4rem !important; }
         .pathway-tab {
-            font: 700 1rem 'Poppins','Inter',sans-serif !important;
+            font: 700 1rem 'Inter',sans-serif !important;
             padding: 0.85rem 1.6rem !important; border-radius: 14px !important;
             background: rgba(236,226,214,0.03) !important;
             border: 1px solid rgba(236,226,214,0.1) !important;
@@ -1081,7 +996,7 @@
             display: flex; flex-direction: column;
         }
         .edu-label {
-            font: 600 1.25rem 'Fraunces', Georgia, serif; text-transform: none;
+            font: 600 1.25rem 'Inter', system-ui, sans-serif; text-transform: none;
             letter-spacing: 0; color: #F4EEE6; padding: 0 1.5rem 0.7rem; margin-bottom: 0.8rem;
             border-bottom: 1px solid rgba(236,226,214,0.1); position: relative;
         }
@@ -1130,13 +1045,11 @@
             font: 700 0.85rem 'Inter',sans-serif; text-transform: uppercase; letter-spacing: 0.5px;
             color: rgba(255,255,255,0.8); margin-top: 0.8rem;
         }
-        .edu-progress-sub { font: 600 1.05rem 'Poppins','Inter',sans-serif; color: #F4EEE6; margin: 0.25rem 0 1.2rem; }
+        .edu-progress-sub { font: 600 1.05rem 'Inter',sans-serif; color: #F4EEE6; margin: 0.25rem 0 1.2rem; }
         .edu-actions { display: flex; align-items: center; justify-content: center; gap: 1rem; position: relative; z-index: 1; }
         .edu-courses-link { color: #B7ADA1; font: 600 0.85rem 'Inter',sans-serif; text-decoration: none; }
         .edu-courses-link:hover { color: #F4EEE6; }
         @media (max-width: 700px) { .edu-panel { grid-template-columns: 1fr !important; } .edu-left { border-right: none; border-bottom: 2px solid rgba(236,226,214,0.1); } }
-        /* Small-text cleanup: crisp Inter everywhere below the headings */
-        .level-description { font: 400 0.9rem/1.5 'Inter',sans-serif !important; color: #B7ADA1 !important; }
         .fact-text { font: 500 0.82rem 'Inter',sans-serif !important; font-style: normal !important; }
         .title-sub { font: 500 0.88rem 'Inter',sans-serif !important; }
     </style>
@@ -1159,40 +1072,127 @@
             border-color: #E0A24C !important; transform: translateY(-2px) !important;
         }
     </style>
+
     <style>
-        .coming-banner {
-            position: absolute; left: -3%; right: -3%; top: 50%;
-            background: repeating-linear-gradient(45deg,
-                rgba(224, 162, 76, 0.55) 0 34px, rgba(30, 26, 22, 0.55) 34px 68px);
-            color: rgba(244, 238, 230, 0.85); text-align: center;
-            font: 800 1.05rem 'Poppins', 'Inter', sans-serif; letter-spacing: 0.4em;
-            padding: 0.85rem 0; z-index: 5; pointer-events: none;
-            opacity: 0.75; overflow: hidden; white-space: nowrap;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-        }
-        .coming-banner.tape-a { transform: translateY(-50%) rotate(-7deg); }
-        .coming-banner.tape-b { transform: translateY(-50%) rotate(7deg); opacity: 0.6; }
-        .coming-front {
-            position: absolute; left: 0; right: 0; top: 50%;
-            transform: translateY(-50%);
-            text-align: center; z-index: 6; pointer-events: none;
-            font: 800 1.9rem 'Poppins', 'Inter', sans-serif; letter-spacing: 0.4em;
-            color: #F4EEE6; text-shadow: 0 3px 16px rgba(0, 0, 0, 0.85), 0 0 2px rgba(0, 0, 0, 0.9);
-        }
+    /* ============================================================
+     *  LEARNING PATH CARDS — one typographic definition.
+     *
+     *  What was wrong: three fonts in one card, and two of them by
+     *  accident. The title had no font-family at all, so it fell
+     *  through to -apple-system. The button had none either, and a
+     *  <button> does not inherit font from its parent — so it was
+     *  rendering in Arial. The description was declared three times
+     *  across three separate style blocks and the winner was 0.86rem
+     *  Poppins 700 tinted to match the level: small, bold and
+     *  coloured, which is the hardest thing on a page to read.
+     *
+     *  Now: display face for the level, Inter for the sentence,
+     *  display face on the button, and the colour carried by the
+     *  ring and the button rather than smeared over the body copy.
+     * ============================================================ */
+    .path-card {
+        border-radius: 20px !important;
+        border: 2px solid rgba(236, 226, 214, 0.10) !important;
+        background: #221D19 !important;
+        padding: 1.8rem 1.5rem 1.6rem !important;
+        transition: border-color 0.18s ease, transform 0.18s ease;
+    }
+    .path-card:hover { transform: translateY(-3px); }
+    .path-card:has(.green)  { --lvl: #5CB88A; --lvl-dk: #3E8C65; --lvl-ink: #0C1A13; }
+    .path-card:has(.yellow) { --lvl: #E0A24C; --lvl-dk: #B37C33; --lvl-ink: #1B1207; }
+    .path-card:has(.red)    { --lvl: #D9645C; --lvl-dk: #A6443D; --lvl-ink: #1B0D0B; }
+    .path-card:hover { border-color: color-mix(in srgb, var(--lvl, #5CB88A) 55%, transparent) !important; }
+
+    /* uppercase at this size needs positive tracking or the letters jam */
+    .level-title {
+        font: 800 1.5rem 'Inter', system-ui, sans-serif !important;
+        letter-spacing: 0.075em !important;
+        margin: 0 0 0.35rem !important;
+        line-height: 1.1 !important;
+    }
+
+    /* the sentence is the thing you actually read — plain, not tinted */
+    .level-description {
+        font: 500 0.92rem/1.55 'Inter', system-ui, sans-serif !important;
+        color: #B7ADA1 !important;
+        margin: 1.1rem 0 1.4rem !important;
+        max-width: 20rem;
+        /* evens the two lines instead of leaving one word stranded */
+        text-wrap: balance;
+    }
+
+    .ring-text {
+        font: 700 0.58rem 'Inter', system-ui, sans-serif;
+        fill: #F4EEE6;
+        letter-spacing: 0.02em;
+    }
+
+    /* Explicit font-family — this is the Arial fix. Solid fill and a hard
+       bottom edge, the same press the rest of the app uses. */
+    .level-button {
+        font: 800 0.82rem 'Inter', system-ui, sans-serif !important;
+        letter-spacing: 0.09em !important;
+        text-transform: uppercase;
+        padding: 0.85rem 1.2rem !important;
+        border-radius: 13px !important;
+        background: var(--lvl, #5CB88A) !important;
+        color: var(--lvl-ink, #0C1A13) !important;
+        box-shadow: 0 4px 0 var(--lvl-dk, #3E8C65) !important;
+        backdrop-filter: none !important;
+        position: relative; top: 0;
+        transition: filter 0.15s ease, transform 0.07s ease, box-shadow 0.07s ease !important;
+    }
+    .level-button:hover:not(:disabled) {
+        filter: brightness(1.07);
+        transform: none !important;
+        background: var(--lvl, #5CB88A) !important;
+        color: var(--lvl-ink, #0C1A13) !important;
+        box-shadow: 0 4px 0 var(--lvl-dk, #3E8C65) !important;
+    }
+    .level-button:active:not(:disabled) {
+        top: 4px; box-shadow: 0 0 0 var(--lvl-dk, #3E8C65) !important;
+    }
+    .level-button:disabled {
+        background: rgba(236, 226, 214, 0.07) !important;
+        color: #7d746a !important; box-shadow: none !important;
+    }
+    .level-button .arrow { font-size: 1rem; }
+
+    /* :has() is well supported now, but where it is not the cards would
+       lose their accent entirely — so each colour is also set directly. */
+    .green-button  { --lvl: #5CB88A; --lvl-dk: #3E8C65; --lvl-ink: #0C1A13; }
+    .yellow-button { --lvl: #E0A24C; --lvl-dk: #B37C33; --lvl-ink: #1B1207; }
+    .red-button    { --lvl: #D9645C; --lvl-dk: #A6443D; --lvl-ink: #1B0D0B; }
     </style>
+    <link rel="stylesheet" href="css/ft-rally-chat.css?v=3">
+    <link rel="stylesheet" href="css/ft-motion.css">
+    <link rel="stylesheet" href="css/ft-screen.css?v=1">
+    <script src="js/ft-back.js?v=2"></script>
+<style>/* less subtext: the headings say it */
+.ac-promo-text p, .level-description { display: none !important; }
+</style>
 </head>
 <body>
-    <button class="dashboard-btn" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
-
-    <!-- Cool Facts Banner -->
-
-    <div class="title-container skyline-banner">
-        <img src="skyline-light.png" alt="" class="skyline-img">
-        <h1 class="main-title">
-            <span class="learning">LEARNING</span>
-            <span class="hub">HUB</span>
-        </h1>
+    <div class="lh-bg" aria-hidden="true">
+        <svg class="lh-route" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+            <defs><linearGradient id="lhRoute" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stop-color="#5CB88A"/><stop offset="0.5" stop-color="#E0A24C"/><stop offset="1" stop-color="#D9645C"/>
+            </linearGradient></defs>
+            <path d="M80 702 C126 702 126 729 171 729 C217 729 217 727 263 727 C309 727 309 681 354 681 C400 681 400 597 446 597 C491 597 491 502 537 502 C583 502 583 426 629 426 C674 426 674 391 720 391 C766 391 766 399 811 399 C857 399 857 429 903 429 C949 429 949 451 994 451 C1040 451 1040 438 1086 438 C1131 438 1131 381 1177 381 C1223 381 1223 292 1269 292 C1314 292 1314 199 1360 199" fill="none" stroke="url(#lhRoute)" stroke-opacity="0.16" stroke-width="10" stroke-linecap="round"/>
+            <path d="M80 702 C126 702 126 729 171 729 C217 729 217 727 263 727 C309 727 309 681 354 681 C400 681 400 597 446 597 C491 597 491 502 537 502 C583 502 583 426 629 426 C674 426 674 391 720 391 C766 391 766 399 811 399 C857 399 857 429 903 429 C949 429 949 451 994 451 C1040 451 1040 438 1086 438 C1131 438 1131 381 1177 381 C1223 381 1223 292 1269 292 C1314 292 1314 199 1360 199" fill="none" stroke="url(#lhRoute)" stroke-opacity="0.32" stroke-width="2" stroke-dasharray="2 12" stroke-linecap="round"/>
+            <circle cx="80" cy="702" r="20" fill="none" stroke="#5CB88A" stroke-opacity="0.22" stroke-width="1.5"/><circle cx="537" cy="502" r="20" fill="none" stroke="#E0A24C" stroke-opacity="0.22" stroke-width="1.5"/><circle cx="994" cy="451" r="20" fill="none" stroke="#D9645C" stroke-opacity="0.22" stroke-width="1.5"/><circle cx="1360" cy="199" r="20" fill="none" stroke="#D9645C" stroke-opacity="0.22" stroke-width="1.5"/><circle cx="80" cy="702" r="11" fill="#5CB88A" fill-opacity="0.40"/><circle cx="171" cy="729" r="7" fill="#5CB88A" fill-opacity="0.28"/><circle cx="263" cy="727" r="7" fill="#5CB88A" fill-opacity="0.28"/><circle cx="354" cy="681" r="7" fill="#5CB88A" fill-opacity="0.28"/><circle cx="446" cy="597" r="7" fill="#5CB88A" fill-opacity="0.28"/><circle cx="537" cy="502" r="11" fill="#E0A24C" fill-opacity="0.40"/><circle cx="629" cy="426" r="7" fill="#E0A24C" fill-opacity="0.28"/><circle cx="720" cy="391" r="7" fill="#E0A24C" fill-opacity="0.28"/><circle cx="811" cy="399" r="7" fill="#E0A24C" fill-opacity="0.28"/><circle cx="903" cy="429" r="7" fill="#E0A24C" fill-opacity="0.28"/><circle cx="994" cy="451" r="11" fill="#D9645C" fill-opacity="0.40"/><circle cx="1086" cy="438" r="7" fill="#D9645C" fill-opacity="0.28"/><circle cx="1177" cy="381" r="7" fill="#D9645C" fill-opacity="0.28"/><circle cx="1269" cy="292" r="7" fill="#D9645C" fill-opacity="0.28"/><circle cx="1360" cy="199" r="7" fill="#D9645C" fill-opacity="0.28"/>
+        </svg>
     </div>
+    <!-- One header row. The back button used to float over a grey skyline
+         banner; it now sits in line with the title. -->
+    <header class="lh-head">
+        <a class="lh-back" href="dashboard.html" aria-label="Back to dashboard" data-back>&larr; Dashboard</a>
+        <div class="lh-titles">
+            <span class="lh-kick">Learn</span>
+            <h1 class="lh-title ft-screen-title">Learning Hub</h1>
+        </div>
+        <span class="lh-spacer"></span>
+    </header>
 
     <div class="learning-container">
         <!-- Learning Paths -->
@@ -1255,10 +1255,6 @@
             .path-card.recommended { border-color: rgba(92,184,138,0.5) !important; }
         
         /* level blurbs pick up their path's colour instead of sitting grey */
-        .level-description { font: 700 0.86rem/1.45 'Poppins', sans-serif !important; }
-        .level-description.green  { color: #5CB88A !important; }
-        .level-description.yellow { color: #E0A24C !important; }
-        .level-description.red    { color: #D9645C !important; }
 
         /* ══════════════════════════════════════════════════════════════════
            RESPONSIVE
@@ -1284,10 +1280,6 @@
             .main-title { font-size: 2.4rem !important; }
         }
 
-        /* The two "COMING SOON" tapes are set 3% wider than their card and
-           then rotated, which makes their bounding box wider still. Clip
-           them to the card they're taped across. */
-        .features-section { overflow: clip; }
 </style>
         <script>
             // ---------- Pathway switcher + real progress ----------
@@ -1378,6 +1370,206 @@
         })();
         </script>
 
+        <!-- The Academy: short exercise-driven lessons, as opposed to the
+             long-form modules below. Sits above them because it's where a
+             complete beginner should actually start. -->
+        <div class="ac-promo">
+            <div class="ac-promo-art"><span id="acPromoBull"></span></div>
+            <div class="ac-promo-text">
+                <h3>The Academy</h3>
+                <p>Play your way through it. Hearts, streaks, boss fights.</p>
+            </div>
+            <a class="ac-promo-go" href="academy.html">Play</a>
+        </div>
+        <style>
+            .ac-promo {
+                display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+                max-width: 1080px; margin: 2.2rem auto 3.2rem; padding: 1.7rem 2rem;
+                background: #F4EEE6;
+                border-radius: 22px;
+                box-shadow: 0 6px 0 #C9BCA6, 0 22px 50px rgba(0,0,0,0.35);
+            }
+            .ac-promo-art { flex-shrink: 0; display: grid; place-items: center; }
+            .ac-promo-art .bull-rig { width: 116px; height: 116px; }
+            .ac-promo-text { flex: 1; min-width: 240px; }
+            .ac-promo-text h3 {
+                margin: 0 0 0.25rem !important;
+                font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display',
+                             'Helvetica Neue', sans-serif !important;
+                font-size: 2.3rem !important; font-weight: 800 !important;
+                letter-spacing: -0.03em; color: #1B1207 !important; line-height: 1.05;
+            }
+            .ac-promo-text p {
+                margin: 0; color: rgba(27,18,7,0.62);
+                font: 600 0.95rem -apple-system, BlinkMacSystemFont, sans-serif;
+            }
+            .ac-promo-go {
+                flex-shrink: 0; text-decoration: none;
+                padding: 1rem 2.2rem; border-radius: 16px;
+                background: #5CB88A; color: #0C1A13;
+                font: 800 1.05rem -apple-system, BlinkMacSystemFont, sans-serif;
+                letter-spacing: 0.01em;
+                box-shadow: 0 4px 0 #3E8C65; transition: transform 0.06s ease;
+                position: relative; top: 0;
+            }
+            .ac-promo-go:active { top: 4px; box-shadow: 0 0 0 #3E8C65; }
+            @media (max-width: 720px) {
+                .ac-promo { padding: 1.3rem; gap: 1rem; margin-bottom: 2.4rem; }
+                .ac-promo-text h3 { font-size: 1.8rem !important; }
+                .ac-promo-go { width: 100%; text-align: center; }
+            }
+        
+        /* ============================================================
+         *  LEARNING HUB, cleaner.
+         *
+         *  The skyline banner and the floating back button are replaced
+         *  by one header row. The three level cards lose their heavy
+         *  filled buttons: colour lives in a thin top edge, the ring and
+         *  an outline button that fills when you point at it. The
+         *  Academy banner comes off cream and onto the page's own dark.
+         * ============================================================ */
+        .lh-head {
+            max-width: 1100px; margin: 0 auto; padding: 1.6rem 1.5rem 0.4rem;
+            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem;
+        }
+        .lh-back {
+            justify-self: start;
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.5rem 0.85rem; border-radius: 999px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(236,226,214,0.12);
+            color: rgba(236,226,214,0.75); text-decoration: none;
+            font: 700 0.78rem 'Inter', system-ui, sans-serif;
+            transition: color 0.15s ease, border-color 0.15s ease;
+        }
+        .lh-back:hover { color: #F4EEE6; border-color: rgba(236,226,214,0.3); }
+        .lh-titles { text-align: center; }
+        .lh-kick { display: block; font: 800 0.66rem 'Inter', sans-serif; letter-spacing: 0.22em; text-transform: uppercase; color: #5CB88A; margin-bottom: 0.2rem; }
+        .lh-title { margin: 0; font: 800 2.1rem/1.05 'Inter', system-ui, sans-serif !important; letter-spacing: -0.03em; color: #F4EEE6; }
+
+        .learning-container { max-width: 1100px !important; margin: 0 auto !important; padding: 1.2rem 1.5rem 3rem !important; }
+        .learning-paths { gap: 1rem !important; }
+        .path-card {
+            min-height: 0 !important; height: auto !important;
+            background: #221D19 !important;
+            border: 1px solid rgba(236,226,214,0.09) !important;
+            border-top: 3px solid var(--lvl) !important;
+            border-radius: 18px !important;
+            padding: 1.3rem 1.3rem 1.25rem !important;
+            box-shadow: none !important;
+            transition: transform 0.18s ease, border-color 0.18s ease;
+        }
+        .path-card:hover { transform: translateY(-3px); border-color: rgba(236,226,214,0.18) !important; border-top-color: var(--lvl) !important; }
+        .path-card:nth-child(1) { --lvl: #5CB88A; }
+        .path-card:nth-child(2) { --lvl: #E0A24C; }
+        .path-card:nth-child(3) { --lvl: #D9645C; }
+        .level-title { font: 800 0.74rem 'Inter', sans-serif !important; letter-spacing: 0.18em !important; margin-bottom: 0.9rem !important; }
+        .progress-ring { width: 88px !important; height: 88px !important; margin: 0 auto 0.9rem !important; }
+        .level-description { color: #9A8F84 !important; font: 500 0.84rem/1.45 'Inter', sans-serif !important; min-height: 2.9em; margin-bottom: 1rem !important; }
+        .level-button {
+            background: transparent !important;
+            border: 1.5px solid var(--lvl) !important; color: var(--lvl) !important;
+            box-shadow: none !important; border-radius: 12px !important;
+            height: 42px !important; font: 800 0.74rem 'Inter', sans-serif !important; letter-spacing: 0.1em !important;
+            transition: background 0.16s ease, color 0.16s ease !important;
+        }
+        .level-button:hover:not(:disabled) { background: var(--lvl) !important; color: #14100E !important; transform: none !important; }
+
+        .ac-promo {
+            background: linear-gradient(120deg, #1F2A23 0%, #221D19 60%) !important;
+            border: 1px solid rgba(92,184,138,0.28) !important;
+            box-shadow: none !important; color: #F4EEE6 !important;
+            border-radius: 18px !important;
+        }
+        .ac-promo h3 { color: #F4EEE6 !important; }
+        .ac-promo p { color: #9A8F84 !important; }
+        .ac-promo-go {
+            background: #5CB88A !important; color: #0C1A13 !important;
+            box-shadow: 0 4px 0 #3E8C65 !important; border-radius: 12px !important;
+        }
+        .ac-promo-go:active { transform: translateY(3px); box-shadow: 0 1px 0 #3E8C65 !important; }
+        .all-courses-section { border-radius: 18px !important; }
+
+        /* ============================================================
+         *  LEARNING HUB — a background, and one screen.
+         *
+         *  The page was flat dark and ran to 1,272px. It now has a lit
+         *  room behind it — one soft glow in each level's colour over a
+         *  faint grid — and fits a screen: the level cards are compact,
+         *  the Academy banner is a strip, and the pathways panel takes
+         *  what height is left, scrolling inside itself if it must.
+         * ============================================================ */
+        .lh-bg {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse 45% 40% at 12% 18%, rgba(92,184,138,0.16), transparent 70%),
+                radial-gradient(ellipse 40% 38% at 52% 6%,  rgba(224,162,76,0.11), transparent 70%),
+                radial-gradient(ellipse 45% 40% at 90% 22%, rgba(217,100,92,0.12), transparent 70%),
+                radial-gradient(ellipse 70% 50% at 50% 110%, rgba(92,184,138,0.08), transparent 70%),
+                linear-gradient(180deg, #17130F 0%, #1A1612 55%, #141110 100%);
+        }
+        .lh-bg::before {
+            content: ''; position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(236,226,214,0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(236,226,214,0.035) 1px, transparent 1px);
+            background-size: 56px 56px;
+            -webkit-mask-image: radial-gradient(ellipse 80% 75% at 50% 35%, #000 25%, transparent 85%);
+                    mask-image: radial-gradient(ellipse 80% 75% at 50% 35%, #000 25%, transparent 85%);
+        }
+        .lh-bg::after {
+            /* a faint rising line across the room, the app's own motif, still */
+            content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 45%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 400' preserveAspectRatio='none'%3E%3Cpath d='M0 330 C120 320 200 300 300 305 S460 260 560 250 720 270 820 220 980 190 1080 160 1260 120 1440 70' fill='none' stroke='%235CB88A' stroke-opacity='0.22' stroke-width='2'/%3E%3Cpath d='M0 330 C120 320 200 300 300 305 S460 260 560 250 720 270 820 220 980 190 1080 160 1260 120 1440 70 L1440 400 L0 400 Z' fill='%235CB88A' fill-opacity='0.035'/%3E%3C/svg%3E") no-repeat center bottom / 100% 100%;
+        }
+        :where(.lh-bg ~ *) { position: relative; z-index: 1; }
+        body { background: #141110 !important; }
+
+        @media (min-width: 901px) and (min-height: 700px) {
+            html, body { height: 100%; overflow: hidden; }
+            body { display: flex; flex-direction: column; }
+            .lh-head { flex: 0 0 auto; width: 100%; padding: 1.1rem 1.5rem 0.2rem !important; }
+            .lh-title { font-size: 1.8rem !important; }
+            .learning-container {
+                flex: 1 1 auto; min-height: 0; width: 100%;
+                display: flex; flex-direction: column; gap: 0.9rem;
+                padding: 0.8rem 1.5rem 1.2rem !important;
+            }
+            .learning-paths { flex: 0 0 auto; margin: 0 !important; }
+            .path-card { padding: 0.95rem 1.1rem 1rem !important; }
+            .level-title { margin-bottom: 0.55rem !important; }
+            .progress-ring { width: 68px !important; height: 68px !important; margin: 0 auto 0.55rem !important; }
+            .level-description { min-height: 0 !important; margin-bottom: 0.7rem !important; font-size: 0.8rem !important; }
+            .level-button { height: 38px !important; }
+            .ac-promo { flex: 0 0 auto; margin: 0 !important; padding: 0.55rem 1.1rem !important; min-height: 0 !important; }
+            .ac-promo-art .bull-rig { width: 68px !important; height: 68px !important; }
+            .ac-promo h3 { font-size: 1.3rem !important; margin: 0 !important; }
+            .ac-promo p { margin: 0.1rem 0 0 !important; }
+            .all-courses-section {
+                flex: 1 1 auto; min-height: 0; margin: 0 !important;
+                display: flex; flex-direction: column; overflow: hidden;
+            }
+            .all-courses-section > .edu-panel { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+            .keep-learning-progress.big-ring { width: 92px !important; height: 92px !important; }
+        }
+
+        /* the room's motif is now the learning route itself — a winding
+           path of stops, green to amber to red like the three levels;
+           the old rising line is retired */
+        .lh-bg::after { display: none !important; }
+        .lh-route { position: absolute; inset: 0; width: 100%; height: 100%;
+            -webkit-mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, #000 40%, transparent 95%);
+                    mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, #000 40%, transparent 95%); }
+</style>
+        <script src="js/ft-bull.js?v=6"></script>
+        <script>
+        (function(){
+            try {
+                var slot=document.getElementById('acPromoBull');
+                slot.innerHTML=FTBull.rigSVG();
+            } catch(e) {}
+        })();
+        </script>
+
         <!-- Keep Learning Section -->
         <div class="all-courses-section">
             <div class="all-courses-content edu-panel">
@@ -1414,51 +1606,7 @@
             </div>
         </div>
 
-        <!-- Features Section -->
-        <div class="features-section" style="position: relative;">
-            <div class="coming-banner tape-a" aria-hidden="true"></div>
-            <div class="coming-banner tape-b" aria-hidden="true"></div>
-            <div class="coming-front" aria-hidden="true">COMING SOON</div>
-            <div class="feature-card quiz-card" style="opacity: 0.4; filter: grayscale(0.9); pointer-events: none;">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" width="48" height="48">
-                        <path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                    </svg>
-                </div>
-                <h2>FT Investment Certification</h2>
-                <p>A full certification course — pass it and Fantasy Trader issues you a certificate showing a solid foundation in investing.</p>
-                <div class="feature-stats">
-                    <div class="stat">
-                        <span class="stat-number">1</span>
-                        <span class="stat-label">Certification</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-number" id="quizProgress">0%</span>
-                        <span class="stat-label">Progress</span>
-                    </div>
-                </div>
-            </div>
 
-            <div class="feature-card career-card coming-soon-overlay">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" width="48" height="48">
-                        <path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4V6h11v12zm5 0h-3V6h3v12z"/>
-                    </svg>
-                </div>
-                <h2>Career Pathways</h2>
-                <p>Explore high-finance career paths including M&A, Private Equity, Venture Capital, and Investment Banking.</p>
-                <div class="feature-stats">
-                    <div class="stat">
-                        <span class="stat-number">4</span>
-                        <span class="stat-label">Career Paths</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-number">0</span>
-                        <span class="stat-label">Unlocked</span>
-                    </div>
-                </div>
-                </div>
-        </div>
 
 
 
@@ -2136,5 +2284,11 @@
 })();
     </script>
     <div class="legal-note" style="max-width:1100px;margin:0 auto;padding:1.2rem 1.5rem 2.5rem;font:500 0.72rem 'Inter',sans-serif;color:#7d746a;text-align:center;line-height:1.6;">All courses are educational content only — not investment, legal, or tax advice. Figures are illustrative and may contain errors. Do your own research before investing real money.</div>
+<script src="js/ft-juice.js"></script>
+<script src="js/ft-bull.js?v=6"></script>
+<script src="js/ft-rally-chat.js?v=6"></script>
+<script src="js/ft-rally-widget.js?v=3"></script>
+<script src="js/ft-rally-corner.js?v=2"></script>
+<script src="js/ft-tour.js?v=3"></script>
 </body>
 </html> 

@@ -33,6 +33,9 @@
     get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
   };
+  // the device watchlist: plain tickers. Older builds stored objects here.
+  const localWatch = () => [...new Set((ls.get("watchlist", []) || [])
+    .map((x) => (typeof x === "string" ? x : x && x.symbol)).filter(Boolean).map((x) => String(x).toUpperCase()))];
 
   const SL = {
     configured,
@@ -155,18 +158,19 @@
 
     /* -------------------- WATCHLIST -------------------- */
     async getWatchlist() {
-      if (!configured) return ls.get("watchlist", []);
+      if (!configured) return localWatch();
       const user = await this.currentUser();
-      if (!user) return [];
+      if (!user) return localWatch();   // a guest's list lives on this device
       const { data } = await client.from("watchlist").select("symbol").eq("user_id", user.id);
       return (data || []).map((r) => r.symbol);
     },
 
     async addToWatchlist(symbol) {
       if (!configured) {
-        const w = ls.get("watchlist", []); if (!w.includes(symbol)) w.push(symbol); ls.set("watchlist", w); return;
+        const w = localWatch(); if (!w.includes(symbol)) w.push(symbol); ls.set("watchlist", w); return;
       }
-      const user = await this.currentUser(); if (!user) return;
+      const user = await this.currentUser();
+      if (!user) { const w = localWatch(); if (!w.includes(symbol)) w.push(symbol); ls.set("watchlist", w); return; }
       const live = await this.getPrice(symbol);
       await client.from("watchlist").upsert({
         user_id: user.id, symbol,
@@ -176,8 +180,9 @@
 
     // Full watchlist rows (symbol, price_when_added, added_at)
     async getWatchlistDetailed() {
-      if (!configured) return (ls.get("watchlist", [])).map((s) => ({ symbol: s }));
-      const user = await this.currentUser(); if (!user) return [];
+      if (!configured) return localWatch().map((s) => ({ symbol: s }));
+      const user = await this.currentUser();
+      if (!user) return localWatch().map((s) => ({ symbol: s }));
       const { data } = await client.from("watchlist")
         .select("symbol, price_when_added, added_at")
         .eq("user_id", user.id)
@@ -187,9 +192,10 @@
 
     async removeFromWatchlist(symbol) {
       if (!configured) {
-        ls.set("watchlist", ls.get("watchlist", []).filter((s) => s !== symbol)); return;
+        ls.set("watchlist", localWatch().filter((s) => s !== symbol)); return;
       }
-      const user = await this.currentUser(); if (!user) return;
+      const user = await this.currentUser();
+      if (!user) { ls.set("watchlist", localWatch().filter((s) => s !== symbol)); return; }
       await client.from("watchlist").delete().eq("user_id", user.id).eq("symbol", symbol);
     },
 
@@ -246,15 +252,82 @@
       }
     },
 
+    /* How old a cached row may be before it stops counting as a price.
+       The scraper's own refresh trigger is fire-and-forget, so without this
+       a row written days ago was served as the current quote — which is
+       exactly how stale numbers ended up on the trading and portfolio
+       screens. Anything past this is treated as absent so the live path
+       goes and gets a real one. */
+    PRICE_MAX_AGE_MS: 15 * 60 * 1000,
+
+    _isFresh(row) {
+      if (!row || row.price == null) return false;
+      const t = Date.parse(row.updated_at || 0);
+      if (!t) return false;                       // undated rows are not trusted
+      return Date.now() - t < this.PRICE_MAX_AGE_MS;
+    },
+
+    /* ── price reads: coalesced and briefly memoised ────────────
+       Two things made this the slowest call in the app.
+
+       1. `getPrices()` with no symbols selects the WHOLE stock_prices
+          table — about 5,000 rows. your-league.html calls exactly that
+          inside draftRefresh(), which runs on every realtime event, so
+          a single draft pick made every connected client refetch all
+          5,000 rows. draft-room and trading do it too.
+       2. Nothing deduped. Two overlapping refreshes (the league page
+          fires one 380ms after its own pick, on top of the realtime
+          one) meant two full table scans racing each other.
+
+       So: identical requests in flight share one promise, and the
+       result is reused for a couple of seconds afterwards. The memo is
+       deliberately short — shorter than PRICE_MAX_AGE_MS, so it can
+       never be the reason a stale price is shown; it only collapses
+       the burst of calls that a single user action causes.
+
+       Only the columns callers actually read are selected, which cuts
+       the unbounded payload further. */
+    PRICE_MEMO_MS: 2500,
+    _priceCols: "symbol,name,price,change,change_pct,prev_close,updated_at",
+    _priceMemo: {},        // key -> { at, map }
+    _priceWait: {},        // key -> Promise
+
     async getPrices(symbols = null) {
       if (!configured) return {};
-      let q = client.from("stock_prices").select("*");
-      if (symbols && symbols.length) q = q.in("symbol", symbols);
-      const { data } = await q;
-      const map = {};
-      (data || []).forEach((r) => (map[r.symbol] = r));
-      this._maybeRefreshPrices(data);
-      return map;
+      const list = (symbols && symbols.length)
+        ? [...new Set(symbols.filter(Boolean))].sort()
+        : null;
+      const key = list ? list.join(",") : "*";
+
+      /* Hand back a copy, always. getLiveQuotes writes its own live rows
+         straight into the map it gets back (map[s] = rec), so returning the
+         memoised object itself would let one caller's gap-filling leak into
+         the next caller's "cache" for the rest of the memo window. */
+      const memo = this._priceMemo[key];
+      if (memo && Date.now() - memo.at < this.PRICE_MEMO_MS) {
+        return Object.assign({}, memo.map);
+      }
+      if (this._priceWait[key]) {
+        return this._priceWait[key].then((m) => Object.assign({}, m));
+      }
+
+      const run = (async () => {
+        let q = client.from("stock_prices").select(this._priceCols);
+        if (list) q = q.in("symbol", list);
+        const { data } = await q;
+        const map = {};
+        (data || []).forEach((r) => {
+          r.stale = !this._isFresh(r);            // callers can see the age
+          map[r.symbol] = r;
+        });
+        this._maybeRefreshPrices(data);
+        this._priceMemo[key] = { at: Date.now(), map };
+        return map;
+      })();
+
+      this._priceWait[key] = run;
+      try { return Object.assign({}, await run); }
+      finally { delete this._priceWait[key]; }
     },
 
     async getPrice(symbol) {
@@ -273,7 +346,8 @@
       const map = configured ? await this.getPrices(want) : {};
       const now = Date.now();
       const missing = want.filter((s) => {
-        if (map[s] && map[s].price != null) return false;
+        // a stale cache row is not a price — go and fetch a live one
+        if (this._isFresh(map[s])) return false;
         const c = this._liveCache[s];
         if (c && now - c.at < 5 * 60 * 1000) { map[s] = c; return false; }
         return true;
@@ -301,7 +375,7 @@
           } catch (e) { /* this chunk only; keep going */ }
         }
       }
-      const still = want.filter((s) => !(map[s] && map[s].price != null));
+      const still = want.filter((s) => !(map[s] && map[s].price != null && !map[s].stale));
       if (still.length && configured) {
         const fetchOne = async (sym) => {
           try {
@@ -451,7 +525,7 @@
       if (!configured) return [];
       const user = await this.currentUser(); if (!user) return [];
       const { data } = await client.from("league_members")
-        .select("league_id, leagues(id, name, join_code, owner_id, roster_size, max_players, status)")
+        .select("league_id, leagues(id, name, join_code, owner_id, roster_size, max_players, status, starting_capital, duration_weeks, created_at)")
         .eq("user_id", user.id);
       return data || [];
     },
@@ -469,6 +543,12 @@
       // so members NEVER silently vanish.
       // IMPORTANT: select * so deployed/cash_adj/capital_adj come through —
       // a narrow column list here is what made Team Manager "un-unlock".
+      // With the avatar column (supabase-schema-avatar.sql) league mates see
+      // each other's avatars; without it that select errors, so fall back.
+      const withAv = await client.from("league_members")
+        .select("*, profiles(username, full_name, avatar)")
+        .eq("league_id", leagueId);
+      if (!withAv.error && withAv.data) return withAv.data;
       const joined = await client.from("league_members")
         .select("*, profiles(username, full_name)")
         .eq("league_id", leagueId);
@@ -569,14 +649,56 @@
       await client.rpc("ft_ack_week", { p_league: leagueId, p_week: week }).catch(() => {});
     },
 
+    /* ── the Academy score (play 06) ──────────────────────────────
+       The daily question is answered on the device; ft-daily-q.js keeps
+       the ledger in localStorage. These two carry the scoreline to the
+       server and back so a standings table can show everybody's, which
+       is the only reason it needs to leave the device at all.
+
+       Both fail soft. A player with no academy row is not an error —
+       they have not answered a question yet — and a standings table
+       that cannot reach this must still render the money columns. */
+    async publishAcademyScore(score) {
+      if (!configured || !score) return null;
+      try {
+        const { data, error } = await client.rpc("publish_academy_score", {
+          p_correct: Number(score.correct) || 0,
+          p_answered: Number(score.answered) || 0,
+          p_streak: Number(score.streak) || 0,
+          p_best: Number(score.bestStreak) || 0,
+        });
+        if (error) return null;
+        return Array.isArray(data) ? data[0] : data;
+      } catch (e) { return null; }
+    },
+
+    async academyScores(userIds = []) {
+      const want = [...new Set((userIds || []).filter(Boolean))];
+      if (!configured || !want.length) return {};
+      try {
+        const { data, error } = await client.from("academy_scores")
+          .select("user_id, correct, answered, streak, best_streak")
+          .in("user_id", want);
+        if (error) return {};
+        const out = {};
+        (data || []).forEach((r) => { out[r.user_id] = r; });
+        return out;
+      } catch (e) { return {}; }
+    },
+
     async leagueStandings(leagueId) {
       if (!configured) return [];
-      const [members, picks] = await Promise.all([
+      const [members, picks, league] = await Promise.all([
         this.getLeagueMembers(leagueId),
         this.getPicks(leagueId),
+        this.getLeague ? this.getLeague(leagueId).catch(() => null) : Promise.resolve(null),
       ]);
+      const startCap = Number(league && league.starting_capital) || 100000;
       const symbols = [...new Set(picks.map((p) => p.symbol))];
-      const prices = symbols.length ? await this.getPrices(symbols) : {};
+      const [prices, academy] = await Promise.all([
+        symbols.length ? this.getPrices(symbols) : Promise.resolve({}),
+        this.academyScores(members.map((m) => m.user_id)),
+      ]);
       return members.map((m) => {
         const roster = picks.filter((p) => p.user_id === m.user_id);
         const allocated = roster.some((p) => Number(p.shares) > 0);
@@ -588,12 +710,24 @@
           value += cur * qty;
           cost += Number(p.price_at_pick || cur) * qty;
         });
-        const ret = cost > 0 ? ((value - cost) / cost) * 100 : 0;
+        const onPicks = cost > 0 ? ((value - cost) / cost) * 100 : 0;
+        /* The whole account, the same way the league page counts it: cash
+           left after buying plus what the holdings are worth now, against
+           this player's capital (starting capital plus weekly transfers).
+           Return on the stocks alone overstated anyone holding cash and
+           ranked players in an order their dollar values contradicted. */
+        const base = startCap + (Number(m.capital_adj) || 0);
+        const adj = Number(m.cash_adj) || 0;
+        const heldCost = roster.reduce((t, p) => t + (Number(p.shares) || 0) * (Number(p.cost_basis) || Number(p.price_at_pick) || 0), 0);
+        const cash = adj === 0 && heldCost > 0 ? Math.max(0, base - heldCost) : base + adj;
+        const accountValue = allocated ? cash + value : base;
+        const ret = allocated && base > 0 ? ((accountValue - base) / base) * 100 : onPicks;
         return {
           user_id: m.user_id,
           name: (m.profiles && (m.profiles.full_name || m.profiles.username)) || "Player",
           roster: roster.map((p) => p.symbol),
-          value, cost, returnPct: ret, allocated,
+          value, cost, returnPct: ret, picksReturnPct: onPicks, accountValue, base, allocated,
+          academy: academy[m.user_id] || null,
         };
       }).sort((a, b) => b.returnPct - a.returnPct);
     },

@@ -213,7 +213,7 @@
         .quiz-q { margin-bottom: 1.75rem; }
 
         /* Quiz rework: lettered options, cleaner questions */
-        .quiz-section h3 { font-family: 'Fraunces', Georgia, serif !important; font-size: 1.3rem !important; }
+        .quiz-section h3 { font-family: 'Inter', system-ui, sans-serif !important; font-size: 1.3rem !important; }
         .quiz-q { padding-top: 1.2rem; border-top: 1px solid rgba(236, 226, 214, 0.07); }
         .quiz-q:first-of-type { border-top: none; padding-top: 0; }
         .quiz-q > p { font-size: 1rem !important; }
@@ -261,12 +261,17 @@
         .footer-btn-back { background: rgba(255, 255, 255, 0.04); color: var(--text-muted); }
         .footer-btn-back:hover { background: rgba(255, 255, 255, 0.09); color: var(--text-primary); }
     </style>
+    <link rel="stylesheet" href="css/gamify.css?v=3">
+    <link rel="stylesheet" href="css/ft-motion.css">
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
+    <link rel="stylesheet" href="css/ft-rally-chat.css?v=3">
+    <script src="js/ft-back.js?v=2"></script>
 </head>
 <body>
     <div class="reading-progress" id="readingProgress"></div>
     <header class="mod-header">
         <div class="mod-header-inner">
-            <a href="alternatives-path.html" class="back-link">← Alternative Investments</a>
+            <a href="alternatives-path.html" class="back-link" data-back>← Alternative Investments</a>
             <span class="mod-header-meta">MODULE 18 OF 18 · ADVANCED</span>
         </div>
     </header>
@@ -375,7 +380,7 @@
     </article>
 
     <div class="module-footer">
-        <a href="alternatives-path.html" class="footer-btn footer-btn-back">&larr; Back to Path</a>
+        <a href="alternatives-path.html" class="footer-btn footer-btn-back" data-back>&larr; Back to Path</a>
         <a href="alternatives-path.html" class="footer-btn footer-btn-next">Finish Path →</a>
     </div>
 
@@ -405,8 +410,17 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
+    <script src="js/sl.js?v=3"></script>
     <script src="js/guard.js"></script>
     <script src="js/quiz.js"></script>
+    <script src="js/ft-gamify.js"></script>
+    <script src="js/ft-module-lite.js?v=2"></script>
+    <!-- Rally, reading this module with you: he indexes the article and quiz,
+         answers from it, and falls back to the general chat. -->
+    <script src="js/ft-juice.js"></script>
+    <script src="js/ft-bull.js?v=6"></script>
+    <script src="js/ft-rally-chat.js?v=6"></script>
+    <script src="js/ft-rally-widget.js?v=3"></script>
+    <script src="js/ft-rally-module.js?v=7"></script>
 </body>
 </html>

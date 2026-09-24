@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>html{background-color:#14100E;}
+        /* The hidden attribute must win over any author display rule. Without
+           this, `el.hidden = true` on anything whose class sets a display is
+           silently ignored — which is how an empty daily card ended up
+           rendering as a bar across the dashboard. */
+        [hidden] { display: none !important; }
+</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Academy — Fantasy Trader</title>
+    <meta name="description" content="Learn investing in short, hands-on lessons.">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+    <meta name="theme-color" content="#14100E">
+    <link rel="stylesheet" href="css/ft-lessons.css?v=9">
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
+    <link rel="stylesheet" href="css/ft-motion.css">
+    <style>
+        .ac-hero { max-width: 720px; margin: 0 auto; padding: 1.7rem 1.1rem 0.2rem; text-align: center; }
+        .ac-hero h1 {
+            font: 800 2.05rem var(--lx-display); letter-spacing: -0.025em; margin: 0;
+            background: linear-gradient(135deg, #ffffff 25%, var(--lx-sage) 100%);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .ac-back {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            color: var(--lx-ink-3); text-decoration: none;
+            font: 600 0.82rem var(--lx-sans); padding: 0.4rem 0; flex-shrink: 0;
+        }
+        .ac-back:hover { color: var(--lx-ink); }
+        .ac-note {
+            text-align: center; color: var(--lx-ink-3);
+            font: 600 0.72rem var(--lx-sans); letter-spacing: 0.05em;
+            padding: 0.6rem 1rem 2.4rem;
+        }
+        .ac-foot { max-width: 720px; margin: 0 auto; padding: 0.4rem 1.1rem 4rem; text-align: center; }
+        .ac-legal { color: var(--lx-ink-3); font-size: 0.7rem; line-height: 1.6; max-width: 540px; margin: 1.6rem auto 0; }
+        .ac-actions { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; }
+        /* Rally standing beside the current node */
+        .ac-rally {
+            position: absolute; z-index: 2; pointer-events: none;
+            transition: top 0.9s cubic-bezier(0.3, 0.7, 0.3, 1), left 0.9s ease;
+        }
+        .ac-rally .bull-rig { width: 120px; height: 120px; }
+        @media (max-width: 520px) {
+            .lx-path-head-in { gap: 0.45rem; }
+            .lx-level-bar { width: 56px; }
+            .ac-rally .bull-rig { width: 88px; height: 88px; }
+        }
+
+        /* ── the worlds ──────────────────────────────────────────
+           Every unit is a place: its own ground drawn behind, its
+           own road shape, nodes standing on the road. */
+        .lx-unit.aw-world { max-width: 920px; margin-top: 2.2rem; }
+        .aw-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin: 0 0.3rem 0.7rem; }
+        .aw-kicker { font: 800 0.66rem var(--lx-display); letter-spacing: 0.16em; text-transform: uppercase; color: var(--u-a); }
+        .aw-head h3 { margin: 0.2rem 0 0; font: 800 1.5rem var(--lx-display); letter-spacing: -0.02em; color: var(--lx-ink); }
+        .aw-prog { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
+        .aw-prog b { font: 800 0.8rem var(--lx-display); color: var(--lx-ink-2); }
+        .aw-prog span { display: flex; gap: 4px; }
+        .aw-prog i { width: 18px; height: 6px; border-radius: 3px; background: rgba(236,226,214,0.12); }
+        .aw-prog i.on { background: var(--u-a); }
+        .aw-stage {
+            position: relative; height: 330px; border-radius: 22px; overflow: hidden;
+            color: var(--u-a);
+            background:
+                radial-gradient(ellipse 70% 90% at 50% 0%, color-mix(in srgb, var(--u-a) 13%, transparent), transparent 70%),
+                linear-gradient(180deg, #1C1713, #15110E);
+            border: 1px solid color-mix(in srgb, var(--u-a) 22%, rgba(236,226,214,0.06));
+            box-shadow: inset 0 -40px 60px rgba(0,0,0,0.25), 0 10px 30px rgba(0,0,0,0.25);
+        }
+        .aw-scene { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+        .aw-stage .lx-ribbon { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+        .aw-road path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .aw-road .edge { stroke: rgba(8,6,5,0.55); stroke-width: 26; }
+        .aw-road .bed  { stroke: color-mix(in srgb, var(--u-a) 16%, #2A231E); stroke-width: 18; }
+        .aw-road .lit  { stroke: var(--u-a); stroke-opacity: 0.6; stroke-width: 18; }
+        .aw-road .dash { stroke: rgba(236,226,214,0.28); stroke-width: 2.5; stroke-dasharray: 3 12; }
+        .w-candle .aw-road .edge { stroke-width: 20; } .w-candle .aw-road .bed, .w-candle .aw-road .lit { stroke-width: 12; }
+        .aw-stage .lx-trail { position: absolute; inset: 0; padding: 0; display: block; z-index: 1; }
+        .aw-stage .lx-node-row { position: absolute; width: auto; transform: translate(-50%, -50%); }
+        .aw-stage .lx-node, .aw-stage .lx-chest { margin: 0; }
+        .aw-stage .lx-node-label { text-shadow: 0 1px 3px rgba(0,0,0,0.9); color: var(--lx-ink-2); max-width: 190px; font-size: 0.66rem; }
+        .aw-stage .lx-node.locked .lx-node-label { color: var(--lx-ink-3); }
+        @media (max-width: 620px) {
+            .aw-scene { display: none; }
+            .aw-head h3 { font-size: 1.25rem; }
+        }
+
+        /* ── mentor switch ───────────────────────────────────────
+           Rally teaching is the thing being trialled here, so the
+           switch is the first control on the page rather than buried
+           in a settings sheet. */
+        .ac-mentor {
+            max-width: 720px; margin: 0.9rem auto 0; padding: 0 1.1rem;
+            display: flex; justify-content: center;
+        }
+        .ac-mentor label {
+            display: inline-flex; align-items: center; gap: 0.65rem;
+            padding: 0.6rem 0.95rem; border-radius: 999px; cursor: pointer;
+            background: var(--lx-surface); border: 2px solid var(--lx-line);
+            transition: border-color 0.16s ease;
+        }
+        .ac-mentor label:hover { border-color: var(--lx-line-2); }
+        .ac-mentor input { position: absolute; opacity: 0; pointer-events: none; }
+        .ac-mentor .art { width: 30px; height: 30px; flex-shrink: 0; }
+        .ac-mentor .art .bull-rig { width: 30px; height: 30px; }
+        .ac-mentor .txt { text-align: left; }
+        .ac-mentor .txt b {
+            display: block; font: 800 0.82rem var(--lx-display); color: var(--lx-ink);
+        }
+        .ac-mentor .txt span {
+            display: block; font: 600 0.68rem var(--lx-sans); color: var(--lx-ink-3);
+        }
+        .ac-tr { width: 34px; height: 19px; border-radius: 999px; flex-shrink: 0;
+            background: rgba(236,226,214,0.14); position: relative; transition: background 0.2s ease; }
+        .ac-kn { position: absolute; top: 2px; left: 2px; width: 15px; height: 15px;
+            border-radius: 50%; background: var(--lx-ink-3);
+            transition: transform 0.2s cubic-bezier(0.3,0.9,0.3,1.2), background 0.2s ease; }
+        .ac-mentor input:checked + .ac-tr { background: rgba(92,184,138,0.42); }
+        .ac-mentor input:checked + .ac-tr .ac-kn { transform: translateX(15px); background: var(--lx-sage); }
+
+        /* ── the course library ──────────────────────────────────
+           Deliberately NOT another winding trail. Six of those in a
+           row is what made this page feel like one screen repeated;
+           the courses get a different rhythm — a card per track that
+           opens into a plain list. */
+        .ac-lib { max-width: 720px; margin: 2.6rem auto 0; padding: 0 1.1rem; }
+        .ac-lib-head {
+            display: flex; align-items: baseline; justify-content: space-between;
+            gap: 1rem; margin-bottom: 0.9rem;
+        }
+        .ac-lib-head h2 { margin: 0; font: 800 1.3rem var(--lx-display); letter-spacing: -0.02em; }
+        .ac-lib-head span {
+            font: 700 0.66rem var(--lx-sans); letter-spacing: 0.13em;
+            text-transform: uppercase; color: var(--lx-ink-3);
+        }
+        .ac-track {
+            border-radius: 18px; margin-bottom: 0.6rem; overflow: hidden;
+            background: var(--lx-surface);
+            border: 2px solid var(--lx-line); border-bottom-width: 4px;
+            transition: border-color 0.16s ease;
+        }
+        .ac-track.open { border-color: var(--t-a); }
+        .ac-track-btn {
+            width: 100%; display: flex; align-items: center; gap: 0.9rem;
+            padding: 0.95rem 1.05rem; background: none; border: none;
+            cursor: pointer; text-align: left; color: inherit;
+        }
+        .ac-track-disc {
+            width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0;
+            display: grid; place-items: center;
+            background: color-mix(in srgb, var(--t-a) 14%, transparent);
+            border: 1px solid color-mix(in srgb, var(--t-a) 40%, transparent);
+        }
+        .ac-track-disc svg { width: 24px; height: 24px; }
+        .ac-track-txt { flex: 1; min-width: 0; }
+        .ac-track-txt b {
+            display: block; font: 800 1rem var(--lx-display); color: var(--lx-ink);
+            letter-spacing: -0.015em;
+        }
+        .ac-track-txt span {
+            display: block; margin-top: 0.15rem;
+            font: 600 0.75rem var(--lx-sans); color: var(--lx-ink-3);
+        }
+        .ac-track-bar {
+            width: 74px; height: 7px; border-radius: 999px; flex-shrink: 0;
+            background: rgba(236,226,214,0.10); overflow: hidden;
+        }
+        .ac-track-bar i {
+            display: block; height: 100%; border-radius: 999px;
+            background: var(--t-a); transition: width 0.5s cubic-bezier(0.2,0.8,0.2,1);
+        }
+        .ac-caret {
+            flex-shrink: 0; color: var(--lx-ink-3); font-size: 0.8rem;
+            transition: transform 0.22s ease;
+        }
+        .ac-track.open .ac-caret { transform: rotate(90deg); }
+        .ac-mods { display: none; padding: 0 0.6rem 0.6rem; }
+        .ac-track.open .ac-mods { display: block; }
+        .ac-mod {
+            width: 100%; display: flex; align-items: center; gap: 0.75rem;
+            padding: 0.7rem 0.75rem; border-radius: 12px;
+            background: none; border: none; cursor: pointer;
+            text-align: left; color: inherit;
+            transition: background 0.14s ease;
+        }
+        .ac-mod:hover { background: rgba(236,226,214,0.05); }
+        .ac-mod-n {
+            width: 27px; height: 27px; border-radius: 8px; flex-shrink: 0;
+            display: grid; place-items: center;
+            font: 800 0.72rem var(--lx-display);
+            background: rgba(236,226,214,0.07); color: var(--lx-ink-3);
+        }
+        .ac-mod.done .ac-mod-n { background: var(--t-a); color: #0C1A13; }
+        .ac-mod-t {
+            flex: 1; min-width: 0; font: 600 0.87rem var(--lx-sans); color: var(--lx-ink-2);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .ac-mod.done .ac-mod-t { color: var(--lx-ink); }
+        .ac-mod-q {
+            flex-shrink: 0; font: 700 0.63rem var(--lx-sans); color: var(--lx-ink-3);
+            letter-spacing: 0.05em;
+        }
+        @media (max-width: 520px) {
+            .ac-track-bar { display: none; }
+            .ac-mod-q { display: none; }
+        }
+
+        /* ── today's question ────────────────────────────────────
+           Sixty seconds of Academy tied to the calendar: one question
+           a day, same for everyone, answered right here. */
+        .ac-daily { max-width: 720px; margin: 1.1rem auto 0; padding: 0 1.1rem; }
+
+        /* Closed, it is a single row — the roadmap starts right under it.
+           It used to render the whole question here, which pushed the path
+           off the first screen on every visit. */
+        .ac-daily-fold > summary {
+            list-style: none; cursor: pointer;
+            display: flex; align-items: center; gap: 0.6rem;
+            padding: 0.7rem 0.95rem; border-radius: 14px;
+            background: var(--lx-surface); border: 2px solid var(--lx-line);
+            border-bottom-width: 4px;
+            font: 800 0.82rem var(--lx-sans); color: var(--lx-ink-2);
+        }
+        .ac-daily-fold > summary::-webkit-details-marker { display: none; }
+        .ac-daily-fold > summary:hover { border-color: var(--lx-line-2); color: var(--lx-ink); }
+        .ac-daily-fold .fold-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--lx-honey);
+            flex-shrink: 0;
+        }
+        .ac-daily-fold.done .fold-dot { background: var(--lx-sage); }
+        .ac-daily-fold .fold-grow { flex: 1; }
+        .ac-daily-fold .fold-cue { font: 800 0.72rem var(--lx-sans); color: var(--lx-ink-3); letter-spacing: 0.05em; text-transform: uppercase; }
+        .ac-daily-fold[open] > summary { border-bottom-width: 2px; margin-bottom: 0.6rem; }
+        .ac-daily-fold[open] .fold-cue::after { content: ''; }
+        .ac-daily:empty { display: none; }
+        .ac-daily-card {
+            border-radius: 18px; padding: 1rem 1.05rem 1.05rem;
+            background: var(--lx-surface);
+            border: 2px solid var(--lx-line); border-bottom-width: 4px;
+        }
+        .ac-daily-card.right { border-color: rgba(92,184,138,0.45); }
+        .ac-daily-card.wrong { border-color: rgba(217,100,92,0.40); }
+        .ac-daily-top { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; }
+        .ac-daily-kicker {
+            font: 800 0.66rem var(--lx-display); letter-spacing: 0.14em;
+            text-transform: uppercase; color: var(--lx-sage);
+        }
+        .ac-daily-streak {
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            padding: 0.3rem 0.65rem; border-radius: 999px;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--lx-line);
+            font: 800 0.76rem var(--lx-display); color: var(--lx-honey);
+        }
+        .ac-daily-streak svg { width: 16px; height: 16px; }
+        .ac-daily-course {
+            margin-top: 0.55rem; font: 600 0.72rem var(--lx-sans); color: var(--lx-ink-3);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .ac-daily-prompt {
+            margin: 0.35rem 0 0.85rem; font-weight: 800; font-size: 1.15rem;
+            line-height: 1.3; color: var(--lx-ink);
+        }
+        .ac-daily-choices .lx-choice { padding: 0.75rem 0.9rem; font-size: 0.9rem; border-radius: 12px; }
+        .ac-daily-choices .lx-choice:active:not(.locked) { top: 0; border-bottom-width: 4px; }
+        .ac-daily-why {
+            margin-top: 0.8rem; padding: 0.7rem 0.85rem; border-radius: 12px;
+            font: 500 0.84rem var(--lx-sans); line-height: 1.5; color: var(--lx-ink-2);
+            background: rgba(255,255,255,0.03); border: 1px solid var(--lx-line);
+        }
+        .ac-daily-why b { display: block; margin-bottom: 0.15rem; font: 800 0.85rem var(--lx-display); }
+        .ac-daily-card.right .ac-daily-why b { color: #7BD3A6; }
+        .ac-daily-card.wrong .ac-daily-why b { color: #E8867F; }
+        .ac-daily-foot { display: flex; align-items: center; gap: 0.7rem; margin-top: 0.85rem; flex-wrap: wrap; }
+        .ac-daily-foot .lx-btn { padding: 0.7rem 1.25rem; }
+        .ac-daily-xp {
+            display: inline-flex; align-items: center;
+            padding: 0.35rem 0.7rem; border-radius: 999px;
+            font: 800 0.76rem var(--lx-display); color: #0C1A13;
+            background: var(--lx-sage);
+            animation: acDailyPop 0.36s cubic-bezier(0.3,0.9,0.3,1.3) both;
+        }
+        .ac-daily-card.wrong .ac-daily-xp { background: var(--lx-honey); color: #1B1207; }
+        @keyframes acDailyPop { from { transform: scale(0.6); opacity: 0; } to { transform: none; opacity: 1; } }
+        .ac-daily-link {
+            margin-left: auto; color: var(--lx-ink-3); text-decoration: none;
+            font: 700 0.78rem var(--lx-sans);
+        }
+        .ac-daily-link:hover { color: var(--lx-ink); }
+        .ac-daily-tomorrow { font: 600 0.78rem var(--lx-sans); color: var(--lx-ink-3); }
+    </style>
+    <link rel="stylesheet" href="css/ft-screen.css?v=1">
+    <script src="js/ft-back.js?v=2"></script>
+<style>/* less subtext: the headings say it */
+#mentorState { display: none !important; }
+</style>
+</head>
+<body class="lx">
+
+<header class="lx-path-head">
+    <div class="lx-path-head-in">
+        <a class="ac-back" href="learn.html" data-back>&larr;</a>
+        <div class="lx-level-pill" id="levelPill" title="Your level"></div>
+        <div style="flex:1"></div>
+        <div class="lx-daily" id="dailyRing" title="Daily goal"></div>
+        <span class="lx-stat-pill streak" id="pillStreak" title="Day streak"></span>
+        <span class="lx-stat-pill gems" id="pillGems" title="Gems"></span>
+        <span class="lx-stat-pill hearts" id="pillHearts" title="Hearts"></span>
+    </div>
+</header>
+
+<div class="ac-hero"><h1 class="lx-display ft-screen-title">The Academy</h1></div>
+
+<div class="ac-mentor">
+    <label title="Rally walks you through every lesson">
+        <span class="art" id="mentorArt"></span>
+        <input type="checkbox" id="mentorToggle" checked>
+        <span class="ac-tr"><span class="ac-kn"></span></span>
+        <span class="txt"><b>Rally mentors me</b><span id="mentorState">Teaching every course</span></span>
+    </label>
+</div>
+
+<section class="ac-daily" id="dailyQ"></section>
+
+<div id="practiceSlot"></div>
+<main id="path" class="ft-arrive"></main>
+
+<section class="ac-lib" id="library"></section>
+
+<div class="ac-foot">
+    <div class="ac-actions">
+        <button class="lx-btn ghost" id="badgesBtn">Achievements</button>
+        <button class="lx-btn ghost" id="resetBtn">Reset progress</button>
+    </div>
+    <p class="ac-legal">
+        A simulation for education and entertainment — not investment advice.
+        Long-run figures are historical, not predictions.
+    </p>
+</div>
+
+<!-- lesson start sheet -->
+<div class="lx-sheet-back" id="sheetBack">
+    <div class="lx-sheet">
+        <div class="lx-sheet-kicker" id="sheetKicker"></div>
+        <h3 class="lx-display" id="sheetTitle"></h3>
+        <p id="sheetBlurb"></p>
+        <button class="lx-btn primary wide" id="sheetStart">Start</button>
+        <button class="lx-btn ghost wide" id="sheetClose" style="margin-top:0.6rem">Not now</button>
+    </div>
+</div>
+
+<!-- achievements / gems sheet -->
+<div class="lx-sheet-back" id="badgeBack">
+    <div class="lx-sheet" style="max-width:460px; text-align:left;">
+        <div class="lx-sheet-kicker">Trophy cabinet</div>
+        <h3 class="lx-display" style="margin-bottom:0.9rem">Achievements</h3>
+        <div class="lx-freeze-row" id="freezeRow">
+            <span id="freezeArt"></span>
+            <span class="txt"><b>Streak freeze</b><span id="freezeInfo"></span></span>
+            <button class="lx-btn honey" id="freezeBuy" style="padding:0.6rem 1rem">Buy</button>
+        </div>
+        <div class="lx-badges-grid" id="badgeGrid"></div>
+        <button class="lx-btn primary wide" id="badgeClose">Done</button>
+    </div>
+</div>
+
+<!-- chest reward sheet -->
+<div class="lx-sheet-back" id="chestBack">
+    <div class="lx-sheet">
+        <div class="lx-sheet-kicker">Unit reward</div>
+        <div id="chestArt" style="display:grid;place-items:center;margin:0.4rem 0 0.6rem"></div>
+        <h3 class="lx-display" id="chestTitle">Chest opened</h3>
+        <p id="chestBlurb"></p>
+        <button class="lx-btn primary wide" id="chestClose">Collect</button>
+    </div>
+</div>
+
+<!-- first-visit onboarding -->
+<div class="lx-onboard" id="onboard">
+    <div class="lx-onboard-card">
+        <div class="lx-onboard-bull" id="onboardBull"></div>
+        <h3 class="lx-display" id="obTitle"></h3>
+        <p id="obText"></p>
+        <div class="lx-onboard-dots" id="obDots"></div>
+        <button class="lx-btn primary wide" id="obNext">Next</button>
+        <button class="lx-btn ghost wide" id="obSkip" style="margin-top:0.55rem">Skip</button>
+    </div>
+</div>
+
+<!-- Supabase, so the daily question can publish its scoreline to the
+     league standings (play 06). The Academy works fully without it —
+     FTDailyQ.publish() is a no-op when SL is absent or signed out. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/sl.js?v=3"></script>
+<script src="js/ft-illustrations.js"></script>
+<script src="js/ft-juice.js"></script>
+<script src="js/ft-bull.js?v=6"></script>
+<script src="js/ft-curriculum.js"></script>
+<script src="js/ft-courses.js"></script>
+<script src="js/ft-daily-q.js"></script>
+<script src="js/ft-teach.js"></script>
+<script src="js/ft-progression.js"></script>
+<script src="js/ft-lesson-engine.js?v=6"></script>
+<script>
+(function () {
+    'use strict';
+
+    const state = FTLesson.syncHearts(FTLesson.load());
+    FTLesson.save(state);
+
+    /* ── header: level, daily ring, pills ─────────────────── */
+    function paintHeader() {
+        const s = FTLesson.syncHearts(FTLesson.load());
+        const lv = FTProgress.levelFromXp(s.xp || 0);
+
+        document.getElementById('levelPill').innerHTML =
+            '<span class="lx-level-num">' + lv.level + '</span>' +
+            '<span class="lx-level-meta"><span class="lx-level-title">' + lv.title + '</span>' +
+            '<span class="lx-level-bar"><i style="width:' + Math.round(lv.pct * 100) + '%"></i></span></span>';
+
+        const d = FTProgress.daily();
+        const R = 17, CIRC = 2 * Math.PI * R;
+        const ring = document.getElementById('dailyRing');
+        ring.className = 'lx-daily' + (d.met ? ' met' : '');
+        ring.innerHTML =
+            '<svg viewBox="0 0 40 40" width="40" height="40">' +
+              '<circle class="track" cx="20" cy="20" r="' + R + '"/>' +
+              '<circle class="fill" cx="20" cy="20" r="' + R + '" stroke-dasharray="' + CIRC +
+                '" stroke-dashoffset="' + (CIRC * (1 - d.pct)) + '"/>' +
+            '</svg><b>' + (d.met ? '✓' : Math.round(d.pct * 100) + '%') + '</b>';
+        ring.title = 'Daily goal: ' + d.xp + ' / ' + d.goal + ' XP';
+
+        document.getElementById('pillStreak').innerHTML =
+            FTArt.node('streak', 17) + '<span>' + (s.streak || 0) + '</span>';
+        document.getElementById('pillGems').innerHTML =
+            FTArt.node('gem', 17) + '<span>' + (s.gems || 0) + '</span>';
+        document.getElementById('pillHearts').innerHTML =
+            '<svg viewBox="0 0 24 24" width="17" height="17" fill="#D9645C">' +
+            '<path d="M12 21S3 14.5 3 8.6A5 5 0 0 1 12 5.9 5 5 0 0 1 21 8.6C21 14.5 12 21 12 21z"/></svg>' +
+            '<span>' + s.hearts + '</span>';
+    }
+
+    /* ── unlock status ────────────────────────────────────── */
+    function computeStatus() {
+        const s = FTLesson.load();
+        const flat = FTCurriculum.allLessons();
+        let unlockedUpTo = 0;
+        flat.forEach((l, i) => {
+            if (s.lessons[l.id] && s.lessons[l.id].done) unlockedUpTo = Math.max(unlockedUpTo, i + 1);
+        });
+        return flat.map((l, i) => {
+            const rec = s.lessons[l.id] || {};
+            return {
+                lesson: l, done: !!rec.done, open: i <= unlockedUpTo,
+                crowns: rec.crowns || 0,
+                current: i <= unlockedUpTo && !rec.done && i === unlockedUpTo,
+            };
+        });
+    }
+
+    /* ── render the trail ─────────────────────────────────── */
+    let currentNodeEl = null;
+
+    function render() {
+        const host = document.getElementById('path');
+        host.innerHTML = '';
+        const status = computeStatus();
+        const s = FTLesson.load();
+        let k = 0;
+        let anyCurrent = false;
+        currentNodeEl = null;
+
+        /* Every stop on the map gets its own picture. The curriculum gave
+           two lessons the same icon and all four checkpoints another, and
+           locked lessons all showed the same padlock — so most of the map
+           was one repeated shape. Now: each lesson keeps its own icon
+           whatever state it is in (a small badge says locked or done),
+           duplicates are swapped for unused art, and every boss has a
+           different emblem. */
+        const ICON = {}, used = new Set();
+        const SPARE = ['wallet', 'dividend', 'balance', 'clock', 'compound', 'gem', 'streak', 'growth', 'bull', 'bear'];
+        const BOSS = ['castle', 'shield', 'trophy', 'target', 'bear', 'bull', 'star', 'gem'];
+        // lessons first, so a boss never takes an icon a later lesson needs
+        FTCurriculum.UNITS.forEach(unit => unit.lessons.forEach((l, li) => {
+            if (li === unit.lessons.length - 1) return;
+            let pick = l.icon || 'book';
+            if (used.has(pick)) pick = SPARE.find(a => !used.has(a)) || pick;
+            used.add(pick); ICON[l.id] = pick;
+        }));
+        FTCurriculum.UNITS.forEach(unit => {
+            const l = unit.lessons[unit.lessons.length - 1];
+            const pick = BOSS.concat(SPARE).find(a => !used.has(a)) || 'castle';
+            used.add(pick); ICON[l.id] = pick;
+        });
+        const BADGE_LOCK = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1h1zm2 0h6V7a3 3 0 0 0-6 0v3z"/></svg>';
+        const BADGE_DONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+        FTCurriculum.UNITS.forEach((unit, ui) => {
+            const wrap = document.createElement('section');
+            wrap.className = 'lx-unit';
+            wrap.style.setProperty('--u-a', unit.color[0]);
+            wrap.style.setProperty('--u-b', unit.color[1]);
+
+            const W = WORLDS[ui] || WORLDS[WORLDS.length - 1];
+            wrap.classList.add('aw-world', 'w-' + W.key);
+            const doneIn = unit.lessons.filter(l => (s.lessons[l.id] || {}).done).length;
+            const head = document.createElement('div');
+            head.className = 'aw-head';
+            head.innerHTML =
+                '<div><div class="aw-kicker">World ' + (ui + 1) + ' · ' + W.name + '</div>' +
+                '<h3></h3></div>' +
+                '<div class="aw-prog"><b>' + doneIn + '/' + unit.lessons.length + '</b><span>' +
+                    unit.lessons.map((l, i) => '<i class="' + (i < doneIn ? 'on' : '') + '"></i>').join('') +
+                '</span></div>';
+            head.querySelector('h3').textContent = unit.title;
+            wrap.appendChild(head);
+
+            const trailWrap = document.createElement('div');
+            trailWrap.className = 'lx-trail-wrap aw-stage';
+            trailWrap.innerHTML = '<svg class="aw-scene" viewBox="0 0 1000 330" preserveAspectRatio="none" aria-hidden="true">' + W.scene + '</svg>';
+            const trail = document.createElement('div');
+            trail.className = 'lx-trail';
+            const stops = [];
+
+            unit.lessons.forEach((lesson, li) => {
+                const st = status[k]; k++;
+                const row = document.createElement('div');
+                row.className = 'lx-node-row';
+                stops.push({ row, done: st.done });
+
+                const isBoss = li === unit.lessons.length - 1;
+                const node = document.createElement('button');
+                node.className = 'lx-node ' + (isBoss ? 'boss ' : '') +
+                    (st.done ? (st.crowns >= 3 ? 'gold done' : 'done') : st.open ? 'open' : 'locked');
+                if (st.current && !anyCurrent) {
+                    node.classList.add('current'); anyCurrent = true;
+                }
+
+                const size = isBoss ? 52 : 30;
+                const icon = FTArt.node(ICON[lesson.id] || lesson.icon || 'book', size);
+                const badge = !st.open ? '<span class="lx-node-badge lock">' + BADGE_LOCK + '</span>'
+                            : st.done ? '<span class="lx-node-badge done">' + BADGE_DONE + '</span>' : '';
+
+                node.innerHTML =
+                    '<span class="lx-node-disc">' + icon + '</span>' + badge +
+                    '<span class="lx-node-label">' + (isBoss ? 'Boss \u00b7 ' + unit.title : lesson.title) + '</span>' +
+                    '<span class="lx-crowns">' +
+                        [0, 1, 2].map(i => '<i class="' + (i < st.crowns ? 'on' : '') + '"></i>').join('') +
+                    '</span>';
+                node.onclick = () => openSheet(lesson, st.open, unit);
+                if (st.current) currentNodeEl = node;
+                row.appendChild(node);
+                trail.appendChild(row);
+            });
+
+            /* chest at the end of the unit */
+            const chestState = FTProgress.chestFor(unit, s);
+            const chestRow = document.createElement('div');
+            chestRow.className = 'lx-node-row aw-chest-row';
+            stops.push({ row: chestRow, done: chestState.opened });
+            const chest = document.createElement('button');
+            chest.className = 'lx-chest ' +
+                (chestState.opened ? 'opened' : chestState.unlocked ? 'ready' : 'locked');
+            chest.innerHTML = FTArt.get(chestState.opened ? 'chestOpen' : 'chest');
+            chest.title = chestState.opened ? 'Collected' :
+                          chestState.unlocked ? 'Open your unit reward' : 'Finish the unit to unlock';
+            chest.onclick = () => tryOpenChest(unit, chest);
+            chestRow.appendChild(chest);
+            trail.appendChild(chestRow);
+
+            trailWrap.appendChild(trail);
+            wrap.appendChild(trailWrap);
+            host.appendChild(wrap);
+
+            trailWrap._route = { pts: routeFor(W, stops.length), stops, line: W.line };
+            layoutWorld(trailWrap);
+        });
+
+        const doneCount = Object.values(s.lessons || {}).filter(l => l.done).length;
+        const tot = FTCurriculum.stats();
+        const note = document.createElement('p');
+        note.className = 'ac-note';
+        note.textContent = doneCount + ' / ' + tot.lessons + ' lessons';
+        host.appendChild(note);
+
+        paintHeader();
+        paintPractice();
+        placeRally();
+
+        // achievements can be earned by things that happen off the lesson
+        // screen too (streaks, seeded progress, chest gems) — sweep here
+        toastNew(FTProgress.checkBadges());
+    }
+
+    function toastNew(badges) {
+        (badges || []).forEach((b, i) => setTimeout(() => {
+            const t = document.createElement('div');
+            t.className = 'lx-toast';
+            t.innerHTML =
+                '<span class="lx-toast-art">' + FTArt.node(b.art, 30) + '</span>' +
+                '<span><b>Achievement</b>' + b.name + '</span>';
+            document.body.appendChild(t);
+            if (window.FTJuice) FTJuice.sfx.pop();
+            requestAnimationFrame(() => t.classList.add('show'));
+            setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3200);
+        }, i * 850));
+    }
+
+    /* ── the worlds ───────────────────────────────────────────
+       Each unit is a place with its own ground and its own road, so
+       the map reads as a journey instead of one zig-zag repeated six
+       times. Routes are drawn in a 1000 x 330 box; the stage scales
+       them to its real width (and turns them vertical on a phone). */
+    const HILL = (d, o) => '<path d="' + d + '" fill="currentColor" opacity="' + o + '"/>';
+    function candles() {
+        let out = '';
+        for (let i = 0; i < 15; i++) {
+            const x = 20 + i * 68, h = 60 + ((i * 53) % 140), top = 330 - h - 20;
+            const o = i % 3 === 1 ? 0.06 : 0.1;
+            out += '<rect x="' + (x + 13) + '" y="' + (top - 22) + '" width="4" height="' + (h + 44) + '" fill="currentColor" opacity="' + o + '"/>' +
+                   '<rect x="' + x + '" y="' + top + '" width="30" height="' + h + '" rx="3" fill="currentColor" opacity="' + (o + 0.03) + '"/>';
+        }
+        return out;
+    }
+    function skyline(x0, x1) {
+        let out = '', x = x0, i = 0;
+        while (x < x1) {
+            const w = 26 + (i * 17) % 24, h = 60 + (i * 41) % 110;
+            out += '<rect x="' + x + '" y="' + (270 - h) + '" width="' + w + '" height="' + h + '" fill="currentColor" opacity="' + (i % 2 ? 0.08 : 0.12) + '"/>';
+            x += w + 4; i++;
+        }
+        return out;
+    }
+    const WORLDS = [
+        { key: 'town', name: 'Market Town',
+          pts: [[95, 205], [290, 118], [495, 212], [705, 118], [905, 205]],
+          scene: '<circle cx="840" cy="62" r="34" fill="currentColor" opacity=".10"/>' +
+                 HILL('M0 250 Q150 190 300 235 T620 225 T1000 212 V330 H0Z', '.06') +
+                 HILL('M0 290 Q210 250 430 282 T1000 272 V330 H0Z', '.10') +
+                 [60, 590, 930].map(x => '<g transform="translate(' + x + ' 252)" fill="currentColor"><rect x="4" y="16" width="52" height="30" opacity=".10"/>' +
+                    '<path d="M0 16 L8 0 H52 L60 16Z" opacity=".22"/><path d="M15 0 L12 16 H24 L26 0Z M37 0 L36 16 H48 L45 0Z" fill="#14100E" opacity=".45"/></g>').join('') },
+        { key: 'bridge', name: 'Bond Bridge',
+          pts: [[105, 232], [335, 128], [600, 128], [885, 226]],
+          scene: skyline(0, 190) + skyline(820, 1000) +
+                 '<rect x="0" y="270" width="1000" height="60" fill="currentColor" opacity=".10"/>' +
+                 '<path d="M40 292 q20 -6 40 0 t40 0 M300 305 q20 -6 40 0 t40 0 M620 292 q20 -6 40 0 t40 0 M860 308 q20 -6 40 0 t40 0" stroke="currentColor" stroke-width="3" fill="none" opacity=".22"/>' +
+                 '<rect x="327" y="70" width="16" height="200" fill="currentColor" opacity=".16"/><rect x="592" y="70" width="16" height="200" fill="currentColor" opacity=".16"/>' +
+                 '<path d="M110 232 Q220 90 335 72 M335 72 Q467 180 600 72 M600 72 Q740 90 885 226" stroke="currentColor" stroke-width="3" fill="none" opacity=".2"/>' },
+        { key: 'mesa', name: 'Value Mesa',
+          pts: [[115, 252], [380, 192], [640, 128], [890, 76]],
+          scene: HILL('M0 330 V282 H250 V238 H515 V176 H770 V122 H1000 V330Z', '.07') +
+                 HILL('M0 330 V300 H300 V268 H600 V226 H1000 V330Z', '.07') +
+                 [[210, 150], [470, 92], [720, 60], [960, 150], [80, 110]].map(([x, y]) =>
+                    '<g transform="translate(' + x + ' ' + y + ')" fill="none" stroke="currentColor" opacity=".22"><circle r="12" stroke-width="3"/><circle r="6" stroke-width="2"/></g>').join('') },
+        { key: 'drop', name: 'The Drop',
+          pts: [[105, 92], [380, 252], [650, 176], [900, 92]],
+          scene: HILL('M0 128 H190 L250 330 H0Z', '.10') + HILL('M1000 128 H800 L700 330 H1000Z', '.10') +
+                 '<path d="M250 330 Q470 250 700 330Z" fill="currentColor" opacity=".08"/>' +
+                 '<path d="M180 128 L205 170 L190 205 L222 250 L212 300" stroke="#14100E" stroke-width="3" fill="none" opacity=".6"/>' +
+                 '<text x="262" y="160" fill="currentColor" opacity=".16" font-size="46" font-weight="800" font-family="Inter,sans-serif">&#8722;50%</text>' +
+                 '<text x="560" y="120" fill="currentColor" opacity=".16" font-size="46" font-weight="800" font-family="Inter,sans-serif">+100%</text>' },
+        { key: 'candle', name: 'Candle Canyon', line: true,
+          pts: [[105, 176], [360, 88], [625, 236], [890, 112]],
+          scene: candles() },
+        { key: 'summit', name: 'The Summit', line: false, switchback: true,
+          pts: [[180, 262], [790, 232], [250, 142], [535, 70]],
+          scene: HILL('M40 330 L300 150 L420 220 L540 40 L960 330Z', '.08') +
+                 HILL('M-20 330 L180 200 L360 330Z M700 330 L860 210 L1040 330Z', '.06') +
+                 '<path d="M506 92 L540 40 L574 92 L556 84 L540 98 L523 84Z" fill="#ECE2D6" opacity=".22"/>' +
+                 '<path d="M540 40 V12 L566 20 L540 28" stroke="currentColor" stroke-width="3" fill="currentColor" opacity=".35"/>' },
+    ];
+    // a unit with a different number of stops than its world was drawn
+    // for still gets a sensible road: a wave across the stage
+    function routeFor(W, n) {
+        if (W.pts.length === n) return W.pts;
+        return Array.from({ length: n }, (_, i) => [100 + i * (800 / Math.max(1, n - 1)), i % 2 ? 120 : 220]);
+    }
+    const NARROW = () => innerWidth <= 620;
+    function layoutWorld(stage) {
+        const R = stage._route; if (!R) return;
+        const narrow = NARROW();
+        const n = R.pts.length;
+        const W = stage.clientWidth || Math.min(900, innerWidth - 36);
+        const H = narrow ? 70 + (n - 1) * 150 + 90 : 330;
+        stage.style.height = H + 'px';
+        // map the design box to the stage; on a phone the road runs down
+        const px = R.pts.map(([x, y]) => narrow
+            ? [W * (0.2 + 0.6 * (y - 70) / 190), 70 + (x - 95) / 810 * (H - 160)]
+            : [x / 1000 * W, y]);
+        R.stops.forEach((s, i) => {
+            s.row.style.left = px[i][0] + 'px';
+            s.row.style.top = px[i][1] + 'px';
+        });
+        const seg = (a, b, i) => {
+            if (R.line) return ' L ' + b[0] + ' ' + b[1];
+            if (!narrow && WORLDS.find(w => w.pts === R.pts && w.switchback)) {
+                const dx = Math.abs(b[0] - a[0]) * 0.55 + 60, dir = b[0] > a[0] ? 1 : -1;
+                return ' C ' + (a[0] + dir * dx) + ' ' + a[1] + ', ' + (b[0] + dir * 60) + ' ' + b[1] + ', ' + b[0] + ' ' + b[1];
+            }
+            if (narrow) { const my = (a[1] + b[1]) / 2; return ' C ' + a[0] + ' ' + my + ', ' + b[0] + ' ' + my + ', ' + b[0] + ' ' + b[1]; }
+            const mx = (a[0] + b[0]) / 2; return ' C ' + mx + ' ' + a[1] + ', ' + mx + ' ' + b[1] + ', ' + b[0] + ' ' + b[1];
+        };
+        let d = 'M ' + px[0][0] + ' ' + px[0][1], lit = d, lastDone = -1;
+        R.stops.forEach((s, i) => { if (s.done) lastDone = i; });
+        for (let i = 1; i < n; i++) {
+            const piece = seg(px[i - 1], px[i], i);
+            d += piece; if (i <= lastDone + 1 && lastDone >= 0) lit += piece;
+        }
+        let svg = stage.querySelector('.lx-ribbon');
+        if (!svg) {
+            svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('class', 'lx-ribbon aw-road');
+            stage.insertBefore(svg, stage.querySelector('.lx-trail'));
+        }
+        svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+        svg.innerHTML = '<path class="edge" d="' + d + '"/><path class="bed" d="' + d + '"/>' +
+            (lastDone >= 0 ? '<path class="lit" d="' + lit + '"/>' : '') +
+            '<path class="dash" d="' + d + '"/>';
+    }
+
+    /* ── Rally stands beside whatever is next ─────────────── */
+    let rally = null;
+    function placeRally() {
+        if (!window.FTBull) return;
+        if (!rally) {
+            rally = document.createElement('div');
+            rally.className = 'ac-rally';
+            rally.innerHTML = FTBull.rigSVG();
+            rally.querySelector('.bull-rig').classList.remove('is-idle');
+            rally.querySelector('.bull-rig').classList.add('is-walk');
+            setTimeout(() => {
+                const r = rally.querySelector('.bull-rig');
+                if (r) { r.classList.remove('is-walk'); r.classList.add('is-idle'); }
+            }, 1800);
+        }
+        const target = currentNodeEl || document.querySelector('.lx-node.open');
+        if (!target) { if (rally.parentNode) rally.remove(); return; }
+        const wrap = target.closest('.lx-trail-wrap');
+        if (!wrap) return;
+        wrap.appendChild(rally);
+        const wb = wrap.getBoundingClientRect();
+        const tb = target.getBoundingClientRect();
+        const onLeft = (tb.left + tb.width / 2 - wb.left) > wb.width / 2;
+        const rw = rally.querySelector('.bull-rig').getBoundingClientRect().width || 120;
+        let left = onLeft
+            ? (tb.left - wb.left - rw - 10)
+            : (tb.left - wb.left + tb.width + 10);
+        // clamp inside the trail — on a narrow phone the node offsets can
+        // put "beside the node" past the edge of the screen
+        left = Math.max(2, Math.min(left, wb.width - rw - 2));
+        rally.style.top = (tb.top - wb.top - 8) + 'px';
+        rally.style.left = left + 'px';
+    }
+    addEventListener('resize', () => {
+        document.querySelectorAll('.aw-stage').forEach(layoutWorld);
+        placeRally();
+    });
+
+    /* ── practice-your-misses card ────────────────────────── */
+    function paintPractice() {
+        const slot = document.getElementById('practiceSlot');
+        const bank = FTProgress.mistakes();
+        if (!bank.length) { slot.innerHTML = ''; return; }
+        slot.innerHTML =
+            '<div class="lx-practice-card">' +
+              '<span class="art">' + FTArt.node('target', 44) + '</span>' +
+              '<span class="txt"><b>Practice your misses</b>' +
+              '<span>' + bank.length + ' waiting</span></span>' +
+              '<button class="lx-btn danger" id="practiceGo" style="padding:0.7rem 1.2rem">Go</button>' +
+            '</div>';
+        document.getElementById('practiceGo').onclick = () => {
+            location.href = 'lesson.html?practice=1';
+        };
+    }
+
+    /* ── chest opening ────────────────────────────────────── */
+    function tryOpenChest(unit, el) {
+        const res = FTProgress.openChest(unit);
+        if (!res.ok) {
+            if (window.FTJuice) FTJuice.sfx.wrong();
+            el.animate([
+                { transform: 'translateX(0)' }, { transform: 'translateX(-6px)' },
+                { transform: 'translateX(5px)' }, { transform: 'translateX(0)' },
+            ], { duration: 240 });
+            return;
+        }
+        if (window.FTJuice) {
+            FTJuice.sfx.levelUp();
+            const c = FTJuice.centreOf(el);
+            FTJuice.burst(c.x, c.y, { count: 26, spread: 130 });
+        }
+        document.getElementById('chestArt').innerHTML = FTArt.node('chestOpen', 150);
+        document.getElementById('chestBlurb').innerHTML =
+            '+' + res.gems + ' gems' + (res.freeze ? ' &middot; +1 streak freeze' : '');
+        document.getElementById('chestBack').classList.add('open');
+    }
+    document.getElementById('chestClose').onclick = () => {
+        document.getElementById('chestBack').classList.remove('open');
+        render();
+    };
+
+    /* ── lesson start sheet ───────────────────────────────── */
+    const back = document.getElementById('sheetBack');
+    let pending = null;
+    function openSheet(lesson, unlocked, unit) {
+        pending = unlocked ? lesson : null;
+        document.getElementById('sheetKicker').textContent = unit.title;
+        const isBoss = unit.lessons[unit.lessons.length - 1].id === lesson.id;
+        document.getElementById('sheetKicker').textContent = isBoss ? 'Boss fight' : unit.title;
+        document.getElementById('sheetTitle').textContent = isBoss ? ('Storm the ' + unit.title.toLowerCase() + ' castle') : lesson.title;
+        document.getElementById('sheetBlurb').textContent = unlocked
+            ? lesson.exercises.length + ' exercises'
+            : 'Finish the previous lesson first.';
+        const start = document.getElementById('sheetStart');
+        start.textContent = unlocked ? 'Start' : 'Locked';
+        start.disabled = !unlocked;
+        back.classList.add('open');
+        if (window.FTJuice) FTJuice.sfx.tap();
+    }
+    document.getElementById('sheetClose').onclick = () => back.classList.remove('open');
+    back.onclick = e => { if (e.target === back) back.classList.remove('open'); };
+    document.getElementById('sheetStart').onclick = () => {
+        if (pending) location.href = 'lesson.html?id=' + encodeURIComponent(pending.id);
+    };
+
+    /* ── achievements sheet ───────────────────────────────── */
+    const badgeBack = document.getElementById('badgeBack');
+    function paintBadges() {
+        const grid = document.getElementById('badgeGrid');
+        grid.innerHTML = FTProgress.badgeList().map(b =>
+            '<div class="lx-badge' + (b.earned ? ' earned' : '') + '">' +
+            FTArt.get(b.art) + '<span>' + b.name + '</span></div>').join('');
+        const s = FTLesson.load();
+        document.getElementById('freezeArt').innerHTML = FTArt.node('shield', 34);
+        document.getElementById('freezeInfo').textContent =
+            'Held: ' + (s.freezes || 0) + '/2 · ' + FTProgress.FREEZE_COST + ' gems';
+        const buy = document.getElementById('freezeBuy');
+        buy.disabled = (s.gems || 0) < FTProgress.FREEZE_COST || (s.freezes || 0) >= 2;
+    }
+    document.getElementById('badgesBtn').onclick = () => { paintBadges(); badgeBack.classList.add('open'); };
+    document.getElementById('badgeClose').onclick = () => { badgeBack.classList.remove('open'); paintHeader(); };
+    badgeBack.onclick = e => { if (e.target === badgeBack) badgeBack.classList.remove('open'); };
+    document.getElementById('freezeBuy').onclick = () => {
+        const r = FTProgress.buyFreeze();
+        if (r.ok && window.FTJuice) FTJuice.sfx.pop();
+        paintBadges(); paintHeader();
+    };
+
+    addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            back.classList.remove('open');
+            badgeBack.classList.remove('open');
+            document.getElementById('chestBack').classList.remove('open');
+        }
+    });
+
+    document.getElementById('resetBtn').onclick = () => {
+        if (confirm('Clear all academy progress, XP and streak?')) {
+            FTLesson.reset(); location.reload();
+        }
+    };
+
+    /* ── first-visit onboarding ───────────────────────────── */
+    const OB_KEY = 'ftAcademyOnboarded';
+    const OB_STEPS = [
+        { t: 'This is your path', x: 'One lesson at a time, top to bottom. Green means ready — tap it and go.' },
+        { t: 'Hearts and streaks', x: 'Wrong answers cost a heart. Come back daily and the streak grows. Chests wait at the end of each unit.' },
+        { t: "I'm Rally", x: "I'll walk the path with you. Get one wrong and you'll hear about it — kindly." },
+    ];
+    /* The first visit is now shown by the app-wide tour (js/ft-tour.js),
+       which points at the world map itself. This older card said "top to
+       bottom", which the map no longer is, and ran on top of the tour. */
+    function runOnboarding() {
+        try { localStorage.setItem(OB_KEY, '1'); } catch (e) {}
+        return;
+        let seen = null;
+        try { seen = localStorage.getItem(OB_KEY); } catch (e) {}
+        if (seen) return;
+        const ob = document.getElementById('onboard');
+        const bullSlot = document.getElementById('onboardBull');
+        bullSlot.innerHTML = FTBull ? FTBull.rigSVG() : '';
+        const rig = bullSlot.querySelector('.bull-rig');
+        if (rig) { rig.style.width = '110px'; rig.style.height = '110px'; }
+        let at = 0;
+        const paint = () => {
+            document.getElementById('obTitle').textContent = OB_STEPS[at].t;
+            document.getElementById('obText').textContent = OB_STEPS[at].x;
+            document.getElementById('obDots').innerHTML =
+                OB_STEPS.map((_, i) => '<i class="' + (i === at ? 'on' : '') + '"></i>').join('');
+            document.getElementById('obNext').textContent =
+                at + 1 < OB_STEPS.length ? 'Next' : "Let's go";
+            if (rig) {
+                // SVG className is a read-only SVGAnimatedString — setAttribute
+                // is the only way to replace the class list wholesale
+                rig.setAttribute('class', 'bull-rig ' + ['is-wave', 'is-think', 'is-happy'][at]);
+            }
+        };
+        const finish = () => {
+            try { localStorage.setItem(OB_KEY, '1'); } catch (e) {}
+            ob.classList.remove('open');
+        };
+        document.getElementById('obNext').onclick = () => {
+            if (window.FTJuice) FTJuice.sfx.tap();
+            at++;
+            if (at >= OB_STEPS.length) finish(); else paint();
+        };
+        document.getElementById('obSkip').onclick = finish;
+        paint();
+        setTimeout(() => ob.classList.add('open'), 450);
+    }
+
+    /* ── the mentor switch ────────────────────────────────────
+       One key, read by the lesson engine when it decides whether to
+       put Rally on screen. Everything downstream of that is already
+       guarded, so this is the whole mechanism. */
+    const MENTOR_KEY = 'ftRallyMentor';
+    (function () {
+        const box = document.getElementById('mentorToggle');
+        const state = document.getElementById('mentorState');
+        const art = document.getElementById('mentorArt');
+        if (window.FTBull) {
+            art.innerHTML = FTBull.rigSVG();
+            art.querySelector('.bull-rig').setAttribute('class', 'bull-rig is-idle');
+        }
+        function paint() {
+            let on = true;
+            try { on = localStorage.getItem(MENTOR_KEY) !== '0'; } catch (e) {}
+            box.checked = on;
+            state.textContent = on ? 'Teaching every course' : 'Off — exercises only';
+            art.style.opacity = on ? '1' : '0.35';
+        }
+        box.addEventListener('change', () => {
+            try { localStorage.setItem(MENTOR_KEY, box.checked ? '1' : '0'); } catch (e) {}
+            paint();
+            if (window.FTJuice) FTJuice.sfx[box.checked ? 'pop' : 'tap']();
+        });
+        paint();
+    })();
+
+    /* ── the course library ───────────────────────────────────
+       All 60 modules, grouped by track. Progress comes from the same
+       store the trail uses, so finishing a course counts everywhere. */
+    function renderLibrary() {
+        const host = document.getElementById('library');
+        if (!host || !window.FTCourses) return;
+        const s = FTLesson.load();
+        const st = FTCourses.stats();
+
+        const head = document.createElement('div');
+        head.className = 'ac-lib-head';
+        head.innerHTML = '<h2 class="lx-display">All courses</h2>' +
+            '<span>' + st.courses + ' modules · ' + st.questions + ' questions</span>';
+        host.innerHTML = '';
+        host.appendChild(head);
+
+        const TRACK_ART = {
+            beginner: 'book', intermediate: 'growth', advanced: 'risk',
+            master: 'trophy', investing: 'diversify', alternatives: 'scale',
+        };
+
+        FTCourses.TRACKS.forEach(track => {
+            const doneCount = track.lessons.filter(l => s.lessons[l.id] && s.lessons[l.id].done).length;
+            const pct = Math.round((doneCount / track.lessons.length) * 100);
+
+            const wrap = document.createElement('div');
+            wrap.className = 'ac-track';
+            wrap.id = track.key;
+            wrap.style.setProperty('--t-a', track.color[0]);
+
+            const btn = document.createElement('button');
+            btn.className = 'ac-track-btn';
+            btn.setAttribute('aria-expanded', 'false');
+            btn.innerHTML =
+                '<span class="ac-track-disc">' + FTArt.node(TRACK_ART[track.key] || 'book', 24) + '</span>' +
+                '<span class="ac-track-txt"><b>' + track.name + '</b>' +
+                    '<span>' + doneCount + ' of ' + track.lessons.length + ' done</span></span>' +
+                '<span class="ac-track-bar"><i style="width:' + pct + '%"></i></span>' +
+                '<span class="ac-caret">&#9654;</span>';
+
+            const mods = document.createElement('div');
+            mods.className = 'ac-mods';
+            track.lessons.forEach(l => {
+                const rec = s.lessons[l.id] || {};
+                const b = document.createElement('button');
+                b.className = 'ac-mod' + (rec.done ? ' done' : '');
+                b.innerHTML =
+                    '<span class="ac-mod-n">' + (rec.done ? '&#10003;' : l.n) + '</span>' +
+                    '<span class="ac-mod-t"></span>' +
+                    '<span class="ac-mod-q">' + l.exercises.length + ' Q</span>';
+                // course titles are author text — set it, never interpolate it
+                b.querySelector('.ac-mod-t').textContent = l.title;
+                b.onclick = () => {
+                    if (window.FTJuice) FTJuice.sfx.tap();
+                    location.href = 'lesson.html?course=' + encodeURIComponent(l.id);
+                };
+                mods.appendChild(b);
+            });
+
+            btn.onclick = () => {
+                const open = wrap.classList.toggle('open');
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                if (window.FTJuice) FTJuice.sfx.tap();
+            };
+
+            wrap.appendChild(btn);
+            wrap.appendChild(mods);
+            host.appendChild(wrap);
+        });
+
+        // arriving from a course exit lands you back on that track, open
+        const want = location.hash.replace('#', '');
+        if (want) {
+            const t = document.getElementById(want);
+            if (t && t.classList.contains('ac-track')) {
+                t.classList.add('open');
+                t.querySelector('.ac-track-btn').setAttribute('aria-expanded', 'true');
+                setTimeout(() => t.scrollIntoView({ behavior: 'smooth', block: 'center' }), 250);
+            }
+        }
+    }
+
+    /* ── today's question ─────────────────────────────────────
+       One question a day, picked by FTDailyQ from every course, so
+       the same day shows the same question everywhere. Answering is
+       worth XP, keeps its own streak, and the result is recorded so
+       standings can read it later. */
+    function renderDailyQ() {
+        const host = document.getElementById('dailyQ');
+        if (!host) return;
+        if (!window.FTDailyQ || !window.FTCourses) { host.innerHTML = ''; return; }
+        const st = FTDailyQ.status();
+        const q = st.question;
+        if (!q) { host.innerHTML = ''; return; }
+        const esc = v => String(v).replace(/[&<>"']/g, c =>
+            ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+        const LETTERS = 'ABCDEF';
+        const courseHref = 'lesson.html?course=' + encodeURIComponent(q.courseId);
+
+        const card = document.createElement('div');
+        card.className = 'ac-daily-card';
+        card.innerHTML =
+            '<div class="ac-daily-top">' +
+              '<span class="ac-daily-kicker">Today\'s question</span>' +
+              '<span class="ac-daily-streak" title="Daily question streak">' +
+                FTArt.node('streak', 16) + '<span class="n"></span></span>' +
+            '</div>' +
+            '<div class="ac-daily-course"></div>' +
+            '<p class="ac-daily-prompt lx-display"></p>' +
+            '<div class="lx-choices ac-daily-choices"></div>' +
+            '<div class="ac-daily-why" hidden></div>' +
+            '<div class="ac-daily-foot">' +
+              '<button class="lx-btn primary" type="button" disabled>Check</button>' +
+              '<a class="ac-daily-link" href="' + courseHref + '">Open the course &rarr;</a>' +
+            '</div>';
+        // course title and prompt are author text — set, never interpolate
+        card.querySelector('.ac-daily-course').textContent = q.trackName + ' \u00B7 ' + q.courseTitle;
+        card.querySelector('.ac-daily-prompt').textContent = q.prompt;
+        const streakN = card.querySelector('.ac-daily-streak .n');
+        const choices = card.querySelector('.ac-daily-choices');
+        const why = card.querySelector('.ac-daily-why');
+        const foot = card.querySelector('.ac-daily-foot');
+        const btn = foot.querySelector('.lx-btn');
+        streakN.textContent = st.streak;
+
+        let picked = -1;
+        const btns = q.options.map((o, i) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'lx-choice';
+            b.innerHTML = '<span class="lx-key">' + LETTERS[i] + '</span><span></span>';
+            b.lastChild.textContent = o.text;
+            b.onclick = () => {
+                if (b.classList.contains('locked')) return;
+                btns.forEach(c => c.classList.remove('picked'));
+                b.classList.add('picked');
+                picked = i;
+                btn.disabled = false;
+                if (window.FTJuice) FTJuice.sfx.tap();
+            };
+            choices.appendChild(b);
+            return b;
+        });
+
+        function showResult(rec, res, fresh) {
+            const ok = !!rec.correct;
+            const correctIdx = q.options.findIndex(o => o.correct);
+            btns.forEach((b, i) => {
+                b.classList.add('locked');
+                b.classList.remove('picked');
+                if (i === rec.choice) b.classList.add(ok ? 'right' : 'wrong');
+                else if (i === correctIdx) b.classList.add('right');
+            });
+            card.classList.add(ok ? 'right' : 'wrong');
+            why.hidden = false;
+            why.innerHTML = '<b></b><span></span>';
+            why.querySelector('b').textContent = ok ? 'Correct.' : 'Not that one.';
+            why.querySelector('span').textContent = q.why || '';
+            streakN.textContent = res ? res.streak : st.streak;
+
+            btn.textContent = 'Done for today';
+            btn.disabled = true;
+            if (fresh && res) {
+                const chip = document.createElement('span');
+                chip.className = 'ac-daily-xp';
+                chip.textContent = '+' + res.xp + ' XP';
+                btn.insertAdjacentElement('afterend', chip);
+            } else {
+                const t = document.createElement('span');
+                t.className = 'ac-daily-tomorrow';
+                t.textContent = 'Come back tomorrow';
+                btn.insertAdjacentElement('afterend', t);
+            }
+        }
+
+        btn.onclick = () => {
+            if (picked < 0) return;
+            const res = FTDailyQ.answer(picked);
+            if (!res || !res.ok) {
+                // already answered on another tab, or nothing to answer — resync
+                renderDailyQ();
+                return;
+            }
+            const anchor = btns[picked];
+            if (window.FTJuice) {
+                if (res.correct) {
+                    FTJuice.sfx.correct();
+                    const c = FTJuice.centreOf(anchor);
+                    FTJuice.burst(c.x, c.y, { count: 18, spread: 110 });
+                } else {
+                    FTJuice.sfx.wrong();
+                }
+            }
+            showResult({ correct: res.correct, choice: res.choice }, res, true);
+            /* Publish the scoreline so league standings can show it. Fire and
+               forget — the answer is already recorded on the device, and a
+               failed publish must never look like a failed answer. */
+            FTDailyQ.publish();
+            paintHeader();
+            toastNew(FTProgress.checkBadges());
+        };
+
+        if (st.answered) showResult(st.answered, null, false);
+
+        /* The card lives inside a fold. Closed by default, so the roadmap
+           is the first thing on the page; the strip still says whether
+           today's question is waiting or already done. */
+        const fold = document.createElement('details');
+        fold.className = 'ac-daily-fold' + (st.answered ? ' done' : '');
+        const sum = document.createElement('summary');
+        sum.innerHTML = '<span class="fold-dot"></span>' +
+            '<span class="fold-grow"></span>' +
+            '<span class="fold-cue"></span>';
+        sum.querySelector('.fold-grow').textContent = st.answered
+            ? "Today's question \u00B7 answered"
+            : "Today's question is waiting";
+        sum.querySelector('.fold-cue').textContent = st.answered ? 'Review' : 'Answer';
+        fold.appendChild(sum);
+        fold.appendChild(card);
+
+        host.innerHTML = '';
+        host.appendChild(fold);
+    }
+
+    render();
+    renderDailyQ();
+    renderLibrary();
+    runOnboarding();
+})();
+</script>
+<script src="js/ft-tour.js?v=3"></script>
+</body>
+</html>

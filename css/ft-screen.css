@@ -1,0 +1,13 @@
+/* One title voice for every screen: the main menu's condensed italic.
+   Pages keep their own colours and gradients; only the letterforms
+   change, so Play, Learn, Trade and the rest read as one game. */
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,800;1,900&display=swap');
+.ft-screen-title {
+    font-family: 'Barlow Condensed', 'Inter', sans-serif !important;
+    font-style: italic !important;
+    font-weight: 900 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.005em !important;
+    line-height: 0.95 !important;
+    padding-right: 0.08em; /* italic overhang, so clipped gradient text keeps its last letter */
+}

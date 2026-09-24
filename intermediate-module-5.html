@@ -28,7 +28,7 @@
     <meta name="theme-color" content="#171310">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 5: Earnings & Valuation Models - Stocks League</title>
+    <title>Module 5: Earnings & Valuation Models — Fantasy Trader</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #e0a24c; --accent: #e0a24c; --background: #1a1714; --surface: #1e1a16; --border: #2a2420; --text-primary: #e8e8e8; --text-body: #c4c4c4; --text-muted: #888888; }
@@ -106,7 +106,7 @@
         .reading-progress { background: var(--level, var(--primary)) !important; }
     
         /* Quiz rework: lettered options, cleaner questions */
-        .quiz-section h3 { font-family: 'Fraunces', Georgia, serif !important; font-size: 1.3rem !important; }
+        .quiz-section h3 { font-family: 'Inter', system-ui, sans-serif !important; font-size: 1.3rem !important; }
         .quiz-q { padding-top: 1.2rem; border-top: 1px solid rgba(236, 226, 214, 0.07); }
         .quiz-q:first-of-type { border-top: none; padding-top: 0; }
         .quiz-q > p { font-size: 1rem !important; }
@@ -124,12 +124,17 @@
         .quiz-opt.wrong::before { border-color: #d9645c; color: #d9645c; content: '✕'; }
     </style>
     <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/gamify.css?v=3">
+    <link rel="stylesheet" href="css/ft-motion.css">
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
+    <link rel="stylesheet" href="css/ft-rally-chat.css?v=3">
+    <script src="js/ft-back.js?v=2"></script>
 </head>
 <body>
     <div class="reading-progress" id="readingProgress"></div>
     <div class="mod-header">
         <div class="mod-header-inner">
-            <a href="intermediate-path.html" class="back-link"><span>&larr;</span> Intermediate Path</a>
+            <a href="intermediate-path.html" class="back-link" data-back><span>&larr;</span> Intermediate Path</a>
             <div class="mod-header-meta">MODULE 5 OF 6</div>
         </div>
     </div>
@@ -311,7 +316,7 @@
     </article>
 
     <div class="module-footer">
-        <a href="intermediate-path.html" class="footer-btn footer-btn-back">&larr; Back to Path</a>
+        <a href="intermediate-path.html" class="footer-btn footer-btn-back" data-back>&larr; Back to Path</a>
         <a href="intermediate-module-6.html" class="footer-btn footer-btn-next">Module 6: Market Psychology &rarr;</a>
     </div>
 
@@ -341,8 +346,17 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
+    <script src="js/sl.js?v=3"></script>
     <script src="js/guard.js"></script>
     <script src="js/quiz.js"></script>
+    <script src="js/ft-gamify.js"></script>
+    <script src="js/ft-module-lite.js?v=2"></script>
+    <!-- Rally, reading this module with you: he indexes the article and quiz,
+         answers from it, and falls back to the general chat. -->
+    <script src="js/ft-juice.js"></script>
+    <script src="js/ft-bull.js?v=6"></script>
+    <script src="js/ft-rally-chat.js?v=6"></script>
+    <script src="js/ft-rally-widget.js?v=3"></script>
+    <script src="js/ft-rally-module.js?v=7"></script>
 </body>
 </html>

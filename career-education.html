@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <!-- ft-canvas: the page background, declared before anything that can
          block rendering. Every stylesheet on this page is render-blocking,
          so when one is slow Chrome gives up holding the previous frame and
@@ -26,10 +27,10 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#171310">
-    <title>Stock League - Career Education</title>
+    <title>Career Education — Fantasy Trader</title>
     <style>
         /* Modern Typography */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?display=swap');
 
         :root {
             --primary: #4a6785;
@@ -304,10 +305,14 @@
     </style>
     <link rel="stylesheet" href="css/theme.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/ft-alert.js"></script>
+    <script src="js/ft-alert.js?v=2"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
+    <script src="js/sl.js?v=3"></script>
     <script src="js/guard.js"></script>
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
+    <link rel="stylesheet" href="css/ft-rally-chat.css?v=3">
+    <link rel="stylesheet" href="css/ft-motion.css">
+    <script src="js/ft-back.js?v=2"></script>
 </head>
 <body>
     <button class="dashboard-btn" onclick="window.location.href='dashboard.html'">
@@ -506,5 +511,10 @@
             checkUnlockStatus();
         });
     </script>
+<script src="js/ft-juice.js"></script>
+<script src="js/ft-bull.js?v=6"></script>
+<script src="js/ft-rally-chat.js?v=6"></script>
+<script src="js/ft-rally-widget.js?v=3"></script>
+<script src="js/ft-rally-corner.js?v=2"></script>
 </body>
 </html> 

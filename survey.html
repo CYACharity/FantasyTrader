@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <!-- ft-canvas: the page background, declared before anything that can
          block rendering. Every stylesheet on this page is render-blocking,
          so when one is slow Chrome gives up holding the previous frame and
@@ -28,7 +29,7 @@
     <meta name="theme-color" content="#171310">
     <title>Investment Survey - Fantasy Trader</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
         :root {
             --primary: #4a6785;
@@ -191,7 +192,7 @@
         .survey-title {
             font-size: 2.2rem;
             font-weight: 800;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #ffffff 30%, var(--success) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -575,12 +576,15 @@
     <link rel="stylesheet" href="css/theme.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
+    <script src="js/sl.js?v=3"></script>
     <style>
         body { background-image: none !important; }
         body::before, body::after { display: none !important; }
         .bg-glow-1, .bg-glow-2, .bg-glow-3, .grid-overlay { display: none !important; }
     </style>
+    <link rel="stylesheet" href="css/ft-motion.css">
+    <script src="js/ft-back.js?v=2"></script>
+    <link rel="stylesheet" href="css/ft-gate.css?v=1">
 </head>
 <body>
     <div class="animated-bg">
@@ -600,7 +604,7 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26z"/></svg>
                 Quick Profile Setup
             </div>
-            <h1 class="survey-title">Build Your Investor Profile</h1>
+            <h1 class="survey-title">Build your <span>trader profile</span></h1>
             <p class="survey-subtitle">Answer a few quick questions so we can tailor your experience to your style.</p>
         </div>
 

@@ -29,10 +29,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Courses - Fantasy Trader</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
+    <script src="js/sl.js?v=3"></script>
     <script src="js/guard.js"></script>
     <link rel="stylesheet" href="css/theme.css">
     <style>
@@ -69,7 +69,7 @@
         .track-btn small { display: block; color: #7d746a; font-size: 0.7rem; margin-top: 0.18rem; font-weight: 500; }
 
         /* Content pane */
-        .pane h1 { font-family: 'Poppins', 'Inter', sans-serif !important; font-weight: 700 !important; font-size: 1.7rem; margin-bottom: 0.4rem; }
+        .pane h1 { font-family: 'Inter', sans-serif !important; font-weight: 700 !important; font-size: 1.7rem; margin-bottom: 0.4rem; }
         .pane .desc { color: #B7ADA1; font-size: 0.92rem; margin-bottom: 1.75rem; max-width: 60ch; }
         .group { margin-bottom: 1.6rem; }
         .group h2 { font: 600 0.75rem 'Inter', sans-serif !important; text-transform: uppercase; letter-spacing: 0.07em; color: #E0A24C; margin-bottom: 0.6rem; }
@@ -102,6 +102,53 @@
         .ccard .done { margin-top: auto; color: #5CB88A; font-weight: 700; font-size: 0.78rem; }
         .ccard .crumb { color: #7d746a; font-size: 0.66rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
         .side-search { padding: 0.9rem 1.05rem 1.05rem; }
+        /* ── one screen, no page scroll ─────────────────────────────
+           The page used to grow with the catalogue and scroll, which is
+           what let the sticky sidebar ride up over the track headings.
+           Locked to the viewport there is nothing to collide: the sidebar
+           is fixed in place and the catalogue scrolls inside its own
+           column, with the path title staying put above it.
+
+           Scoped to real screens — a phone still scrolls normally, because
+           a locked 100vh with a sidebar and a grid on a 380px screen is
+           unusable. */
+        @media (min-width: 801px) {
+            html, body { height: 100%; overflow: hidden; }
+            .layout {
+                height: 100vh;
+                padding: 2rem 1.5rem 1.5rem;
+                align-items: stretch;
+                max-width: 1180px;
+            }
+            .side {
+                position: static;            /* nothing to stick to any more */
+                display: flex; flex-direction: column; min-height: 0;
+            }
+            .side-panel { display: flex; flex-direction: column; min-height: 0; }
+            /* the track list takes the slack; the search stays pinned under it */
+            .side-panel .track-btn { flex: 0 0 auto; }
+            .side-search { margin-top: auto; }
+
+            .pane {
+                display: flex; flex-direction: column;
+                min-height: 0;               /* let the body shrink, not the page grow */
+                overflow: hidden;
+            }
+            .pane h1, .pane .desc { flex: 0 0 auto; }
+            .pane .desc { margin-bottom: 1.1rem; }
+            /* the only thing that scrolls on this page */
+            #paneBody {
+                flex: 1 1 auto; min-height: 0;
+                overflow-y: auto; overscroll-behavior: contain;
+                padding-right: 0.5rem;
+            }
+            #paneBody::-webkit-scrollbar { width: 8px; }
+            #paneBody::-webkit-scrollbar-thumb {
+                background: rgba(236, 226, 214, 0.14); border-radius: 999px;
+            }
+            #paneBody::-webkit-scrollbar-track { background: transparent; }
+        }
+
         .side-search-label { font: 700 0.62rem 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.14em; color: #8a8178; margin-bottom: 0.5rem; }
         .side-search input {
             width: 100%; padding: 0.6rem 0.9rem; border-radius: 0;
@@ -113,7 +160,7 @@
 
         /* ── Search results, league-style ── */
         .sr-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.4rem; flex-wrap: wrap; }
-        .sr-head h1 { font-family: 'Fraunces', Georgia, serif !important; font-weight: 600 !important; }
+        .sr-head h1 { font-family: 'Inter', system-ui, sans-serif !important; font-weight: 600 !important; }
         .sr-meta { color: #B7ADA1; font-size: 0.88rem; margin-top: 0.3rem; }
         .sr-meta b { color: #5CB88A; }
         .view-all-btn {
@@ -143,18 +190,23 @@
         .sr-card.lv-b { --lv: #5CB88A; } .sr-card.lv-i { --lv: #E0A24C; } .sr-card.lv-a { --lv: #D9645C; }
         .sr-card .crumb { color: #7d746a; font-size: 0.64rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
         .sr-card .crumb i { font-style: normal; color: var(--lv); }
-        .sr-card .mt { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 1.02rem; line-height: 1.3; }
+        .sr-card .mt { font-family: 'Inter', system-ui, sans-serif; font-weight: 600; font-size: 1.02rem; line-height: 1.3; }
         .sr-card .hit { color: #B7ADA1; font-size: 0.74rem; line-height: 1.45; }
         .sr-card .hit mark { background: rgba(92, 184, 138, 0.22); color: #F4EEE6; padding: 0 2px; }
         .sr-card .done { margin-top: auto; color: #5CB88A; font-weight: 700; font-size: 0.76rem; }
         .sr-empty { padding: 2.5rem 1rem; text-align: center; color: #7d746a; background: #241F1B; border: 2px dashed rgba(236,226,214,0.1); border-radius: 12px; }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
+    <link rel="stylesheet" href="css/ft-rally-chat.css?v=3">
+    <link rel="stylesheet" href="css/ft-motion.css">
+    <script src="js/ft-back.js?v=2"></script>
+    <link rel="stylesheet" href="css/ft-screen.css?v=1">
 </head>
 <body>
     <div class="layout">
         <aside class="side">
-            <a href="learn.html" class="back-link">← Learning Hub</a>
+            <a href="learn.html" class="back-link" data-back>← Learning Hub</a>
             <div class="side-panel">
                 <div class="side-title">Education Paths</div>
                 <button class="track-btn active" data-t="trading">Short-Term Trading<small>Beginner → Advanced — 18 modules</small></button>
@@ -167,7 +219,7 @@
             </div>
         </aside>
         <main class="pane">
-            <h1 id="paneTitle"></h1>
+            <h1 class="ft-screen-title" id="paneTitle"></h1>
             <p class="desc" id="paneDesc"></p>
             <div id="paneBody"></div>
         </main>
@@ -268,7 +320,7 @@
             document.getElementById('paneDesc').textContent = '';
             document.getElementById('paneBody').innerHTML =
                 '<div class="sr-head"><div>' +
-                    '<h1 style="font-size:1.7rem;margin:0;font-family:Fraunces,Georgia,serif;font-weight:600;">Search results</h1>' +
+                    '<h1 style="font-size:1.7rem;margin:0;">Search results</h1>' +
                     '<div class="sr-meta"><b>' + hits.length + '</b> module' + (hits.length === 1 ? '' : 's') +
                         (trackFilter ? ' in ' + CATALOG[trackFilter].title : '') +
                         ' matching “' + query + '”' +
@@ -376,5 +428,10 @@
         }
         })();
     </script>
+<script src="js/ft-juice.js"></script>
+<script src="js/ft-bull.js?v=6"></script>
+<script src="js/ft-rally-chat.js?v=6"></script>
+<script src="js/ft-rally-widget.js?v=3"></script>
+<script src="js/ft-rally-corner.js?v=2"></script>
 </body>
 </html>

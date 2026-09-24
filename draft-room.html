@@ -33,9 +33,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="stock-data.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/ft-alert.js"></script>
+    <script src="js/ft-alert.js?v=2"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
+    <script src="js/sl.js?v=3"></script>
     <script src="js/guard.js"></script>
     <style>
         :root {
@@ -103,13 +103,16 @@
         @media (max-width: 1024px){ .draft-container{ grid-template-columns: 1fr; } }
     </style>
     <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/ft-motion.css">
+    <script src="js/ft-back.js?v=2"></script>
+    <link rel="stylesheet" href="css/ft-screen.css?v=1">
 </head>
 <body>
     <div class="draft-container">
         <div class="draft-main">
             <div class="draft-header">
                 <div>
-                    <h1 class="draft-title" id="leagueTitle">Draft Room<small id="leagueSub">Loading…</small></h1>
+                    <h1 class="ft-screen-title draft-title" id="leagueTitle">Draft Room<small id="leagueSub">Loading…</small></h1>
                 </div>
                 <div class="draft-status" id="draftStatus">—</div>
             </div>

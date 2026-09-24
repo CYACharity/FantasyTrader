@@ -1,0 +1,20 @@
+/* ============================================================
+ *  THE SMALL PRINT — one line, pinned to the very bottom.
+ *
+ *      <p class="ft-legal-foot">…</p>   (a direct child of <body>)
+ *
+ *  It used to sit in the page flow under the last card, which put
+ *  it in the middle of the screen on a short page. Fixed to the
+ *  bottom edge it is always last, always small, and never in the
+ *  way. It must be a direct child of <body>: any ancestor with a
+ *  transform (the .ft-arrive entrance leaves one) would become its
+ *  containing block and lift it off the bottom.
+ * ============================================================ */
+.ft-legal-foot {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+    margin: 0; padding: 0.45rem 1rem 0.55rem;
+    text-align: center; pointer-events: none;
+    font: 500 0.68rem/1.4 'Inter', system-ui, sans-serif;
+    color: rgba(236, 226, 214, 0.34);
+    background: linear-gradient(180deg, rgba(20,16,14,0) 0%, rgba(20,16,14,0.85) 55%);
+}

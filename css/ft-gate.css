@@ -1,0 +1,105 @@
+/* ============================================================
+ *  GATE — the sign-in page and the opening survey, in the same
+ *  voice as the game: the dark scene, condensed italic titles,
+ *  skewed buttons and tabs, cards with a coloured base.
+ *  Loaded last on signup.html and survey.html; it restyles
+ *  their existing markup rather than replacing it.
+ * ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,700;1,800;1,900&display=swap');
+
+html, body { background: #0E0B09 !important; }
+body {
+    background:
+        radial-gradient(ellipse 50% 50% at 18% 28%, rgba(92,184,138,0.13), transparent 70%),
+        radial-gradient(ellipse 45% 45% at 86% 82%, rgba(224,162,76,0.09), transparent 70%),
+        radial-gradient(ellipse 90% 80% at 50% 40%, #1A1511 0%, #0E0B09 72%) fixed !important;
+    color: #F4EEE6 !important; font-family: 'Inter', system-ui, sans-serif !important;
+}
+.modern-background, .grid-overlay, .bg-glow { display: none !important; }
+
+/* titles and tags */
+.auth-title, .survey-title, .card-title {
+    font-family: 'Barlow Condensed', 'Inter', sans-serif !important; font-style: italic !important; font-weight: 900 !important;
+    text-transform: uppercase; letter-spacing: 0.005em !important; line-height: 0.95 !important;
+    background: none !important; -webkit-text-fill-color: currentColor !important; color: #F4EEE6 !important;
+}
+.auth-title { font-size: clamp(2.4rem, 4vw, 3.2rem) !important; }
+.survey-title { font-size: clamp(2.2rem, 3.8vw, 3rem) !important; }
+.survey-title span, .auth-title span { color: #5CB88A !important; -webkit-text-fill-color: #5CB88A !important; }
+.card-title { font-size: 1.7rem !important; margin-bottom: 1rem !important; }
+.auth-kicker, .survey-kicker {
+    display: inline-flex !important; align-items: center; gap: 0.4rem; padding: 0.2rem 0.75rem !important; border-radius: 0 !important;
+    transform: skewX(-12deg); background: #F0B865 !important; border: 0 !important; color: #120E0B !important;
+    font: 900 0.8rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; letter-spacing: 0.18em !important; text-transform: uppercase;
+}
+.auth-kicker svg, .survey-kicker svg { display: none; }
+.subtitle, .survey-subtitle, .card-desc { display: none !important; }
+
+/* the wordmark with Rally on it (signup) */
+.gate-mark { position: relative; display: inline-block; margin: 0 auto 0.9rem; }
+.gate-word { font: 900 clamp(2.4rem, 4.4vw, 3.4rem)/1 'Barlow Condensed', sans-serif; font-style: italic; text-transform: uppercase; color: #F4EEE6; text-shadow: 0 3px 18px rgba(0,0,0,0.6); }
+.gate-word span { color: #5CB88A; }
+.gate-rally { position: absolute; right: -58px; top: -46px; width: 70px; height: 70px; }
+.gate-rally .bull-rig { width: 70px; height: 70px; }
+.logo-container { text-align: center; }
+.logo-image { display: none !important; }
+
+/* cards */
+.auth-container, .survey-card {
+    border-radius: 18px !important; background: linear-gradient(165deg, rgba(42,36,30,0.96), rgba(22,18,15,0.97)) !important;
+    border: 1px solid rgba(244,238,230,0.10) !important; border-bottom: 5px solid #2F6B4C !important;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.45) !important; backdrop-filter: none !important;
+}
+.card-icon { border-radius: 0 !important; transform: skewX(-10deg); background: rgba(92,184,138,0.16) !important; border: 1px solid rgba(92,184,138,0.4) !important; }
+
+/* login / sign-up tabs */
+.auth-tabs { background: none !important; border: 0 !important; padding: 0 !important; gap: 0.5rem !important; }
+.auth-tab {
+    border-radius: 0 !important; transform: skewX(-12deg); background: rgba(244,238,230,0.05) !important; border: 1px solid rgba(244,238,230,0.14) !important;
+    color: rgba(244,238,230,0.7) !important; font: 900 1.15rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.auth-tab.active { background: #F0B865 !important; border-color: #F0B865 !important; color: #120E0B !important; box-shadow: 0 3px 0 #8A5E24 !important; }
+
+/* fields */
+.form-label, .field-label, .slider-label {
+    font: 800 0.66rem 'Inter', sans-serif !important; letter-spacing: 0.14em !important; text-transform: uppercase; color: rgba(244,238,230,0.55) !important;
+}
+.form-input, .field-input {
+    border-radius: 10px !important; background: rgba(12,10,8,0.7) !important; border: 1.5px solid rgba(244,238,230,0.14) !important;
+    color: #F4EEE6 !important; font: 600 0.95rem 'Inter', sans-serif !important;
+}
+.form-input:focus, .field-input:focus { border-color: #5CB88A !important; box-shadow: 0 0 0 4px rgba(92,184,138,0.14) !important; outline: none !important; }
+
+/* buttons */
+.submit-btn, .btn-next {
+    border-radius: 0 !important; transform: skewX(-12deg); background: #5CB88A !important; border: 0 !important; color: #0E0B09 !important;
+    box-shadow: 0 5px 0 #2F6B4C !important; font: 900 1.3rem 'Barlow Condensed', sans-serif !important; font-style: italic !important;
+    text-transform: uppercase; letter-spacing: 0.05em !important; transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease !important;
+}
+.submit-btn:hover, .btn-next:hover { filter: brightness(1.08); transform: skewX(-12deg) translateY(-2px) !important; }
+.submit-btn:active, .btn-next:active { transform: skewX(-12deg) translateY(3px) !important; box-shadow: 0 1px 0 #2F6B4C !important; }
+.btn-back {
+    border-radius: 0 !important; transform: skewX(-12deg); background: rgba(244,238,230,0.05) !important; border: 1px solid rgba(244,238,230,0.2) !important;
+    color: rgba(244,238,230,0.8) !important; font: 900 1.15rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; text-transform: uppercase;
+}
+.back-btn { border-radius: 0 !important; background: none !important; border: 0 !important; font: 700 0.78rem 'Inter', sans-serif !important;
+    letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244,238,230,0.55) !important; }
+.back-btn:hover { color: #F4EEE6 !important; }
+
+/* survey choices */
+.pill-option span { border-radius: 0 !important; transform: skewX(-12deg); font: 900 1.05rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; text-transform: uppercase; }
+.pill-option input:checked + span { background: #F0B865 !important; border-color: #F0B865 !important; color: #120E0B !important; box-shadow: 0 3px 0 #8A5E24 !important; }
+.option-content { border-radius: 14px !important; background: linear-gradient(160deg, rgba(42,36,30,0.9), rgba(24,20,17,0.9)) !important; border: 1px solid rgba(244,238,230,0.09) !important; border-bottom: 3px solid rgba(0,0,0,0.3) !important; }
+.option-card:hover .option-content { border-color: rgba(244,238,230,0.24) !important; transform: translateY(-2px); }
+.option-card input:checked + .option-content { border-color: #F0B865 !important; background: linear-gradient(160deg, rgba(240,184,101,0.16), rgba(24,20,17,0.9)) !important; box-shadow: none !important; border-bottom-color: #C9963F !important; }
+.option-title { font: 900 1.2rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; text-transform: uppercase; }
+.option-card input:checked + .option-content .option-icon svg { stroke: #F0B865 !important; }
+
+/* progress */
+.progress-track { background: rgba(244,238,230,0.08) !important; }
+.progress-fill { background: linear-gradient(90deg, #5CB88A, #F0B865) !important; }
+.step-dot { border-radius: 0 !important; transform: skewX(-14deg); }
+.step-dot.active { background: #F0B865 !important; border-color: #F0B865 !important; color: #120E0B !important; box-shadow: none !important; }
+.step-dot.done { background: #5CB88A !important; border-color: #5CB88A !important; color: #0E0B09 !important; }
+.step-line { background: rgba(244,238,230,0.12) !important; }
+input[type="range"] { accent-color: #5CB88A; }

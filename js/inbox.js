@@ -71,12 +71,67 @@
     try {
       const pf = await SL.loadPortfolio();
       const syms = Object.keys(pf.stocks || {});
+
+      /* The +50% race lives here as well as on the menu chip: where you
+         stand, and how far there is to go. Practice accounts start at
+         $10,000; holdings are priced live where there is a quote. */
+      try {
+        const q0 = syms.length ? await SL.getLiveQuotes(syms) : {};
+        let total = Number(pf.cash) || 0;
+        syms.forEach((s) => { const pos = pf.stocks[s] || {}, r = q0[s];
+          total += (r && r.price != null ? Number(r.price) : Number(pos.avgPrice || 0)) * (Number(pos.shares) || 0); });
+        const ret = (total - 10000) / 10000 * 100;
+        const sign = (ret >= 0 ? "+" : "\u2212") + Math.abs(ret).toFixed(2) + "%";
+        items.push({
+          type: "portfolio", key: "race|" + new Date().toDateString(),
+          icon: ret >= 0 ? "up" : "down", fa: "fa-flag-checkered",
+          title: ret >= 50 ? "You hit +50%. The $25 is yours" : "The +50% race: you're at " + sign,
+          desc: ret >= 50 ? "Tell us in Feedback and we'll sort the prize." :
+                !syms.length ? "Make your first practice trade to start climbing. First to +50% wins $25." :
+                (50 - ret).toFixed(2) + " points to go. First practice account to +50% wins $25.",
+          time: "Today", link: "practice.html",
+        });
+      } catch (e) { /* the race line is optional */ }
+
       if (syms.length) {
-        const quotes = await SL.getLiveQuotes(syms.slice(0, 8));
+        // No cap on symbols: getLiveQuotes already batches forty at a time,
+        // and the rally notice below has to see the whole book or it will
+        // name the wrong stock as the day's biggest mover.
+        const quotes = await SL.getLiveQuotes(syms);
         const today = new Date().toDateString();
+
+        // Rally observation: the held stock that moved most today, if it
+        // moved enough to be worth a line. Built before the per-symbol
+        // notices so it leads the list. Only fresh rows qualify: a stale
+        // row's change figure belongs to some earlier session.
+        try {
+          const live = syms.filter((s) => quotes[s] && quotes[s].price != null &&
+                                          quotes[s].stale !== true && quotes[s].change_pct != null);
+          let top = null;
+          for (const s of live) {
+            const pct = Number(quotes[s].change_pct);
+            if (!isFinite(pct)) continue;
+            if (!top || Math.abs(pct) > Math.abs(top.pct)) top = { sym: s, pct };
+          }
+          if (top && Math.abs(top.pct) >= 2) {
+            const up = top.pct >= 0;
+            items.push({
+              type: "portfolio", key: "rally|move|" + top.sym + "|" + today,
+              icon: up ? "up" : "down", rally: true,
+              fa: up ? "fa-arrow-trend-up" : "fa-arrow-trend-down",
+              title: top.sym + (up ? " is up " : " is down ") + Math.abs(top.pct).toFixed(1) + "% today and you own it",
+              desc: "Rally: worth knowing why before you do anything about it.",
+              time: "Today", link: "trading.html?symbol=" + top.sym,
+            });
+          }
+        } catch (e) { /* the rally line is optional */ }
+
         for (const sym of Object.keys(quotes)) {
           const q = quotes[sym], pos = pf.stocks[sym];
           if (!q || q.price == null || !pos) continue;
+          // A stale row is priced from some earlier day; nothing about it
+          // can honestly be described as "today", so it gets no notice.
+          if (q.stale === true) continue;
           const pct = Number(q.change_pct) || 0;
           const pl = (q.price - (pos.avgPrice || q.price)) * pos.shares;
           if (Math.abs(pct) >= 1) {
@@ -152,6 +207,99 @@
                       (s.returnPct >= 0 ? "+" : "") + s.returnPct.toFixed(2) + "%",
                 time: "League", link: "your-league.html?league=" + l.id,
               });
+            }
+
+            const nameOf = (uid) => {
+              const hit = (standings || []).find((s) => s.user_id === uid);
+              return hit && hit.name ? hit.name : "your opponent";
+            };
+            const today = new Date().toDateString();
+
+            // Daily close against this week's opponent.
+            //
+            // This used to read a snapshot the league page had written and
+            // say nothing when there wasn't one — so the card only ever
+            // appeared to someone who had already opened their league that
+            // day, which is nobody. The inbox now takes the snapshot itself
+            // from the same picks and prices the league page uses, so the
+            // card shows up wherever the player checks first.
+            if (l.status === "active" && me && global.FTDaily) {
+              try {
+                const D = global.FTDaily;
+                const full = await SL.getLeague(l.id);
+                if (full) {
+                  const week = D.weekOf(full, []);
+                  const oppId = D.opponentOf(full.draft_order || [], week.week, me.id);
+                  if (oppId) {
+                    // value both lineups at today's quotes and record them
+                    const picks = await SL.getPicks(l.id).catch(() => []);
+                    const syms = Array.from(new Set((picks || [])
+                      .filter((p) => p && (p.user_id === me.id || p.user_id === oppId))
+                      .map((p) => p.symbol)));
+                    if (syms.length) {
+                      const px = await SL.getPrices(syms).catch(() => ({}));
+                      const members = await SL.getLeagueMembers(l.id).catch(() => []);
+                      const cashOf = (uid) => {
+                        const m = (members || []).find((x) => x.user_id === uid);
+                        return m ? Number(m.cash || 0) : 0;
+                      };
+                      const vals = {};
+                      [me.id, oppId].forEach((uid) => {
+                        const v = D.lineupValue(uid, picks, px, cashOf(uid));
+                        if (v != null) vals[uid] = v;
+                      });
+                      if (Object.keys(vals).length) {
+                        D.snapshot(l.id, vals);
+                        D.close(l.id);
+                      }
+                    }
+                  }
+                  const r = oppId ? D.result(l.id, me.id, oppId) : null;
+                  if (r) {
+                    const oppName = nameOf(oppId);
+                    items.push({
+                      type: "league", key: "day|" + l.id + "|" + today,
+                      icon: r.won ? "up" : "down", fa: r.won ? "fa-arrow-trend-up" : "fa-arrow-trend-down",
+                      title: (r.final ? (r.won ? "You beat " : "You lost to ")
+                                      : (r.won ? "You are ahead of " : "You are behind ")) +
+                             esc(oppName) + (r.final ? " today" : " today so far"),
+                      desc: D.fmt(r.mine) + " to " + D.fmt(r.theirs) + " · “" + esc(l.name) + "”",
+                      time: "Today", link: "your-league.html?league=" + l.id,
+                    });
+                  }
+                }
+              } catch (e) { /* no daily line for this league */ }
+            }
+
+            // Weekly settlements. Rows with debt_status "none" are draws
+            // whose winner/loser ids are arbitrary, so they are skipped.
+            if (me) {
+              try {
+                const weeks = await SL.myWeekResults(l.id).catch(() => []);
+                for (const w of weeks || []) {
+                  if (!w || w.debt_status === "none") continue;
+                  const amt = Number(w.transfer_amt || 0).toFixed(0);
+                  if (w.loser_id === me.id) {
+                    const due = w.due_at ? new Date(w.due_at).toLocaleDateString() : "the deadline";
+                    items.push({
+                      type: "league", key: "forfeit|" + l.id + "|" + w.week,
+                      icon: "down", fa: "fa-hand-holding-dollar",
+                      title: "Week " + w.week + ": you lost to " + esc(nameOf(w.winner_id)) + " in “" + esc(l.name) + "”",
+                      desc: "$" + amt + (w.debt_status === "pending" ? " owed — settle before " + due : " transferred") +
+                            ". You wear the weekly-loser tag until you win one.",
+                      time: "Week " + w.week, link: "your-league.html?league=" + l.id,
+                    });
+                  } else if (w.winner_id === me.id) {
+                    items.push({
+                      type: "league", key: "forfeit|" + l.id + "|" + w.week,
+                      icon: "up", fa: "fa-sack-dollar",
+                      title: "Week " + w.week + ": you beat " + esc(nameOf(w.loser_id)) + " in “" + esc(l.name) + "”",
+                      desc: "+$" + amt + " collected.",
+                      time: "Week " + w.week, link: "your-league.html?league=" + l.id,
+                    });
+                  }
+                }
+              } catch (e) { /* no settlement lines for this league */ }
             }
           } catch (e) { /* skip this league */ }
         }

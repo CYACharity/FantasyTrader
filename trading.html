@@ -1,12 +1,131 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <!-- ft-canvas: the page background, declared before anything that can
          block rendering. Every stylesheet on this page is render-blocking,
          so when one is slow Chrome gives up holding the previous frame and
          paints the default canvas — white — for a beat. That was the flash
          between pages. Inline and first, it can never be white. -->
-    <style>html{background-color:#171310;}</style>
+    <style>html{background-color:#171310;}
+        /* The hidden attribute must win over any author display rule. Without
+           this, `el.hidden = true` on anything whose class sets a display is
+           silently ignored — which is how an empty daily card ended up
+           rendering as a bar across the dashboard.
+           (.inbox-badge-mini below deliberately overrides this back to flex
+           for its own count badge; a later, more specific rule still wins.) */
+        [hidden]:not(.inbox-badge-mini) { display: none !important; }
+
+        /* ============================================================
+         *  TERMINAL — the Academy's surfaces, and an honest height budget.
+         *
+         *  The rail used to give Rally 266px and leave the open tool 82px
+         *  with 136px of content inside it, so every metric had to be
+         *  scrolled for. The budget is explicit now: Rally and the money
+         *  card are capped, and whatever is left goes to the tool — with a
+         *  floor under it, so the tool is never smaller than its content.
+         * ============================================================ */
+        @media (min-width: 1000px) {
+            /* Rally is decoration here; the numbers are not. */
+            .right-panel > .rally-panel { flex: 0 0 auto; padding-bottom: 0.5rem; }
+            .rally-panel-body .bull-rig { width: 112px !important; height: 112px !important; }
+            .rally-panel-body .rc-launch { font-size: 0.72rem; padding: 0.45rem 0.8rem; }
+
+            .right-panel > .portfolio-section { flex: 0 0 auto; }
+
+            /* The open tool gets the remainder, and never less than this.
+               !important because the TERMINAL FIT block further down resets
+               every min-height in the rail to 0 to stop the old layout
+               overflowing; that reset is what squeezed this to 82px. */
+            .right-panel > .tool-stack {
+                flex: 1 1 auto;
+                min-height: 206px !important;
+            }
+            .right-panel > .tool-stack .tool-panel { height: 100%; }
+
+            /* The metrics were six tiles at 1.5rem padding in two columns —
+               331px of content in a 189px box, so every one of them had to
+               be scrolled for. Three columns of two compact rows is the same
+               six numbers in a little over a hundred pixels. */
+            .metrics-section .metrics-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 0.45rem !important;
+            }
+            .metrics-section .metric-item { padding: 0.38rem 0.3rem !important; }
+            .metrics-section .metric-value {
+                font-size: 0.88rem !important; margin-bottom: 0.1rem !important;
+            }
+            .metrics-section .metric-label {
+                font-size: 0.54rem !important; letter-spacing: 0.05em !important;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            }
+            .metrics-section .metrics-tabs { margin-bottom: 0.4rem !important; }
+            .metrics-section .metrics-title { margin-bottom: 0.4rem !important; font-size: 0.62rem !important; }
+            .metrics-section .metrics-tab { padding: 0.3rem 0.7rem !important; font-size: 0.68rem !important; }
+
+            /* freeing the height the tool needs: he is decoration, the
+               numbers are not */
+            .rally-panel-body .bull-rig { width: 82px !important; height: 82px !important; }
+            .right-panel > .rally-panel { padding: 0.6rem 0.9rem 0.35rem !important; }
+            .right-panel > .portfolio-section { padding: 0.8rem 0.9rem !important; }
+            .portfolio-section .portfolio-summary { padding: 0.7rem 0.8rem !important; }
+        }
+
+        /* ── the Academy's chunky surfaces ───────────────────────── */
+        .left-panel, .center-panel, .right-panel,
+        .rally-panel, .portfolio-section, .tool-panel {
+            border-radius: 16px;
+            border: 2px solid rgba(236, 226, 214, 0.10);
+            border-bottom-width: 5px;
+        }
+        .portfolio-section .portfolio-value {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+        .tv-cents { opacity: 0.55; font-size: 0.62em; }
+
+        /* the trade buttons press like the Academy's */
+        .buy-btn, .sell-btn, .trade-btn {
+            border-radius: 13px !important;
+            border-bottom: 4px solid rgba(0, 0, 0, 0.28) !important;
+            font-weight: 800 !important; letter-spacing: 0.04em;
+            transition: transform 0.08s ease, border-bottom-width 0.08s ease;
+        }
+        .buy-btn:active, .sell-btn:active, .trade-btn:active {
+            transform: translateY(2px); border-bottom-width: 2px !important;
+        }
+        .ts-btn { border-radius: 999px !important; font-weight: 800 !important; }
+
+        /* an empty chart is a prompt, not a void */
+        .chart-container { position: relative; }
+        .chart-container[data-empty="1"]::after {
+            content: 'Search a symbol above to load its chart';
+            position: absolute; inset: 0; display: flex;
+            align-items: center; justify-content: center;
+            font: 700 0.82rem 'Inter', system-ui, sans-serif;
+            color: rgba(236, 226, 214, 0.34); pointer-events: none; text-align: center;
+        }
+
+        /* ☆ Watch: adds the stock on screen to your watchlist, or takes it off */
+        .tk-watch { display: inline-flex; align-items: center; gap: 0.35rem; margin-left: 0.9rem; padding: 0.35rem 0.75rem; border-radius: 999px; cursor: pointer;
+            background: rgba(244,238,230,0.05); border: 1px solid rgba(244,238,230,0.18); color: rgba(244,238,230,0.8); font: 800 0.74rem 'Inter', sans-serif; }
+        .tk-watch[hidden] { display: none !important; }
+        .tk-watch svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+        .tk-watch:hover { border-color: #7FD1C7; color: #7FD1C7; }
+        .tk-watch.on { background: rgba(240,184,101,0.14); border-color: rgba(240,184,101,0.55); color: #F0B865; }
+        .tk-watch.on svg { fill: #F0B865; stroke: #F0B865; }
+
+        /* Rally's line at the foot of the portfolio card */
+        .rally-line { position: relative; display: flex; align-items: center; gap: 0.6rem; min-height: 44px; margin-top: 0.7rem; padding-top: 0.6rem; border-top: 1px solid rgba(244,238,230,0.08); }
+        .rally-line-tag { flex-shrink: 0; padding: 0.12rem 0.5rem; transform: skewX(-12deg); background: rgba(92,184,138,0.16); color: #7BD3A6; font: 800 0.66rem 'Inter', sans-serif; letter-spacing: 0.12em; text-transform: uppercase; }
+        .rally-line .bull-bubble { position: static !important; left: auto !important; top: auto !important; width: auto !important; max-width: none !important; flex: 1; min-width: 0;
+            transform: none !important; background: none !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; border-radius: 0 !important;
+            font: 600 0.8rem/1.4 'Inter', sans-serif !important; color: rgba(244,238,230,0.88) !important; opacity: 0; transition: opacity 0.25s ease !important; pointer-events: auto; }
+        .rally-line .bull-bubble.show { opacity: 1; }
+        .rally-line .bull-bubble::before, .rally-line .bull-bubble::after { display: none !important; }
+        .rally-line:not(:has(.bull-bubble.show))::after { content: 'Tap Rally to ask about this stock'; position: absolute; left: 4.2rem; font: 600 0.78rem 'Inter', sans-serif; color: rgba(244,238,230,0.4); }
+</style>
     <!-- how the link looks when someone shares it -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Fantasy Trader">
@@ -26,18 +145,22 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#171310">
-    <title>Trading Platform - Stock League</title>
+    <title>Trade — Fantasy Trader</title>
     <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="stock-data.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/ft-alert.js"></script>
+    <script src="js/ft-alert.js?v=2"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
+    <script src="js/sl.js?v=3"></script>
     <script src="js/draft-universe.js"></script>
     <script src="js/guard.js"></script>
     <script src="js/stock-logo.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="js/ft-juice.js"></script>
+    <script src="js/ft-bull.js?v=6"></script>
+    <script src="js/ft-rally-chat.js?v=6"></script>
+    <script src="js/ft-rally-widget.js?v=3"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -63,7 +186,7 @@
         }
 
         body {
-            font-family: 'Poppins', 'Inter', sans-serif;
+            font-family: 'Inter', sans-serif;
             background: #1a1714;
             color: var(--text-primary);
             overflow-x: hidden;
@@ -95,7 +218,7 @@
 
         .market-tickers-header {
             display: flex;
-            gap: 2rem;
+            gap: 0.6rem;
             align-items: center;
         }
 
@@ -104,6 +227,10 @@
             flex-direction: column;
             align-items: center;
             gap: 0.2rem;
+            padding: 0.35rem 0.7rem;
+            background: rgba(236, 226, 214, 0.05);
+            border: 1px solid rgba(236, 226, 214, 0.10);
+            border-radius: 10px;
         }
 
         .ticker-symbol-header {
@@ -124,11 +251,11 @@
         }
 
         .ticker-change-header.positive {
-            color: var(--success);
+            color: #5CB88A;
         }
 
         .ticker-change-header.negative {
-            color: var(--danger);
+            color: #D9645C;
         }
 
         .header-left {
@@ -221,7 +348,7 @@
 
         /* Main Container */
         .main-container {
-            max-width: 1800px;
+            max-width: 1280px;
             margin: 70px auto 0;
             padding: 1.5rem;
             background: #1a1714;
@@ -371,112 +498,18 @@
             color: var(--danger);
         }
 
-        /* AI Assistant Section */
-        .ai-assistant {
-            background: #241f1b;
-            border-radius: 10px;
-            padding: 2rem;
-            flex: 1;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
 
-        .ai-features {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
 
-        .ai-feature-btn {
-            padding: 0.75rem 1.25rem;
-            background: rgba(236, 226, 214, 0.1);
-            border: 1px solid rgba(236, 226, 214, 0.2);
-            border-radius: 8px;
-            color: var(--success);
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Inter', sans-serif;
-        }
 
-        .ai-feature-btn:hover {
-            background: rgba(236, 226, 214, 0.2);
-            transform: translateY(-1px);
-        }
 
-        .ai-title {
-            font-size: 1rem;
-            font-weight: 600;
-            font-family: 'Inter', sans-serif;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
 
-        .ai-icon {
-            width: 28px;
-            height: 28px;
-            background: linear-gradient(135deg, var(--success), var(--accent));
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 800;
-            color: #1a1714;
-            box-shadow: none;
-        }
 
-        .ai-messages {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 1rem;
-        }
 
-        .ai-message {
-            padding: 0.8rem;
-            margin-bottom: 0.8rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
 
-        .ai-message.user {
-            background: rgba(236, 226, 214, 0.1);
-            border: 1px solid rgba(236, 226, 214, 0.2);
-        }
 
-        .ai-message.assistant {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
 
-        .ai-input {
-            display: flex;
-            gap: 0.5rem;
-        }
 
-        .ai-input input {
-            flex: 1;
-            padding: 8px 12px;
-            background: var(--chart-bg);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text-primary);
-            font-size: 12px;
-        }
 
-        .ai-send {
-            padding: 8px 12px;
-            background: var(--success);
-            border: none;
-            border-radius: 6px;
-            color: var(--background);
-            cursor: pointer;
-            font-size: 12px;
-        }
 
         /* Center Panel - Chart & Trading */
         .center-panel {
@@ -521,7 +554,7 @@
         .symbol-title {
             font-size: 2rem;
             font-weight: 800;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
             color: #ffffff;
             letter-spacing: -1px;
         }
@@ -660,7 +693,7 @@
             border-radius: 10px;
             font-size: 1.1rem;
             font-weight: 700;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
@@ -835,7 +868,7 @@
         .mover-symbol {
             font-weight: 700;
             font-size: 1.1rem;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
             color: #ffffff;
         }
 
@@ -863,7 +896,7 @@
             cursor: pointer;
             font-weight: 700;
             font-size: 1rem;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
             transition: all 0.3s ease;
             text-decoration: none;
             display: flex;
@@ -1061,7 +1094,7 @@
         .position-symbol {
             font-weight: 700;
             font-size: 1.1rem;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
             color: #ffffff;
         }
 
@@ -1261,7 +1294,7 @@
     <style>
         /* ===== Trading refresh: match the clean Portfolio look ===== */
         .chart-container, .trading-form, .research-section, .metrics-section,
-        .market-movers, .meters-section, .portfolio-section, .ai-assistant {
+        .market-movers, .meters-section, .portfolio-section {
             background: #221E1A !important;
             border: 1px solid rgba(255,255,255,0.06) !important;
             border-radius: 12px !important;
@@ -1293,9 +1326,9 @@
             background: #221E1A; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px;
         }
         .header-balance .hb-label { font-size: 0.6rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.45); }
-        .header-balance .hb-value { font: 700 1.25rem 'Poppins','Inter',sans-serif; color: var(--sl-success, #5CB88A); }
+        .header-balance .hb-value { font: 700 1.25rem 'Inter',sans-serif; color: var(--sl-success, #5CB88A); }
 
-        .portfolio-summary .portfolio-value { font: 700 1.9rem 'Poppins','Inter',sans-serif !important; }
+        .portfolio-summary .portfolio-value { font: 700 1.9rem 'Inter',sans-serif !important; }
         .portfolio-summary .portfolio-change { font-size: 0.85rem !important; }
 
         .buy-button { background: var(--sl-success, #5CB88A) !important; color: #14110E !important; }
@@ -1318,7 +1351,7 @@
         .rating-idle .rating-top, .rating-idle .rating-sub { display: none !important; }
         .rating-idle .rating-marker { display: none !important; }
         .rating-idle .rating-track { background: rgba(244, 238, 230, 0.22) !important; }
-        .rating-word { font-family: 'Fraunces', Georgia, serif !important; font-weight: 600 !important; }
+        .rating-word { font-family: 'Inter', system-ui, sans-serif !important; font-weight: 600 !important; }
         .rating-sub {
             font-size: 0.66rem !important; line-height: 1.35 !important;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
@@ -1326,41 +1359,33 @@
         }
         .rating-chip { white-space: nowrap; }
         .rating-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: .5rem; gap: .6rem; }
-        .rating-word { font: 600 1.05rem "Fraunces", Georgia, serif; letter-spacing: 0; }
+        .rating-word { font: 600 1.05rem 'Inter', system-ui, sans-serif; letter-spacing: 0; }
         .rating-chip {
             font: 700 .72rem "Inter", sans-serif; color: #FFFFFF;
             background: transparent; border: 1px solid rgba(255, 255, 255, 0.55);
             padding: .3rem .75rem; border-radius: 0; letter-spacing: .04em;
         }
-        .rating-scale { position: relative; height: 14px; margin: 0 2px; }
-        .rating-scale { height: 14px; }
+        /* one definition, and the track spans the exact width the marker
+           travels so the two agree at both ends */
+        .rating-scale { position: relative; height: 14px; margin: 0; }
         .rating-track {
             position: absolute; top: 5px; left: 0; right: 0; height: 4px; border-radius: 999px;
             background: linear-gradient(90deg, #D9645C 0%, #E08B5C 28%, #E0A24C 50%, #9CBF7E 72%, #5CB88A 100%);
         }
         .rating-marker {
             position: absolute; top: 0; width: 14px; height: 14px; border-radius: 50%;
+            box-sizing: border-box;
             background: #F4EEE6; border: 3px solid #1E1A16;
-            left: 50%; transform: translateX(-50%); transition: left .5s ease, background .3s ease, box-shadow .3s ease;
+            /* no translateX: the travel is inset by the marker's radius in
+               the calc that sets `left`, so both ends sit flush with the
+               track instead of overhanging it */
+            left: calc(50% - 7px);
+            transition: left .5s cubic-bezier(0.22, 0.9, 0.28, 1), background .3s ease, box-shadow .3s ease;
             opacity: .3;
         }
         .rating-marker.on { opacity: 1; }
         .rating-sub { color: #B7ADA1; font-size: .72rem; margin-top: .6rem; line-height: 1.5; }
 
-        /* Sleek assistant */
-        .ai-assistant .ai-title { font: 600 .72rem "Inter",sans-serif !important; text-transform: uppercase !important;
-            letter-spacing: .06em !important; color: rgba(255,255,255,.55) !important; margin-bottom: .9rem !important; }
-        .ai-icon { display: none !important; }
-        .ai-messages { background: transparent !important; border: none !important; padding: 0 !important; }
-        .ai-message { border-radius: 12px !important; padding: .7rem .95rem !important; font-size: .88rem !important;
-            line-height: 1.55 !important; border: none !important; box-shadow: none !important; }
-        .ai-message.assistant { background: #1A1714 !important; color: #E7DFD3 !important; border: 1px solid rgba(236,226,214,.07) !important; }
-        .ai-message.user { background: rgba(92,184,138,.14) !important; color: #F4EEE6 !important; }
-        .ai-input input { background: #1A1714 !important; border: 1px solid rgba(236,226,214,.12) !important;
-            border-radius: 10px !important; box-shadow: none !important; }
-        .ai-input input:focus { border-color: #5CB88A !important; }
-        .ai-send { background: #5CB88A !important; color: #14110E !important; border: none !important;
-            border-radius: 10px !important; box-shadow: none !important; font-weight: 700 !important; }
 
         /* Tools bar (progressive disclosure) */
         .tools-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.25rem 0 0.75rem; }
@@ -1400,7 +1425,7 @@
         .chart-header { padding: 1rem 1.25rem !important; background: #1A1714 !important; box-shadow: none !important; }
         .right-panel, .left-panel { gap: 0.75rem !important; }
         .research-section, .metrics-section, .market-movers, .meters-section,
-        .portfolio-section, .ai-assistant, .trading-form { padding: 1.1rem 1.25rem !important; border-radius: 12px !important; }
+        .portfolio-section, .trading-form { padding: 1.1rem 1.25rem !important; border-radius: 12px !important; }
         .mover-item { padding: 0.55rem 0.75rem !important; font-size: 0.85rem !important; }
         .metric-item { padding: 0.7rem !important; }
         .metric-value { font-size: 0.95rem !important; }
@@ -1413,7 +1438,7 @@
     </style>
     <style>
         .research-section, .metrics-section, .market-movers, .meters-section,
-        .portfolio-section, .ai-assistant, .trading-form-section, .chart-container,
+        .portfolio-section, .trading-form-section, .chart-container,
         .left-panel .panel, .watchlist-section {
             border-color: rgba(236, 226, 214, 0.22) !important;
         }
@@ -1442,13 +1467,12 @@
         .trading-form input, .trading-form select { padding: 0.5rem 0.7rem !important; }
         .buy-button, .sell-button, .trade-button { padding: 0.6rem 1rem !important; font-size: 0.85rem !important; }
         .trading-title { margin-bottom: 0.6rem !important; }
-        .ai-assistant { padding: 0.9rem 1.1rem !important; }
-        .ai-assistant .chat-messages, .chat-container, #chatMessages { max-height: 150px !important; min-height: 100px !important; }
+        .chat-container, #chatMessages { max-height: 150px !important; min-height: 100px !important; }
         .chat-input-container input, #chatInput { padding: 0.5rem 0.7rem !important; }
     </style>
     <style>
         .research-section, .metrics-section, .market-movers, .meters-section,
-        .portfolio-section, .ai-assistant { border-radius: 0 !important; }
+        .portfolio-section { border-radius: 0 !important; }
         .tools-hint {
             color: #7d746a; font: 500 0.8rem 'Inter', sans-serif;
             padding: 0.9rem 0.25rem; letter-spacing: 0.02em;
@@ -1467,15 +1491,6 @@
            laptops — pushed the right-hand panel off the edge.
            ══════════════════════════════════════════════════════════════════ */
         html, body { overflow-x: clip; }
-
-        /* Bounded at both ends: below 900 the older rule stacks everything to
-           a single column, and an unbounded !important here would have
-           overridden it and left the phone layout two columns wide. */
-        @media (max-width: 1300px) and (min-width: 901px) {
-            /* research beside the chart, the trade panel full-width beneath */
-            .trading-layout { grid-template-columns: 280px 1fr !important; }
-            .right-panel { grid-column: 1 / -1; }
-        }
 
         /* A grid item defaults to `min-width: auto`, meaning it refuses to
            shrink below its widest unbreakable content. That's why the single
@@ -1503,18 +1518,532 @@
                rather than shrink the whole bar to illegibility */
             .header-left .back-button:nth-of-type(2) { display: none; }
         }
-    </style>
+    
+        /* ── Rally ────────────────────────────────────────────────
+           Sits where the assistant did, above Stock Research. Same
+           panel shell as its neighbours so the column still reads as
+           one stack, with him and the chat button inside it. */
+        .rally-panel {
+            background: #241f1b;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            padding: 1rem 1.1rem 1.1rem;
+        }
+        .rally-panel-head {
+            font: 600 0.72rem "Inter", sans-serif;
+            text-transform: uppercase; letter-spacing: 0.14em;
+            color: #7d746a; margin-bottom: 0.35rem;
+        }
+        .rally-panel-body {
+            display: flex; flex-direction: column; align-items: center; gap: 0;
+            padding-top: 0.6rem;
+        }
+        .rally-panel-body .bull-rig { width: 150px; height: 150px; }
+        /* the rig keeps 6.1% of its box empty under the hooves — pull the
+           button up through most of it so it sits under him, not clear of him */
+        .rally-panel-body .rc-launch { margin-top: -0.35rem; font-size: 0.8rem; padding: 0.55rem 1rem; }
+        /* he is inert everywhere else; here he is the click target */
+        .rally-panel-body .bull-stage,
+        .rally-panel-body .bull-holder,
+        .rally-panel-body .bull-rig { pointer-events: auto; }
+        .rally-panel-body .bull-holder { cursor: pointer; }
+        .rally-panel-body .bull-holder .bull-rig { transition: transform 0.2s cubic-bezier(0.2,0.9,0.3,1.2); }
+        .rally-panel-body .bull-holder:hover .bull-rig { transform: translateY(-4px) scale(1.03); }
+        /* The column is ~250px wide, so a bubble beside him would be a
+           two-word column. It goes above him instead, out of flow so a
+           long sentence can never resize the panel. */
+        .rally-panel-body .bull-stage { position: relative; align-items: center; }
+        .rally-panel-body .bull-bubble {
+            position: absolute; bottom: calc(100% - 14px); left: 50%;
+            width: max-content; max-width: 260px;
+            transform: translateX(-50%) translateY(8px) scale(0.94);
+            transform-origin: bottom center;
+        }
+        .rally-panel-body .bull-bubble.show { transform: translateX(-50%); }
+        /* the tail points down at him rather than sideways */
+        .rally-panel-body .bull-bubble::after {
+            bottom: -7px; left: 50%; right: auto;
+            margin-left: -5px; transform: rotate(-45deg);
+        }
+    
+        /* honesty markers on the chart */
+        .chart-empty {
+            display: grid; place-items: center; height: 100%;
+            color: #7d746a; font: 600 0.85rem 'Inter', sans-serif; text-align: center;
+        }
+        .chart-sim {
+            position: absolute; top: 8px; left: 10px; z-index: 3;
+            padding: 0.22rem 0.5rem; border-radius: 6px;
+            background: rgba(217, 100, 92, 0.14);
+            border: 1px solid rgba(217, 100, 92, 0.4);
+            font: 700 0.6rem 'Inter', sans-serif; letter-spacing: 0.06em;
+            text-transform: uppercase; color: #D9645C; pointer-events: none;
+        }
+        .chart-container { position: relative; }
+    
+        /* ── one-at-a-time tool switch ───────────────────────────
+           Segmented control rather than five independent toggles:
+           the old bar let every panel be on at once, which is how
+           the right column became a wall of boxes. */
+        .tool-switch {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+            padding: 4px; border-radius: 12px;
+            background: rgba(236, 226, 214, 0.05);
+            border: 1px solid rgba(236, 226, 214, 0.08);
+        }
+        .ts-btn {
+            padding: 0.5rem 0.3rem; border: none; border-radius: 9px; cursor: pointer;
+            background: none; color: #8f867c;
+            font: 700 0.72rem 'Inter', sans-serif; letter-spacing: 0.01em;
+            transition: background 0.18s ease, color 0.18s ease;
+        }
+        .ts-btn:hover { color: #F4EEE6; }
+        .ts-btn.active {
+            background: #5CB88A; color: #0C1A13;
+            box-shadow: 0 2px 0 #3E8C65;
+        }
+        .tool-stack > .tool-panel { animation: toolIn 0.24s cubic-bezier(0.2,0.9,0.3,1); }
+        @keyframes toolIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .tool-stack > .tool-panel { animation: none; }
+        }
+    
+        /* ============================================================
+         *  TERMINAL FIT
+         *
+         *  Two columns, locked to the viewport. The page itself never
+         *  scrolls: the chart takes whatever height is left after the
+         *  trade ticket, and the right rail scrolls inside itself if
+         *  its panel is taller than the screen.
+         *
+         *  Everything here is scoped to the desktop breakpoint — a
+         *  phone still scrolls normally, because a locked 100vh with
+         *  five stacked panels on a 375px screen is unusable.
+         * ============================================================ */
+        @media (min-width: 1000px) {
+            html, body { height: 100%; overflow: hidden; }
+            body { padding-bottom: 0 !important; }
+
+            .trading-layout {
+                grid-template-columns: minmax(0, 1fr) 440px !important;
+                gap: 1rem !important;
+                height: calc(100vh - var(--term-chrome, 104px));
+                min-height: 0 !important;
+                padding-bottom: 0.9rem;
+            }
+
+            /* both columns are their own scroll container, never the page */
+            .center-panel, .right-panel {
+                min-height: 0;
+                padding: 1.1rem !important; gap: 0.85rem !important;
+            }
+            .center-panel { overflow: hidden !important; }
+            /* the rail is a fixed frame: nothing in it scrolls, so whatever
+               tool is open sizes itself to the height that is left. */
+            .right-panel { overflow: hidden !important; }
+            /* Rally and the portfolio card are fixed; the open tool takes
+               whatever height is left and its own list scrolls inside it,
+               so the rail as a whole never moves. */
+            .right-panel > .rally-panel,
+            .right-panel > .portfolio-section,
+            .right-panel > .tool-switch,
+            .right-panel > .news-button { flex: 0 0 auto; }
+            .right-panel > .tool-stack {
+                flex: 1 1 auto; min-height: 0; overflow: hidden;
+                display: flex; flex-direction: column;
+            }
+            .right-panel > .tool-stack > * { min-height: 0; }
+            .right-panel > .tool-stack .tool-panel {
+                min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+            }
+            .right-panel > .tool-stack .tool-panel::-webkit-scrollbar { width: 6px; }
+            .right-panel > .tool-stack .tool-panel::-webkit-scrollbar-thumb {
+                background: rgba(236,226,214,0.14); border-radius: 999px;
+            }
+
+            /* the chart eats the leftover height rather than a fixed box */
+            .center-panel .chart-container {
+                flex: 1 1 auto;
+                min-height: 180px !important;      /* beats the 340px pin above */
+                max-height: none !important;
+                height: auto !important;
+            }
+            .center-panel #chart { height: 100% !important; min-height: 0 !important; }
+
+            /* the ticket is the one thing that must always be reachable */
+            .trading-form { flex: 0 0 auto; }
+            .trading-form .form-group { margin-bottom: 0.5rem !important; }
+            .trading-form .form-input { padding: 0.55rem 0.75rem !important; }
+            .trading-title { margin-bottom: 0.55rem !important; }
+            .chart-controls { flex: 0 0 auto; margin: 0 !important; }
+            .chart-header { flex: 0 0 auto; }
+
+            /* Rally shrinks a little here — he is sharing the rail now */
+            .rally-panel { flex: 0 0 auto; padding: 1rem 1rem 1.1rem !important; }
+            .rally-panel-body .bull-rig { width: 170px; height: 170px; }
+
+            .portfolio-section { flex: 0 0 auto; }
+            .portfolio-positions { max-height: 110px; overflow-y: auto; }
+            .tool-stack { min-height: 0; }
+        }
+
+        /* Short laptops. The ticket is three stacked fields plus two big
+           buttons — about 330px, which a 720px screen cannot spare once the
+           chart has its floor. Below 820px the fields go side by side and
+           the whole ticket costs roughly half as much. */
+        @media (min-width: 1000px) and (max-height: 820px) {
+            .rally-panel-body .bull-rig { width: 120px; height: 120px; }
+            .center-panel .chart-container { min-height: 130px !important; }
+            .portfolio-positions { max-height: 88px; }
+
+            /* Each field stays one cell with its label above it. Flattening
+               the groups with display:contents put the labels and inputs in
+               source order across three columns, which interleaved them. */
+            .trading-form {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr);
+                grid-auto-rows: min-content;
+                gap: 0.3rem 0.6rem;
+                align-items: end;
+            }
+            .trading-form .form-group { margin: 0 !important; min-width: 0; }
+            .trading-title { grid-column: 1 / -1; margin-bottom: 0.2rem !important; }
+            .trading-form .form-label {
+                font-size: 0.58rem !important; letter-spacing: 0.1em;
+                margin-bottom: 0.15rem !important;
+            }
+            .trading-form .form-input { padding: 0.45rem 0.6rem !important; }
+            .trade-buttons { grid-column: 1 / -1; margin-top: 0.35rem; }
+            .trade-button { padding: 0.6rem !important; }
+        }
+
+        /* Last resort. If a screen is short enough that even the compact
+           ticket does not fit, the column scrolls inside itself — clipping
+           the Buy button is never an acceptable outcome. */
+        @media (min-width: 1000px) {
+            .center-panel { overflow-y: auto !important; overscroll-behavior: contain; }
+            .center-panel::-webkit-scrollbar { width: 7px; }
+            .center-panel::-webkit-scrollbar-thumb {
+                background: rgba(236,226,214,0.14); border-radius: 999px;
+            }
+        }
+    
+        /* ============================================================
+         *  THE RAIL — the tools, made worth looking at.
+         *
+         *  Four panels that were a row of "--" and the words "Live movers
+         *  unavailable". Same data, same renderers; what changed is that
+         *  each panel now has a designed resting state, the numbers land
+         *  instead of appearing, and the tab strip moves.
+         * ============================================================ */
+
+        /* ── the tab strip: one indicator that slides ─────────────── */
+        .tool-switch {
+            position: relative;
+            background: rgba(12, 10, 9, 0.55);
+            border: 1px solid rgba(236, 226, 214, 0.08);
+            border-radius: 999px;
+            padding: 3px;
+            overflow: hidden;
+        }
+        /* the moving pill sits under the labels; JS gives it x and width */
+        .tool-switch::before {
+            content: '';
+            position: absolute; top: 3px; bottom: 3px;
+            left: 0; width: 0;
+            transform: translateX(var(--ts-x, 0px));
+            width: var(--ts-w, 0px);
+            border-radius: 999px;
+            background: linear-gradient(180deg, #5CB88A, #3E8C65);
+            box-shadow: 0 2px 8px rgba(92, 184, 138, 0.35);
+            transition: transform 0.32s cubic-bezier(0.2, 0.9, 0.25, 1),
+                        width 0.32s cubic-bezier(0.2, 0.9, 0.25, 1);
+            pointer-events: none;
+        }
+        .tool-switch.no-anim::before { transition: none; }
+        .ts-btn {
+            position: relative; z-index: 1;
+            background: none !important;
+            border: none !important;
+            color: rgba(236, 226, 214, 0.55) !important;
+            transition: color 0.2s ease;
+        }
+        .ts-btn.active { color: #0C1A13 !important; }
+        .ts-btn:not(.active):hover { color: #F4EEE6 !important; }
+
+        /* ── panels: they arrive, they don't blink ───────────────── */
+        .tool-stack > .tool-panel { animation: toolRise 0.3s cubic-bezier(0.2, 0.9, 0.3, 1); }
+        @keyframes toolRise {
+            from { opacity: 0; transform: translateY(6px) scale(0.995); }
+            to   { opacity: 1; transform: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .tool-stack > .tool-panel { animation: none; }
+            .tool-switch::before { transition: none; }
+        }
+
+        /* ── metric tiles ────────────────────────────────────────── */
+        .metrics-section .metric-item {
+            position: relative;
+            background: rgba(255, 255, 255, 0.022) !important;
+            border: 1px solid rgba(236, 226, 214, 0.07) !important;
+            border-radius: 11px !important;
+            overflow: hidden;
+            transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+        }
+        .metrics-section .metric-item::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+            background: var(--mi, #5CB88A); opacity: 0.55;
+        }
+        .metrics-section .metric-item:nth-child(3n+2) { --mi: #E0A24C; }
+        .metrics-section .metric-item:nth-child(3n+3) { --mi: #9DB8D2; }
+        .metrics-section .metric-item:hover {
+            transform: translateY(-2px);
+            border-color: rgba(236, 226, 214, 0.18) !important;
+            background: rgba(255, 255, 255, 0.04) !important;
+        }
+        .metrics-section .metric-value {
+            font-variant-numeric: tabular-nums;
+            color: #F4EEE6 !important;
+            transition: color 0.2s ease;
+        }
+        /* a value still waiting for a symbol reads as waiting, not as broken */
+        .metrics-section .metric-item.is-idle { opacity: 0.5; }
+        .metrics-section .metric-item.is-idle .metric-value { color: rgba(236,226,214,0.35) !important; }
+        .metrics-section .metric-value.just-in { animation: valuePop 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.4); }
+        @keyframes valuePop {
+            0%   { transform: translateY(5px); opacity: 0; }
+            60%  { transform: translateY(-1px); opacity: 1; }
+            100% { transform: none; }
+        }
+
+        /* ── movers ──────────────────────────────────────────────── */
+        .movers-list .mover-item {
+            display: flex; align-items: center; gap: 0.6rem;
+            padding: 0.5rem 0.6rem;
+            border-radius: 9px;
+            border: 1px solid transparent;
+            transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+        }
+        .movers-list .mover-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(236, 226, 214, 0.12);
+            transform: translateX(2px);
+        }
+        /* a rank chip, numbered by position in the list */
+        .movers-list { counter-reset: mv; }
+        .movers-list .mover-item::before {
+            counter-increment: mv;
+            content: counter(mv);
+            flex: 0 0 18px; height: 18px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 5px;
+            background: rgba(236, 226, 214, 0.07);
+            color: rgba(236, 226, 214, 0.5);
+            font: 800 0.62rem 'Inter', sans-serif;
+        }
+        .movers-list .mover-symbol { flex: 1; font-weight: 800 !important; letter-spacing: 0.02em; }
+        .movers-list .mover-change {
+            font-variant-numeric: tabular-nums; font-weight: 800 !important;
+            padding: 0.16rem 0.45rem; border-radius: 999px; font-size: 0.74rem !important;
+        }
+        .movers-list .mover-change.positive { background: rgba(92, 184, 138, 0.14); }
+        .movers-list .mover-change.negative { background: rgba(217, 100, 92, 0.14); }
+        .movers-tab {
+            border-radius: 999px !important;
+            font-weight: 800 !important;
+            transition: all 0.16s ease;
+        }
+
+        /* ── analyst rating: a real scale, red to green ──────────── */
+        #ratingPanel { display: flex; flex-direction: column; }
+        #ratingPanel .rating-word { font-family: 'Inter', sans-serif; font-weight: 800; }
+        #ratingPanel .rating-track {
+            background: linear-gradient(90deg, #D9645C 0%, #E0A24C 50%, #5CB88A 100%) !important;
+            opacity: 0.5;
+            height: 6px !important; border-radius: 999px !important;
+        }
+        #ratingPanel .rating-marker {
+            box-shadow: 0 0 0 3px rgba(20, 16, 14, 0.9), 0 0 14px rgba(244, 238, 230, 0.5);
+            transition: left 0.5s cubic-bezier(0.2, 0.9, 0.3, 1);
+        }
+
+        /* ── the resting state every panel shares ────────────────── */
+        .tool-empty {
+            width: 100%; flex: 1 1 auto;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 0.5rem; text-align: center;
+            padding: 1.1rem 1rem; min-height: 96px;
+        }
+        .tool-empty .te-ring {
+            width: 38px; height: 38px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(92, 184, 138, 0.09);
+            border: 1px solid rgba(92, 184, 138, 0.22);
+            color: #5CB88A; font-size: 0.95rem;
+            animation: teBreathe 3.2s ease-in-out infinite;
+        }
+        @keyframes teBreathe {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(92,184,138,0.18); }
+            50%      { transform: scale(1.06); box-shadow: 0 0 0 7px rgba(92,184,138,0); }
+        }
+        @media (prefers-reduced-motion: reduce) { .tool-empty .te-ring { animation: none; } }
+        .tool-empty .te-text {
+            font: 700 0.8rem 'Inter', sans-serif; color: #B7ADA1; line-height: 1.45;
+        }
+        .tool-empty .te-hint {
+            font: 600 0.68rem 'Inter', sans-serif; color: #7d746a;
+        }
+        .tool-empty .te-hint kbd {
+            background: rgba(236, 226, 214, 0.08);
+            border: 1px solid rgba(236, 226, 214, 0.14);
+            border-radius: 5px; padding: 1px 5px; font-family: inherit; font-size: 0.66rem;
+        }
+
+        /* ============================================================
+         *  THE TICKET, and a quieter rail.
+         *
+         *  Three stacked boxes (shares, price, total) and two buttons
+         *  that said only "Buy" and "Sell" is now one row: a stepper,
+         *  quick picks, the estimated total, and buttons that say what
+         *  they will do. The price box is still in the page — the code
+         *  writes to it — it just isn't shown, because the button says
+         *  the price. Rally moves into the portfolio card and the extra
+         *  news button goes; the research tab already is the news.
+         * ============================================================ */
+        .trading-form .trading-title,
+        .trading-form .form-group.tk-price { display: none !important; }
+        .trading-form {
+            display: flex !important; flex-direction: column; gap: 0.7rem;
+            padding: 0.9rem 1rem !important;
+        }
+        .tk-row { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; width: 100%; align-self: stretch; }
+        .tk-total { display: flex; flex-direction: column; align-items: flex-end; }
+        .tk-row .form-group.tk-total { margin-left: auto !important; }
+        .tk-cur { display: flex; align-items: center; }
+        .tk-total #totalInput { text-align: left !important; }
+        .tk-cur::before { content: '$'; font: 800 1.35rem 'Inter', sans-serif; color: rgba(236,226,214,0.55); margin-right: 1px; }
+        .tk-row .form-group { margin: 0 !important; flex: 0 0 auto !important; width: auto !important; }
+        .tk-row .form-label {
+            display: block; margin-bottom: 0.3rem !important;
+            font: 800 0.6rem 'Inter', sans-serif !important; letter-spacing: 0.12em !important;
+            text-transform: uppercase; color: rgba(236,226,214,0.45) !important;
+        }
+        .tk-stepper {
+            display: flex; align-items: stretch; height: 44px;
+            background: rgba(12,10,9,0.55); border: 1px solid rgba(236,226,214,0.12);
+            border-radius: 12px; overflow: hidden;
+        }
+        .tk-stepper button {
+            width: 40px; border: 0; background: transparent; color: #F4EEE6; cursor: pointer;
+            font: 800 1.1rem 'Inter', sans-serif; transition: background 0.15s ease;
+        }
+        .tk-stepper button:hover { background: rgba(236,226,214,0.08); }
+        .tk-stepper button:active { background: rgba(236,226,214,0.14); }
+        .tk-stepper #sharesInput {
+            width: 72px !important; height: 100% !important; border: 0 !important;
+            background: transparent !important; box-shadow: none !important;
+            text-align: center; font: 800 1.05rem 'Inter', sans-serif !important; color: #F4EEE6 !important;
+            padding: 0 !important; -moz-appearance: textfield;
+        }
+        .tk-stepper #sharesInput::-webkit-outer-spin-button,
+        .tk-stepper #sharesInput::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .tk-chips { display: flex; gap: 0.35rem; align-self: flex-end; height: 44px; align-items: center; }
+        .tk-chip {
+            height: 32px; padding: 0 0.7rem; border-radius: 999px; cursor: pointer;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(236,226,214,0.12);
+            color: rgba(236,226,214,0.75); font: 800 0.72rem 'Inter', sans-serif;
+            transition: all 0.15s ease;
+        }
+        .tk-chip:hover { border-color: #5CB88A; color: #F4EEE6; }
+        .tk-total { margin-left: auto !important; text-align: right; }
+        .tk-total #totalInput {
+            width: 150px !important; height: 44px !important; text-align: right;
+            border: 0 !important; background: transparent !important; box-shadow: none !important;
+            font: 800 1.35rem 'Inter', sans-serif !important; color: #F4EEE6 !important; padding: 0 !important;
+            font-variant-numeric: tabular-nums;
+        }
+        .trading-form .trade-buttons { display: grid !important; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin: 0 !important; }
+        .trading-form .trade-button {
+            height: 54px; display: flex !important; flex-direction: column; align-items: center; justify-content: center;
+            gap: 1px; border-radius: 14px !important; line-height: 1.1;
+        }
+        .trading-form .trade-button > i { display: none; }
+        .tb-main { font: 900 0.95rem 'Inter', sans-serif; letter-spacing: 0.04em; text-transform: uppercase; }
+        .tb-sub { font: 700 0.7rem 'Inter', sans-serif; opacity: 0.8; letter-spacing: 0; text-transform: none; font-variant-numeric: tabular-nums; }
+        .trading-form .trade-button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        /* the rail: Rally inside the portfolio card, no separate news button */
+        .right-panel > .rally-panel, .right-panel > .news-button { display: none !important; }
+        .portfolio-section { position: relative; }
+        /* Rally was pinned into the corner of the card with position:absolute,
+           so his "Chat" pill sat on top of the value and the liquidity row.
+           He has a column of his own now: the card is a grid, the numbers
+           take the left, he takes the right, and nothing can overlap. */
+        .portfolio-section {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) 84px;
+            grid-template-areas: "title rally" "summary rally";
+            column-gap: 0.6rem; align-items: start;
+        }
+        .portfolio-section > .portfolio-title { grid-area: title; }
+        .portfolio-section > .portfolio-summary { grid-area: summary; min-width: 0; }
+        .portfolio-section > .tk-rally {
+            grid-area: rally; align-self: center;
+            display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+            position: static !important;
+        }
+        .portfolio-section .tk-rally .bull-rig { width: 76px !important; height: 76px !important; }
+        /* no pill: he is the button, and the title says so */
+        .portfolio-section .tk-rally .rc-launch { display: none !important; }
+        .portfolio-section .tk-rally .bull-holder { cursor: pointer; }
+        .portfolio-section .tk-rally::after {
+            content: 'Ask me'; font: 800 0.56rem 'Inter', sans-serif; letter-spacing: 0.1em;
+            text-transform: uppercase; color: #5CB88A;
+        }
+
+        /* ============================================================
+         *  TRADE, pared back.
+         *
+         *  One header, one chart, one ticket, and a rail with two tabs.
+         *  Gone: the three index boxes (they live on the dashboard), the
+         *  Line/Candles switch (the line is what people read), the
+         *  Movers tab (it was empty whenever the feed was down, which
+         *  was often) and the Rating tab (its gauge now sits under the
+         *  stats, where you already look for numbers about a stock).
+         * ============================================================ */
+        .market-tickers-header, #modeLine, #modeCandles,
+        .ts-btn[data-target="movers"], .ts-btn[data-target="rating"],
+        .tool-panel[data-tool="movers"] { display: none !important; }
+        .tool-switch { grid-template-columns: 1fr 1fr !important; }
+        /* the rating reads as part of the stats panel now */
+        .metrics-section #ratingPanel {
+            display: flex !important; margin-top: 0.7rem !important;
+            padding: 0.7rem 0 0 !important; border: 0 !important;
+            border-top: 1px solid rgba(236,226,214,0.08) !important;
+            background: none !important; box-shadow: none !important; animation: none !important;
+        }
+        .metrics-section #ratingPanel .tool-empty { display: none !important; }
+        .metrics-section #ratingPanel .metrics-title { font-size: 0.6rem !important; margin-bottom: 0.4rem !important; }
+        .metrics-section .metrics-tabs { display: none !important; }
+</style>
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
+    <link rel="stylesheet" href="css/ft-rally-chat.css?v=3">
+    <link rel="stylesheet" href="css/ft-screen.css?v=1">
+    <script src="js/ft-back.js?v=2"></script>
 </head>
 <body>
     <!-- Enhanced Header -->
     <div class="header">
         <div class="header-left">
             <div style="display: flex; gap: 1rem; align-items: center;">
-                <a href="dashboard.html" class="back-button">← Dashboard</a>
-                <a href="practice.html" class="back-button">← Practice</a>
+                <a href="practice.html" class="back-button" data-back>← Back</a>
             </div>
             <div class="logo-section">
-                <h1 class="page-title">Trading Platform</h1>
+                <h1 class="page-title ft-screen-title">Trade</h1>
             </div>
 
         </div>
@@ -1544,55 +2073,6 @@
     <div class="main-container">
         <!-- Trading Layout -->
     <div class="trading-layout">
-            <!-- Left Panel - Research (News) & AI Assistant -->
-        <div class="left-panel">
-                <!-- Portfolio Balance (moved here from the right panel) -->
-                <div class="portfolio-section">
-                    <div class="portfolio-title">
-                        <i class="fas fa-briefcase"></i>
-                        Portfolio
-                    </div>
-                    <div class="portfolio-summary">
-                        <div class="pv-label">Total Value</div>
-                        <div class="portfolio-value" id="portfolioValue">—</div>
-                        <div class="pv-row"><span class="pv-sub">Liquidity</span><span class="pv-cash" id="portfolioCash">—</span></div>
-                        <div class="pv-row"><span class="pv-sub">Portfolio Change</span><span class="portfolio-change" id="portfolioChange">—</span></div>
-                    </div>
-                    <div class="portfolio-positions" id="portfolioPositions">
-                        <div class="loading">
-                            <div class="spinner"></div>
-                            Loading portfolio...
-                        </div>
-                    </div>
-                    <div class="top-holdings" id="topHoldings"></div>
-                </div>
-
-                <!-- Stock Research Section -> relevant news -->
-                <div class="research-section tool-panel" data-tool="news">
-                    <div class="research-title">
-                        <i class="fas fa-newspaper"></i>
-                        Stock Research
-                    </div>
-                    <div class="research-content" id="researchNews">
-                        <p class="news-empty">Search a stock above to see the latest news about it.</p>
-                    </div>
-                </div>
-
-                <!-- AI Assistant Section -->
-                <div class="ai-assistant tool-panel" data-tool="ai">
-                    <div class="ai-title">Assistant</div>
-                    <div class="ai-messages" id="aiMessages">
-                        <div class="ai-message assistant">
-                            Search a stock, then ask me anything — I'll answer using its live price, range, and latest headlines.
-                        </div>
-                    </div>
-                    <div class="ai-input">
-                        <input type="text" id="aiInput" placeholder="Ask me anything...">
-                        <button class="ai-send" onclick="sendAIMessage()">Send</button>
-                    </div>
-                </div>
-            </div>
-
             <!-- Center Panel - Chart & Trading -->
         <div class="center-panel">
             <div class="chart-header">
@@ -1610,23 +2090,13 @@
                             <div class="current-price-large" id="currentPriceLarge"></div>
                             <div class="price-change-large" id="priceChangeLarge"></div>
                         </div>
+                        <button type="button" class="tk-watch" id="watchBtn" hidden aria-pressed="false" title="Add to your watchlist">
+                            <svg viewBox="0 0 24 24"><path d="M12 3.2l2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-2.9-5.4 2.9 1.1-6-4.5-4.2 6.1-.8z"/></svg><span>Watch</span>
+                        </button>
                     </div>
                 </div>
             </div>
             
-            <!-- Tools bar: reveal extra panels only when asked -->
-            <div class="tools-bar" id="toolsBar">
-                <button class="tool-chip active" data-target="news" onclick="toggleTool('news', this)"><i class="fas fa-newspaper"></i> News</button>
-                <button class="tool-chip active" data-target="metrics" onclick="toggleTool('metrics', this)"><i class="fas fa-chart-bar"></i> Metrics</button>
-                <button class="tool-chip active" data-target="movers" onclick="toggleTool('movers', this)"><i class="fas fa-fire"></i> Movers</button>
-                <button class="tool-chip" data-target="rating" onclick="toggleTool('rating', this)"><svg width="11" height="11" viewBox="0 0 24 24" style="vertical-align:-1px;margin-right:4px;"><path fill="currentColor" d="M4 20h3v-8H4v8zm6.5 0h3V4h-3v16zM17 20h3v-6h-3v6z"/></svg>Rating</button>
-                <button class="tool-chip active" data-target="ai" onclick="toggleTool('ai', this)"><i class="fas fa-robot"></i> Assistant</button>
-                <label class="master-switch" title="Show or hide all panels">
-                    <span>All panels</span>
-                    <input type="checkbox" id="panelsMaster" checked onchange="toggleAllPanels(this.checked)">
-                    <span class="ms-track"><span class="ms-knob"></span></span>
-                </label>
-            </div>
 
             <div class="chart-controls">
                 <button class="chart-button active" data-period="1D">1D</button>
@@ -1680,13 +2150,50 @@
             
             <!-- Right Panel - Compact Layout -->
             <div class="right-panel">
-                <!-- Market News (top-right) -->
-                <a href="news.html" class="news-button">
-                    <i class="fas fa-newspaper"></i>
-                    View Market News
-                </a>
+                <!-- Rally sits where the assistant used to, and above Stock
+                     Research rather than below it. -->
+                <div class="rally-panel">
+                    <div class="rally-panel-head">Rally</div>
+                    <div class="rally-panel-body" id="rallySlot"></div>
+                </div>
 
-                <div class="tools-hint" id="toolsHint">Select to see more features</div>
+                <!-- Portfolio sits under Rally now: the left column held nothing
+                     else, and two columns fit a screen where three did not. -->
+                <div class="portfolio-section">
+                    <div class="portfolio-title">
+                        <i class="fas fa-briefcase"></i>
+                        Portfolio
+                    </div>
+                    <div class="portfolio-summary">
+                        <div class="pv-label">Total Value</div>
+                        <div class="portfolio-value" id="portfolioValue">—</div>
+                        <div class="pv-row"><span class="pv-sub">Liquidity</span><span class="pv-cash" id="portfolioCash">—</span></div>
+                        <div class="pv-row"><span class="pv-sub">Portfolio Change</span><span class="portfolio-change" id="portfolioChange">—</span></div>
+                    </div>
+                </div>
+
+
+                <!-- One tool at a time. The old page stacked five panels in
+                     two columns and let you toggle each independently, which
+                     made the screen a wall. These are radio buttons now: the
+                     bar picks one, and only that one is under him. -->
+                <div class="tool-switch" id="toolSwitch">
+                    <button class="ts-btn active" data-target="news"    onclick="showTool('news', this)">News</button>
+                    <button class="ts-btn"        data-target="metrics" onclick="showTool('metrics', this)">Stats</button>
+                    <button class="ts-btn"        data-target="movers"  onclick="showTool('movers', this)">Movers</button>
+                    <button class="ts-btn"        data-target="rating"  onclick="showTool('rating', this)">Rating</button>
+                </div>
+                <div class="tool-stack">
+                <!-- Stock Research Section -> relevant news -->
+                <div class="research-section tool-panel" data-tool="news">
+                    <div class="research-title">
+                        <i class="fas fa-newspaper"></i>
+                        Stock Research
+                    </div>
+                    <div class="research-content" id="researchNews">
+                        <p class="news-empty">Search a stock above to see the latest news about it.</p>
+                    </div>
+                </div>
                 <!-- Market Movers Section -->
                 <div class="market-movers tool-panel" data-tool="movers">
                     <div class="movers-title">
@@ -1808,6 +2315,13 @@
                 </div>
 
 
+                </div>
+                <!-- Market News (top-right) -->
+                <a href="news.html" class="news-button">
+                    <i class="fas fa-newspaper"></i>
+                    View Market News
+                </a>
+
             </div>
         </div>
     </div>
@@ -1850,8 +2364,11 @@
             setInterval(() => { try { updatePortfolioDisplay(); } catch (e) {} }, 60000);
 
             // If arriving with ?symbol=XYZ (e.g. from the watchlist), open it.
-            const preSym = new URLSearchParams(location.search).get('symbol');
-            if (preSym && typeof selectSymbol === 'function') selectSymbol(preSym.toUpperCase());
+            // Otherwise reopen the last stock you looked at, so the screen
+            // never starts as an empty chart box.
+            let preSym = new URLSearchParams(location.search).get('symbol');
+            if (!preSym) { try { preSym = localStorage.getItem('ftLastSymbol'); } catch (e) {} }
+            if (typeof selectSymbol === 'function') selectSymbol((preSym || 'NVDA').toUpperCase());
         });
 
         // Research Tab Functions
@@ -1945,7 +2462,6 @@
             const buyButton = document.getElementById('buyButton');
             const sellButton = document.getElementById('sellButton');
             const chartButtons = document.querySelectorAll('.chart-button');
-            const aiInput = document.getElementById('aiInput');
 
             // Symbol search
             symbolSearch.addEventListener('input', debounce(handleSymbolSearch, 300));
@@ -1971,11 +2487,6 @@
             });
 
             // AI input
-            aiInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendAIMessage();
-                }
-            });
         }
 
         // Symbol search
@@ -2064,6 +2575,7 @@
 
         // Select symbol
         async function selectSymbol(symbol) {
+            try { if (symbol) localStorage.setItem('ftLastSymbol', String(symbol).toUpperCase()); } catch (e) {}
             currentSymbol = symbol;
             
             // Update UI
@@ -2099,7 +2611,7 @@
                 updateGauge(stockData);
                 updateTradingForm(stockData);
                 updateStockMetrics(stockData);
-                loadChart(symbol, '1M');
+                loadChart(symbol);
                 addToWatchlist(stockData);
             } catch (error) {
                 console.error('Failed to load stock data:', error);
@@ -2108,7 +2620,7 @@
                 updateGauge(mockData);
                 updateTradingForm(mockData);
                 updateStockMetrics(mockData);
-                loadChart(symbol, '1M');
+                loadChart(symbol);
                 addToWatchlist(mockData);
             }
         }
@@ -2129,25 +2641,26 @@
             h.style.display = anyOpen ? 'none' : '';
         }
         const hideToolsHint = refreshToolsHint;
-        function toggleTool(tool, btn) {
-            const panels = document.querySelectorAll('.tool-panel[data-tool="' + tool + '"]');
-            if (!panels.length) return;
-            const willOpen = panels[0].hidden;
-            panels.forEach(p => p.hidden = !willOpen);
-            const chip = btn || document.querySelector('.tool-chip[data-target="' + tool + '"]');
-            if (chip) chip.classList.toggle('active', willOpen);
-            refreshToolsHint();
+        /* One panel at a time. `toggleTool`/`toggleAllPanels` are kept as
+           thin shims because a few older call sites still reach for them. */
+        const TOOL_KEY = 'ftTradingTool';
+        function showTool(tool, btn) {
+            document.querySelectorAll('.tool-stack .tool-panel').forEach(p => {
+                p.hidden = p.dataset.tool !== tool;
+            });
+            document.querySelectorAll('.ts-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.target === tool);
+            });
+            try { localStorage.setItem(TOOL_KEY, tool); } catch (e) {}
+            if (window.FTJuice) FTJuice.sfx.tap();
         }
-        function toggleAllPanels(on) {
-            document.querySelectorAll(".tool-panel").forEach(p => p.hidden = !on);
-            document.querySelectorAll(".tool-chip").forEach(c => c.classList.toggle("active", on));
-            refreshToolsHint();
+        function currentTool() {
+            try { return localStorage.getItem(TOOL_KEY) || 'news'; } catch (e) { return 'news'; }
         }
-        function openTool(tool) {
-            document.querySelectorAll('.tool-panel[data-tool="' + tool + '"]').forEach(p => p.hidden = false);
-            const chip = document.querySelector('.tool-chip[data-target="' + tool + '"]');
-            if (chip) chip.classList.add('active');
-        }
+        function openTool(tool) { showTool(tool); }
+        function toggleTool(tool) { showTool(tool); }
+        function toggleAllPanels() { /* every panel is always one click away now */ }
+        function refreshToolsHint() {}
 
         // Real Yahoo Finance analyst consensus (via our market-data function).
         async function updateGauge(stockData) {
@@ -2189,7 +2702,11 @@
                     word.style.color = m[1];
                     const marker = document.getElementById("ratingMarker");
                     if (marker) {
-                        marker.style.left = m[2] + "%";
+                        /* Box travel, not centre travel: 0% puts the marker's
+                           left edge on the track's left edge, 100% puts its
+                           right edge on the right. Adding the radius as well
+                           pushed it a half-marker past the end. */
+                        marker.style.left = "calc((100% - 14px) * " + (m[2] / 100) + ")";
                         marker.style.background = m[1];
                         marker.style.boxShadow = "0 0 10px " + m[1] + "66, 0 0 0 1.5px " + m[1];
                         marker.classList.add("on");
@@ -2332,22 +2849,42 @@
         }
 
         // Load chart
-        async function loadChart(symbol, period = '1M') {
+        /* The period buttons ship with 1D marked active, but every caller
+           asked for '1M' — so a fresh search drew a month of candles under a
+           highlighted "1D" tab. Read the active button instead of guessing,
+           and keep the two in step. */
+        function activePeriod() {
+            const b = document.querySelector('.chart-button.active[data-period]');
+            return (b && b.dataset.period) || '1D';
+        }
+        function setActivePeriod(period) {
+            document.querySelectorAll('.chart-button[data-period]').forEach(b => {
+                b.classList.toggle('active', b.dataset.period === period);
+            });
+        }
+
+        async function loadChart(symbol, period) {
+            period = period || activePeriod();
+            setActivePeriod(period);
             const chartContainer = document.getElementById('chart');
             chartContainer.innerHTML = '<div class="loading"><div class="spinner"></div>Loading chart...</div>';
-            
+
             try {
                 const data = await stockDataService.getHistoricalData(symbol, period);
-                createChart(data);
+                /* getHistoricalData falls back to *generated* prices when the
+                   feed fails and only tags the genuine ones. Drawing those
+                   unlabelled put invented candles on screen next to a real
+                   quote — say so instead. */
+                createChart(data, !data._real);
             } catch (error) {
                 console.error('Failed to load chart data:', error);
-                const mockData = stockDataService.getMockHistoricalData(symbol);
-                createChart(mockData);
+                chartContainer.innerHTML =
+                    '<div class="chart-empty">Chart data unavailable for this symbol right now.</div>';
             }
         }
 
         // Create chart
-        function createChart(data) {
+        function createChart(data, simulated) {
             const chartContainer = document.getElementById('chart');
             chartContainer.innerHTML = '';
             
@@ -2356,8 +2893,7 @@
             }
             
             chart = LightweightCharts.createChart(chartContainer, {
-                width: chartContainer.clientWidth,
-                height: chartContainer.clientHeight,
+                autoSize: true,
                 layout: {
                     background: { type: 'solid', color: 'transparent' },
                     textColor: '#B7ADA1',
@@ -2379,6 +2915,12 @@
             });
 
             window.__lastChartData = data;
+            if (simulated) {
+                const tag = document.createElement('div');
+                tag.className = 'chart-sim';
+                tag.textContent = 'Simulated — live data unavailable';
+                chartContainer.appendChild(tag);
+            }
             let series;
             if (window.chartMode === 'candles') {
                 series = chart.addCandlestickSeries({
@@ -2398,14 +2940,6 @@
                 });
                 series.setData(data.map(d => ({ time: d.time, value: d.close != null ? d.close : d.value })));
             }
-            
-            // Handle resize
-            window.addEventListener('resize', () => {
-                chart.applyOptions({
-                    width: chartContainer.clientWidth,
-                    height: chartContainer.clientHeight,
-                });
-            });
         }
 
         // Execute trade
@@ -2480,6 +3014,8 @@
             // Persist: Supabase when logged in (with local mirror), plus trade log
             localStorage.setItem('portfolioData', JSON.stringify(portfolioData));
             await SL.savePortfolio(portfolio);
+            // the dashboard's "make a trade" quest reads this; set only on a trade that went through
+            try { localStorage.setItem('ftQuestTrade', (function(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');})(new Date())); } catch (e) {}
             await SL.logTrade(currentSymbol, action, shares, currentPrice);
             updatePortfolioDisplay();
             document.getElementById('sharesInput').value = '';
@@ -2493,82 +3029,9 @@
         }
 
         // AI Assistant Functions
-        function sendAIMessage() {
-            const aiInput = document.getElementById('aiInput');
-            const message = aiInput.value.trim();
-            
-            if (!message) return;
 
-            // Add user message
-            addAIMessage(message, 'user');
-            aiInput.value = '';
 
-            // Generate AI response
-            setTimeout(() => {
-                const response = generateAIResponse(message);
-                addAIMessage(response, 'assistant');
-            }, 1000);
-        }
 
-        function quickQuestion(type) {
-            const questions = {
-                'analyze': 'Can you analyze the current stock market trends?',
-                'risk': 'What are the current market risks I should be aware of?',
-                'trend': 'What are the top trending sectors right now?',
-                'buy': 'What stocks look good for buying right now?',
-                'sell': 'Are there any stocks I should consider selling?',
-                'news': 'What\'s the latest market news affecting stocks?'
-            };
-
-            const question = questions[type];
-            addAIMessage(question, 'user');
-            
-            setTimeout(() => {
-                const response = generateAIResponse(type);
-                addAIMessage(response, 'assistant');
-            }, 1000);
-        }
-
-        function addAIMessage(message, sender) {
-            const aiMessages = document.getElementById('aiMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `ai-message ${sender}`;
-            messageDiv.textContent = message;
-            aiMessages.appendChild(messageDiv);
-            aiMessages.scrollTop = aiMessages.scrollHeight;
-        }
-
-        function generateAIResponse(userMessage) {
-            const q = window.lastQuote;
-            const news = window.lastNews || [];
-            const m = userMessage.toLowerCase();
-            if (!currentSymbol || !q) {
-                return "Search a stock first (top of the chart) and I will research it for you — live price, momentum, 52-week range, and the latest headlines.";
-            }
-            const pct = Number(q.changePercent || 0);
-            const hi = Number(q.high52w || 0), lo = Number(q.low52w || 0), price = Number(q.price || 0);
-            const pos52 = (hi > lo && price) ? Math.round(((price - lo) / (hi - lo)) * 100) : null;
-            const dir = pct >= 0 ? "up" : "down";
-            const headline = news[0] ? ("Latest headline: “" + news[0].title + "” (" + (news[0].source || "news") + ").") : "No fresh headlines right now - open the News panel for more.";
-
-            if (m.includes("risk")) {
-                return currentSymbol + " risk check: it moved " + Math.abs(pct).toFixed(2) + "% today" +
-                    (pos52 != null ? " and sits at " + pos52 + "% of its 52-week range" : "") +
-                    (pos52 != null && pos52 > 85 ? " — near highs, so a pullback would not be unusual." :
-                     pos52 != null && pos52 < 15 ? " — near lows, which can mean value or a falling knife. Size positions so one name cannot hurt you." :
-                     ". Keep any single position a small share of your portfolio.");
-            }
-            if (m.includes("buy") || m.includes("sell") || m.includes("should i")) {
-                return "I will not call buys or sells for you, but here is the picture for " + currentSymbol + ": $" + price.toFixed(2) +
-                    ", " + dir + " " + Math.abs(pct).toFixed(2) + "% today" +
-                    (pos52 != null ? ", " + pos52 + "% of its 52-week range" : "") + ". " + headline +
-                    " Check the rating dial and metrics on the right, then decide with your own plan.";
-            }
-            if (m.includes("news")) return headline + (news[1] ? " Also: \u201C" + news[1].title + "\u201D." : "");
-            // default: full mini research brief
-            return currentSymbol + " research brief — Price $" + price.toFixed(2) + " (" + (pct >= 0 ? "+" : "") + pct.toFixed(2) + "% today)" +
-                (pos52 != null ? " · " + pos52 + "% of 52-week range ($" + lo.toFixed(2) + "–$" + hi.toFixed(2) + ")" : "") + ". " + headline;
-        }
 
         // Market Status Functions
         function updateMarketStatus() {
@@ -2614,11 +3077,17 @@
             if (!portfolio) portfolio = { cash: 10000, stocks: {} };
         }
 
+        function money(n) {
+            const v = Number(n) || 0;
+            const [d, c] = Math.abs(v).toFixed(2).split('.');
+            return (v < 0 ? '\u2212' : '') + '$' + Number(d).toLocaleString() +
+                   '<span class="tv-cents">.' + c + '</span>';
+        }
+
         // Update portfolio display
         async function updatePortfolioDisplay() {
             const portfolioValue = document.getElementById('portfolioValue');
             const portfolioChange = document.getElementById('portfolioChange');
-            const portfolioPositions = document.getElementById('portfolioPositions');
 
             /* Real per-symbol prices — never approximate with the selected stock.
 
@@ -2666,55 +3135,22 @@
             const change = totalValue - 10000;
             const changePercent = (change / 10000) * 100;
 
-            portfolioValue.textContent = `$${totalValue.toFixed(2)}`;
+            /* "$10000.00" is not a number anyone reads at a glance. Grouped,
+               with the cents held back a size, the way the portfolio page
+               writes the same figure. */
+            portfolioValue.innerHTML = money(totalValue);
             const cashEl = document.getElementById('portfolioCash');
-            if (cashEl) cashEl.textContent = `$${Number(portfolio.cash).toFixed(2)}`;
+            if (cashEl) cashEl.innerHTML = money(portfolio.cash);
             portfolioChange.textContent = `${change >= 0 ? '+' : ''}${changePercent.toFixed(2)}%`;
             portfolioChange.className = `portfolio-change ${change >= 0 ? 'positive' : 'negative'}`;
 
-            // Update positions
-            const positions = Object.values(portfolio.stocks);
-            if (positions.length === 0) {
-                portfolioPositions.innerHTML = '<div class="loading">No positions yet</div>';
-            } else {
-                portfolioPositions.innerHTML = positions.map(stock => {
-                    const value = stock.shares * liveOf(stock);
-                    return `
-                        <div class="position-item">
-                            <div class="position-symbol">${window.logoHtml ? window.logoHtml(stock.symbol, stock.sector, 'sm') : ''}<span>${stock.symbol}</span></div>
-                            <div class="position-details">
-                                <div class="position-shares">${stock.shares} shares</div>
-                                <div class="position-value">$${value.toFixed(2)}</div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-            // Render top holdings
-            const topHoldingsDiv = document.getElementById('topHoldings');
-            if (positions.length > 0) {
-                /* Each holding is priced with its OWN quote via liveOf(). This
-                   used to multiply every position by `currentPrice` — the price
-                   of whatever symbol happened to be selected in the terminal.
-                   With nothing selected that's 0, so the whole list read
-                   "$0.00"; with something selected, every holding was priced as
-                   if it were that stock. The sort was wrong for the same
-                   reason: a shared multiplier just sorts by share count. */
-                const valueOf = s => s.shares * liveOf(s);
-                const sorted = positions.slice().sort((a, b) => valueOf(b) - valueOf(a));
-                topHoldingsDiv.innerHTML = '<div class="top-holdings-title">Top Holdings</div>' +
-                    '<div class="top-holdings-list">' +
-                    sorted.slice(0, 3).map(stock =>
-                        `<div class="top-holding-item"><span class="th-name">${window.logoHtml ? window.logoHtml(stock.symbol, stock.sector, 'sm') : ''}${stock.symbol}</span><span>$${valueOf(stock).toFixed(2)}</span></div>`
-                    ).join('') + '</div>';
-            } else {
-                topHoldingsDiv.innerHTML = '';
-            }
         }
 
         // Add to watchlist
         function addToWatchlist(stockData) {
-            const watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
+            // recently viewed, NOT the watchlist: viewing a stock is not a
+            // decision to watch it (the Watch button is)
+            const watchlist = JSON.parse(localStorage.getItem('ftRecentViewed')) || [];
             const existingIndex = watchlist.findIndex(item => item.symbol === stockData.symbol);
             
             if (existingIndex === -1) {
@@ -2724,7 +3160,7 @@
                     price: stockData.price,
                     change: stockData.changePercent
                 });
-                localStorage.setItem('watchlist', JSON.stringify(watchlist));
+                localStorage.setItem('ftRecentViewed', JSON.stringify(watchlist.slice(-30)));
             }
         }
 
@@ -2747,6 +3183,429 @@
             document.querySelectorAll('.metrics-tab').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
         }
+
+        /* ── Rally ────────────────────────────────────────────────
+           He replaced the assistant. The old one answered from a pile
+           of if/else string templates about the current quote; his
+           knowledge base is shared with the rest of the app, so the
+           answers are the same wherever you ask them. The context
+           closure below is what lets "how am I doing" quote a real
+           number off the portfolio this page already loaded. */
+        (function () {
+            const slot = document.getElementById('rallySlot');
+            if (!slot || !window.FTRallyWidget) return;
+
+            const rally = FTRallyWidget.mount({
+                el: slot,
+                freeBubble: false,
+                greet: [
+                    "Search a symbol and I'll talk you through it.",
+                    "Real prices, fake money. Ask me anything.",
+                    "Anything on this page you want explaining, just ask.",
+                ],
+                firstDelay: 14000,
+                every: 24000,
+                /* ── Play 04: he notices one thing ──────────────────────────
+                   Rally opens on today's biggest mover in the book instead of a
+                   statistic about day traders. The widget only speaks if the move
+                   is 2% or more, and only on a quote it can call today's — a
+                   stale row comes back as null rather than as a wrong number. */
+                observe: async function () {
+                    try {
+                        const syms = (portfolio && portfolio.stocks
+                            ? Object.keys(portfolio.stocks) : []);
+                        if (!syms.length || !window.SL || !SL.getLiveQuotes) return null;
+                        const q = await SL.getLiveQuotes(syms.slice(0, 40));
+                        let top = null;
+                        syms.forEach(function (s) {
+                            const r = q[s];
+                            if (!r || r.price == null || r.stale === true) return;
+                            const pct = Number(r.change_pct);
+                            if (!isFinite(pct)) return;
+                            if (!top || Math.abs(pct) > Math.abs(top.change_pct)) {
+                                top = { symbol: s, change_pct: pct };
+                            }
+                        });
+                        return top;
+                    } catch (e) { return null; }
+                },
+                context: function () {
+                    const held = portfolio && portfolio.stocks
+                        ? Object.values(portfolio.stocks) : [];
+                    const cash = portfolio ? Number(portfolio.cash) || 0 : null;
+                    let invested = 0;
+                    held.forEach(function (h) {
+                        const live = window.lastQuote && window.lastQuote.symbol === h.symbol
+                            ? Number(window.lastQuote.price) : null;
+                        const px = (live && isFinite(live)) ? live : Number(h.avgPrice) || 0;
+                        invested += px * (Number(h.shares) || 0);
+                    });
+                    return {
+                        start: 10000,
+                        cash: cash,
+                        total: cash == null ? null : cash + invested,
+                        pnl: cash == null ? null : (cash + invested) - 10000,
+                        positions: held.length,
+                        symbols: held.map(function (h) { return h.symbol; }),
+                        symbol: currentSymbol,
+                    };
+                },
+            });
+
+            /* His lines go in a fixed strip along the foot of the portfolio
+               card instead of a floating bubble: on this screen every side
+               of him is a number you are reading, so anything that floats
+               covers one. The strip is always there, so nothing shifts
+               when he speaks. */
+            try {
+                const card = slot.closest('.right-panel') && slot.closest('.right-panel').querySelector('.portfolio-section');
+                const b = slot.querySelector('.bull-bubble') || document.querySelector('.bull-bubble');
+                if (card && b) {
+                    const line = document.createElement('div');
+                    line.className = 'rally-line';
+                    line.innerHTML = '<span class="rally-line-tag">Rally</span>';
+                    line.appendChild(b);
+                    card.appendChild(line);
+                }
+            } catch (e) {}
+
+            /* When a symbol lands he says something about it once — the
+               page already has the quote, so this costs nothing. */
+            let saidFor = null;
+            setInterval(function () {
+                if (!rally || !currentSymbol || currentSymbol === saidFor) return;
+                const q = window.lastQuote;
+                if (!q || q.symbol !== currentSymbol) return;
+                saidFor = currentSymbol;
+                rally.poke();
+                const pct = Number(q.changePercent || 0);
+                const dir = pct >= 0 ? 'up ' : 'down ';
+                rally.setState(pct >= 0 ? 'happy' : 'worry');
+                rally.say(currentSymbol + ', ' + dir + Math.abs(pct).toFixed(2) +
+                          '% today. Ask me what any of it means.', { ms: 4200 });
+            }, 1200);
+        })();
+
+        // restore the panel the user last had open
+        (function () {
+            try {
+                showTool(currentTool());
+                // whatever the old master switch left behind, Rally stays put
+                const r = document.querySelector('.rally-panel');
+                if (r) r.hidden = false;
+            } catch (e) {}
+        })();
     </script>
+<script>
+/* The chart box sat empty and unlabelled before a symbol was chosen, which
+   read as something failing to load. It says what to do instead, and stops
+   as soon as there is a series in it. */
+(function () {
+    const box = document.querySelector('.chart-container');
+    if (!box) return;
+    const sync = () => {
+        const hasSeries = !!(window.tvChart || window.chartSeries ||
+                             box.querySelector('canvas, svg, table'));
+        box.dataset.empty = hasSeries ? '0' : '1';
+    };
+    sync();
+    new MutationObserver(sync).observe(box, { childList: true, subtree: true });
+    setInterval(sync, 1000);
+})();
+</script>
+<script>
+/* ============================================================
+ *  THE RAIL, made to feel like something.
+ *
+ *  Three things, none of which touch the renderers above:
+ *    1. the tab strip gets a pill that slides to the active tab
+ *    2. a metric value that changes lands with a small pop, so a
+ *       number arriving is something you notice
+ *    3. every panel gets a designed resting state instead of a row
+ *       of "--" or the words "Live movers unavailable"
+ *
+ *  The resting states are toggled by watching the panels rather
+ *  than by editing the code that fills them: the renderers keep
+ *  writing exactly what they wrote before, and this hides or shows
+ *  the real content around them. Nothing here invents a number.
+ * ============================================================ */
+(function () {
+    'use strict';
+    const $ = s => document.querySelector(s);
+
+    /* ── 1. the sliding pill ─────────────────────────────────── */
+    const strip = $('#toolSwitch');
+    function slide(animate) {
+        if (!strip) return;
+        const on = strip.querySelector('.ts-btn.active');
+        if (!on) return;
+        if (!animate) strip.classList.add('no-anim');
+        strip.style.setProperty('--ts-x', (on.offsetLeft - strip.clientLeft) + 'px');
+        strip.style.setProperty('--ts-w', on.offsetWidth + 'px');
+        if (!animate) requestAnimationFrame(() => strip.classList.remove('no-anim'));
+    }
+    if (strip) {
+        strip.addEventListener('click', () => requestAnimationFrame(() => slide(true)));
+        // watching the class is what catches showTool() called in code, which a
+        // click listener alone misses — the pill used to stay behind then
+        new MutationObserver(() => slide(true)).observe(strip, {
+            subtree: true, attributes: true, attributeFilter: ['class'],
+        });
+        addEventListener('resize', () => slide(false));
+        // the active tab is restored from storage after this script runs
+        slide(false);
+        setTimeout(() => slide(false), 60);
+        setTimeout(() => slide(false), 400);
+        if (window.ResizeObserver) new ResizeObserver(() => slide(false)).observe(strip);
+    }
+
+    /* ── 2. numbers that land ────────────────────────────────── */
+    const seen = new WeakMap();
+    function popChanged() {
+        document.querySelectorAll('.metrics-section .metric-value').forEach(el => {
+            const now = el.textContent.trim();
+            const was = seen.get(el);
+            seen.set(el, now);
+            if (was === undefined || was === now) return;
+            if (!now || now === '--') return;          // going blank is not an arrival
+            el.classList.remove('just-in');
+            void el.offsetWidth;
+            el.classList.add('just-in');
+        });
+    }
+
+    /* ── 3. the resting states ───────────────────────────────── */
+    function empty(icon, text, hint) {
+        const d = document.createElement('div');
+        d.className = 'tool-empty';
+        d.innerHTML = '<span class="te-ring"><i class="fas ' + icon + '"></i></span>' +
+                      '<span class="te-text"></span>' +
+                      (hint ? '<span class="te-hint"></span>' : '');
+        d.querySelector('.te-text').textContent = text;
+        if (hint) d.querySelector('.te-hint').innerHTML = hint;
+        return d;
+    }
+
+    // each entry: where to put the resting state, what it says, and how to
+    // tell whether the panel currently has anything real in it
+    const SLOTS = [];
+    function slot(panelSel, contentSel, icon, text, hint, isIdle) {
+        const panel = $(panelSel), content = $(contentSel);
+        if (!panel || !content) return;
+        const node = empty(icon, text, hint);
+        node.hidden = true;
+        content.parentNode.insertBefore(node, content);
+        SLOTS.push({ content, node, isIdle, panel });
+    }
+
+    slot('.research-section', '#researchNews', 'fa-newspaper',
+         'News lands here once you pick a stock.',
+         'Try <kbd>AAPL</kbd> in the search above',
+         () => !!$('#researchNews .news-empty') || !$('#researchNews').textContent.trim());
+
+    slot('.metrics-section', '#metricsContent', 'fa-chart-simple',
+         'The fundamentals show up with a symbol.',
+         'Market cap, P/E, volume, 52-week range',
+         () => {
+             const v = [...document.querySelectorAll('#metricsContent .metric-value')];
+             return !v.length || v.every(e => { const t = e.textContent.trim(); return !t || t === '--'; });
+         });
+
+    slot('.market-movers', '#moversList', 'fa-fire',
+         "Today's biggest moves, once the market data is in.",
+         'Updates while the market is open',
+         () => {
+             const l = $('#moversList');
+             return !l.querySelector('.mover-item') || /unavailable/i.test(l.textContent);
+         });
+
+    const ratingPanel = $('#ratingPanel');
+    if (ratingPanel) {
+        const node = empty('fa-gauge-high', 'Wall Street’s call on a stock.',
+                           'Pick a symbol to see the consensus');
+        node.hidden = true;
+        ratingPanel.appendChild(node);
+        SLOTS.push({
+            content: null, node, panel: ratingPanel,
+            parts: [...ratingPanel.querySelectorAll('.rating-top, .rating-scale, .rating-sub')],
+            isIdle: () => {
+                const w = $('#ratingWord');
+                const t = w ? w.textContent.trim() : '';
+                return !t || t === '—' || t === '-';
+            },
+        });
+    }
+
+    function sync() {
+        SLOTS.forEach(s => {
+            let idle;
+            try { idle = !!s.isIdle(); } catch (e) { idle = false; }
+            s.node.hidden = !idle;
+            if (s.content) s.content.hidden = idle;
+            if (s.parts) s.parts.forEach(p => { p.style.display = idle ? 'none' : ''; });
+        });
+        popChanged();
+    }
+
+    const rail = document.querySelector('.right-panel') || document.body;
+    new MutationObserver(sync).observe(rail, { childList: true, subtree: true, characterData: true });
+    sync();
+    setTimeout(sync, 500);
+})();
+</script>
+<script>
+/* ── the ticket: one row, and buttons that say what they will do ── */
+(function () {
+    const form = document.querySelector('.trading-form');
+    const shares = document.getElementById('sharesInput');
+    const total = document.getElementById('totalInput');
+    const buy = document.getElementById('buyButton');
+    const sell = document.getElementById('sellButton');
+    if (!form || !shares || !total || !buy || !sell) return;
+
+    const groupOf = el => el.closest('.form-group');
+    const gShares = groupOf(shares), gTotal = groupOf(total), gPrice = groupOf(document.getElementById('priceInput'));
+    if (gPrice) gPrice.classList.add('tk-price');
+
+    // stepper around the shares box
+    const step = document.createElement('div');
+    step.className = 'tk-stepper';
+    const minus = document.createElement('button'); minus.type = 'button'; minus.textContent = '−'; minus.setAttribute('aria-label', 'One fewer share');
+    const plus = document.createElement('button'); plus.type = 'button'; plus.textContent = '+'; plus.setAttribute('aria-label', 'One more share');
+    shares.parentNode.insertBefore(step, shares);
+    step.append(minus, shares, plus);
+
+    // the value goes through the input event, so the page's own total/enable logic runs
+    const setShares = n => {
+        shares.value = n > 0 ? String(n) : '';
+        shares.dispatchEvent(new Event('input', { bubbles: true }));
+        paint();
+    };
+    const cur = () => parseInt(shares.value, 10) || 0;
+    minus.onclick = () => setShares(Math.max(0, cur() - 1));
+    plus.onclick = () => setShares(cur() + 1);
+
+    // quick picks
+    const chips = document.createElement('div');
+    chips.className = 'tk-chips';
+    [1, 5, 10].forEach(n => {
+        const c = document.createElement('button');
+        c.type = 'button'; c.className = 'tk-chip'; c.textContent = n;
+        c.onclick = () => setShares(n);
+        chips.appendChild(c);
+    });
+    const max = document.createElement('button');
+    max.type = 'button'; max.className = 'tk-chip'; max.textContent = 'Max';
+    max.title = 'As many as your cash covers';
+    max.onclick = () => {
+        let px = 0, cash = 0;
+        try { px = Number(currentPrice) || 0; cash = Number(portfolio.cash) || 0; } catch (e) {}
+        if (px > 0) setShares(Math.floor(cash / px));
+    };
+    chips.appendChild(max);
+
+    // lay out the one row: shares, picks, total
+    const row = document.createElement('div');
+    row.className = 'tk-row';
+    form.insertBefore(row, form.querySelector('.trade-buttons'));
+    if (gShares) row.appendChild(gShares);
+    row.appendChild(chips);
+    if (gTotal) {
+        gTotal.classList.add('tk-total'); row.appendChild(gTotal);
+        const l = gTotal.querySelector('.form-label'); if (l) l.textContent = 'Est. total';
+        const wrap = document.createElement('span'); wrap.className = 'tk-cur';
+        total.parentNode.insertBefore(wrap, total); wrap.appendChild(total);
+        total.style.width = '130px';
+    }
+
+    // buttons that say what they will do
+    [buy, sell].forEach(b => {
+        const main = document.createElement('span'); main.className = 'tb-main';
+        const sub = document.createElement('span'); sub.className = 'tb-sub';
+        [...b.childNodes].forEach(n => { if (n.nodeType === 3) n.remove(); });
+        b.append(main, sub);
+    });
+    function paint() {
+        let sym = '', px = 0;
+        try { sym = currentSymbol || ''; px = Number(currentPrice) || 0; } catch (e) {}
+        const n = cur();
+        const money = v => '$' + v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const say = (b, verb) => {
+            b.querySelector('.tb-main').textContent = verb + (n && sym ? ' ' + n + ' ' + sym : '');
+            b.querySelector('.tb-sub').textContent = !sym || !n ? '' : money(n * px);
+        };
+        say(buy, 'Buy'); say(sell, 'Sell');
+    }
+    shares.addEventListener('input', paint);
+    setInterval(paint, 500);          // the symbol and price change from the search, outside this code
+    paint();
+})();
+
+/* ── Rally, inside the portfolio card ───────────────────────────── */
+(function () {
+    const slot = document.getElementById('rallySlot');
+    const card = document.querySelector('.portfolio-section');
+    if (!slot || !card) return;
+    slot.classList.add('tk-rally');
+    card.appendChild(slot);
+})();
+</script>
+<script>
+/* two tabs, not four: the rating gauge moves into the stats panel, and a
+   saved choice of a tab that no longer exists falls back to News */
+(function () {
+    const rating = document.getElementById('ratingPanel');
+    const stats = document.querySelector('.tool-panel[data-tool="metrics"]');
+    if (rating && stats) {
+        rating.hidden = false;
+        rating.removeAttribute('data-tool');       // no longer a tab of its own
+        rating.classList.remove('tool-panel');
+        stats.appendChild(rating);
+    }
+    try {
+        const k = 'ftTradingTool', v = localStorage.getItem(k);
+        if (v === 'movers' || v === 'rating') { localStorage.setItem(k, 'news'); if (window.showTool) showTool('news'); }
+    } catch (e) {}
+})();
+</script>
+
+<script>
+/* the Watch button follows whichever stock is on screen */
+(function () {
+    const btn = document.getElementById('watchBtn');
+    if (!btn) return;
+    let list = [];
+    async function refresh() {
+        try { list = (await SL.getWatchlist()) || []; } catch (e) { list = []; }
+        paint();
+    }
+    function paint() {
+        const sym = window.currentSymbol || (document.getElementById('symbolTitle') || {}).textContent;
+        if (!sym) { btn.hidden = true; return; }
+        btn.hidden = false;
+        const on = list.includes(sym);
+        btn.classList.toggle('on', on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        btn.querySelector('span').textContent = on ? 'Watching' : 'Watch';
+        btn.title = on ? 'On your watchlist. Click to remove.' : 'Add to your watchlist';
+    }
+    btn.addEventListener('click', async () => {
+        const sym = window.currentSymbol || document.getElementById('symbolTitle').textContent;
+        if (!sym) return;
+        const on = list.includes(sym);
+        btn.disabled = true;
+        try {
+            if (on) { await SL.removeFromWatchlist(sym); list = list.filter(s => s !== sym); }
+            else { await SL.addToWatchlist(sym); list.push(sym); }
+            if (window.FT) FT.success(on ? sym + ' removed from your watchlist' : sym + ' added to your watchlist');
+        } catch (e) {}
+        btn.disabled = false;
+        paint();
+    });
+    new MutationObserver(paint).observe(document.getElementById('symbolTitle'), { childList: true, characterData: true, subtree: true });
+    refresh();
+})();
+</script>
+<script src="js/ft-tour.js?v=3"></script>
 </body>
 </html> 

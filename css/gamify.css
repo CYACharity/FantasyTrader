@@ -1,0 +1,288 @@
+/* ============================================================
+ *  FT GAMIFY — module styling
+ *  Loaded after the module's own CSS so it can override the
+ *  typography without editing 60 files.
+ * ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&display=swap');
+
+/* ── Typography ──────────────────────────────────────────────
+   Lora out. It's one of the most-used serifs on the web and it
+   made every module read like stock content. Literata is Google
+   Books' screen-reading face — sturdier, better at 1,800 words.
+   Headings take the same grotesque as the landing page. */
+.article-title,
+.article h2,
+.article h3,
+.article h4,
+.quiz-subtitle,
+.callout-label {
+    font-family: 'Inter', system-ui, sans-serif !important;
+    letter-spacing: -0.015em;
+}
+.article-title { font-weight: 700 !important; }
+.article h2 { font-weight: 700 !important; }
+.article h3 { font-weight: 600 !important; }
+
+.article p,
+.article li,
+.article-subtitle,
+.figure-caption,
+.callout p {
+    font-family: 'Literata', Georgia, serif !important;
+}
+.article p { line-height: 1.75; }
+
+/* ── HUD ─────────────────────────────────────────────────────
+   Sticks to the top so XP and streak are always in view. The
+   module's own .reading-progress bar is hidden; this replaces it. */
+.reading-progress { display: none !important; }
+
+.ftg-hud {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9000;
+    background: rgba(16, 13, 11, 0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(236, 226, 214, 0.08);
+    padding: 0;
+}
+.ftg-hud-bar { height: 3px; background: rgba(236, 226, 214, 0.07); }
+.ftg-hud-bar i {
+    display: block; height: 100%; width: 0%;
+    background: linear-gradient(90deg, #5CB88A, #E0A24C);
+    transition: width 0.15s linear;
+}
+.ftg-hud-row {
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    padding: 0.42rem 1rem;
+}
+.ftg-chip {
+    font: 700 0.72rem 'Inter', sans-serif;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.55);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px; padding: 0.28rem 0.72rem;
+}
+.ftg-chip b { color: #F4EEE6; }
+.ftg-xp b { color: #5CB88A; }
+.ftg-streak.hot {
+    border-color: rgba(224, 162, 76, 0.5);
+    background: rgba(224, 162, 76, 0.12);
+}
+.ftg-streak.hot b { color: #E0A24C; }
+
+/* push the page down so the HUD never covers the title */
+body { padding-top: 44px; }
+
+/* ── Checkpoints ─────────────────────────────────────────────
+   A question dropped into the flow of the article, styled like a
+   card you have to clear rather than a form at the bottom. */
+.ftg-checkpoint {
+    margin: 2.4rem 0;
+    padding: 1.2rem 1.3rem 1.3rem;
+    background: linear-gradient(160deg, rgba(36, 31, 27, 0.92), rgba(14, 18, 24, 0.95));
+    border: 1px solid rgba(92, 184, 138, 0.22);
+    border-left: 3px solid #5CB88A;
+    border-radius: 14px;
+    position: relative;
+}
+.ftg-checkpoint.cleared {
+    border-color: rgba(92, 184, 138, 0.5);
+    box-shadow: 0 0 0 1px rgba(92, 184, 138, 0.12);
+}
+.ftg-cp-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+.ftg-cp-tag {
+    font: 700 0.62rem 'Inter', sans-serif;
+    letter-spacing: 0.16em; text-transform: uppercase; color: #5CB88A;
+}
+.ftg-cp-xp {
+    font: 700 0.62rem 'Inter', sans-serif;
+    letter-spacing: 0.08em; color: rgba(224, 162, 76, 0.85);
+}
+.ftg-checkpoint .quiz-q { margin: 0 !important; }
+.ftg-checkpoint .quiz-q > p {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 600; font-size: 1rem; margin-bottom: 0.7rem;
+}
+
+/* the floating +XP that pops off an answer */
+.ftg-float {
+    position: absolute; right: 12px; top: 50%;
+    transform: translateY(-50%);
+    font: 800 0.78rem 'Inter', sans-serif;
+    pointer-events: none;
+    animation: ftgFloat 1.2s ease-out forwards;
+}
+.ftg-float.good { color: #5CB88A; }
+.ftg-float.bad  { color: #D9645C; font-weight: 700; font-size: 0.7rem; }
+@keyframes ftgFloat {
+    0%   { opacity: 0; transform: translateY(-50%); }
+    18%  { opacity: 1; transform: translateY(-115%); }
+    100% { opacity: 0; transform: translateY(-190%); }
+}
+.quiz-opt { position: relative; }
+
+/* the emptied quiz block at the bottom */
+.quiz-section.ftg-spent .quiz-subtitle { display: none; }
+.quiz-section.ftg-spent > h2 { display: none; }
+
+/* ── Interactive widgets ─────────────────────────────────────
+   Things you manipulate rather than read. Same card language as a
+   checkpoint but in honey rather than green, so a reader can tell
+   at a glance whether they're being tested or being shown. */
+.ftg-widget {
+    margin: 2.4rem 0;
+    padding: 1.2rem 1.3rem 1.3rem;
+    background: linear-gradient(160deg, rgba(36, 31, 27, 0.92), rgba(20, 16, 12, 0.96));
+    border: 1px solid rgba(224, 162, 76, 0.22);
+    border-left: 3px solid #E0A24C;
+    border-radius: 14px;
+}
+.ftg-widget.ok { border-color: rgba(92, 184, 138, 0.45); }
+.ftg-widget.no { border-color: rgba(217, 100, 92, 0.4); }
+
+.ftg-w-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
+.ftg-w-tag {
+    font: 700 0.62rem 'Inter', sans-serif;
+    letter-spacing: 0.16em; text-transform: uppercase; color: #E0A24C;
+}
+.ftg-w-xp {
+    font: 700 0.62rem 'Inter', sans-serif;
+    letter-spacing: 0.08em; color: rgba(92, 184, 138, 0.85);
+}
+.ftg-w-q {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 600; font-size: 0.97rem; color: #F4EEE6;
+    margin: 0 0 0.9rem !important; line-height: 1.45 !important;
+}
+
+/* chart: the continuation is hidden until you commit */
+.ftg-w-chart { width: 100%; height: 96px; display: block; margin-bottom: 0.9rem; overflow: visible; }
+.ftg-w-split { stroke: rgba(236,226,214,0.18); stroke-width: 1; stroke-dasharray: 3 3; }
+.ftg-w-reveal { opacity: 0; transition: opacity 0.5s ease 0.1s; }
+.ftg-widget.revealed .ftg-w-reveal { opacity: 1; animation: ftgDraw 0.7s ease-out; }
+@keyframes ftgDraw {
+    from { stroke-dasharray: 400; stroke-dashoffset: 400; }
+    to   { stroke-dasharray: 400; stroke-dashoffset: 0; }
+}
+
+.ftg-w-btns { display: flex; gap: 0.6rem; }
+.ftg-w-btn {
+    flex: 1; padding: 0.7rem 1rem; cursor: pointer;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 11px; color: #F4EEE6;
+    font: 700 0.85rem 'Inter', sans-serif;
+    transition: all 0.18s ease;
+}
+.ftg-w-btn:hover:not(:disabled) {
+    background: rgba(224, 162, 76, 0.14);
+    border-color: rgba(224, 162, 76, 0.45);
+    transform: translateY(-1px);
+}
+.ftg-w-btn:disabled { opacity: 0.45; cursor: default; }
+
+/* risk dial */
+.ftg-w-range {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 6px; border-radius: 999px;
+    background: rgba(255,255,255,0.09); outline: none; cursor: pointer;
+    margin-bottom: 0.75rem;
+}
+.ftg-w-range::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+    background: #F4EEE6; border: 3px solid #5CB88A; cursor: grab;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.ftg-w-range::-moz-range-thumb {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #F4EEE6; border: 3px solid #5CB88A; cursor: grab;
+}
+.ftg-w-mix {
+    text-align: center; margin-bottom: 0.9rem; position: relative;
+    font: 500 0.85rem 'Inter', sans-serif; color: rgba(255,255,255,0.5);
+}
+.ftg-w-mix b { color: #F4EEE6; font-weight: 700; }
+.ftg-w-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+.ftg-w-stats div {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px; padding: 0.65rem 0.8rem; text-align: center;
+}
+.ftg-w-stats span {
+    display: block; font: 600 0.6rem 'Inter', sans-serif;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(255,255,255,0.4); margin-bottom: 0.2rem;
+}
+.ftg-w-stats b {
+    font: 800 1.25rem 'Inter', sans-serif;
+    color: #F4EEE6; font-variant-numeric: tabular-nums;
+}
+
+.ftg-w-fb {
+    max-height: 0; overflow: hidden; opacity: 0;
+    transition: max-height 0.45s ease, opacity 0.35s ease, margin 0.35s ease;
+    font: 400 0.85rem/1.6 'Literata', Georgia, serif;
+    color: rgba(255, 255, 255, 0.72);
+}
+.ftg-w-fb.show { max-height: 260px; opacity: 1; margin-top: 0.9rem; }
+
+@media (prefers-reduced-motion: reduce) {
+    .ftg-widget.revealed .ftg-w-reveal { animation: none; }
+    .ftg-w-btn:hover:not(:disabled) { transform: none; }
+    .ftg-w-fb { transition: none; }
+}
+
+/* ── Run summary ─────────────────────────────────────────────*/
+.ftg-summary {
+    margin-top: 1rem; padding: 1.5rem;
+    background: linear-gradient(160deg, rgba(36, 31, 27, 0.95), rgba(12, 16, 22, 0.97));
+    border: 1px solid rgba(236, 226, 214, 0.1);
+    border-radius: 16px; text-align: center;
+}
+.ftg-sum-rank {
+    font: 700 1.35rem 'Inter', sans-serif;
+    background: linear-gradient(135deg, #ffffff 30%, #5CB88A 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+}
+.ftg-sum-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem;
+    margin-bottom: 1.2rem;
+}
+.ftg-sum-grid div { display: flex; flex-direction: column; gap: 0.15rem; }
+.ftg-sum-grid b {
+    font: 800 1.4rem 'Inter', sans-serif; color: #F4EEE6;
+}
+.ftg-sum-grid span {
+    font: 600 0.62rem 'Inter', sans-serif; letter-spacing: 0.12em;
+    text-transform: uppercase; color: rgba(255, 255, 255, 0.4);
+}
+.ftg-sum-next {
+    display: inline-block; padding: 0.7rem 1.6rem;
+    background: linear-gradient(135deg, #5CB88A, #4fa87b);
+    color: #10201a; border-radius: 12px; text-decoration: none;
+    font: 700 0.85rem 'Inter', sans-serif;
+}
+.ftg-sum-next:hover { transform: translateY(-1px); }
+
+@media (max-width: 620px) {
+    .ftg-sum-grid { grid-template-columns: repeat(2, 1fr); }
+    .ftg-hud-row { gap: 0.35rem; padding: 0.38rem 0.6rem; }
+    .ftg-chip { font-size: 0.66rem; padding: 0.24rem 0.58rem; }
+
+    /* Comparison tables push a few px past a 390px screen. Pre-existing, but
+       this file loads on every module so it's the one place to fix it for all
+       60: let the table scroll inside its own box instead of the page. */
+    .article .comparison-table,
+    .article table {
+        display: block; width: 100%;
+        overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .ftg-float { animation: none; opacity: 0; }
+    .ftg-hud-bar i { transition: none; }
+}

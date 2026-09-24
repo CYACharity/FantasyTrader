@@ -29,7 +29,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Master Course - Fantasy Trader</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/theme.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -222,10 +222,16 @@
         /* cards read cleaner as title + checklist only */
         .module-description { display: none !important; }
 </style>
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
+    <link rel="stylesheet" href="css/ft-rally-chat.css?v=3">
+    <link rel="stylesheet" href="css/ft-motion.css">
+    <link rel="stylesheet" href="css/ft-screen.css?v=1">
+    <link rel="stylesheet" href="css/ft-levels.css?v=1">
+    <script src="js/ft-back.js?v=2"></script>
 </head>
 <body>
     <div class="wrap">
-        <div class="crumbs"><a href="learn.html" class="back-link">← Learning Hub</a></div>
+        <div class="crumbs"><a href="learn.html" class="back-link" data-back>← Learning Hub</a></div>
         <div class="kicker">Learning Path</div>
         <h1>Master Course</h1>
         <p class="sub">The financial foundations behind everything — economics, credit, and money itself.</p>
@@ -394,7 +400,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
+    <script src="js/sl.js?v=3"></script>
     <script src="js/guard.js"></script>
     <script>
         // Mark completed modules (from Supabase, falling back to local progress).
@@ -414,5 +420,11 @@
             } catch (e) { /* fine */ }
         })();
     </script>
+<script src="js/ft-juice.js"></script>
+<script src="js/ft-bull.js?v=6"></script>
+<script src="js/ft-rally-chat.js?v=6"></script>
+<script src="js/ft-rally-widget.js?v=3"></script>
+<script src="js/ft-rally-corner.js?v=2"></script>
+<script src="js/ft-levels.js?v=1"></script>
 </body>
 </html>

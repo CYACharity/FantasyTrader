@@ -29,10 +29,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Experiences - Fantasy Trader</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
+    <script src="js/sl.js?v=3"></script>
     <script src="js/guard.js"></script>
     <link rel="stylesheet" href="css/theme.css">
     <style>
@@ -40,7 +40,7 @@
         body { background: #1A1714; color: #F4EEE6; font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
         .wrap { max-width: 780px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
         .top { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 2rem; }
-        h1 { font-family: 'Poppins','Inter',sans-serif !important; font-weight: 800; font-size: 1.8rem; }
+        h1 { font-family: 'Inter',sans-serif !important; font-weight: 800; font-size: 1.8rem; }
         .sub { color: #B7ADA1; font-size: .9rem; margin-top: .25rem; }
 
         /* Experience cards */
@@ -50,7 +50,7 @@
             padding: 1.5rem 1.6rem; cursor: pointer; transition: all .15s ease;
         }
         .exp:hover { border-color: rgba(92,184,138,.45); transform: translateY(-2px); }
-        .exp h2 { font-family: 'Poppins','Inter',sans-serif !important; font-size: 1.15rem; font-weight: 700; margin-bottom: .35rem; }
+        .exp h2 { font-family: 'Inter',sans-serif !important; font-size: 1.15rem; font-weight: 700; margin-bottom: .35rem; }
         .exp p { color: #B7ADA1; font-size: .88rem; line-height: 1.5; }
         .exp .tag { display: inline-block; margin-top: .7rem; font: 600 .7rem 'Inter',sans-serif; text-transform: uppercase;
                     letter-spacing: .06em; color: #E0A24C; }
@@ -86,7 +86,7 @@
         .camp-body { padding: 1.15rem 1.3rem 1.25rem; }
         .camp-kick { font: 700 .6rem 'Inter',sans-serif; letter-spacing: .2em; text-transform: uppercase; }
         .camp.green .camp-kick { color: #5CB88A; } .camp.gold .camp-kick { color: #E0A24C; }
-        .camp-title { font: 600 1.45rem 'Fraunces',Georgia,serif; margin: .4rem 0 .45rem; color: #F4EEE6; }
+        .camp-title { font: 600 1.45rem 'Inter', system-ui, sans-serif; margin: .4rem 0 .45rem; color: #F4EEE6; }
         .camp-desc { color: #B7ADA1; font-size: .84rem; line-height: 1.55; }
         .camp-chips { display: flex; gap: .45rem; flex-wrap: wrap; margin-top: .85rem; }
         .camp-chip { font: 700 .62rem 'Inter',sans-serif; letter-spacing: .08em; text-transform: uppercase;
@@ -99,13 +99,18 @@
                 padding: .55rem .95rem; }
 
     </style>
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
+    <link rel="stylesheet" href="css/ft-rally-chat.css?v=3">
+    <link rel="stylesheet" href="css/ft-motion.css">
+    <script src="js/ft-back.js?v=2"></script>
+    <link rel="stylesheet" href="css/ft-screen.css?v=1">
 </head>
 <body>
     <div class="wrap">
         <div class="top">
-            <a href="learn.html" class="back-link">← Learning Hub</a>
+            <a href="learn.html" class="back-link" data-back>← Learning Hub</a>
             <div>
-                <h1>Experiences</h1>
+                <h1 class="ft-screen-title">Experiences</h1>
                 <div class="sub">Step into real financial scenarios and make the calls yourself.</div>
             </div>
         </div>
@@ -282,5 +287,10 @@
         renderMenu();
             }
     </script>
+<script src="js/ft-juice.js"></script>
+<script src="js/ft-bull.js?v=6"></script>
+<script src="js/ft-rally-chat.js?v=6"></script>
+<script src="js/ft-rally-widget.js?v=3"></script>
+<script src="js/ft-rally-corner.js?v=2"></script>
 </body>
 </html>

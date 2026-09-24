@@ -1,0 +1,883 @@
+/* ============================================================
+ *  FANTASYTRADER ACADEMY — lesson design system
+ *
+ *  A bite-sized, exercise-driven learning UI. The signature moves
+ *  are borrowed from the genre and then dressed in FT's palette:
+ *    · chunky buttons with a hard bottom edge that "presses" down
+ *    · a feedback bar that slides up from the floor on every answer
+ *    · hearts, a segmented progress bar, XP and a daily streak
+ *    · a winding path of lesson nodes instead of a list of links
+ *
+ *  Palette is the app's own: sage #5CB88A, honey #E0A24C,
+ *  red #D9645C, blue #9DB8D2, cream #F4EEE6 on warm near-black.
+ * ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --lx-bg:        #14100E;
+    --lx-bg-2:      #1A1613;
+    --lx-surface:   #221D19;
+    --lx-surface-2: #2A241F;
+    --lx-line:      rgba(236, 226, 214, 0.10);
+    --lx-line-2:    rgba(236, 226, 214, 0.18);
+
+    --lx-ink:       #F4EEE6;
+    --lx-ink-2:     #B7ADA1;
+    --lx-ink-3:     #7D746A;
+
+    --lx-sage:      #5CB88A;
+    --lx-sage-dk:   #3E8C65;
+    --lx-honey:     #E0A24C;
+    --lx-honey-dk:  #B37C33;
+    --lx-red:       #D9645C;
+    --lx-red-dk:    #A6443D;
+    --lx-blue:      #9DB8D2;
+    --lx-violet:    #A98BD0;
+
+    --lx-radius:    16px;
+    --lx-sans:      'Inter', system-ui, -apple-system, sans-serif;
+    --lx-display:   'Inter', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body.lx {
+    margin: 0;
+    background: var(--lx-bg);
+    color: var(--lx-ink);
+    font-family: var(--lx-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+.lx-display { font-family: var(--lx-display); letter-spacing: -0.015em; }
+
+/* ============================================================
+ *  CHUNKY BUTTONS
+ *  The bottom edge is a solid darker slab; pressing collapses it,
+ *  so the button physically travels. This is the single detail
+ *  that makes an interface feel like a game rather than a form.
+ * ============================================================ */
+.lx-btn {
+    position: relative;
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    padding: 0.92rem 1.6rem;
+    border: none; border-radius: 14px;
+    font: 800 0.92rem var(--lx-display);
+    letter-spacing: 0.02em; text-transform: uppercase;
+    cursor: pointer; user-select: none;
+    text-decoration: none;
+    transition: transform 0.06s ease, filter 0.15s ease, opacity 0.15s ease;
+    box-shadow: 0 4px 0 var(--lx-btn-edge, rgba(0,0,0,0.45));
+    top: 0;
+}
+.lx-btn:active:not(:disabled) { top: 4px; box-shadow: 0 0 0 var(--lx-btn-edge, rgba(0,0,0,0.45)); }
+.lx-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.lx-btn.primary   { background: var(--lx-sage);  color: #0C1A13; --lx-btn-edge: var(--lx-sage-dk); }
+.lx-btn.primary:hover:not(:disabled)  { filter: brightness(1.07); }
+.lx-btn.danger    { background: var(--lx-red);   color: #1B0D0B; --lx-btn-edge: var(--lx-red-dk); }
+.lx-btn.honey     { background: var(--lx-honey); color: #1B1207; --lx-btn-edge: var(--lx-honey-dk); }
+.lx-btn.ghost {
+    background: transparent; color: var(--lx-ink-2);
+    border: 2px solid var(--lx-line-2); box-shadow: 0 4px 0 rgba(0,0,0,0.25);
+    --lx-btn-edge: rgba(0,0,0,0.25);
+}
+.lx-btn.ghost:hover:not(:disabled) { color: var(--lx-ink); border-color: var(--lx-ink-3); }
+.lx-btn.wide { width: 100%; }
+
+/* ============================================================
+ *  TOP BAR — hearts, segmented progress, exit
+ * ============================================================ */
+.lx-topbar {
+    position: sticky; top: 0; z-index: 60;
+    display: flex; align-items: center; gap: 0.9rem;
+    padding: 0.85rem 1.1rem;
+    background: rgba(20, 16, 14, 0.94);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--lx-line);
+}
+.lx-exit {
+    flex-shrink: 0; width: 34px; height: 34px;
+    display: grid; place-items: center;
+    background: none; border: none; cursor: pointer;
+    color: var(--lx-ink-3); font-size: 1.35rem; line-height: 1;
+    border-radius: 10px; transition: all 0.15s ease;
+}
+.lx-exit:hover { color: var(--lx-ink); background: rgba(255,255,255,0.06); }
+
+.lx-segbar { flex: 1; display: flex; gap: 4px; }
+.lx-seg {
+    flex: 1; height: 12px; border-radius: 999px;
+    background: rgba(236, 226, 214, 0.09);
+    overflow: hidden; position: relative;
+}
+.lx-seg i {
+    position: absolute; inset: 0; width: 0%;
+    background: linear-gradient(90deg, var(--lx-sage), #7BD3A6);
+    border-radius: 999px;
+    transition: width 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.lx-seg.done i { width: 100%; }
+.lx-seg.current i { width: 55%; }
+
+.lx-hearts { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
+.lx-heart { width: 22px; height: 22px; transition: transform 0.25s ease, opacity 0.25s ease; }
+.lx-heart.gone { opacity: 0.22; transform: scale(0.82); }
+.lx-heart.pulse { animation: lxHeartBreak 0.5s ease; }
+@keyframes lxHeartBreak {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.35) rotate(-8deg); }
+    100% { transform: scale(0.82); }
+}
+
+/* ============================================================
+ *  LESSON STAGE
+ * ============================================================ */
+.lx-stage {
+    max-width: 680px; margin: 0 auto;
+    padding: 1.8rem 1.1rem 12rem;    /* room for the feedback bar */
+    min-height: calc(100vh - 60px);
+}
+.lx-prompt {
+    font: 800 1.5rem/1.25 var(--lx-display);
+    letter-spacing: -0.02em;
+    margin: 0 0 0.5rem;
+}
+.lx-subprompt {
+    font-size: 0.9rem; color: var(--lx-ink-2); line-height: 1.55;
+    margin: 0 0 1.5rem;
+}
+.lx-ex { animation: lxIn 0.32s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes lxIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* ── choice / true-false ─────────────────────────────────── */
+.lx-choices { display: flex; flex-direction: column; gap: 0.7rem; }
+.lx-choices.grid2 { display: grid; grid-template-columns: 1fr 1fr; }
+
+.lx-choice {
+    position: relative; display: flex; align-items: center; gap: 0.85rem;
+    padding: 1rem 1.1rem; text-align: left; width: 100%;
+    background: var(--lx-surface);
+    border: 2px solid var(--lx-line);
+    border-bottom-width: 4px;
+    border-radius: 14px; cursor: pointer;
+    color: var(--lx-ink); font: 600 0.95rem var(--lx-sans);
+    transition: all 0.14s ease; top: 0;
+}
+.lx-choice:hover:not(.locked) { border-color: var(--lx-line-2); background: var(--lx-surface-2); }
+.lx-choice:active:not(.locked) { top: 2px; border-bottom-width: 2px; }
+.lx-choice.picked { border-color: var(--lx-sage); background: rgba(92, 184, 138, 0.10); }
+.lx-choice.right  { border-color: var(--lx-sage); background: rgba(92, 184, 138, 0.16); }
+.lx-choice.wrong  { border-color: var(--lx-red);  background: rgba(217, 100, 92, 0.14); }
+.lx-choice.locked { cursor: default; }
+
+.lx-key {
+    flex-shrink: 0; width: 26px; height: 26px; border-radius: 7px;
+    display: grid; place-items: center;
+    border: 2px solid var(--lx-line-2);
+    font: 700 0.72rem var(--lx-display); color: var(--lx-ink-3);
+}
+.lx-choice.picked .lx-key, .lx-choice.right .lx-key {
+    border-color: var(--lx-sage); color: var(--lx-sage);
+}
+.lx-choice.wrong .lx-key { border-color: var(--lx-red); color: var(--lx-red); }
+
+/* choice with an illustration */
+.lx-choice.visual { flex-direction: column; align-items: center; gap: 0.6rem; padding: 1.2rem 0.9rem; text-align: center; }
+.lx-choice.visual svg { width: 100%; max-width: 120px; height: 88px; }
+
+/* ── matching pairs ──────────────────────────────────────── */
+.lx-match { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem 1.1rem; }
+.lx-tile {
+    padding: 0.9rem 0.95rem; border-radius: 12px; cursor: pointer;
+    background: var(--lx-surface); border: 2px solid var(--lx-line);
+    border-bottom-width: 4px;
+    font: 600 0.87rem var(--lx-sans); color: var(--lx-ink);
+    transition: all 0.14s ease; text-align: left;
+}
+.lx-tile:hover:not(.done) { border-color: var(--lx-line-2); }
+.lx-tile.sel  { border-color: var(--lx-blue); background: rgba(157, 184, 210, 0.13); }
+.lx-tile.done { opacity: 0.35; pointer-events: none; border-color: var(--lx-sage); }
+.lx-tile.miss { animation: lxShake 0.4s ease; border-color: var(--lx-red); }
+@keyframes lxShake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-7px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(3px); }
+}
+
+/* ── word bank / build a sentence ────────────────────────── */
+.lx-answer-line {
+    min-height: 62px; padding: 0.6rem;
+    border-bottom: 2px dashed var(--lx-line-2);
+    display: flex; flex-wrap: wrap; gap: 0.45rem; align-content: flex-start;
+    margin-bottom: 1.4rem;
+}
+.lx-bank { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.lx-word {
+    padding: 0.6rem 0.9rem; border-radius: 11px; cursor: pointer;
+    background: var(--lx-surface); border: 2px solid var(--lx-line);
+    border-bottom-width: 4px;
+    font: 600 0.88rem var(--lx-sans); color: var(--lx-ink);
+    transition: all 0.12s ease;
+}
+.lx-word:hover { border-color: var(--lx-line-2); }
+.lx-word.used { opacity: 0.25; pointer-events: none; }
+.lx-word.in-answer { background: var(--lx-surface-2); border-color: var(--lx-line-2); }
+
+/* ── ordering ────────────────────────────────────────────── */
+.lx-order { display: flex; flex-direction: column; gap: 0.6rem; }
+.lx-step {
+    display: flex; align-items: center; gap: 0.8rem;
+    padding: 0.85rem 1rem; border-radius: 12px;
+    background: var(--lx-surface); border: 2px solid var(--lx-line);
+    border-bottom-width: 4px; cursor: grab;
+    font: 600 0.9rem var(--lx-sans);
+}
+.lx-step.dragging { opacity: 0.4; cursor: grabbing; }
+.lx-step.over { border-color: var(--lx-sage); }
+.lx-step-n {
+    flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--lx-surface-2); display: grid; place-items: center;
+    font: 800 0.72rem var(--lx-display); color: var(--lx-ink-3);
+}
+.lx-grip { margin-left: auto; color: var(--lx-ink-3); font-size: 1.1rem; line-height: 1; }
+
+/* ── sorting into buckets ────────────────────────────────── */
+.lx-buckets { display: grid; gap: 0.8rem; margin-bottom: 1.2rem; }
+.lx-bucket {
+    min-height: 92px; padding: 0.75rem;
+    border: 2px dashed var(--lx-line-2); border-radius: 14px;
+    background: rgba(255,255,255,0.015);
+    transition: all 0.15s ease;
+}
+.lx-bucket.over { border-color: var(--lx-sage); background: rgba(92,184,138,0.07); }
+.lx-bucket-title {
+    font: 800 0.66rem var(--lx-display); letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--lx-ink-3); margin-bottom: 0.5rem;
+}
+.lx-bucket-items { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.lx-chip {
+    padding: 0.5rem 0.8rem; border-radius: 10px; cursor: grab;
+    background: var(--lx-surface); border: 2px solid var(--lx-line);
+    font: 600 0.84rem var(--lx-sans); color: var(--lx-ink);
+}
+.lx-chip.dragging { opacity: 0.4; }
+.lx-chip.right { border-color: var(--lx-sage); }
+.lx-chip.wrong { border-color: var(--lx-red); }
+.lx-pool {
+    display: flex; flex-wrap: wrap; gap: 0.45rem;
+    padding: 0.8rem; border-radius: 14px;
+    background: rgba(255,255,255,0.02); border: 1px solid var(--lx-line);
+    min-height: 60px;
+}
+
+/* ── slider estimate ─────────────────────────────────────── */
+.lx-slider-wrap { padding: 1.2rem 0.2rem 0.4rem; }
+.lx-slider {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 8px; border-radius: 999px;
+    background: rgba(255,255,255,0.09); outline: none; cursor: pointer;
+}
+.lx-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%;
+    background: var(--lx-ink); border: 4px solid var(--lx-sage);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.45); cursor: grab;
+}
+.lx-slider::-moz-range-thumb {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--lx-ink); border: 4px solid var(--lx-sage);
+}
+.lx-slider-val {
+    text-align: center; margin-top: 1rem;
+    font: 800 2.4rem var(--lx-display); color: var(--lx-ink);
+    font-variant-numeric: tabular-nums;
+}
+.lx-slider-scale {
+    display: flex; justify-content: space-between; margin-top: 0.5rem;
+    font: 600 0.7rem var(--lx-sans); color: var(--lx-ink-3);
+}
+
+/* ── chart-reading ───────────────────────────────────────── */
+.lx-chart {
+    background: var(--lx-bg-2); border: 1px solid var(--lx-line);
+    border-radius: 14px; padding: 1rem; margin-bottom: 1.3rem;
+}
+.lx-chart svg { width: 100%; height: 190px; display: block; }
+.lx-chart-cap {
+    margin-top: 0.6rem; font: 600 0.72rem var(--lx-sans);
+    color: var(--lx-ink-3); text-align: center; letter-spacing: 0.03em;
+}
+
+/* ── illustration slot ───────────────────────────────────── */
+.lx-art { display: grid; place-items: center; margin-bottom: 1.4rem; }
+.lx-art svg { width: 100%; max-width: 300px; height: auto; }
+
+/* ============================================================
+ *  FEEDBACK BAR — slides up from the floor
+ * ============================================================ */
+.lx-feedback {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 70;
+    transform: translateY(105%);
+    transition: transform 0.32s cubic-bezier(0.2, 0.9, 0.25, 1);
+    border-top: 2px solid transparent;
+    padding: 1.15rem 1.1rem calc(1.15rem + env(safe-area-inset-bottom, 0px));
+}
+.lx-feedback.show { transform: translateY(0); }
+.lx-feedback.ok  { background: #16281F; border-top-color: rgba(92,184,138,0.45); }
+.lx-feedback.no  { background: #2A1614; border-top-color: rgba(217,100,92,0.45); }
+.lx-fb-inner { max-width: 680px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; }
+.lx-fb-icon {
+    flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 1.4rem; font-weight: 800;
+}
+.lx-feedback.ok .lx-fb-icon { background: var(--lx-sage); color: #0C1A13; }
+.lx-feedback.no .lx-fb-icon { background: var(--lx-red);  color: #1B0D0B; }
+.lx-fb-text { flex: 1; min-width: 0; }
+.lx-fb-title { font: 800 1.05rem var(--lx-display); margin-bottom: 0.15rem; }
+.lx-feedback.ok .lx-fb-title { color: #7BD3A6; }
+.lx-feedback.no .lx-fb-title { color: #E8867F; }
+.lx-fb-why { font-size: 0.85rem; line-height: 1.5; color: var(--lx-ink-2); }
+.lx-fb-why b { color: var(--lx-ink); }
+.lx-fb-btn { flex-shrink: 0; }
+
+@media (max-width: 620px) {
+    .lx-fb-inner { flex-wrap: wrap; }
+    .lx-fb-btn { width: 100%; }
+    .lx-fb-icon { width: 36px; height: 36px; font-size: 1.15rem; }
+}
+
+/* the floating +XP */
+.lx-xp-pop {
+    position: fixed; left: 50%; top: 40%; z-index: 90;
+    transform: translateX(-50%);
+    font: 800 2rem var(--lx-display); color: var(--lx-sage);
+    pointer-events: none; text-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    animation: lxXpPop 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+@keyframes lxXpPop {
+    0%   { opacity: 0; transform: translateX(-50%) scale(0.6); }
+    25%  { opacity: 1; transform: translateX(-50%) scale(1.15); }
+    45%  { transform: translateX(-50%) scale(1); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-70px) scale(0.95); }
+}
+
+/* ============================================================
+ *  LESSON COMPLETE
+ * ============================================================ */
+.lx-complete { text-align: center; padding: 2rem 1.1rem 4rem; max-width: 560px; margin: 0 auto; }
+.lx-complete-art { width: 190px; height: 190px; margin: 0 auto 1.2rem; animation: lxPopIn 0.6s cubic-bezier(0.2,0.9,0.3,1.3); }
+@keyframes lxPopIn { from { opacity:0; transform: scale(0.5) rotate(-12deg); } to { opacity:1; transform: none; } }
+.lx-complete h2 {
+    font: 800 2.05rem var(--lx-display); margin: 0 0 0.4rem;
+    background: linear-gradient(135deg, #ffffff 25%, var(--lx-sage) 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.lx-complete .lx-sub { color: var(--lx-ink-2); margin-bottom: 1.8rem; font-size: 0.95rem; }
+.lx-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; margin-bottom: 1.8rem; }
+.lx-stat {
+    border-radius: 14px; padding: 0.9rem 0.6rem;
+    border: 2px solid var(--lx-line); background: var(--lx-surface);
+}
+.lx-stat.xp    { border-color: rgba(224,162,76,0.4); }
+.lx-stat.acc   { border-color: rgba(92,184,138,0.4); }
+.lx-stat.time  { border-color: rgba(157,184,210,0.4); }
+.lx-stat b { display: block; font: 800 1.5rem var(--lx-display); font-variant-numeric: tabular-nums; }
+.lx-stat.xp b   { color: var(--lx-honey); }
+.lx-stat.acc b  { color: var(--lx-sage); }
+.lx-stat.time b { color: var(--lx-blue); }
+.lx-stat span {
+    font: 700 0.6rem var(--lx-sans); letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--lx-ink-3);
+}
+
+/* ============================================================
+ *  THE PATH (unit map)
+ * ============================================================ */
+.lx-path-head {
+    position: sticky; top: 0; z-index: 40;
+    background: rgba(20,16,14,0.94); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--lx-line);
+    padding: 0.8rem 1.1rem;
+}
+.lx-path-head-in {
+    max-width: 720px; margin: 0 auto;
+    display: flex; align-items: center; gap: 0.8rem;
+}
+.lx-stat-pill {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.4rem 0.75rem; border-radius: 999px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--lx-line);
+    font: 800 0.8rem var(--lx-display); color: var(--lx-ink);
+}
+.lx-stat-pill svg { width: 17px; height: 17px; }
+.lx-stat-pill.streak { color: var(--lx-honey); }
+.lx-stat-pill.gems   { color: var(--lx-blue); }
+.lx-stat-pill.hearts { color: var(--lx-red); }
+
+.lx-unit {
+    max-width: 720px; margin: 0 auto; padding: 0 1.1rem;
+}
+.lx-unit-banner {
+    margin: 1.6rem 0 0.6rem; padding: 1.1rem 1.3rem;
+    border-radius: var(--lx-radius);
+    background: linear-gradient(135deg, var(--u-a, var(--lx-sage)), var(--u-b, var(--lx-sage-dk)));
+    color: #0C1A13;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.35);
+}
+.lx-unit-banner h3 { margin: 0 0 0.15rem; font: 800 1.15rem var(--lx-display); }
+.lx-unit-banner p  { margin: 0; font-size: 0.8rem; opacity: 0.78; font-weight: 600; }
+.lx-unit-n {
+    font: 800 0.62rem var(--lx-display); letter-spacing: 0.16em;
+    text-transform: uppercase; opacity: 0.7;
+}
+
+/* the winding trail of nodes */
+.lx-trail { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; padding: 1rem 0 0.4rem; }
+.lx-node-row { display: flex; justify-content: center; width: 100%; }
+.lx-node-row.o1 { transform: translateX(-84px); }
+.lx-node-row.o2 { transform: translateX(-46px); }
+.lx-node-row.o3 { transform: translateX(0); }
+.lx-node-row.o4 { transform: translateX(46px); }
+.lx-node-row.o5 { transform: translateX(84px); }
+
+.lx-node {
+    /* generous vertical margin: the label under one node and the flag over
+       the next must never meet */
+    position: relative; width: 74px; height: 66px; margin: 1.15rem 0;
+    border: none; background: none; cursor: pointer; padding: 0;
+    display: grid; place-items: center;
+}
+.lx-node-disc {
+    width: 66px; height: 58px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--n-fill, var(--lx-surface-2));
+    box-shadow: 0 7px 0 var(--n-edge, rgba(0,0,0,0.5));
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+    position: relative;
+}
+.lx-node:active .lx-node-disc { transform: translateY(6px); box-shadow: 0 1px 0 var(--n-edge, rgba(0,0,0,0.5)); }
+.lx-node-disc svg { width: 30px; height: 30px; }
+
+/* a done node's disc is honey, and the star art is honey too — force the
+   glyph dark so it reads against its own background */
+.lx-node.done .lx-node-disc svg path,
+.lx-node.done .lx-node-disc svg circle { fill: #1B1207; }
+
+.lx-node.locked { cursor: not-allowed; }
+.lx-node.locked .lx-node-disc { --n-fill: #241F1B; --n-edge: #16120F; opacity: 0.7; }
+.lx-node.locked .lx-node-disc svg { opacity: 0.4; }
+.lx-node.open  .lx-node-disc { --n-fill: var(--lx-sage); --n-edge: var(--lx-sage-dk); }
+.lx-node.done  .lx-node-disc { --n-fill: var(--lx-honey); --n-edge: var(--lx-honey-dk); }
+.lx-node.gold  .lx-node-disc { --n-fill: linear-gradient(145deg,#F0C674,#D89A3C); --n-edge: #9C6E22; }
+
+/* the "START" flag over the next lesson — above every label, always */
+.lx-node.current::before {
+    content: 'START';
+    position: absolute; top: -26px; left: 50%; transform: translateX(-50%);
+    background: var(--lx-ink); color: #14100E;
+    font: 800 0.6rem var(--lx-display); letter-spacing: 0.12em;
+    padding: 0.28rem 0.6rem; border-radius: 7px;
+    animation: lxBob 1.6s ease-in-out infinite;
+    white-space: nowrap; z-index: 6;
+}
+.lx-node.current::after {
+    content: ''; position: absolute; top: -8px; left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent; border-top-color: var(--lx-ink);
+    animation: lxBob 1.6s ease-in-out infinite;
+    z-index: 6;
+}
+
+/* ── boss nodes: the unit checkpoint is a castle to storm ── */
+.lx-node.boss { width: 96px; height: 88px; margin: 1.5rem 0 1.7rem; }
+.lx-node.boss .lx-node-disc {
+    width: 88px; height: 78px;
+    box-shadow: 0 9px 0 var(--n-edge, rgba(0,0,0,0.5));
+}
+.lx-node.boss .lx-node-disc svg { width: 52px; height: 52px; }
+.lx-node.boss.open .lx-node-disc { --n-fill: var(--lx-red); --n-edge: var(--lx-red-dk); }
+.lx-node.boss.open .lx-node-disc {
+    animation: lxBossPulse 2s ease-in-out infinite;
+}
+@keyframes lxBossPulse {
+    0%, 100% { filter: drop-shadow(0 0 0 rgba(217, 100, 92, 0)); }
+    50%      { filter: drop-shadow(0 0 14px rgba(217, 100, 92, 0.55)); }
+}
+.lx-node.boss .lx-node-label { top: 92px; font-weight: 800; color: var(--lx-ink-2); }
+/* BOSS tag sits over the castle unless the START flag already does */
+.lx-node.boss:not(.current)::before {
+    content: 'BOSS';
+    position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+    background: var(--lx-red); color: #1B0D0B;
+    font: 800 0.56rem var(--lx-display); letter-spacing: 0.16em;
+    padding: 0.22rem 0.55rem; border-radius: 6px;
+    white-space: nowrap; z-index: 5;
+}
+.lx-node.boss.locked:not(.current)::before { opacity: 0.45; }
+.lx-node.boss.done:not(.current)::before {
+    content: 'CLEARED'; background: var(--lx-honey); color: #1B1207;
+}
+@keyframes lxBob { 0%,100% { margin-top: 0; } 50% { margin-top: -5px; } }
+
+/* crown pips under a finished node */
+.lx-crowns { display: flex; gap: 2px; margin-top: 2px; }
+.lx-crowns i { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.16); }
+.lx-crowns i.on { background: var(--lx-honey); }
+
+.lx-node-label {
+    position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
+    font: 700 0.62rem var(--lx-sans); color: var(--lx-ink-3);
+    white-space: nowrap; max-width: 130px; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* mascot peeking beside the trail */
+.lx-mascot {
+    position: absolute; width: 92px; opacity: 0.9;
+    pointer-events: none; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.5));
+}
+.lx-trail-wrap { position: relative; }
+
+/* ============================================================
+ *  TEACH CARDS — the hand-holding phase before exercises
+ * ============================================================ */
+.lx-teach { text-align: center; padding-top: 0.6rem; }
+.lx-teach-dots { display: flex; justify-content: center; gap: 7px; margin-bottom: 1.6rem; }
+.lx-teach-dots i {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(236, 226, 214, 0.14);
+    transition: all 0.25s ease;
+}
+.lx-teach-dots i.on   { background: var(--lx-sage); transform: scale(1.35); }
+.lx-teach-dots i.done { background: rgba(92, 184, 138, 0.5); }
+.lx-teach-art { display: grid; place-items: center; margin-bottom: 1.4rem; }
+.lx-teach-art svg { width: 190px; height: 190px; animation: lxTeachArt 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+@keyframes lxTeachArt {
+    from { opacity: 0; transform: scale(0.7) rotate(-5deg); }
+    to   { opacity: 1; transform: none; }
+}
+.lx-teach-title { font: 800 1.6rem var(--lx-display); margin: 0 0 0.6rem; }
+.lx-teach-text {
+    font: 500 1.02rem/1.65 var(--lx-sans); color: var(--lx-ink-2);
+    max-width: 30rem; margin: 0 auto;
+}
+
+/* ============================================================
+ *  ACHIEVEMENT TOASTS
+ * ============================================================ */
+.lx-toast {
+    position: fixed; top: 16px; right: 16px; z-index: 95;
+    display: flex; align-items: center; gap: 0.75rem;
+    background: var(--lx-surface); border: 2px solid rgba(224, 162, 76, 0.5);
+    border-radius: 16px; padding: 0.7rem 1.05rem;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+    transform: translateX(120%); opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1), opacity 0.3s ease;
+}
+.lx-toast.show { transform: none; opacity: 1; }
+.lx-toast-art { flex-shrink: 0; display: grid; place-items: center; }
+.lx-toast b {
+    display: block; font: 800 0.58rem var(--lx-display);
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--lx-honey);
+}
+.lx-toast span:last-child { font: 700 0.9rem var(--lx-display); color: var(--lx-ink); }
+
+/* ============================================================
+ *  PATH v2 — ribbon, chests, level, daily ring
+ * ============================================================ */
+
+/* the ribbon is an SVG drawn behind the nodes after layout */
+.lx-ribbon {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+}
+.lx-ribbon path {
+    fill: none;
+    stroke: rgba(236, 226, 214, 0.07);
+    stroke-width: 14; stroke-linecap: round;
+}
+.lx-ribbon path.lit {
+    stroke: rgba(92, 184, 138, 0.28);
+    stroke-dasharray: var(--ribbon-len, 0);
+    stroke-dashoffset: var(--ribbon-gap, 0);
+    transition: stroke-dashoffset 1s ease;
+}
+.lx-trail { position: relative; z-index: 1; }
+
+/* chest node at the end of a unit */
+.lx-chest {
+    position: relative; width: 84px; height: 74px; margin: 0.6rem 0;
+    border: none; background: none; padding: 0;
+    display: grid; place-items: center; cursor: pointer;
+}
+.lx-chest svg { width: 64px; height: 64px; transition: transform 0.15s ease; }
+.lx-chest:hover svg { transform: scale(1.07); }
+.lx-chest.locked { cursor: not-allowed; }
+.lx-chest.locked svg { opacity: 0.45; filter: grayscale(0.6); }
+.lx-chest.ready svg { animation: lxChestBob 1.4s ease-in-out infinite; }
+@keyframes lxChestBob {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-6px) rotate(-3deg); }
+}
+.lx-chest.opened svg { opacity: 0.75; }
+
+/* level pill + daily ring in the path header */
+.lx-level-pill {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    padding: 0.32rem 0.8rem 0.32rem 0.4rem; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid var(--lx-line);
+}
+.lx-level-num {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: linear-gradient(145deg, var(--lx-sage), var(--lx-sage-dk));
+    font: 800 0.82rem var(--lx-display); color: #0C1A13;
+}
+.lx-level-meta { display: flex; flex-direction: column; gap: 3px; }
+.lx-level-title {
+    font: 800 0.68rem var(--lx-display); color: var(--lx-ink); line-height: 1;
+    letter-spacing: 0.02em;
+}
+.lx-level-bar {
+    width: 86px; height: 5px; border-radius: 999px;
+    background: rgba(236, 226, 214, 0.1); overflow: hidden;
+}
+.lx-level-bar i {
+    display: block; height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--lx-sage), #7BD3A6);
+    transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.lx-daily {
+    position: relative; width: 40px; height: 40px; flex-shrink: 0;
+    display: grid; place-items: center;
+}
+.lx-daily svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+.lx-daily circle { fill: none; stroke-width: 4; }
+.lx-daily .track { stroke: rgba(236, 226, 214, 0.1); }
+.lx-daily .fill {
+    stroke: var(--lx-honey); stroke-linecap: round;
+    transition: stroke-dashoffset 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.lx-daily.met .fill { stroke: var(--lx-sage); }
+.lx-daily b {
+    font: 800 0.6rem var(--lx-display); color: var(--lx-ink-2);
+    position: relative; z-index: 1;
+}
+.lx-daily.met b { color: var(--lx-sage); }
+
+/* practice-mistakes card */
+.lx-practice-card {
+    display: flex; align-items: center; gap: 1rem;
+    max-width: 680px; margin: 1.2rem auto 0; padding: 1rem 1.2rem;
+    background: linear-gradient(135deg, rgba(217, 100, 92, 0.12), rgba(224, 162, 76, 0.08));
+    border: 2px solid rgba(217, 100, 92, 0.32);
+    border-radius: 18px;
+}
+.lx-practice-card .art { flex-shrink: 0; }
+.lx-practice-card .txt { flex: 1; }
+.lx-practice-card .txt b {
+    display: block; font: 800 1rem var(--lx-display); color: var(--lx-ink);
+}
+.lx-practice-card .txt span { font: 600 0.78rem var(--lx-sans); color: var(--lx-ink-2); }
+
+/* badges sheet */
+.lx-badges-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem;
+    margin: 1rem 0 1.3rem;
+}
+.lx-badge {
+    display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+    padding: 0.75rem 0.3rem; border-radius: 14px;
+    background: rgba(255, 255, 255, 0.03); border: 2px solid var(--lx-line);
+}
+.lx-badge.earned { border-color: rgba(224, 162, 76, 0.45); background: rgba(224, 162, 76, 0.07); }
+.lx-badge svg { width: 34px; height: 34px; }
+.lx-badge:not(.earned) svg { opacity: 0.25; filter: grayscale(1); }
+.lx-badge span {
+    font: 700 0.58rem var(--lx-sans); text-align: center;
+    color: var(--lx-ink-3); line-height: 1.25;
+}
+.lx-badge.earned span { color: var(--lx-ink-2); }
+
+/* freeze row inside the badges sheet */
+.lx-freeze-row {
+    display: flex; align-items: center; gap: 0.8rem;
+    padding: 0.85rem 1rem; border-radius: 14px;
+    background: rgba(157, 184, 210, 0.08);
+    border: 2px solid rgba(157, 184, 210, 0.25);
+    margin-bottom: 1rem; text-align: left;
+}
+.lx-freeze-row .txt { flex: 1; }
+.lx-freeze-row .txt b { display: block; font: 800 0.85rem var(--lx-display); color: var(--lx-ink); }
+.lx-freeze-row .txt span { font: 600 0.72rem var(--lx-sans); color: var(--lx-ink-2); }
+
+/* ============================================================
+ *  ONBOARDING — first visit to the path
+ * ============================================================ */
+.lx-onboard {
+    position: fixed; inset: 0; z-index: 120;
+    background: rgba(8, 6, 5, 0.82); backdrop-filter: blur(3px);
+    display: grid; place-items: center; padding: 1.2rem;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+.lx-onboard.open { opacity: 1; pointer-events: auto; }
+.lx-onboard-card {
+    width: 100%; max-width: 400px; text-align: center;
+    background: var(--lx-surface); border: 1px solid var(--lx-line-2);
+    border-radius: 22px; padding: 1.7rem 1.5rem 1.5rem;
+    transform: translateY(16px);
+    transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+}
+.lx-onboard.open .lx-onboard-card { transform: none; }
+.lx-onboard-bull { display: grid; place-items: center; margin-bottom: 0.4rem; }
+.lx-onboard h3 { font: 800 1.35rem var(--lx-display); margin: 0 0 0.5rem; }
+.lx-onboard p {
+    font: 500 0.92rem/1.6 var(--lx-sans); color: var(--lx-ink-2);
+    margin: 0 0 1.3rem; min-height: 3.1em;
+}
+.lx-onboard-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 1.1rem; }
+.lx-onboard-dots i {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: rgba(236, 226, 214, 0.15); transition: all 0.2s ease;
+}
+.lx-onboard-dots i.on { background: var(--lx-sage); transform: scale(1.3); }
+
+/* ── lesson start sheet ──────────────────────────────────── */
+.lx-sheet-back {
+    position: fixed; inset: 0; z-index: 80;
+    background: rgba(8, 6, 5, 0.72); backdrop-filter: blur(4px);
+    display: grid; place-items: center; padding: 1.2rem;
+    opacity: 0; pointer-events: none; transition: opacity 0.22s ease;
+}
+.lx-sheet-back.open { opacity: 1; pointer-events: auto; }
+.lx-sheet {
+    width: 100%; max-width: 380px; text-align: center;
+    background: var(--lx-surface); border: 1px solid var(--lx-line-2);
+    border-radius: 20px; padding: 1.6rem 1.4rem;
+    transform: translateY(18px) scale(0.97);
+    transition: transform 0.28s cubic-bezier(0.2,0.9,0.3,1.15);
+}
+.lx-sheet-back.open .lx-sheet { transform: none; }
+.lx-sheet-kicker {
+    font: 800 0.62rem var(--lx-display); letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--lx-sage); margin-bottom: 0.5rem;
+}
+.lx-sheet h3 { margin: 0 0 0.5rem; font: 800 1.3rem var(--lx-display); }
+.lx-sheet p  { margin: 0 0 1.3rem; color: var(--lx-ink-2); font-size: 0.88rem; line-height: 1.55; }
+
+/* ── out-of-hearts ───────────────────────────────────────── */
+.lx-nohearts { text-align: center; padding: 3rem 1.2rem; max-width: 440px; margin: 0 auto; }
+.lx-nohearts svg { width: 120px; height: 120px; margin-bottom: 1.2rem; }
+.lx-nohearts h2 { font: 800 1.6rem var(--lx-display); margin: 0 0 0.5rem; }
+.lx-nohearts p  { color: var(--lx-ink-2); margin: 0 0 1.6rem; line-height: 1.6; }
+
+/* the path header carries six widgets; below 520px they need to shrink
+   together or the hearts pill pushes past the edge */
+@media (max-width: 520px) {
+    .lx-path-head { padding: 0.6rem 0.5rem; }
+    .lx-path-head-in { gap: 0.3rem; }
+    .lx-stat-pill { padding: 0.3rem 0.5rem; font-size: 0.7rem; gap: 0.25rem; }
+    .lx-stat-pill svg { width: 14px; height: 14px; }
+    .lx-level-pill { padding: 0.24rem 0.55rem 0.24rem 0.3rem; gap: 0.4rem; }
+    .lx-level-num { width: 25px; height: 25px; font-size: 0.7rem; }
+    .lx-level-title { font-size: 0.58rem; }
+    .lx-level-bar { width: 44px; }
+    .lx-daily { width: 33px; height: 33px; }
+    .lx-daily svg { width: 33px; height: 33px; }
+    .lx-daily b { font-size: 0.5rem; }
+}
+
+@media (max-width: 520px) {
+    .lx-prompt { font-size: 1.28rem; }
+    .lx-match { gap: 0.55rem 0.7rem; }
+    .lx-node-row.o1 { transform: translateX(-64px); }
+    .lx-node-row.o2 { transform: translateX(-34px); }
+    .lx-node-row.o4 { transform: translateX(34px); }
+    .lx-node-row.o5 { transform: translateX(64px); }
+    .lx-mascot { width: 68px; }
+    .lx-stats { grid-template-columns: repeat(3, 1fr); gap: 0.45rem; }
+    .lx-stat b { font-size: 1.2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lx-ex, .lx-complete-art, .lx-xp-pop { animation: none; }
+    .lx-node.current::before, .lx-node.current::after { animation: none; }
+    .lx-feedback { transition: none; }
+}
+
+/* ── Rally toggle in the lesson bar ───────────────────────────
+   Same key as the Academy switch, so sending him away mid-course
+   and sending him away from the path are the same setting. */
+.lx-mentor { padding: 0; overflow: hidden; }
+.lx-mentor .bull-rig {
+    width: 30px; height: 30px; pointer-events: none;
+    transition: opacity 0.16s ease, filter 0.16s ease;
+}
+.lx-mentor.off .bull-rig { opacity: 0.3; filter: grayscale(1); }
+.lx-mentor::after {
+    content: ''; position: absolute; inset: auto 6px 5px auto;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--lx-sage); transition: background 0.16s ease;
+}
+.lx-mentor.off::after { background: var(--lx-ink-3); }
+.lx-mentor { position: relative; }
+
+/* ── judge: one proposed answer, called Right or Wrong ─────── */
+.lx-judge {
+    margin: 0 auto 1rem; max-width: 520px; text-align: center;
+    padding: 1.1rem 1.2rem; border-radius: 18px;
+    background: var(--lx-surface); border: 2px dashed rgba(236,226,214,0.18);
+}
+.lx-judge-k {
+    display: block; margin-bottom: 0.45rem;
+    font: 800 0.62rem var(--lx-sans); letter-spacing: 0.16em; text-transform: uppercase; color: var(--lx-ink-3);
+}
+.lx-judge p { margin: 0; font: 700 1.08rem/1.45 var(--lx-display); color: var(--lx-ink); }
+.lx-choices.lx-judge-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; max-width: 520px; margin: 0 auto; }
+.lx-judge-btns .lx-choice { justify-content: center; font-weight: 800; }
+.lx-judge-btns .lx-key { display: none; }
+.lx-judge-btns .lx-choice:first-child:not(.locked) { border-color: rgba(92,184,138,0.45); }
+.lx-judge-btns .lx-choice:last-child:not(.locked)  { border-color: rgba(217,100,92,0.45); }
+
+/* ============================================================
+ *  THE MAP, every stop its own.
+ *  Lessons wear their unit's colour; each keeps its own icon when
+ *  locked (dimmed, with a padlock badge) or done (a check badge);
+ *  banners carry the unit's art and progress; the trail lights in
+ *  the unit colour.
+ * ============================================================ */
+.lx-unit .lx-node.open .lx-node-disc { --n-fill: var(--u-a); --n-edge: var(--u-b); }
+.lx-unit .lx-node.done:not(.gold) .lx-node-disc { --n-fill: var(--u-b); --n-edge: rgba(0,0,0,0.55); }
+.lx-unit .lx-node.done .lx-node-disc svg path,
+.lx-unit .lx-node.done .lx-node-disc svg circle { fill: revert-layer; }
+.lx-unit .lx-node.locked .lx-node-disc { --n-fill: #231E1A; --n-edge: #15110E; opacity: 1;
+    border: 2px solid color-mix(in srgb, var(--u-a) 28%, transparent); }
+.lx-unit .lx-node.locked .lx-node-disc svg { opacity: 0.55; filter: grayscale(0.45); }
+.lx-node { position: relative; }
+.lx-node-badge {
+    position: absolute; top: -2px; right: calc(50% - 38px);
+    width: 22px; height: 22px; border-radius: 50%;
+    display: grid; place-items: center; z-index: 2;
+    border: 2px solid var(--lx-bg);
+}
+.lx-node-badge svg { width: 12px; height: 12px; }
+.lx-node-badge.lock { background: #3A332C; color: #B7ADA1; }
+.lx-node-badge.done { background: #F0C674; color: #1B1207; }
+.lx-node.boss .lx-node-badge { right: calc(50% - 50px); top: 2px; }
+.lx-unit-banner { position: relative; overflow: hidden; }
+.lx-unit-banner p { margin-top: 0.1rem; }
+.lx-unit-art {
+    flex-shrink: 0; width: 64px; height: 64px; display: grid; place-items: center;
+    opacity: 0.9; transform: rotate(-8deg);
+    filter: drop-shadow(0 4px 0 rgba(0,0,0,0.25));
+}
+.lx-unit-art svg { width: 64px; height: 64px; }
+.lx-unit .lx-ribbon path.lit { stroke: var(--u-a); stroke-opacity: 0.35; }
+.lx-unit .lx-ribbon path { stroke: color-mix(in srgb, var(--u-a) 12%, rgba(236,226,214,0.06)); }

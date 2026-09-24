@@ -1,1808 +1,380 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <!-- ft-canvas: the page background, declared before anything that can
-         block rendering. Every stylesheet on this page is render-blocking,
-         so when one is slow Chrome gives up holding the previous frame and
-         paints the default canvas — white — for a beat. That was the flash
-         between pages. Inline and first, it can never be white. -->
-    <style>html{background-color:#171310;}</style>
-    <!-- how the link looks when someone shares it -->
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Fantasy Trader">
-    <meta property="og:url" content="https://fantasytrader.co/">
-    <meta property="og:title" content="Come play Fantasy Trader">
-    <meta property="og:description" content="Fantasy football, but your players are real companies. Draft stocks, run $100,000, and beat your friends head-to-head every week. Free, no real money.">
-    <meta property="og:image" content="https://fantasytrader.co/og-image.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Fantasy Trader — draft real stocks, beat your friends">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Come play Fantasy Trader">
-    <meta name="twitter:description" content="Fantasy football, but your players are real companies. Draft stocks, run $100,000, and beat your friends every week.">
-    <meta name="twitter:image" content="https://fantasytrader.co/og-image.jpg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>html{background-color:#0E0B09;}</style>
+    <title>Portfolio — Fantasy Trader</title>
     <link rel="icon" href="favicon.ico" sizes="any">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <meta name="theme-color" content="#171310">
-    <title>My Portfolio</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="stock-data.js"></script>
+    <meta name="theme-color" content="#0E0B09">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600;1,700;1,800;1,900&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
+    <script src="js/sl.js?v=3"></script>
+    <script src="stock-data.js"></script>
     <script src="js/guard.js"></script>
     <script src="js/stock-logo.js"></script>
     <script src="js/draft-universe.js"></script>
-    <style>
-        :root {
-            --primary: #4a6785;
-            --secondary: #6aa08d;
-            --accent: #e0a24c;
-            --background: #1a1714;
-            --surface: #1a1714;
-            --surface-2: #241f1b;
-            --success: #5cb88a;
-            --danger: #d9645c;
-            --text-primary: #ffffff;
-            --text-secondary: #8899aa;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #1a1714;
-            color: #fff;
-            overflow-x: hidden;
-        }
-
-        /* Navigation Buttons */
-        .nav-buttons {
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            display: flex;
-            gap: 0.5rem;
-            z-index: 100;
-        }
-
-        .nav-btn {
-            padding: 0.4rem 0.9rem;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            color: rgba(255, 255, 255, 0.6);
-            text-decoration: none;
-            font: 500 0.8rem 'Inter', sans-serif;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .nav-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-        }
-
-        /* Container */
-        .portfolio-container {
-            max-width: 1100px;
-            margin: 56px auto 40px;
-            padding: 0 2rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Page Header */
-        .top-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.9rem 2rem;
-            background: rgba(26, 23, 20, 0.95);
-            border-bottom: 1px solid rgba(236, 226, 214, 0.08);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .th-left { display: flex; align-items: center; gap: 1rem; }
-
-        .page-title {
-            font: 700 1.3rem 'Poppins', sans-serif;
-            color: #fff;
-            letter-spacing: -0.5px;
-            margin: 0;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .header-btn {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: rgba(255, 255, 255, 0.6);
-            padding: 0.4rem 0.9rem;
-            border-radius: 8px;
-            font: 500 0.78rem 'Inter', sans-serif;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .header-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-        }
-
-        .header-btn i {
-            font-size: 0.7rem;
-        }
-
-        /* Summary Cards Row */
-        .summary-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .summary-card {
-            background: #1a1714;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
-            padding: 1rem 1.2rem;
-        }
-
-        .summary-label {
-            font: 500 0.7rem 'Inter', sans-serif;
-            color: rgba(255, 255, 255, 0.4);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.4rem;
-        }
-
-        .summary-val {
-            font: 700 1.4rem 'Poppins', sans-serif;
-            color: #fff;
-            font-variant-numeric: tabular-nums;
-        }
-        /* Cents are the least significant thing on the card, so they stop
-           competing with the dollars for attention. The old abbreviation
-           ("$10.00K") hid the actual figure to save four characters. */
-        .sv-cents {
-            font-size: 0.62em;
-            font-weight: 700;
-            opacity: 0.62;
-            margin-left: 0.5px;
-        }
-
-        /* the $ / % switch */
-        .summary-head {
-            display: flex; align-items: flex-start;
-            justify-content: space-between; gap: 0.5rem;
-        }
-        .dc-toggle {
-            display: inline-flex; flex: 0 0 auto;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 6px; overflow: hidden; margin-top: -2px;
-        }
-        .dc-opt {
-            appearance: none; border: none; cursor: pointer;
-            background: transparent; color: rgba(255, 255, 255, 0.42);
-            font: 700 0.68rem 'Inter', sans-serif; line-height: 1;
-            padding: 3px 7px; transition: background 0.15s ease, color 0.15s ease;
-        }
-        .dc-opt + .dc-opt { border-left: 1px solid rgba(255, 255, 255, 0.12); }
-        .dc-opt:hover { color: #F4EEE6; }
-        .dc-opt.is-on { background: rgba(236, 226, 214, 0.12); color: #F4EEE6; }
-
-        /* Chart Section */
-        .chart-section {
-            background: #1a1714;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
-            padding: 1.2rem 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .chart-header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .chart-title {
-            font: 600 0.85rem 'Poppins', sans-serif;
-            color: rgba(255, 255, 255, 0.8);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .chart-tabs {
-            display: flex;
-            gap: 2px;
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: 6px;
-            padding: 2px;
-        }
-
-        .chart-tab {
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.4);
-            padding: 0.3rem 0.65rem;
-            border-radius: 5px;
-            font: 500 0.72rem 'Inter', sans-serif;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .chart-tab:hover {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .chart-tab.active {
-            background: rgba(236, 226, 214, 0.12);
-            color: #5cb88a;
-        }
-
-        #mainPerformanceChart {
-            height: 260px;
-            max-height: 260px;
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-card {
-            background: #1a1714;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
-            padding: 0.9rem 1rem;
-        }
-
-        .stat-label {
-            font: 500 0.68rem 'Inter', sans-serif;
-            color: rgba(255, 255, 255, 0.4);
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            margin-bottom: 0.3rem;
-        }
-
-        .stat-val {
-            font: 700 1rem 'Poppins', sans-serif;
-            color: #fff;
-        }
-
-        .stat-sub {
-            font: 400 0.65rem 'Inter', sans-serif;
-            color: rgba(255, 255, 255, 0.3);
-            margin-top: 0.15rem;
-        }
-
-        /* Analysis Row */
-        .analysis-row {
-            display: grid;
-            grid-template-columns: 310px 1fr;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .analysis-card {
-            background: #1a1714;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
-            padding: 1.2rem;
-        }
-
-        .analysis-title {
-            font: 600 0.78rem 'Poppins', sans-serif;
-            color: rgba(255, 255, 255, 0.7);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 1rem;
-        }
-
-        /* Sector Chart Container */
-        .sector-chart-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .pie-chart-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 150px;
-            height: 150px;
-        }
-
-        .sector-legend {
-            display: grid;
-            grid-template-columns: 1fr;   /* one clean column — nothing overlaps */
-            gap: 0.4rem;
-            width: 100%;
-            margin-top: 0.5rem;
-        }
-        .sector-item { min-width: 0; gap: 0.6rem; }
-        .sector-item > * { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .pie-chart-wrapper { position: relative; flex-shrink: 0; }
-        #sectorPieChart { max-width: 150px !important; max-height: 150px !important; }
-
-        .sector-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.75rem;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            font-size: 0.75rem;
-            min-width: 0;
-            gap: 0.75rem;
-            min-height: 44px;
-        }
-
-        .sector-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .sector-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 2px;
-            flex-shrink: 0;
-        }
-
-        .sector-name {
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.75rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 120px;
-            flex: 1;
-        }
-
-        .sector-value {
-            font-weight: 600;
-            color: #ffffff;
-            font-size: 0.8rem;
-        }
-
-        /* Risk Analysis */
-        .risk-bar-chart-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .risk-bar-item {
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-        }
-
-        .risk-bar-label {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.7);
-            display: flex;
-            justify-content: space-between;
-            font-weight: 500;
-        }
-
-        .risk-bar {
-            height: 24px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .risk-bar-fill {
-            height: 100%;
-            background: var(--success);
-            transition: width 0.5s ease;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 0.5rem;
-            color: #1a1714;
-            font-weight: 600;
-            font-size: 0.75rem;
-        }
-
-        /* Holdings Section */
-        .holdings-section {
-            background: #1a1714;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 1.5rem;
-        }
-
-        .holdings-head {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            padding: 0.7rem 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .holdings-head div {
-            font: 500 0.68rem 'Inter', sans-serif;
-            color: rgba(255, 255, 255, 0.4);
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-        }
-
-        .holding-row {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            padding: 0.6rem 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            align-items: center;
-            transition: background 0.15s;
-        }
-
-        .holding-row:hover {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .holding-row:last-child {
-            border-bottom: none;
-        }
-
-        .holding-row .stock-name {
-            font: 600 0.9rem 'Inter', sans-serif;
-            color: #e0a24c;
-            display: flex; align-items: center; gap: 9px; min-width: 0;
-        }
-        .holding-row .stock-name > span {
-            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-        }
-
-        .holding-row .shares-count,
-        .holding-row .avg-cost,
-        .holding-row .current-val {
-            font: 400 0.85rem 'Inter', sans-serif;
-            color: rgba(255, 255, 255, 0.8);
-            font-family: monospace;
-        }
-
-        .holding-row .total-ret {
-            font: 600 0.85rem 'Inter', sans-serif;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .holding-row .total-ret.positive {
-            color: #5cb88a;
-        }
-
-        .holding-row .total-ret.negative {
-            color: #d9645c;
-        }
-
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(8px);
-        }
-
-        .modal-content {
-            background: #1a1714;
-            border-radius: 12px;
-            max-width: 700px;
-            width: 90%;
-            max-height: 85vh;
-            overflow-y: auto;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.2rem 1.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .modal-header h2 {
-            font: 600 1.1rem 'Poppins', sans-serif;
-            color: #fff;
-            margin: 0;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 1.4rem;
-            cursor: pointer;
-            padding: 0;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-
-        .close-btn:hover {
-            background: rgba(255, 68, 68, 0.1);
-            color: #d9645c;
-        }
-
-        .modal-body {
-            padding: 1.5rem;
-        }
-
-        .report-section {
-            margin-bottom: 1.5rem;
-        }
-
-        .report-section h3 {
-            color: #5cb88a;
-            margin-bottom: 1rem;
-            font: 600 0.9rem 'Poppins', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .report-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 0.75rem;
-        }
-
-        .report-item {
-            background: rgba(255, 255, 255, 0.04);
-            padding: 1rem;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .report-item .label {
-            display: block;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 0.4rem;
-        }
-
-        .report-item .value {
-            display: block;
-            color: #fff;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .report-item .value.positive {
-            color: #5cb88a;
-        }
-
-        .report-item .value.negative {
-            color: #d9645c;
-        }
-
-        @media (max-width: 768px) {
-            .summary-row,
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .analysis-row {
-                grid-template-columns: 1fr;
-            }
-
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-
-            .header-actions {
-                width: 100%;
-                flex-wrap: wrap;
-            }
-
-            .chart-header-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-
-            .chart-tabs {
-                width: 100%;
-                overflow-x: auto;
-            }
-        }
-
-        /* ── the sticky top bar ────────────────────────────────────────────
-           Two back-links, a title and the action buttons all sat on one
-           un-wrapping row, so on a phone the buttons were simply pushed past
-           the right edge of the screen. */
-        @media (max-width: 860px) {
-            .top-header { flex-wrap: wrap; gap: 0.6rem; padding: 0.8rem 1rem; }
-            .th-left { gap: 0.6rem; min-width: 0; flex: 1 1 100%; }
-            .top-header .header-actions { flex: 1 1 100%; justify-content: flex-start; }
-            .page-title { font-size: 1.1rem; }
-        }
-        @media (max-width: 560px) {
-            /* Dashboard is one tap away from Practice, so the second link is
-               the one to lose rather than shrinking everything to illegible. */
-            .th-left .nav-btn:nth-of-type(2) { display: none; }
-            .top-header .header-actions { flex-wrap: wrap; }
-            .top-header .header-actions > * { flex: 1 1 auto; }
-        }
-
-        /* Chart.js sizes its canvas from the container on the first paint and
-           only re-measures on a resize event, so on a phone the chart kept the
-           width it was born with and stuck 187px out of the card. Pinning the
-           element to 100% means there is nothing for it to get wrong. */
-        #mainPerformanceChart { width: 100% !important; max-width: 100%; }
-        .chart-section { overflow: clip; }
-
-        /* nine timeframe buttons won't fit a phone; let them scroll as a strip */
-        .chart-tabs { min-width: 0; }
-        .chart-tabs::-webkit-scrollbar { height: 0; }
-        @media (max-width: 700px) {
-            .chart-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
-            .chart-tab { flex: 0 0 auto; }
-            .chart-tabs > span[style*="flex"] { display: none; }
-        }
-
-        /* expanders */
-        .more-metrics { display: contents; }
-        .more-metrics[hidden] { display: none; }
-        .expander-btn {
-            display: block; width: 100%; margin: 0.6rem 0 1.4rem; padding: 0.55rem;
-            background: none; border: 1px dashed rgba(236, 226, 214, 0.22); color: #8a8178;
-            font: 700 0.7rem 'Inter', sans-serif; letter-spacing: 0.1em; text-transform: uppercase;
-            cursor: pointer; transition: all 0.15s ease;
-        }
-        .expander-btn:hover { color: #5CB88A; border-color: rgba(92, 184, 138, 0.45); }
-    </style>
-    <link rel="stylesheet" href="css/theme.css">
-    <style>
-        .holdings-head, .holding-row { grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr 0.7fr !important; }
-        .row-trade-btn {
-            display: inline-block; background: none; border: 1px solid #5CB88A;
-            color: #5CB88A; font: 700 0.72rem 'Inter', sans-serif; letter-spacing: 0.06em;
-            text-transform: uppercase; padding: 0.35rem 0.9rem; text-decoration: none;
-            transition: all 0.15s ease;
-        }
-        .row-trade-btn:hover { background: #5CB88A; color: #14110E; }
-    </style>
-    <style>
-        .sector-legend { display: grid !important; grid-template-columns: 1fr 1fr; gap: 0.35rem 1.2rem; }
-        .sector-item { min-width: 0; }
-        .sector-name { font-size: 0.82rem !important; overflow: visible !important; max-width: none !important; }
-    </style>
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
+    <script src="js/ft-bull.js?v=6"></script>
+<style>
+/* ============================================================
+ *  PORTFOLIO — your rank, your roster, your milestones.
+ *
+ *  Same language as the main menu: words on a dark scene, no
+ *  dashboard furniture. The hook is the rank: your total return
+ *  since the $10,000 start puts you in a tier, and the bar shows
+ *  how far it is to the next. The top tier is +50%, which is the
+ *  practice-floor race. Everything on the screen is computed
+ *  from your real account; nothing is filler. The chart, weekly
+ *  report and purchase history live on Full stats.
+ * ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { overflow: hidden; background: #0E0B09; color: #F4EEE6; font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+[hidden] { display: none !important; }
+.cnd { font-family: 'Barlow Condensed', 'Inter', sans-serif; font-style: italic; text-transform: uppercase; }
+.pf-scene { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse 45% 60% at 22% 45%, color-mix(in srgb, var(--tier) 16%, transparent), transparent 70%),
+                radial-gradient(ellipse 90% 80% at 50% 40%, #1A1511 0%, #0E0B09 72%); }
+.pf { position: relative; z-index: 1; height: 100vh; padding: 3vh 3.4vw 2.4vh;
+      display: grid; grid-template-columns: minmax(340px, 0.9fr) minmax(0, 1.4fr); grid-template-rows: auto minmax(0, 1fr) auto; gap: 2.2vh 3vw; }
+
+/* top line */
+.pf-top { grid-column: 1 / -1; display: flex; align-items: center; gap: 1.4rem; }
+.pf-back { font: 700 0.78rem 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244,238,230,0.55); text-decoration: none; }
+.pf-back:hover { color: #F4EEE6; }
+.pf-title { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 900; font-size: clamp(2.8rem, 4.4vw, 3.8rem); text-transform: uppercase; line-height: 0.95; }
+.pf-title::after { content: ''; display: block; width: 58%; height: 5px; margin-top: 4px; background: var(--tier); transform: skewX(-14deg); }
+.pf-links { margin-left: auto; display: flex; gap: 0.8rem; }
+.pf-links a { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.55rem 1.3rem; transform: skewX(-12deg);
+    text-decoration: none; transition: transform 0.14s ease, background 0.14s ease, box-shadow 0.14s ease;
+    background: rgba(244,238,230,0.06); border: 1.5px solid rgba(244,238,230,0.28); }
+.pf-links a > span { display: inline-block; transform: skewX(12deg); font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 900;
+    font-size: 1.35rem; text-transform: uppercase; letter-spacing: 0.03em; color: #F4EEE6; }
+.pf-links a:hover { background: rgba(244,238,230,0.12); transform: skewX(-12deg) translateY(-2px); }
+.pf-links a.go { background: #5CB88A; border-color: #5CB88A; box-shadow: 0 4px 0 #2F6B4C; }
+.pf-links a.go > span { color: #0E0B09; }
+.pf-links a.go:hover { background: #6FCB9C; }
+.pf-links a:active { transform: skewX(-12deg) translateY(2px); box-shadow: none; }
+.pf-links svg { width: 18px; height: 18px; transform: skewX(12deg); }
+
+/* the rank */
+.pf-rank { align-self: center; }
+.pf-emblem { width: clamp(150px, 19vh, 190px); height: auto; display: block; margin-bottom: 1.2vh; filter: drop-shadow(0 12px 30px color-mix(in srgb, var(--tier) 35%, transparent)); }
+.pf-tier { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 900; font-size: clamp(3rem, 6.4vh, 4.2rem); text-transform: uppercase; line-height: 0.95; color: var(--tier); }
+.pf-ret { margin-top: 0.3rem; font: 700 0.95rem 'Inter', sans-serif; color: rgba(244,238,230,0.7); }
+.pf-ret b { font-variant-numeric: tabular-nums; }
+.pf-ret b.up { color: #7BD3A6; } .pf-ret b.down { color: #E8867F; }
+.pf-bar { position: relative; height: 12px; margin: 1.4vh 0 0.5rem; background: rgba(244,238,230,0.08); transform: skewX(-14deg); overflow: hidden; max-width: 420px; }
+.pf-bar i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--tier); transition: width 1s cubic-bezier(0.2, 0.9, 0.25, 1); }
+.pf-next { font: 700 0.78rem 'Inter', sans-serif; letter-spacing: 0.04em; color: rgba(244,238,230,0.6); }
+.pf-next b { color: #F4EEE6; }
+.pf-money { display: flex; gap: 2.2rem; margin-top: 3vh; }
+.pf-money div { font: 700 0.68rem 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244,238,230,0.5); }
+.pf-money b { display: block; margin-top: 3px; font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 800; font-size: 2rem; letter-spacing: 0; text-transform: none; color: #F4EEE6; font-variant-numeric: tabular-nums; line-height: 1; }
+.pf-money b.up { color: #7BD3A6; } .pf-money b.down { color: #E8867F; }
+
+/* Rally's one line about your roster */
+.pf-rally { display: flex; align-items: center; gap: 0.7rem; margin-top: 3vh; max-width: 440px; }
+.pf-rally .rig { width: 64px; height: 64px; flex-shrink: 0; }
+.pf-rally .rig .bull-rig { width: 64px; height: 64px; }
+.pf-rally p { position: relative; margin: 0; padding: 0.6rem 0.85rem; background: rgba(244,238,230,0.06); border: 1px solid rgba(244,238,230,0.10);
+    font: 600 0.82rem/1.4 'Inter', sans-serif; color: rgba(244,238,230,0.85); }
+.pf-rally p::before { content: ''; position: absolute; left: -7px; top: 50%; margin-top: -6px; border: 6px solid transparent; border-left: 0; border-right-color: rgba(244,238,230,0.10); }
+.pf-rally p b { color: #F0B865; }
+
+/* the roster */
+.pf-roster { min-height: 0; display: flex; flex-direction: column; }
+.pf-rhead { display: flex; align-items: baseline; gap: 0.8rem; margin-bottom: 1.2vh; }
+.pf-rhead h2 { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 900; font-size: 1.9rem; text-transform: uppercase; }
+.pf-rhead span { font: 700 0.75rem 'Inter', sans-serif; color: rgba(244,238,230,0.5); letter-spacing: 0.1em; text-transform: uppercase; }
+.pf-cards { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; align-content: start; padding: 4px 6px 4px 2px; }
+.pf-cards::-webkit-scrollbar { width: 6px; } .pf-cards::-webkit-scrollbar-thumb { background: rgba(244,238,230,0.14); }
+.pf-card { position: relative; display: block; text-decoration: none; color: inherit; padding: 14px 16px 12px;
+    background: linear-gradient(160deg, rgba(38,32,27,0.92), rgba(24,20,17,0.92));
+    border: 1px solid rgba(244,238,230,0.10); border-left: 4px solid var(--c, #5CB88A);
+    transition: transform 0.16s cubic-bezier(0.2,0.9,0.3,1.2), border-color 0.16s ease; }
+.pf-card:hover { transform: translateY(-4px); border-color: rgba(244,238,230,0.24); border-left-color: var(--c, #5CB88A); }
+.pf-card.up { --c: #5CB88A; } .pf-card.down { --c: #D9645C; } .pf-card.flat { --c: #9A8F84; }
+.pc-top { display: flex; align-items: center; gap: 10px; }
+.pc-top .logo-tile { width: 34px !important; height: 34px !important; flex-shrink: 0; }
+.pc-sym { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 900; font-size: 1.5rem; line-height: 1; }
+.pc-name { font: 600 0.7rem 'Inter', sans-serif; color: rgba(244,238,230,0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+.pc-day { margin-left: auto; font: 800 0.72rem 'Inter', sans-serif; padding: 2px 7px; transform: skewX(-10deg); }
+.pf-card.up .pc-day { background: rgba(92,184,138,0.16); color: #7BD3A6; }
+.pf-card.down .pc-day { background: rgba(217,100,92,0.16); color: #E8867F; }
+.pf-card.flat .pc-day { background: rgba(244,238,230,0.07); color: rgba(244,238,230,0.6); }
+.pc-val { margin-top: 10px; font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 800; font-size: 1.7rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.pc-sub { display: flex; justify-content: space-between; margin-top: 4px; font: 600 0.72rem 'Inter', sans-serif; color: rgba(244,238,230,0.55); font-variant-numeric: tabular-nums; }
+.pc-sub .up { color: #7BD3A6; } .pc-sub .down { color: #E8867F; }
+.pc-share { margin-top: 9px; height: 4px; background: rgba(244,238,230,0.08); }
+.pc-share i { display: block; height: 100%; background: var(--c); }
+.pf-empty { grid-column: 1 / -1; padding: 1rem 0 0; }
+.pf-empty p { margin: 0 0 1rem; font: 600 0.9rem 'Inter', sans-serif; color: rgba(244,238,230,0.6); }
+.pf-starters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.pf-starters .pf-card { --c: #E0A24C; }
+.pf-starters .pc-val { font-size: 1.1rem; color: #F0B865; }
+
+/* sector mix */
+.pf-mix { flex: 0 0 auto; margin-top: 1.6vh; }
+.pf-mix .k { display: flex; justify-content: space-between; font: 700 0.68rem 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244,238,230,0.5); margin-bottom: 7px; }
+.pf-mix .k b { color: #F0B865; letter-spacing: 0.02em; text-transform: none; font-weight: 700; }
+.pf-strip { display: flex; height: 14px; gap: 2px; transform: skewX(-14deg); }
+.pf-strip i { display: block; height: 100%; min-width: 4px; transition: flex-grow 0.6s ease; }
+.pf-keys { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font: 600 0.72rem 'Inter', sans-serif; color: rgba(244,238,230,0.65); }
+.pf-keys span::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 6px; background: var(--k); transform: skewX(-14deg); }
+
+/* milestones */
+.pf-miles { grid-column: 1 / -1; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.pf-miles .k { font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; margin-right: 0.4rem; }
+.pf-mile { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.4rem 0.75rem; transform: skewX(-12deg);
+    background: rgba(244,238,230,0.05); border: 1px solid rgba(244,238,230,0.10); }
+.pf-mile > * { transform: skewX(12deg); }
+.pf-mile i { width: 16px; height: 16px; display: grid; place-items: center; border-radius: 50%; border: 1.5px solid rgba(244,238,230,0.3); font-style: normal; }
+.pf-mile span { font: 700 0.74rem 'Inter', sans-serif; color: rgba(244,238,230,0.55); }
+.pf-mile.done { background: rgba(92,184,138,0.14); border-color: rgba(92,184,138,0.45); }
+.pf-mile.done i { background: #5CB88A; border-color: #5CB88A; }
+.pf-mile.done i::after { content: ''; width: 6px; height: 3px; border: 2px solid #0C1A13; border-top: 0; border-right: 0; transform: rotate(-45deg) translate(1px, -1px); }
+.pf-mile.done span { color: #F4EEE6; }
+.pf-legal { margin-left: auto; font: 500 0.64rem 'Inter', sans-serif; color: rgba(244,238,230,0.3); white-space: nowrap; }
+
+.pf-rank, .pf-roster, .pf-miles { animation: pfIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+.pf-roster { animation-delay: 0.08s; } .pf-miles { animation-delay: 0.16s; }
+@keyframes pfIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .pf-rank, .pf-roster, .pf-miles { animation: none; } .pf-bar i { transition: none; } }
+@media (max-width: 900px) {
+    body { overflow: auto; }
+    .pf { height: auto; grid-template-columns: 1fr; }
+    .pf-cards { overflow: visible; }
+    .pf-starters { grid-template-columns: 1fr; }
+    .pf-legal { margin-left: 0; white-space: normal; }
+}
+</style>
+    <script src="js/ft-back.js?v=2"></script>
 </head>
-<body>
-    <div class="top-header">
-        <div class="th-left">
-            <a href="dashboard.html" class="nav-btn">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M19 12H5M12 19l-7-7 7-7"/>
-                </svg>
-                Dashboard
-            </a>
-            <a href="practice.html" class="nav-btn">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M19 12H5M12 19l-7-7 7-7"/>
-                </svg>
-                Practice
-            </a>
-            <h1 class="page-title">My Portfolio</h1>
-        </div>
-        <div class="header-actions">
-            <button class="header-btn" onclick="showWeeklyReport()">
-                <i class="fas fa-chart-bar"></i> Weekly Report
-            </button>
-            <button class="header-btn" onclick="showPurchaseHistory()">
-                <i class="fas fa-history"></i> Purchase History
-            </button>
-            <button class="header-btn" onclick="openWatchlist()">
-                <i class="fas fa-eye"></i> Watchlist
-            </button>
-        </div>
+<body style="--tier:#C98A5B">
+<div class="pf-scene" aria-hidden="true"></div>
+
+<main class="pf">
+    <div class="pf-top">
+        <a class="pf-back" href="dashboard.html" data-back>&larr; Menu</a>
+        <h1 class="pf-title">Portfolio</h1>
+        <nav class="pf-links">
+            <a href="portfolio-stats.html"><svg viewBox="0 0 24 24" fill="none" stroke="#F0B865" stroke-width="2.6" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Full stats</span></a>
+            <a class="go" href="trading.html"><span>Trade &rarr;</span></a>
+        </nav>
     </div>
 
-    <div class="portfolio-container">
-
-        <!-- Summary Cards -->
-        <div class="summary-row">
-            <div class="summary-card">
-                <div class="summary-label">Total Value</div>
-                <div class="summary-val" id="totalValue">$0.00</div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-head">
-                    <div class="summary-label">Daily Change</div>
-                    <div class="dc-toggle" role="group" aria-label="Show daily change as">
-                        <button type="button" class="dc-opt is-on" data-mode="pct" aria-pressed="true">%</button>
-                        <button type="button" class="dc-opt" data-mode="usd" aria-pressed="false">$</button>
-                    </div>
-                </div>
-                <div class="summary-val" id="dailyChange">+0.00%</div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-label">Cash Available</div>
-                <div class="summary-val" id="cashAvailable">$0.00</div>
-            </div>
+    <section class="pf-rank" aria-label="Your rank">
+        <svg class="pf-emblem" id="emblem" viewBox="0 0 120 132" aria-hidden="true"></svg>
+        <div class="pf-tier" id="tierName">Bronze</div>
+        <div class="pf-ret">Total return <b id="retPct">+0.00%</b></div>
+        <div class="pf-bar"><i id="tierBar"></i></div>
+        <div class="pf-next" id="tierNext"></div>
+        <div class="pf-money">
+            <div>Value<b id="mValue">$10,000</b></div>
+            <div>Cash<b id="mCash">$10,000</b></div>
+            <div>Today<b id="mDay">+0.00%</b></div>
         </div>
+        <div class="pf-rally"><span class="rig" id="rallyRig"></span><p id="rallyTip">Pulling up your roster&hellip;</p></div>
+    </section>
 
-        <!-- Performance Chart -->
-        <div class="chart-section">
-            <div class="chart-header-row">
-                <span class="chart-title">Performance</span>
-                <div class="chart-tabs">
-                    <button class="chart-tab active" onclick="switchTimeframe(this, 'day')">1D</button>
-                    <button class="chart-tab" onclick="switchTimeframe(this, 'week')">1W</button>
-                    <button class="chart-tab" onclick="switchTimeframe(this, 'month')">1M</button>
-                    <button class="chart-tab" onclick="switchTimeframe(this, '3month')">3M</button>
-                    <button class="chart-tab" onclick="switchTimeframe(this, '6month')">6M</button>
-                    <button class="chart-tab" onclick="switchTimeframe(this, 'ytd')">YTD</button>
-                    <button class="chart-tab" onclick="switchTimeframe(this, '1year')">1Y</button>
-                    <button class="chart-tab" onclick="switchTimeframe(this, 'all')">All</button>
-                    <span style="flex:1"></span>
-                    <button class="chart-tab active" id="pcLine" onclick="setPortChartMode('line', this)">Line</button>
-                    <button class="chart-tab" id="pcCandle" onclick="setPortChartMode('candles', this)">Candles</button>
-                </div>
-            </div>
-            <canvas id="mainPerformanceChart"></canvas>
+    <section class="pf-roster" aria-label="Your holdings">
+        <div class="pf-rhead"><h2>Roster</h2><span id="rCount">Loading</span></div>
+        <div class="pf-cards" id="cards"></div>
+        <div class="pf-mix" id="mix" hidden>
+            <div class="k"><span>Sector mix</span><b id="mixTip"></b></div>
+            <div class="pf-strip" id="strip"></div>
+            <div class="pf-keys" id="keys"></div>
         </div>
+    </section>
 
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Risk Assessment</div>
-                <div class="stat-val" id="riskScore">Moderate</div>
-                <div class="stat-sub">Based on volatility & diversification</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Dividend Yield</div>
-                <div class="stat-val" id="dividendYield">2.34%</div>
-                <div class="stat-sub">Annual dividend return</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Top Sector</div>
-                <div class="stat-val" id="topSector">Technology</div>
-                <div class="stat-sub">Highest weighted sector</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Year Over Year</div>
-                <div class="stat-val" id="yoyReturn">0.00%</div>
-                <div class="stat-sub">Performance since last year</div>
-            </div>
-            <div class="more-metrics" id="moreMetrics" hidden>
-            <div class="stat-card">
-                <div class="stat-label">Best Performer</div>
-                <div class="stat-val" id="bestStock">-</div>
-                <div class="stat-sub" id="bestStockReturn">+0.00%</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Worst Performer</div>
-                <div class="stat-val" id="worstStock">-</div>
-                <div class="stat-sub" id="worstStockReturn">+0.00%</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Gains/Losses</div>
-                <div class="stat-val" id="totalGains">$0.00</div>
-                <div class="stat-sub">Since inception</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Portfolio Beta</div>
-                <div class="stat-val" id="portfolioBeta">1.00</div>
-                <div class="stat-sub">Market volatility comparison</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Sector Diversity</div>
-                <div class="stat-val" id="sectorDiversity">2</div>
-                <div class="stat-sub">Number of sectors invested</div>
-            </div>
-            </div>
-        </div>
-        <button class="expander-btn" id="moreMetricsBtn" onclick="toggleMore('moreMetrics', this, 'More metrics', 'Fewer metrics')">More metrics ⌄</button>
+    <footer class="pf-miles" id="miles" aria-label="Milestones">
+        <span class="k">Milestones</span>
+    </footer>
+</main>
 
-        <!-- Sector Allocation + Risk Analysis -->
-        <div class="analysis-row">
-            <div class="analysis-card">
-                <div class="analysis-title">Sector Allocation</div>
-                <div class="sector-chart-container">
-                    <div class="pie-chart-wrapper">
-                        <canvas id="sectorPieChart" width="150" height="150"></canvas>
-                    </div>
-                    <div class="sector-legend" id="sectorLegend"></div>
-                </div>
-            </div>
+<script>
+(function () {
+    'use strict';
+    const START = 10000;
+    const $ = id => document.getElementById(id);
+    const money = n => '$' + Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 });
+    const pct = n => (n >= 0 ? '+' : '−') + Math.abs(n).toFixed(2) + '%';
+    const U = {}; (window.__U || []).forEach(u => { U[u.s] = u; });
 
-            <div class="analysis-card">
-                <div class="analysis-title">Risk Analysis</div>
-                <div class="risk-bar-chart-container">
-                    <div class="risk-bar-item">
-                        <div class="risk-bar-label">
-                            <span>Portfolio</span>
-                            <span id="portfolioRiskValue">12.5%</span>
-                        </div>
-                        <div class="risk-bar">
-                            <div class="risk-bar-fill" id="portfolioRiskBar" style="width: 62.5%;">12.5%</div>
-                        </div>
-                    </div>
-                    <div class="risk-bar-item">
-                        <div class="risk-bar-label">
-                            <span>S&P 500</span>
-                            <span>15.0%</span>
-                        </div>
-                        <div class="risk-bar">
-                            <div class="risk-bar-fill" style="width: 75%; background: rgba(224, 162, 76, 0.8);">15.0%</div>
-                        </div>
-                    </div>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
-                    <div>
-                        <div style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-bottom: 0.25rem;">Beta</div>
-                        <div style="font-size: 1.1rem; color: #ffffff; font-weight: 600;" id="betaValue">0.83</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-bottom: 0.25rem;">Sharpe</div>
-                        <div style="font-size: 1.1rem; color: #ffffff; font-weight: 600;" id="sharpeValue">1.42</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    /* the ladder: total return since the start, in percent */
+    const TIERS = [
+        { name: 'Bronze',   at: -Infinity, c: '#C98A5B' },
+        { name: 'Silver',   at: 2,  c: '#B9C4CE' },
+        { name: 'Gold',     at: 5,  c: '#F0C674' },
+        { name: 'Platinum', at: 15, c: '#7FD1C7' },
+        { name: 'Diamond',  at: 30, c: '#9DB8FF' },
+        { name: 'Legend',   at: 50, c: '#F0907E' },
+    ];
+    function emblem(tier, i) {
+        const c = tier.c, pips = Array.from({ length: i + 1 }, (_, k) =>
+            '<rect x="' + (60 - (i + 1) * 7 + k * 14 + 2) + '" y="104" width="10" height="4" fill="' + c + '"/>').join('');
+        return '<defs><linearGradient id="eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + c + '"/><stop offset="1" stop-color="' + c + '" stop-opacity="0.35"/></linearGradient></defs>' +
+            '<path d="M60 4 L110 22 L110 66 C110 98 86 118 60 128 C34 118 10 98 10 66 L10 22 Z" fill="#17120F" stroke="url(#eg)" stroke-width="4"/>' +
+            '<path d="M60 16 L99 30 L99 66 C99 91 81 107 60 116 C39 107 21 91 21 66 L21 30 Z" fill="' + c + '" fill-opacity="0.12" stroke="' + c + '" stroke-opacity="0.45" stroke-width="1.5"/>' +
+            '<path d="M36 78 L50 64 L60 72 L82 46" fill="none" stroke="' + c + '" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '<path d="M70 44 L84 44 L84 58" fill="none" stroke="' + c + '" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>' + pips;
+    }
 
-        <!-- Holdings Table -->
-        <div class="holdings-section">
-            <div class="holdings-head">
-                <div>Stock</div>
-                <div>Shares</div>
-                <div>Average Cost</div>
-                <div>Current Value</div>
-                <div>Total Return</div>
-                <div></div>
-            </div>
-            <div id="holdingsContainer"></div>
-        </div>
-    </div>
-
-    <script>
-        window.toggleMore = function (id, btn, moreLabel, lessLabel) {
-            const el = document.getElementById(id);
-            const open = el.hasAttribute('hidden');
-            if (open) el.removeAttribute('hidden'); else el.setAttribute('hidden', '');
-            btn.textContent = (open ? lessLabel : moreLabel) + (open ? ' ⌃' : ' ⌄');
-        };
-        // Holdings: show the first 6, tuck the rest behind an arrow
-        window.capHoldings = function () {
-            const rows = [...document.querySelectorAll('#holdingsContainer .holding-row')];
-            const old = document.getElementById('moreStocksBtn'); if (old) old.remove();
-            if (rows.length <= 6) return;
-            rows.forEach((r, i) => { if (i >= 6) r.setAttribute('data-extra', '1'), r.style.display = 'none'; });
-            const b = document.createElement('button');
-            b.id = 'moreStocksBtn'; b.className = 'expander-btn';
-            b.textContent = 'Show all ' + rows.length + ' stocks ⌄';
-            b.onclick = () => {
-                const hiddenNow = rows[6].style.display === 'none';
-                rows.forEach((r, i) => { if (i >= 6) r.style.display = hiddenNow ? '' : 'none'; });
-                b.textContent = hiddenNow ? 'Show fewer stocks ⌃' : ('Show all ' + rows.length + ' stocks ⌄');
-            };
-            document.getElementById('holdingsContainer').after(b);
-        };
-
-        // Format currency
-        function formatCurrency(number) {
-            if (number >= 1000000000) {
-                return `$${(number / 1000000000).toFixed(2)}B`;
-            } else if (number >= 1000000) {
-                return `$${(number / 1000000).toFixed(2)}M`;
-            } else if (number >= 1000) {
-                return `$${(number / 1000).toFixed(2)}K`;
-            } else {
-                return `$${number.toFixed(2)}`;
-            }
+    function paintRank(ret) {
+        let i = 0; TIERS.forEach((t, k) => { if (ret >= t.at) i = k; });
+        const t = TIERS[i], next = TIERS[i + 1];
+        document.body.style.setProperty('--tier', t.c);
+        $('emblem').innerHTML = emblem(t, i);
+        $('tierName').textContent = t.name;
+        const r = $('retPct'); r.textContent = pct(ret); r.className = ret > 0.005 ? 'up' : ret < -0.005 ? 'down' : '';
+        let fill = 1, line = 'Top tier. You won the race.';
+        if (next) {
+            const lo = Math.max(i === 0 ? 0 : t.at, 0), span = next.at - lo;
+            fill = ret <= lo ? 0 : Math.min(1, (ret - lo) / span);
+            line = ret < 0 ? 'Get back above <b>0%</b>, then <b>+' + next.at + '%</b> for ' + next.name
+                           : '<b>' + (next.at - ret).toFixed(2) + ' points</b> to ' + next.name + ' (+' + next.at + '%)';
         }
+        $('tierNext').innerHTML = line;
+        setTimeout(() => { $('tierBar').style.width = (fill * 100).toFixed(1) + '%'; }, 200);
+    }
 
-        /* ── the headline figures ─────────────────────────────────────────
-           formatCurrency abbreviates, so a $10,000 balance read "$10.00K" —
-           it hid the number it was meant to show. These write the figure in
-           full and hand the cents back as a separate span so they can be set
-           smaller than the dollars. */
-        function moneyParts(n) {
-            const v = Number(n) || 0;
-            const neg = v < 0;
-            const [d, c] = Math.abs(v).toFixed(2).split('.');
-            const dollars = Number(d).toLocaleString();
-            return `${neg ? '−' : ''}$${dollars}<span class="sv-cents">.${c}</span>`;
-        }
-        function setMoney(el, n) { if (el) el.innerHTML = moneyParts(n); }
-
-        /* ── daily change, in either unit ─────────────────────────────────
-           Both numbers are worked out once and kept, so flipping the toggle
-           is a re-render rather than another pass over the holdings. */
-        window.__dayMove = { dollars: 0, pct: 0, known: false };
-
-        function dcMode() {
-            try { return localStorage.getItem('pfDailyMode') === 'usd' ? 'usd' : 'pct'; }
-            catch (e) { return 'pct'; }
-        }
-        /* ── the change card follows the chart's timeframe ─────────────────
-           Picking 1M and still reading a one-day move made the card look
-           broken. The label and the figure now both track whichever span is
-           selected, derived from the very series the chart is drawing. */
-        /* Keys are exactly the strings the chart tabs pass to switchTimeframe
-           (see the .chart-tab buttons) — not the labels printed on them. */
-        const TF_LABEL = {
-            'day':    'Daily Change', 'week':  '1W Change',
-            'month':  '1M Change',    '3month': '3M Change',
-            '6month': '6M Change',    'ytd':    'YTD Change',
-            '1year':  '1Y Change',    'all':    'All-Time Change',
-        };
-
-        function applyTimeframeChange(timeframe, series) {
-            const lbl = document.querySelector('.summary-head .summary-label')
-                     || document.querySelector('.summary-card .summary-label');
-            const key = String(timeframe || 'day');
-            if (lbl) lbl.textContent = TF_LABEL[key] || 'Change';
-
-            const d = (series && series.data) || [];
-            if (d.length < 2) { renderDailyChange(); return; }
-            const first = Number(d[0]), last = Number(d[d.length - 1]);
-            if (!isFinite(first) || !isFinite(last) || first <= 0) { renderDailyChange(); return; }
-
-            window.__dayMove = {
-                dollars: last - first,
-                pct: ((last - first) / first) * 100,
-                known: true,
-            };
-            renderDailyChange();
-        }
-
-        function renderDailyChange() {
-            const el = document.getElementById('dailyChange');
-            if (!el) return;
-            const { dollars, pct, known } = window.__dayMove;
-            const mode = dcMode();
-
-            document.querySelectorAll('.dc-opt').forEach(b => {
-                const on = b.dataset.mode === mode;
-                b.classList.toggle('is-on', on);
-                b.setAttribute('aria-pressed', on ? 'true' : 'false');
-            });
-
-            if (!known) {
-                // unknown is not zero — say so rather than quoting a figure
-                el.innerHTML = '—';
-                el.style.color = '#7d746a';
-                el.title = 'Live prices unavailable right now';
-                return;
-            }
-            el.removeAttribute('title');
-            /* The sign is written explicitly and the magnitude passed in as an
-               absolute. The old version stripped the minus out of the dollar
-               form and never put one back, so a $250 loss displayed as
-               "$250.00" — the right number with the wrong meaning. */
-            const v = mode === 'usd' ? dollars : pct;
-            const sign = v > 0 ? '+' : v < 0 ? '−' : '';
-            el.innerHTML = mode === 'usd'
-                ? sign + moneyParts(Math.abs(dollars))
-                : sign + Math.abs(pct).toFixed(2) + '%';
-            // colour from the dollar move: a 0.00% rounding can still be a loss
-            el.style.color = dollars > 0 ? '#5CB88A' : dollars < 0 ? '#D9645C' : '#B7ADA1';
-        }
-        document.addEventListener('click', e => {
-            const b = e.target.closest('.dc-opt');
-            if (!b) return;
-            try { localStorage.setItem('pfDailyMode', b.dataset.mode); } catch (err) {}
-            renderDailyChange();
+    function paintMiles(held, sectors, ret) {
+        const M = [
+            ['First trade', held >= 1], ['3 sectors', sectors >= 3], ['5 positions', held >= 5],
+            ['In the green', ret > 0], ['+10%', ret >= 10], ['The +50% race', ret >= 50],
+        ];
+        const box = $('miles');
+        box.querySelectorAll('.pf-mile, .pf-legal').forEach(e => e.remove());
+        M.forEach(([label, done]) => {
+            const m = document.createElement('span');
+            m.className = 'pf-mile' + (done ? ' done' : '');
+            m.innerHTML = '<i></i><span></span>';
+            m.querySelector('span').textContent = label;
+            box.appendChild(m);
         });
-        document.addEventListener('DOMContentLoaded', renderDailyChange);
+        const l = document.createElement('span'); l.className = 'pf-legal';
+        l.textContent = 'A simulation for education and entertainment. Not investment advice. No real money.';
+        box.appendChild(l);
+    }
 
-        // Map a ticker to a sector (for grouping + the pie chart)
-        let __uniSectors = null;
-        function getSectorForSymbol(symbol) {
-            // household names people call "tech" regardless of GICS labels
-            if (symbol === 'GOOGL' || symbol === 'GOOG' || symbol === 'META') return 'Technology';
-            // Full 5,000-stock universe first — the hardcoded map is a last resort.
-            if (!__uniSectors && window.DRAFT_UNIVERSE) {
-                __uniSectors = {};
-                window.DRAFT_UNIVERSE.forEach(u => { __uniSectors[u.symbol] = u.sector; });
-            }
-            if (__uniSectors && __uniSectors[symbol]) return __uniSectors[symbol];
-            const sectorMap = {
-                'AAPL':'Technology','MSFT':'Technology','GOOGL':'Technology','AMZN':'Technology',
-                'META':'Technology','NVDA':'Technology','TSLA':'Technology','AMD':'Technology',
-                'NFLX':'Technology','INTC':'Technology','CRM':'Technology','PYPL':'Finance',
-                'JPM':'Finance','BAC':'Finance','WFC':'Finance','GS':'Finance','V':'Finance','MA':'Finance',
-                'JNJ':'Healthcare','PFE':'Healthcare','UNH':'Healthcare','ABT':'Healthcare',
-                'XOM':'Energy','CVX':'Energy','COP':'Energy',
-                'WMT':'Consumer','HD':'Consumer','MCD':'Consumer','KO':'Consumer','PEP':'Consumer',
-                'NKE':'Consumer','SBUX':'Consumer','DIS':'Communication','BA':'Industrials'
-            };
-            return sectorMap[symbol] || 'Other';
-        }
-
-        // Build the sector-grouped portfolioData object the page renders from,
-        // using the real portfolio (flat) + live prices from the scraper.
-        async function buildPortfolioData() {
-            const portfolio = await SL.loadPortfolio();          // {cash, stocks:{SYM:{shares,avgPrice,totalCost}}}
-            const symbols = Object.keys(portfolio.stocks || {});
-            const prices = symbols.length ? await stockDataService.getQuotes(symbols) : {};
-
-            const data = { cash: portfolio.cash, stocks: {} };
-            symbols.forEach(sym => {
-                const pos = portfolio.stocks[sym];
-                if (!pos || !pos.shares) return;
-                const sector = getSectorForSymbol(sym);
-                const live = prices[sym];
-                /* Only a genuinely live quote is allowed to move this position.
-                   If the market data missed, hold it at cost — that shows a
-                   flat, honest position instead of a random walk dressed up as
-                   a gain. */
-                const isLive = !!(live && live.isLive && live.price != null);
-                const currentPrice = isLive ? Number(live.price) : (pos.avgPrice || 0);
-                if (!data.stocks[sector]) data.stocks[sector] = [];
-                /* getQuotes hands back `change_pct` — it renames getStockQuote's
-                   `changePercent` on the way out. This was reading
-                   `changePercent` and `change_percent`, neither of which is on
-                   the object, so every holding got a day move of exactly zero
-                   and Daily Change was permanently 0.00% no matter what the
-                   market did. Read the real key first, keep the others as
-                   fallbacks, and derive from the raw change if the percentage
-                   is missing entirely. */
-                let dayCh = 0;
-                if (isLive) {
-                    const named = live.change_pct != null ? live.change_pct
-                                : live.changePercent != null ? live.changePercent
-                                : live.change_percent != null ? live.change_percent : null;
-                    if (named != null) {
-                        dayCh = Number(named);
-                    } else if (live.change != null && currentPrice) {
-                        const prev = currentPrice - Number(live.change);
-                        dayCh = prev ? (Number(live.change) / prev) * 100 : 0;
-                    }
-                }
-                data.stocks[sector].push({
-                    symbol: sym,
-                    shares: pos.shares,
-                    price: pos.avgPrice || currentPrice,   // cost basis
-                    currentPrice: currentPrice,             // live price
-                    dayChangePct: isFinite(dayCh) ? dayCh : 0,
-                    isLive: isLive,                         // was this priced for real?
-                    sector
-                });
-            });
-            localStorage.setItem('portfolioData', JSON.stringify(data));
-            return data;
-        }
-
-
-        // ── Fill the stat grid + risk analysis with REAL numbers only ──
-        async function fillRealStats(holdings, cash) {
-            const S = (id, v, sub) => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = v;
-                if (sub !== undefined) {
-                    const card = el && el.closest('.stat-card');
-                    const s = card && card.querySelector('.stat-sub');
-                    if (s) s.textContent = sub;
-                }
-            };
-            if (!holdings || !holdings.length) {
-                S('riskScore', '—', 'No holdings yet');
-                S('dividendYield', '—', 'Not tracked yet');
-                S('topSector', '—', 'No holdings yet');
-                S('yoyReturn', '—', 'Starts with your first trade');
-                S('bestStock', '—'); const bs = document.getElementById('bestStockReturn'); if (bs) bs.textContent = '';
-                S('worstStock', '—'); const ws = document.getElementById('worstStockReturn'); if (ws) ws.textContent = '';
-                S('totalGains', '$0.00', 'Since inception');
-                S('portfolioBeta', '—', 'Needs holdings');
-                S('sectorDiversity', '0', 'Number of sectors invested');
-                const ra = document.querySelector('.analysis-card:last-child');
-                if (ra) ra.innerHTML = '<div class="analysis-title">Risk Analysis</div><div style="color:#7d746a;font-size:0.9rem;padding:2rem 0;text-align:center;">Unlocks with your first holding.</div>';
-                return;
-            }
-            // sectors
-            const bySector = {};
-            holdings.forEach(h => { bySector[h.sector] = (bySector[h.sector] || 0) + h.value; });
-            const sectors = Object.entries(bySector).sort((a, b) => b[1] - a[1]);
-            S('sectorDiversity', String(sectors.length));
-            S('topSector', sectors[0][0]);
-            S('riskScore', sectors.length >= 4 ? 'Diversified' : (sectors.length >= 2 ? 'Moderate' : 'Concentrated'),
-              'Based on how many sectors you hold');
-            // gains + best/worst by % return vs cost
-            let gains = 0; let best = null, worst = null;
-            holdings.forEach(h => {
-                gains += h.value - h.cost * h.shares;
-                const pct = h.cost > 0 ? ((h.live - h.cost) / h.cost) * 100 : 0;
-                if (!best || pct > best.pct) best = { sym: h.symbol, pct };
-                if (!worst || pct < worst.pct) worst = { sym: h.symbol, pct };
-            });
-            const g = document.getElementById('totalGains');
-            if (g) { g.textContent = (gains >= 0 ? '+' : '−') + '$' + Math.abs(gains).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); g.style.color = gains >= 0 ? '#5cb88a' : '#d9645c'; }
-            S('bestStock', best.sym);
-            const br = document.getElementById('bestStockReturn'); if (br) { br.textContent = (best.pct >= 0 ? '+' : '') + best.pct.toFixed(2) + '%'; br.style.color = best.pct >= 0 ? '#5cb88a' : '#d9645c'; }
-            S('worstStock', worst.sym);
-            const wr = document.getElementById('worstStockReturn'); if (wr) { wr.textContent = (worst.pct >= 0 ? '+' : '') + worst.pct.toFixed(2) + '%'; wr.style.color = worst.pct >= 0 ? '#5cb88a' : '#d9645c'; }
-            // metrics we can't compute honestly yet
-            S('dividendYield', '—', 'Not tracked yet');
-            S('yoyReturn', '—', 'Needs a year of history');
-            S('portfolioBeta', '—', 'Needs more history');
-            // Risk analysis: YOUR real return vs the S&P 500's real 1-year return
-            try {
-                const totalCost = holdings.reduce((s, h) => s + h.cost * h.shares, 0);
-                const youPct = totalCost > 0 ? (gains / totalCost) * 100 : 0;
-                const spy = await stockDataService.getHistoricalData('^GSPC', '1Y');
-                const spyPct = (spy && spy.length > 1) ? ((spy[spy.length - 1].close - spy[0].close) / spy[0].close) * 100 : null;
-                const ra = document.querySelector('.analysis-card:last-child');
-                if (ra && spyPct !== null) {
-                    const maxAbs = Math.max(Math.abs(youPct), Math.abs(spyPct), 1);
-                    const w = v => Math.max(6, Math.abs(v) / maxAbs * 100);
-                    ra.innerHTML = '<div class="analysis-title">Performance vs. Market</div>' +
-                        '<div class="risk-bar-item"><div class="risk-bar-label"><span>Your Return</span><span>' + (youPct >= 0 ? '+' : '') + youPct.toFixed(1) + '%</span></div>' +
-                        '<div class="risk-bar"><div class="risk-bar-fill" style="width:' + w(youPct) + '%;background:' + (youPct >= 0 ? 'rgba(92,184,138,0.85)' : 'rgba(217,100,92,0.85)') + '">' + (youPct >= 0 ? '+' : '') + youPct.toFixed(1) + '%</div></div></div>' +
-                        '<div class="risk-bar-item"><div class="risk-bar-label"><span>S&amp;P 500 (1 yr)</span><span>' + (spyPct >= 0 ? '+' : '') + spyPct.toFixed(1) + '%</span></div>' +
-                        '<div class="risk-bar"><div class="risk-bar-fill" style="width:' + w(spyPct) + '%;background:rgba(224,162,76,0.8)">' + (spyPct >= 0 ? '+' : '') + spyPct.toFixed(1) + '%</div></div></div>' +
-                        '<div style="color:#7d746a;font-size:0.72rem;margin-top:0.8rem;">Live Yahoo Finance data — your total return against the index.</div>';
-                }
-            } catch (e) { /* leave whatever is there */ }
-        }
-
-        async function initializePortfolio() {
-            let portfolioData = await buildPortfolioData();
-
-            /* Nothing shows until the first REAL trade — no placeholder numbers.
-               But "have you traded" must be answered by what you actually HOLD,
-               not by the trade log. SL.recentTrades() returns [] whenever there
-               is no signed-in user, and SL.logTrade() silently writes nothing in
-               that same case. So a logged-out player could buy $4,888 of NVDA —
-               cash correctly deducted, position correctly stored — and this page
-               would tell them they had no holdings and report a total of just
-               the leftover cash. Their money looked like it evaporated.
-
-               Holdings are the source of truth. The trade log is only consulted
-               when there is nothing held, which is the one case it answers
-               better: someone who traded and has since sold out. */
-            const heldNow = !!(portfolioData.stocks && Object.values(portfolioData.stocks)
-                .some(list => (list || []).some(s => s && Number(s.shares) > 0)));
-            let hasTraded = heldNow;
-            if (!hasTraded) {
-                try { hasTraded = ((await SL.recentTrades(1)) || []).length > 0; } catch (e) {}
-            }
-            window.__hasTraded = hasTraded;
-            if (!hasTraded) {
-                // Real numbers, no placeholders: your actual cash and value (no holdings yet).
-                const cash = Number(portfolioData.cash) || 0;
-                setMoney(document.getElementById('totalValue'), cash);
-                // nothing held, so the day's move is genuinely nil rather than unknown
-                window.__dayMove = { dollars: 0, pct: 0, known: true };
-                renderDailyChange();
-                setMoney(document.getElementById('cashAvailable'), cash);
-                const hc = document.getElementById('holdingsContainer');
-                if (hc) hc.innerHTML = '<div style="padding:2.5rem 1rem;text-align:center;color:#B7ADA1;">No holdings yet — make your first trade on the <a href="trading.html" style="color:#5CB88A;">trading floor</a>.</div>';
-                const legend = document.getElementById('sectorLegend');
-                if (legend) legend.innerHTML = '<div style="color:#7d746a;font-size:0.85rem;padding:0.5rem 0;">No holdings yet.</div>';
-                const pie = document.getElementById('sectorPieChart');
-                if (pie) pie.style.display = 'none';
-                fillRealStats(null, Number(portfolioData.cash) || 0);
-                return;
-            }
-
-            const empty = !portfolioData.stocks || Object.keys(portfolioData.stocks).length === 0;
-            if (empty) {
-                const hc = document.getElementById('holdingsContainer');
-                if (hc) hc.innerHTML = '<div style="padding:2.5rem 1rem;text-align:center;color:#B7ADA1;">No holdings yet — make your first trade on the <a href="trading.html" style="color:#5CB88A;">trading floor</a>.</div>';
-            }
-
-            // Update cash balance
-            // full figure here too, so the three cards read consistently
-            setMoney(document.getElementById('cashAvailable'), portfolioData.cash);
-
-            const holdingsContainer = document.getElementById('holdingsContainer');
-            if (!holdingsContainer) {
-                console.error('Holdings container not found');
-                return;
-            }
-
-            if (!empty) holdingsContainer.innerHTML = '';
-            let totalPortfolioValue = 0;
-            const realHoldings = [];
-
-            Object.keys(portfolioData.stocks).forEach(sector => {
-                const sectorStocks = portfolioData.stocks[sector];
-
-                sectorStocks.forEach(stock => {
-                    if (stock.shares && stock.shares > 0) {
-                        const costBasis = parseFloat(stock.price);
-                        const livePrice = parseFloat(stock.currentPrice != null ? stock.currentPrice : stock.price);
-                        const currentValue = stock.shares * livePrice;
-                        totalPortfolioValue += currentValue;
-                        realHoldings.push({ symbol: stock.symbol, sector: getSectorForSymbol(stock.symbol), shares: stock.shares, cost: costBasis, live: livePrice, value: currentValue });
-                        const totalReturn = stock.shares * (livePrice - costBasis);
-
-                        const row = document.createElement('div');
-                        row.className = 'holding-row';
-                        row.innerHTML = `
-                            <div class="stock-name">${window.logoHtml ? window.logoHtml(stock.symbol, stock.sector) : ''}<span>${stock.symbol}</span></div>
-                            <div class="shares-count">${stock.shares.toFixed(2)}</div>
-                            <div class="avg-cost">${formatCurrency(costBasis)}</div>
-                            <div class="current-val">${formatCurrency(currentValue)}</div>
-                            <div class="total-ret ${totalReturn >= 0 ? 'positive' : 'negative'}">
-                                ${formatCurrency(Math.abs(totalReturn))}
-                                <span>${totalReturn >= 0 ? '↑' : '↓'}</span>
-                            </div>
-                            <div><a class="row-trade-btn" href="trading.html?symbol=${stock.symbol}">Trade</a></div>
-                        `;
-                        holdingsContainer.appendChild(row);
-                    }
-                });
-            });
-            try { window.capHoldings(); } catch (e) {}
-
-            // Update total value (holdings + cash)
-            setMoney(document.getElementById('totalValue'), totalPortfolioValue + portfolioData.cash);
-
-            /* Real daily change. Each holding's day move in dollars, summed —
-               derived from the price and the day's percentage rather than
-               re-deriving a percentage from a percentage, so the dollar figure
-               and the percentage can't disagree. */
-            let dayDollars = 0, livePositions = 0, heldPositions = 0;
-            Object.values(portfolioData.stocks).forEach(list => list.forEach(s => {
-                heldPositions++;
-                if (!s.isLive) return;          // priced at cost — contributes nothing
-                livePositions++;
-                const px = Number(s.currentPrice) || 0;
-                const pct = Number(s.dayChangePct) || 0;
-                // yesterday's close implied by today's price and its move
-                const prev = pct === -100 ? px : px / (1 + pct / 100);
-                dayDollars += (px - prev) * (Number(s.shares) || 0);
-            }));
-            const base = totalPortfolioValue + portfolioData.cash;
-            /* If nothing could be priced for real, the day's move is unknown —
-               not zero, and certainly not whatever the simulator produced. The
-               card says so rather than inventing a figure. */
-            window.__dayMove = {
-                dollars: dayDollars,
-                pct: base > 0 ? (dayDollars / base) * 100 : 0,
-                known: heldPositions === 0 || livePositions > 0
-            };
-            renderDailyChange();
-
-            // Update sector pie chart
-            setTimeout(() => {
-                initializeSectorPieChart();
-            }, 100);
-
-            fillRealStats(realHoldings, Number(portfolioData.cash) || 0);
-        }
-
-        // DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('Page loaded, initializing...');
-            initializePortfolio();
-            updatePerformanceChart('day');
+    const SECTOR_C = ['#5CB88A', '#F0B865', '#9DB8FF', '#E8867F', '#7FD1C7', '#C9A0E8', '#D9B48A', '#9A8F84'];
+    function paintMix(rows, invested) {
+        const box = $('mix');
+        if (!rows.length || invested <= 0) { box.hidden = true; return; }
+        const by = {}; rows.forEach(r => { by[r.sector] = (by[r.sector] || 0) + r.value; });
+        const list = Object.entries(by).sort((a, b) => b[1] - a[1]);
+        $('strip').innerHTML = list.map(([, v], i) => '<i style="flex-grow:' + v.toFixed(0) + ';background:' + SECTOR_C[i % 8] + '"></i>').join('');
+        const keys = $('keys'); keys.innerHTML = '';
+        list.forEach(([name, v], i) => {
+            const k = document.createElement('span'); k.style.setProperty('--k', SECTOR_C[i % 8]);
+            k.textContent = name + ' ' + Math.round(v / invested * 100) + '%'; keys.appendChild(k);
         });
+        const top = list[0][1] / invested;
+        $('mixTip').textContent = list.length < 3 ? 'Add a third sector to unlock a milestone'
+            : top > 0.5 ? list[0][0] + ' is over half your holdings' : 'Nicely spread';
+        box.hidden = false;
+    }
 
-        // Refresh when returning to the page
-        let visibilityHandler = null;
-        if (!visibilityHandler) {
-            visibilityHandler = () => {
-                if (document.visibilityState === 'visible') {
-                    console.log('Page became visible, refreshing portfolio');
-                    initializePortfolio();
-                    initializeSectorPieChart();
-                }
-            };
-            document.addEventListener('visibilitychange', visibilityHandler);
+    function paintTip(rows, invested, cash, total) {
+        const el = $('rallyTip'); if (!el) return;
+        const esc = t => String(t).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+        let tip;
+        if (!rows.length) tip = 'Empty roster. Pick one company you actually understand and start there.';
+        else {
+            const live = rows.filter(r => r.live);
+            const mover = live.slice().sort((a, b) => Math.abs(b.day) - Math.abs(a.day))[0];
+            const by = {}; rows.forEach(r => { by[r.sector] = (by[r.sector] || 0) + r.value; });
+            const top = Object.entries(by).sort((a, b) => b[1] - a[1])[0];
+            if (mover && Math.abs(mover.day) >= 2) tip = '<b>' + esc(mover.sym) + '</b> is your big mover today at ' + pct(mover.day) + '. Tap it to see why.';
+            else if (top && invested > 0 && top[1] / invested > 0.6) tip = '<b>' + Math.round(top[1] / invested * 100) + '%</b> of your holdings is ' + esc(top[0]) + '. One bad day there hits everything.';
+            else if (total > 0 && cash / total > 0.5) tip = 'Over half your account is sitting in cash. Cash can\'t climb the ranks.';
+            else if (rows.length < 3) tip = 'Only ' + rows.length + ' on the roster. A third pick spreads the risk.';
+            else tip = 'Quiet day. Your best since buying is <b>' + esc(rows.slice().sort((a, b) => b.gain - a.gain)[0].sym) + '</b>.';
         }
+        el.innerHTML = tip;
+    }
 
-        function openWatchlist() {
-            window.location.href = 'watchlist.html';
-        }
+    function card(h, total) {
+        const a = document.createElement('a');
+        a.className = 'pf-card ' + (h.day > 0.005 ? 'up' : h.day < -0.005 ? 'down' : 'flat');
+        a.href = 'trading.html?symbol=' + encodeURIComponent(h.sym);
+        const share = total > 0 ? h.value / total * 100 : 0;
+        a.innerHTML =
+            '<div class="pc-top">' + (window.logoHtml ? logoHtml(h.sym, h.sector) : '') +
+                '<div><div class="pc-sym"></div><div class="pc-name"></div></div>' +
+                '<span class="pc-day">' + (h.live ? pct(h.day) : 'closed') + '</span></div>' +
+            '<div class="pc-val">' + money(h.value) + '</div>' +
+            '<div class="pc-sub"><span>' + h.shares + ' sh</span><span class="' + (h.gain >= 0 ? 'up' : 'down') + '">' + pct(h.gain) + ' since buy</span></div>' +
+            '<div class="pc-share" title="' + share.toFixed(1) + '% of your holdings"><i style="width:' + share.toFixed(1) + '%"></i></div>';
+        a.querySelector('.pc-sym').textContent = h.sym;
+        a.querySelector('.pc-name').textContent = (U[h.sym] && U[h.sym].n) || h.sector || '';
+        return a;
+    }
 
-        async function showWeeklyReport() {
-            // Real weekly report from your actual holdings and live prices.
-            const pd = JSON.parse(localStorage.getItem('portfolioData') || '{}');
-            const holdings = [];
-            Object.values(pd.stocks || {}).forEach(list => list.forEach(s => holdings.push(s)));
-            const cash = Number(pd.cash) || 0;
-            let totalValue = cash, weekDollars = 0, best = null, worst = null;
-            try {
-                const syms = holdings.map(h => h.symbol);
-                const weekSeries = await Promise.all(syms.map(s =>
-                    stockDataService.getHistoricalData(s, '1W').catch(() => null)));
-                holdings.forEach((h, i) => {
-                    const live = h.currentPrice || h.price || 0;
-                    totalValue += h.shares * live;
-                    const sr = weekSeries[i];
-                    if (sr && sr.length > 1) {
-                        const startPx = sr[0].close, endPx = sr[sr.length - 1].close;
-                        const pct = startPx ? ((endPx - startPx) / startPx) * 100 : 0;
-                        weekDollars += h.shares * (endPx - startPx);
-                        if (!best || pct > best.pct) best = { symbol: h.symbol, pct };
-                        if (!worst || pct < worst.pct) worst = { symbol: h.symbol, pct };
-                    }
-                });
-            } catch (e) {}
-            const startValue = totalValue - weekDollars;
-            const weekPct = startValue > 0 ? (weekDollars / startValue) * 100 : 0;
-            const fmt = v => '$' + Number(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            const rows = holdings.length ? `
-                <div class="report-item"><span class="label">Value One Week Ago:</span><span class="value">${fmt(startValue)}</span></div>
-                <div class="report-item"><span class="label">Value Now:</span><span class="value">${fmt(totalValue)}</span></div>
-                <div class="report-item"><span class="label">Weekly Return:</span><span class="value ${weekPct >= 0 ? 'positive' : 'negative'}">${weekPct >= 0 ? '+' : ''}${weekPct.toFixed(2)}%</span></div>
-                ${best ? '<div class="report-item"><span class="label">Best Performer:</span><span class="value ' + (best.pct >= 0 ? 'positive' : 'negative') + '">' + best.symbol + ' (' + (best.pct >= 0 ? '+' : '') + best.pct.toFixed(1) + '%)</span></div>' : ''}
-                ${(worst && best && worst.symbol !== best.symbol) ? '<div class="report-item"><span class="label">Worst Performer:</span><span class="value ' + (worst.pct >= 0 ? 'positive' : 'negative') + '">' + worst.symbol + ' (' + (worst.pct >= 0 ? '+' : '') + worst.pct.toFixed(1) + '%)</span></div>' : ''}
-                <div class="report-item"><span class="label">Cash on Hand:</span><span class="value">${fmt(cash)}</span></div>`
-                : '<p style="color:#B7ADA1;padding:1rem 0;">No holdings yet — your weekly report starts with your first trade.</p>';
-            const modal = document.createElement('div');
-            modal.className = 'modal-overlay';
-            modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2>Weekly Portfolio Report</h2>
-                        <button class="close-btn" onclick="this.closest('.modal-overlay').remove()">×</button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="report-section">
-                            <h3>Your Week</h3>
-                            <div class="report-grid">${rows}</div>
-                        </div>
-                    </div>
-                </div>`;
-            document.body.appendChild(modal);
-        }
+    function starters() {
+        const box = document.createElement('div'); box.className = 'pf-empty';
+        box.innerHTML = '<p>Empty roster. Start with one of these:</p><div class="pf-starters"></div>';
+        const grid = box.querySelector('.pf-starters');
+        ['NVDA', 'GOOGL', 'MSFT'].forEach(sym => {
+            const a = document.createElement('a'); a.className = 'pf-card'; a.href = 'trading.html?symbol=' + sym;
+            a.innerHTML = '<div class="pc-top">' + (window.logoHtml ? logoHtml(sym, 'Technology') : '') +
+                '<div><div class="pc-sym">' + sym + '</div><div class="pc-name"></div></div></div><div class="pc-val">Research &rarr;</div>';
+            a.querySelector('.pc-name').textContent = (U[sym] && U[sym].n) || '';
+            grid.appendChild(a);
+        });
+        return box;
+    }
 
-        async function showPurchaseHistory() {
-            // Pull the real trade log from Supabase (falls back to sample in demo mode)
-            let raw = await SL.recentTrades(100);
-            let trades = (raw || []).map(t => ({
-                date: (t.created_at || '').slice(0, 10) || '—',
-                action: (t.side || '').toUpperCase(),
-                symbol: t.symbol,
-                shares: Number(t.shares),
-                price: Number(t.price),
-                total: Number(t.shares) * Number(t.price)
-            }));
+    async function load() {
+        let pf = { cash: START, stocks: {} };
+        try { pf = await SL.loadPortfolio(); } catch (e) {}
+        const syms = Object.keys(pf.stocks || {}).filter(s => pf.stocks[s] && pf.stocks[s].shares > 0);
+        let q = {};
+        try { q = syms.length ? await stockDataService.getQuotes(syms) : {}; } catch (e) {}
+        const rows = syms.map(sym => {
+            const pos = pf.stocks[sym], live = q[sym];
+            const isLive = !!(live && live.isLive && live.price != null);
+            const px = isLive ? Number(live.price) : Number(pos.avgPrice || 0);
+            const day = isLive ? Number(live.change_pct != null ? live.change_pct : live.changePercent || 0) : 0;
+            const cost = Number(pos.avgPrice || px);
+            return { sym, shares: +Number(pos.shares).toFixed(4), value: px * pos.shares, day, live: isLive,
+                     gain: cost > 0 ? (px - cost) / cost * 100 : 0,
+                     sector: (U[sym] && U[sym].se) || 'Other', prevValue: isLive && day > -100 ? px * pos.shares / (1 + day / 100) : px * pos.shares };
+        }).sort((a, b) => b.value - a.value);
 
-            const emptyNote = trades.length === 0
-                ? '<p style="color:#B7ADA1;padding:1.5rem 1rem;text-align:center;">No trades yet — your history starts with your first buy or sell.</p>' : '';
+        const invested = rows.reduce((s, r) => s + r.value, 0);
+        const cash = Number(pf.cash) || 0, total = cash + invested;
+        const ret = (total - START) / START * 100;
+        const prevTotal = cash + rows.reduce((s, r) => s + r.prevValue, 0);
+        const dayPct = prevTotal > 0 ? (total - prevTotal) / prevTotal * 100 : 0;
 
-            const tradeRows = emptyNote + trades.map(t => `
-                <div style="display:grid; grid-template-columns: 100px 60px 80px 80px 100px 110px; padding: 0.7rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.85rem; align-items: center;">
-                    <span style="color: rgba(255,255,255,0.6);">${t.date}</span>
-                    <span style="color: ${t.action === 'BUY' ? '#5cb88a' : '#d9645c'}; font-weight: 600;">${t.action}</span>
-                    <span style="color: #e0a24c; font-weight: 600; display:flex; align-items:center; gap:7px; min-width:0;">${window.logoHtml ? window.logoHtml(t.symbol, t.sector, 'sm') : ''}<span style="overflow:hidden;text-overflow:ellipsis;">${t.symbol}</span></span>
-                    <span style="color: rgba(255,255,255,0.8);">${t.shares}</span>
-                    <span style="color: rgba(255,255,255,0.8); font-family: monospace;">$${t.price.toFixed(2)}</span>
-                    <span style="color: #ffffff; font-weight: 600; font-family: monospace;">$${t.total.toFixed(2)}</span>
-                </div>
-            `).join('');
+        $('mValue').textContent = money(total);
+        $('mCash').textContent = money(cash);
+        const d = $('mDay'); d.textContent = pct(dayPct); d.className = dayPct > 0.005 ? 'up' : dayPct < -0.005 ? 'down' : '';
+        paintRank(ret);
 
-            const modal = document.createElement('div');
-            modal.className = 'modal-overlay';
-            modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width: 700px;">
-                    <div class="modal-header">
-                        <h2 style="font-size: 1.3rem; font-weight: 600;">Purchase History</h2>
-                        <button class="close-btn" onclick="this.closest('.modal-overlay').remove()">&times;</button>
-                    </div>
-                    <div class="modal-body" style="padding: 0;">
-                        <div style="display:grid; grid-template-columns: 100px 60px 80px 80px 100px 110px; padding: 0.7rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.75rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.5px;">
-                            <span>Date</span>
-                            <span>Action</span>
-                            <span>Symbol</span>
-                            <span>Shares</span>
-                            <span>Price</span>
-                            <span>Total</span>
-                        </div>
-                        ${tradeRows}
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        }
+        const cards = $('cards'); cards.innerHTML = '';
+        if (rows.length) rows.forEach(r => cards.appendChild(card(r, invested)));
+        else cards.appendChild(starters());
+        $('rCount').textContent = rows.length ? rows.length + (rows.length === 1 ? ' player' : ' players') : 'Empty';
+        paintMix(rows, invested);
+        paintTip(rows, invested, cash, total);
+        paintMiles(rows.length, new Set(rows.map(r => r.sector)).size, ret);
+    }
 
-        window.portChartMode = 'line';
-        window.__lastTimeframe = 'day';
-        function setPortChartMode(mode, btn) {
-            window.portChartMode = mode;
-            document.getElementById('pcLine').classList.toggle('active', mode === 'line');
-            document.getElementById('pcCandle').classList.toggle('active', mode === 'candles');
-            updatePerformanceChart(window.__lastTimeframe);
-        }
-
-        function switchTimeframe(btn, timeframe) {
-            document.querySelectorAll('.chart-tab').forEach(tab => tab.classList.remove('active'));
-            btn.classList.add('active');
-            window.__lastTimeframe = timeframe;
-            updatePerformanceChart(timeframe);
-        }
-
-        async function updatePerformanceChart(timeframe) {
-            const ctx = document.getElementById('mainPerformanceChart');
-            if (!ctx) {
-                console.warn('Chart canvas not found');
-                return;
-            }
-
-
-            if (window.mainPerformanceChartInstance) {
-                try {
-                    window.mainPerformanceChartInstance.destroy();
-                } catch (e) {
-                    console.warn('Error destroying chart:', e);
-                }
-                window.mainPerformanceChartInstance = null;
-            }
-
-            const tfMap = { day: '1D', week: '1W', month: '1M', '3month': '3M', '6month': '1Y', ytd: '1Y', '1year': '1Y', all: 'ALL' };
-            const period = tfMap[timeframe] || '1M';
-            window.__histCache = window.__histCache || {};
-
-            async function firstTradeTime() {
-                if (window.__firstTradeAt !== undefined) return window.__firstTradeAt;
-                try {
-                    const trades = await SL.recentTrades(500);
-                    const times = (trades || []).map(t => new Date(t.created_at || t.inserted_at || 0).getTime()).filter(x => x > 0);
-                    window.__firstTradeAt = times.length ? Math.min(...times) : null;
-                } catch (e) { window.__firstTradeAt = null; }
-                return window.__firstTradeAt;
-            }
-
-            // Honest series built by REPLAYING your actual trades:
-            //   · zero trades  → a perfectly flat line at your cash balance
-            //   · with trades  → flat until your first trade, then the value
-            //     of what you actually held on each day, priced with real
-            //     Yahoo closes. Simulated history is never used here.
-            async function buildRealSeries() {
-                if (window.__histCache[period]) return window.__histCache[period];
-                const pd = JSON.parse(localStorage.getItem('portfolioData') || '{}');
-                const cashNow = Number(pd.cash) || 0;
-                const holdNow = {};   // symbol → shares today
-                Object.values(pd.stocks || {}).forEach(list => list.forEach(s => {
-                    if (Number(s.shares) > 0) holdNow[s.symbol] = (holdNow[s.symbol] || 0) + Number(s.shares);
-                }));
-
-                let trades = [];
-                try { trades = (await SL.recentTrades(500)) || []; } catch (e) {}
-                trades = trades.filter(t => !t.league_id)   // personal account only
-                    .map(t => ({ sym: t.symbol, side: String(t.side || '').toLowerCase(),
-                                 sh: Number(t.shares) || 0, px: Number(t.price) || 0,
-                                 at: new Date(t.created_at || 0).getTime() }))
-                    .filter(t => t.at > 0).sort((a, b) => a.at - b.at);
-
-                const flatLine = (level) => {
-                    const now = Date.now();
-                    const spanDays = { '1D': 1, '1W': 5, '1M': 22, '3M': 66, '1Y': 252, 'ALL': 504 }[period] || 22;
-                    const points = Math.min(10, spanDays + 1);
-                    const stepMs = period === '1D' ? 3600000 : (spanDays * 86400000) / (points - 1);
-                    const labels = [], data = [];
-                    for (let i = points - 1; i >= 0; i--) {
-                        const dte = new Date(now - i * stepMs);
-                        labels.push(period === '1D'
-                            ? dte.toLocaleTimeString([], { hour: 'numeric' })
-                            : dte.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }));
-                        data.push(Math.round(level * 100) / 100);
-                    }
-                    return { labels, data };
-                };
-
-                // No trades ever: the line is your cash. Flat. Period.
-                if (!trades.length) return (window.__histCache[period] = flatLine(cashNow));
-
-                // Real closes for every symbol you've ever traded in range
-                const syms = [...new Set(trades.map(t => t.sym))];
-                const hist = {};
-                await Promise.all(syms.map(async s => {
-                    const sr = await stockDataService.getHistoricalData(s, period).catch(() => null);
-                    if (sr && sr._real) hist[s] = sr;    // simulated data is refused
-                }));
-
-                // Timeline: the densest real series in range, else a daily grid
-                let timeline = null;
-                Object.values(hist).forEach(sr => { if (!timeline || sr.length > timeline.length) timeline = sr; });
-                const times = timeline
-                    ? timeline.map(pt => pt.time > 1e12 ? pt.time : pt.time * 1000)
-                    : flatLine(0).labels.map((_, i, a) => Date.now() - (a.length - 1 - i) * 86400000);
-
-                // state(T): walk back from today, undoing trades newer than T
-                const stateAt = (T) => {
-                    let cash = cashNow;
-                    const hold = Object.assign({}, holdNow);
-                    for (let i = trades.length - 1; i >= 0; i--) {
-                        const t = trades[i];
-                        if (t.at <= T) break;
-                        if (t.side === 'sell') { cash -= t.sh * t.px; hold[t.sym] = (hold[t.sym] || 0) + t.sh; }
-                        else { cash += t.sh * t.px; hold[t.sym] = (hold[t.sym] || 0) - t.sh; }
-                    }
-                    return { cash, hold };
-                };
-                const closeAt = (sym, T) => {
-                    const sr = hist[sym]; if (!sr) return null;
-                    let best = null;
-                    for (const pt of sr) { const tm = pt.time > 1e12 ? pt.time : pt.time * 1000;
-                        if (tm <= T) best = pt.close; else break; }
-                    return best != null ? best : (sr[0] ? sr[0].close : null);
-                };
-
-                const labels = [], data = [];
-                times.forEach(T => {
-                    const { cash, hold } = stateAt(T);
-                    let v = cash;
-                    Object.entries(hold).forEach(([sym, sh]) => {
-                        if (!(sh > 0)) return;
-                        const cl = closeAt(sym, T);
-                        if (cl != null) { v += sh * cl; return; }
-                        // no real market history? value at what you paid — flat, not fake
-                        const t = trades.filter(x => x.sym === sym && x.at <= T).pop();
-                        v += sh * (t ? t.px : 0);
-                    });
-                    const d = new Date(T);
-                    labels.push(period === '1D' ? d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
-                                                : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }));
-                    data.push(Math.round(v * 100) / 100);
-                });
-                return (window.__histCache[period] = { labels, data });
-            }
-
-            let chartData;
-            try {
-                chartData = await buildRealSeries();
-                // The card follows the chart. Whatever span is on screen, the
-                // change reported underneath is the change across exactly that
-                // span — first point to last — so the two can never disagree.
-                applyTimeframeChange(timeframe, chartData);
-            } catch (e) {
-                const pd = JSON.parse(localStorage.getItem('portfolioData') || '{}');
-                let v = Number(pd.cash) || 0;
-                Object.values(pd.stocks || {}).forEach(list => list.forEach(s => { v += s.shares * (s.currentPrice || 0); }));
-                chartData = { labels: ['', ''], data: [v, v] };
-            }
-
-
-            try {
-                let cfg;
-                if (window.portChartMode === 'candles' && chartData.data.length > 2) {
-                    // Candles derived from the same real value series:
-                    // open = previous value, close = value (no invented numbers).
-                    const bodies = [], colors = [];
-                    for (let i = 1; i < chartData.data.length; i++) {
-                        const o = chartData.data[i - 1], c = chartData.data[i];
-                        bodies.push([o, c]);
-                        colors.push(c >= o ? '#5cb88a' : '#d9645c');
-                    }
-                    cfg = {
-                        type: 'bar',
-                        data: {
-                            labels: chartData.labels.slice(1),
-                            datasets: [{
-                                label: 'Portfolio Value',
-                                data: bodies,
-                                backgroundColor: colors,
-                                borderColor: colors,
-                                borderWidth: 1,
-                                borderSkipped: false,
-                                barPercentage: 0.55,
-                            }]
-                        }
-                    };
-                    window.mainPerformanceChartInstance = new Chart(ctx, Object.assign(cfg, { options: window.__portChartOpts }));
-                    return;
-                }
-                window.mainPerformanceChartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: chartData.labels,
-                        datasets: [{
-                            label: 'Portfolio Value',
-                            data: chartData.data,
-                            borderColor: '#5cb88a',
-                            backgroundColor: 'rgba(236, 226, 214, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.4,
-                            pointBackgroundColor: '#5cb88a',
-                            pointBorderColor: '#ffffff',
-                            pointBorderWidth: 1,
-                            pointRadius: 4,
-                            pointHoverRadius: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: false,
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.05)'
-                                },
-                                grace: '2%',
-                                ticks: {
-                                    color: 'rgba(255, 255, 255, 0.6)',
-                                    maxTicksLimit: 8,
-                                    callback: function(value) {
-                                        return '$' + Number(value).toLocaleString(undefined, { maximumFractionDigits: 0 });
-                                    }
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.05)'
-                                },
-                                ticks: {
-                                    color: 'rgba(255, 255, 255, 0.6)',
-                                    autoSkip: true,
-                                    maxTicksLimit: 7,
-                                    maxRotation: 0,
-                                    minRotation: 0
-                                }
-                            }
-                        },
-                        interaction: {
-                            intersect: false,
-                            mode: 'index'
-                        }
-                    }
-                });
-                window.__portChartOpts = (window.mainPerformanceChartInstance.config || {}).options;
-            } catch (error) {
-                console.error('Error creating chart:', error);
-            }
-        }
-
-        // Initialize Sector Allocation Pie Chart
-        function initializeSectorPieChart() {
-            const ctx = document.getElementById('sectorPieChart');
-            if (!ctx) return;
-
-            const portfolioData = JSON.parse(localStorage.getItem('portfolioData') || '{}');
-            const sectorData = calculateSectorAllocation(portfolioData);
-
-            const sectorColors = [
-                '#5cb88a', '#e0a24c', '#4a6785', '#6aa08d', '#d9645c',
-                '#9D4EDD', '#4ECDC4', '#FF6B6B', '#95E1D3', '#F38181'
-            ];
-
-            // NOTE: don't use window.sectorPieChart — the canvas id shadows it.
-            if (window.__sectorPie && typeof window.__sectorPie.destroy === 'function') {
-                window.__sectorPie.destroy();
-            }
-
-            window.__sectorPie = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: sectorData.map(s => s.sector),
-                    datasets: [{
-                        data: sectorData.map(s => s.value),
-                        backgroundColor: sectorColors.slice(0, sectorData.length),
-                        borderWidth: 0,
-                        cutout: '75%'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: '#201c18',
-                            borderColor: 'rgba(255, 255, 255, 0.1)',
-                            borderWidth: 1,
-                            titleColor: '#ffffff',
-                            bodyColor: '#ffffff',
-                            padding: 12,
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((value / total) * 100).toFixed(1);
-                                    return `${label}: $${value.toLocaleString()} (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            updateSectorLegend(sectorData, sectorColors);
-        }
-
-        function calculateSectorAllocation(portfolioData) {
-            const sectors = {};
-
-            if (portfolioData.stocks) {
-                // Re-derive every stock's sector from the full universe — never
-                // trust stale cached group names (that's how GOOGL became "Other").
-                Object.keys(portfolioData.stocks).forEach(groupKey => {
-                    portfolioData.stocks[groupKey].forEach(stock => {
-                        if (!(stock.shares && stock.shares > 0)) return;
-                        const sector = getSectorForSymbol(stock.symbol);
-                        const v = stock.shares * parseFloat(stock.currentPrice != null ? stock.currentPrice : stock.price || 0);
-                        if (v > 0) sectors[sector] = (sectors[sector] || 0) + v;
-                    });
-                });
-            }
-
-            if (Object.keys(sectors).length === 0) {
-                return [
-                    { sector: 'Technology', value: 45000 },
-                    { sector: 'Healthcare', value: 25000 },
-                    { sector: 'Finance', value: 20000 },
-                    { sector: 'Energy', value: 10000 }
-                ];
-            }
-
-            return Object.keys(sectors).map(sector => ({
-                sector: sector,
-                value: sectors[sector]
-            })).sort((a, b) => b.value - a.value);
-        }
-
-        function updateSectorLegend(sectorData, colors) {
-            const legend = document.getElementById('sectorLegend');
-            const total = sectorData.reduce((sum, s) => sum + s.value, 0);
-
-            legend.innerHTML = sectorData.map((sector, index) => {
-                const percentage = ((sector.value / total) * 100).toFixed(1);
-                return `
-                    <div class="sector-item">
-                        <div class="sector-info" style="min-width:0;flex:1;">
-                            <div class="sector-color" style="background: ${colors[index]}"></div>
-                            <div class="sector-name" style="white-space:normal;line-height:1.3;">${sector.sector}</div>
-                        </div>
-                        <div class="sector-value">${percentage}%</div>
-                    </div>
-                `;
-            }).join('');
-        }
-    </script>
+    paintRank(0); paintMiles(0, 0, 0);
+    if (window.FTBull) { $('rallyRig').innerHTML = FTBull.rigSVG(); }
+    let tries = 0;
+    (function wait() {
+        if (window.SL && typeof stockDataService !== 'undefined') return load();
+        if (++tries < 40) setTimeout(wait, 150); else load();
+    })();
+    addEventListener('focus', () => load());
+})();
+</script>
+<script src="js/ft-tour.js?v=3"></script>
 </body>
 </html>

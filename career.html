@@ -28,7 +28,7 @@
     <meta name="theme-color" content="#171310">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Career Center - Stock League</title>
+    <title>Career Center — Fantasy Trader</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -515,20 +515,25 @@
     </style>
     <link rel="stylesheet" href="css/theme.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/ft-alert.js"></script>
+    <script src="js/ft-alert.js?v=2"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
+    <script src="js/sl.js?v=3"></script>
     <script src="js/guard.js"></script>
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
+    <link rel="stylesheet" href="css/ft-rally-chat.css?v=3">
+    <link rel="stylesheet" href="css/ft-motion.css">
+    <script src="js/ft-back.js?v=2"></script>
+    <link rel="stylesheet" href="css/ft-screen.css?v=1">
 </head>
 <body>
     <div class="header">
-        <a href="dashboard.html" class="back-button">← Back to Dashboard</a>
+        <a href="dashboard.html" class="back-button" data-back>← Back to Dashboard</a>
         <h1 class="page-title">Career Center</h1>
         <div></div>
     </div>
 
     <div class="main-container">
-        <h1 class="page-main-title">Career Center</h1>
+        <h1 class="ft-screen-title page-main-title">Career Center</h1>
 
         <!-- Your Groups Section -->
         <div class="your-groups-section">
@@ -976,5 +981,10 @@
             return Math.floor(Math.random() * 20) + 1;
         }
     </script>
+<script src="js/ft-juice.js"></script>
+<script src="js/ft-bull.js?v=6"></script>
+<script src="js/ft-rally-chat.js?v=6"></script>
+<script src="js/ft-rally-widget.js?v=3"></script>
+<script src="js/ft-rally-corner.js?v=2"></script>
 </body>
 </html> 

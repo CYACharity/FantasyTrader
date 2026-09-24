@@ -61,7 +61,7 @@
 
     /* the order line: ticker + share count, in the game\'s numerals */
     '.ft-note-fill{display:flex;align-items:baseline;gap:8px;margin-top:5px;}',
-    '.ft-note-qty{font:800 1.32rem Poppins,Inter,sans-serif;color:var(--ft-c);line-height:1;',
+    '.ft-note-qty{font:800 1.32rem Inter,sans-serif;color:var(--ft-c);line-height:1;',
       'font-variant-numeric:tabular-nums;letter-spacing:-.01em;}',
     '.ft-note-tick{font:700 .82rem Inter,sans-serif;letter-spacing:.08em;color:#F4EEE6;}',
     '.ft-note-unit{font:600 .64rem Inter,sans-serif;letter-spacing:.13em;text-transform:uppercase;color:#8b8279;}',

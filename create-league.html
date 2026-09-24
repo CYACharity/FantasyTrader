@@ -32,7 +32,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
+    <script src="js/sl.js?v=3"></script>
     <script src="js/guard.js"></script>
     <link rel="stylesheet" href="css/theme.css">
     <style>
@@ -144,6 +144,10 @@
         .cancel-link { display: block; text-align: center; margin-top: 1.3rem; color: var(--text-secondary); font-size: 0.82rem; text-decoration: none; }
         .cancel-link:hover { color: #fff; }
     </style>
+    <link rel="stylesheet" href="css/ft-motion.css">
+    <script src="js/ft-back.js?v=2"></script>
+    <link rel="stylesheet" href="css/ft-screen.css?v=1">
+<style>/* less subtext: the headings say it */ .card-desc { display: none !important; }</style>
 </head>
 <body>
     <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
@@ -151,8 +155,7 @@
     <div class="wrapper">
         <div class="head">
             <div class="kicker">New League</div>
-            <h1>Create Your League</h1>
-            <p>Three quick steps and the draft room is yours.</p>
+            <h1 class="ft-screen-title">Create Your League</h1>
         </div>
 
         <div class="step-indicator">
@@ -257,7 +260,7 @@
             </div>
         </div>
 
-        <a class="cancel-link" href="league.html">← Back to Leagues</a>
+        <a class="cancel-link" href="league.html" data-back>← Back to Leagues</a>
     </div>
 
     <script>

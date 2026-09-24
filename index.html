@@ -6,7 +6,35 @@
          so when one is slow Chrome gives up holding the previous frame and
          paints the default canvas — white — for a beat. That was the flash
          between pages. Inline and first, it can never be white. -->
-    <style>html{background-color:#0F0C0A;}</style>
+    <style>html{background-color:#0F0C0A;}
+        /* ── the game voice, same as inside the app ─────────────── */
+        h1, h2 { font-family: 'Barlow Condensed', 'Inter', sans-serif !important; font-style: italic !important; font-weight: 900 !important;
+                 text-transform: uppercase; letter-spacing: 0.005em !important; line-height: 0.95 !important; }
+        h1 em, h2 em { font-style: italic; color: var(--sage) !important; }
+        h1 .und::after { bottom: -0.02em !important; height: 0.1em !important; transform: skewX(-14deg); opacity: 0.9 !important; }
+        .hero-txt h1 { font-size: clamp(2.6rem, 4.7vw, 4.1rem) !important; }
+        .logo b { font: 900 1.15rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; text-transform: uppercase; letter-spacing: 0.01em !important; }
+        .btn { border-radius: 0 !important; transform: skewX(-12deg); font: 900 1.12rem 'Barlow Condensed', sans-serif !important; font-style: italic !important;
+               text-transform: uppercase; letter-spacing: 0.04em !important; }
+        .btn > * { display: inline-block; transform: skewX(12deg); }
+        .btn.g { box-shadow: 0 4px 0 #2F6B4C; }
+        .btn.g:hover { transform: skewX(-12deg) translateY(-2px) !important; }
+        .na .gs > * { display: inline-block; transform: skewX(12deg); }
+        .na .gs { border-radius: 0 !important; transform: skewX(-12deg); font: 900 1rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; text-transform: uppercase; }
+        .m-screen { position: relative; }
+        .m-shot { display: block; width: 100%; height: auto; border-radius: 7px; background: #0E0B09; }
+        /* Rally, alive on the screenshot: he walks along the wordmark */
+        .m-rally { position: absolute; left: 3.5%; top: 3.7%; width: 5.14%; aspect-ratio: 1; pointer-events: none; animation: mRallyWalk 16s ease-in-out infinite; }
+        .m-rally .bull-rig { width: 100%; height: 100%; }
+        @keyframes mRallyWalk {
+            0%, 8% { transform: translateX(0) scaleX(-1); }
+            46% { transform: translateX(460%) scaleX(-1); }
+            50%, 58% { transform: translateX(460%) scaleX(1); }
+            96% { transform: translateX(0) scaleX(1); }
+            100% { transform: translateX(0) scaleX(-1); }
+        }
+        @media (prefers-reduced-motion: reduce) { .m-rally { animation: none; } }
+</style>
     <!-- how the link looks when someone shares it -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Fantasy Trader">
@@ -33,7 +61,7 @@
     <link rel="preload" as="image" href="shots/dashboard.jpg">
     <!-- Families must be listed alphabetically in a css2 request or Google
          rejects the whole thing and you silently fall back to system fonts. -->
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,700;1,800;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #171310; --bg2: #14100D; --panel: #0F0C0A;
@@ -43,7 +71,7 @@
             --sage: #5CB88A; --honey: #E0A24C; --red: #D9645C;
             /* Display face. Still called --serif because every rule on the page
                references it; the value is now a grotesque, not a serif. */
-            --serif: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
+            --serif: 'Inter', system-ui, sans-serif;
             --sans: 'Inter', -apple-system, system-ui, sans-serif;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -213,7 +241,10 @@
         }
         .sub-list b { color: var(--ink); font-weight: 600; }
         .ctas { display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap; }
-        .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.9rem 1.75rem; border-radius: 12px; text-decoration: none; font: 700 0.94rem var(--sans); letter-spacing: -0.01em; transition: all 0.18s ease; }
+        /* Buttons sit in the display face, not Inter. Inter at 700 is the
+           single most generic button in existence; the grotesque gives them
+           the same voice as the headline. */
+        .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.9rem 1.75rem; border-radius: 12px; text-decoration: none; font: 700 0.97rem var(--serif); letter-spacing: -0.005em; transition: all 0.18s ease; }
         .btn.p { background: var(--cream); color: var(--cream-ink); }
         .btn.p:hover { background: #fff; transform: translateY(-1px); }
         .btn.g { background: var(--sage); color: #101512; }
@@ -461,6 +492,9 @@
         body { animation: ft-fade-in 190ms ease-out both; }
         @media (prefers-reduced-motion: reduce) { body { animation: none; } }
 </style>
+    <link rel="stylesheet" href="css/ft-motion.css">
+    <script src="js/ft-back.js?v=2"></script>
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
 </head>
 <body>
 
@@ -475,7 +509,7 @@
         </div>
         <div class="na">
             <a class="si" href="signup.html?mode=login">Sign in</a>
-            <a class="gs" href="signup.html">Get started</a>
+            <a class="gs" href="signup.html"><span>Get started</span></a>
         </div>
     </div>
 </nav>
@@ -492,8 +526,8 @@
                 <li><b>54 modules</b> and live-data paper trading underneath</li>
             </ul>
             <div class="ctas">
-                <a class="btn g" href="signup.html">Start a league — it's free</a>
-                <a class="btn s" href="#season">See how a season plays</a>
+                <a class="btn g" href="signup.html"><span>Start a free league</span></a>
+                <a class="btn s" href="#season"><span>See how a season plays</span></a>
             </div>
             <div class="trust">Real market data &middot; no real money, ever &middot; two minutes to your first draft</div>
         </div>
@@ -502,20 +536,13 @@
             <div class="machine">
                 <div class="m-screen">
                     <div class="m-cam"></div>
-                    <video autoplay muted loop playsinline poster="shots/dashboard.jpg" aria-label="The Fantasy Trader dashboard, live">
-                        <source src="shots/dash-idle.mp4?v=4" type="video/mp4">
-                        <source src="shots/dash-idle.webm?v=4" type="video/webm">
-                    </video>
+                    <img class="m-shot" src="shots/v2-dashboard.jpg?v=3" width="1440" height="900" alt="The Fantasy Trader main menu: Play, Practice, Learn, Portfolio">
+                    <span class="m-rally" aria-hidden="true" id="mRally"></span>
                 </div>
                 <div class="m-base"><span></span></div>
             </div>
-            <!-- The button stays visible and unchanged, but does nothing for
-                 now: no onclick, and inert so it can't be clicked, tabbed to
-                 or triggered by keyboard. To switch the demo back on, delete
-                 the `inert` attribute and restore onclick="playDemo()" — the
-                 lightbox and its handlers are untouched below. -->
             <div class="demo-cta">
-                <button class="demo-btn" inert><span class="demo-play"><i></i></span>Watch demo</button>
+                <button class="demo-btn" type="button" onclick="playDemo()"><span class="demo-play"><i></i></span>Watch demo</button>
             </div>
         </div>
     </div>
@@ -576,7 +603,7 @@
             <div class="ch-vis">
                 <div class="frame">
                     <div class="bar"><div class="dots"><i></i><i></i><i></i></div><div class="addr"><b>fantasytrader.app</b>/your-league</div><div class="sp"></div></div>
-                    <img class="shot" src="shots/league.jpg" alt="Current week matchups, live" loading="lazy">
+                    <img class="shot" src="shots/v2-room.jpg" alt="Current week matchups, live" loading="lazy">
                 </div>
                 <div class="cap br">
                     <div class="caps">Week 3 · four matchups live</div>
@@ -600,7 +627,7 @@
             <div class="ch-vis">
                 <div class="frame">
                     <div class="bar"><div class="dots"><i></i><i></i><i></i></div><div class="addr"><b>fantasytrader.app</b>/leaderboard</div><div class="sp"></div></div>
-                    <img class="shot" src="shots/leaderboard.jpg" alt="The leaderboard after settlement — podium and standings" loading="lazy">
+                    <img class="shot" src="shots/v2-roomlb.jpg" alt="The leaderboard after settlement — podium and standings" loading="lazy">
                 </div>
             </div>
         </div>
@@ -617,7 +644,7 @@
         <div class="acad-stage rv">
             <div class="frame">
                 <div class="bar"><div class="dots"><i></i><i></i><i></i></div><div class="addr"><b>fantasytrader.app</b>/academy</div><div class="sp"></div></div>
-                <img class="shot" src="shots/learn.jpg" alt="The academy — education pathways" loading="lazy">
+                <img class="shot" src="shots/v2-academy.jpg" alt="The academy — education pathways" loading="lazy">
             </div>
         </div>
         <div class="acad-foot"></div>
@@ -667,8 +694,8 @@
     <h2 class="rv d1">Your league is one <em>Sunday</em> away.</h2>
     <p class="lede rv d1">Create a league, share the code, draft at market close — live by Monday's open.</p>
     <div class="ctas rv d2">
-        <a class="btn p" href="signup.html">Create your account</a>
-        <a class="btn s" href="learn.html">Browse the academy</a>
+        <a class="btn p" href="signup.html"><span>Create your account</span></a>
+        <a class="btn s" href="learn.html"><span>Browse the academy</span></a>
     </div>
 </div>
 
@@ -718,14 +745,23 @@ addEventListener('keydown', e => { if (e.key === 'Escape' && !document.getElemen
     <div class="lb-back" onclick="closeDemo()"></div>
     <div class="lb-body">
         <button class="lb-x" onclick="closeDemo()" aria-label="Close">✕</button>
-        <video id="demoVideo" controls playsinline preload="metadata" poster="shots/dashboard.jpg">
+        <video id="demoVideo" controls playsinline preload="metadata" poster="shots/v2-dashboard.jpg">
             <!-- ?v= is load-bearing: the filename never changes, so without it
                  a browser (or the CDN) happily keeps serving the reel it
                  cached the first time and you never see the new cut. -->
-            <source src="shots/demo-reel.mp4?v=4" type="video/mp4">
-            <source src="shots/demo-reel.webm?v=4" type="video/webm">
+            <source src="shots/demo-reel-v2.mp4?v=3" type="video/mp4">
         </video>
     </div>
 </div>
+<script src="js/ft-bull.js?v=6"></script>
+<script>
+(function () {
+    const slot = document.getElementById('mRally');
+    if (!slot || !window.FTBull) return;
+    slot.innerHTML = FTBull.rigSVG();
+    const rig = slot.querySelector('.bull-rig');
+    if (rig && !matchMedia('(prefers-reduced-motion: reduce)').matches) rig.setAttribute('class', 'bull-rig is-walk');
+})();
+</script>
 </body>
 </html>

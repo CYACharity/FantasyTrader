@@ -29,12 +29,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inbox - Fantasy Trader</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="stock-data.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
-    <script src="js/inbox.js"></script>
+    <script src="js/sl.js?v=3"></script>
+    <script src="js/ft-daily.js"></script>
+    <script src="js/inbox.js?v=2"></script>
     <script src="js/guard.js"></script>
     <link rel="stylesheet" href="css/theme.css">
     <style>
@@ -81,7 +82,7 @@
 
         /* ── Mail app ── */
         .app-bar { padding: 12px 22px 2px; }
-        .app-title { font: 600 1.55rem 'Fraunces', Georgia, serif; }
+        .app-title { font: 600 1.55rem 'Inter', system-ui, sans-serif; }
         .sub { color: #B7ADA1; font-size: 0.74rem; margin-top: 2px; }
         .search-pill {
             margin: 10px 16px 4px; padding: 0.55rem 1rem; border-radius: 999px;
@@ -148,9 +149,12 @@
         }
         .av-logo { width: 100%; height: 100%; object-fit: contain; display: block; }
 </style>
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
+    <link rel="stylesheet" href="css/ft-rally-chat.css?v=3">
+    <script src="js/ft-back.js?v=2"></script>
 </head>
 <body>
-    <a href="dashboard.html" class="room-back back-link">← Dashboard</a>
+    <a href="dashboard.html" class="room-back back-link" data-back>← Dashboard</a>
     <div class="phone">
         <div class="screen">
             <div class="island"></div>
@@ -217,6 +221,7 @@
         // and the daily fact wears the FantasyTrader logo.
         function avatarFor(i) {
             if (i.brand) return '<img class="av-logo" src="ft-logo-mark.png" alt="">';
+            if (i.rally) return '<img class="av-logo" src="bull-mark.png" alt="">';
             const p = {
                 up:   'M3 17 9 11l4 4 8-8M15 4h6v6',
                 down: 'M3 7 9 13l4-4 8 8M15 20h6v-6',
@@ -286,5 +291,10 @@
 
         build();
     </script>
+<script src="js/ft-juice.js"></script>
+<script src="js/ft-bull.js?v=6"></script>
+<script src="js/ft-rally-chat.js?v=6"></script>
+<script src="js/ft-rally-widget.js?v=3"></script>
+<script src="js/ft-rally-corner.js?v=2"></script>
 </body>
 </html>

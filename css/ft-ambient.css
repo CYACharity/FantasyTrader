@@ -1,0 +1,247 @@
+/* ============================================================
+ *  FT AMBIENT — the room the app sits in.
+ *
+ *      <div class="amb" aria-hidden="true">
+ *        <span class="amb-glow a"></span>
+ *        <span class="amb-glow b"></span>
+ *        <span class="amb-horizon"></span>
+ *        <span class="amb-floor"></span>
+ *        <span class="amb-hero">…svg…</span>
+ *        <span class="amb-tape">…svg…</span>
+ *        <span class="amb-vignette"></span>
+ *      </div>
+ *
+ *  Version two. The first pass was so restrained nobody could see
+ *  it, which is its own kind of failure. This one has a floor you
+ *  are standing on, a horizon, and a chart that draws itself in
+ *  when the page lands — and it is still all CSS on a handful of
+ *  nodes, still behind everything, still dead under reduced
+ *  motion. The rule that survived: nothing competes with the
+ *  content. Everything is either far below it or fades before it
+ *  reaches it.
+ * ============================================================ */
+
+.amb {
+    position: fixed; inset: 0; z-index: 0;
+    overflow: hidden; pointer-events: none;
+    contain: strict;
+    /* the whole room is one perspective, so the floor recedes to the
+       same vanishing point on every page */
+    perspective: 720px; perspective-origin: 50% 38%;
+}
+
+/* ── the glows ─────────────────────────────────────────────────
+   Big soft washes in the brand colours, drifting slowly. */
+.amb-glow {
+    position: absolute; border-radius: 50%;
+    filter: blur(80px);
+    will-change: transform;
+}
+.amb-glow.a {
+    width: 64vw; height: 64vw; max-width: 940px; max-height: 940px;
+    top: -24vw; left: -16vw;
+    background: radial-gradient(circle,
+        rgba(92, 184, 138, 0.22) 0%, rgba(92, 184, 138, 0.08) 42%, transparent 68%);
+    animation: ambDriftA 34s ease-in-out infinite;
+}
+.amb-glow.b {
+    width: 56vw; height: 56vw; max-width: 820px; max-height: 820px;
+    bottom: -22vw; right: -14vw;
+    background: radial-gradient(circle,
+        rgba(224, 162, 76, 0.18) 0%, rgba(224, 162, 76, 0.06) 42%, transparent 68%);
+    animation: ambDriftB 41s ease-in-out infinite;
+}
+@keyframes ambDriftA {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50%      { transform: translate3d(6vw, 4vh, 0) scale(1.08); }
+}
+@keyframes ambDriftB {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50%      { transform: translate3d(-5vw, -5vh, 0) scale(1.06); }
+}
+
+/* ── the horizon ───────────────────────────────────────────────
+   A bright seam where the floor meets the dark, with a glow that
+   bleeds upward. It is what makes the floor read as a floor. */
+.amb-horizon {
+    position: absolute; left: -10%; right: -10%; top: 58%;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%, rgba(92, 184, 138, 0.0) 12%,
+        rgba(92, 184, 138, 0.55) 40%, rgba(123, 211, 166, 0.75) 50%,
+        rgba(92, 184, 138, 0.55) 60%, rgba(92, 184, 138, 0.0) 88%, transparent 100%);
+    box-shadow:
+        0 0 22px 4px rgba(92, 184, 138, 0.28),
+        0 -40px 90px 20px rgba(92, 184, 138, 0.10);
+    animation: ambHorizon 5.5s ease-in-out infinite;
+}
+@keyframes ambHorizon {
+    0%, 100% { opacity: 0.75; }
+    50%      { opacity: 1; }
+}
+
+/* ── the floor ─────────────────────────────────────────────────
+   A grid plane tilted away from you and scrolling toward you. The
+   perspective is set on the container so it recedes to the horizon
+   line above. Masked so the far edge dissolves before it reaches
+   the seam and the near edge never shows a hard bottom. */
+.amb-floor {
+    position: absolute; left: -60%; right: -60%; top: 58%;
+    height: 62vh;
+    background-image:
+        linear-gradient(rgba(92, 184, 138, 0.30) 1.5px, transparent 1.5px),
+        linear-gradient(90deg, rgba(92, 184, 138, 0.30) 1.5px, transparent 1.5px);
+    background-size: 84px 84px;
+    transform-origin: 50% 0;
+    transform: rotateX(63deg);
+    animation: ambFloor 4.8s linear infinite;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 80%, transparent 100%);
+            mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 80%, transparent 100%);
+    will-change: background-position;
+}
+@keyframes ambFloor {
+    from { background-position: 0 0; }
+    to   { background-position: 0 84px; }
+}
+
+/* ── the hero chart ────────────────────────────────────────────
+   One big line, drawn in over ~2.4s when the page lands, then it
+   sits there glowing softly. This is the load moment. The host
+   page supplies the SVG; the stroke is dashed to its own length
+   and the offset runs to zero. */
+.amb-hero {
+    position: absolute; left: 0; right: 0; top: 18%;
+    height: 44vh; min-height: 260px;
+    opacity: 0.9;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+.amb-hero svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.amb-hero .hero-line {
+    fill: none; stroke: #5CB88A; stroke-width: 2.5;
+    stroke-linejoin: round; stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    filter: drop-shadow(0 0 6px rgba(92, 184, 138, 0.55))
+            drop-shadow(0 0 18px rgba(92, 184, 138, 0.25));
+    stroke-dasharray: 1; stroke-dashoffset: 1;
+    /* pathLength="1" on the path makes these unit-length, so one
+       keyframe serves any path */
+    animation: ambDraw 2.4s cubic-bezier(0.4, 0, 0.2, 1) 0.25s forwards;
+}
+.amb-hero .hero-fill {
+    fill: url(#ambHeroFade);
+    opacity: 0;
+    animation: ambFade 1.2s ease 2.1s forwards;
+}
+.amb-hero .hero-dot {
+    fill: #F4EEE6; opacity: 0;
+    filter: drop-shadow(0 0 8px rgba(123, 211, 166, 0.9));
+    animation: ambFade 0.5s ease 2.5s forwards, ambPulse 2.6s ease-in-out 3s infinite;
+}
+@keyframes ambDraw { to { stroke-dashoffset: 0; } }
+@keyframes ambFade { to { opacity: 1; } }
+@keyframes ambPulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.45); }
+}
+
+/* ── the tape ──────────────────────────────────────────────────
+   A slower second line low on the page, looping. */
+.amb-tape {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    height: 24vh; min-height: 150px;
+    opacity: 0.55;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent),
+                        linear-gradient(180deg, transparent 8%, #000 60%);
+            mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent),
+                        linear-gradient(180deg, transparent 8%, #000 60%);
+    -webkit-mask-composite: source-in;
+            mask-composite: intersect;
+}
+.amb-tape svg { display: block; width: 200%; height: 100%; }
+.amb-tape .tape-move { animation: ambTape 68s linear infinite; }
+@keyframes ambTape {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}
+.amb-tape .tape-line {
+    fill: none; stroke: rgba(224, 162, 76, 0.55); stroke-width: 2;
+    stroke-linejoin: round; stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+}
+.amb-tape .tape-fill { fill: url(#ambTapeFade); }
+
+/* ── the vignette ──────────────────────────────────────────────
+   Last layer. Darkens the corners so the middle sits forward, and
+   softens the floor before it meets the content. */
+.amb-vignette {
+    position: absolute; inset: 0;
+    background:
+        radial-gradient(ellipse 92% 78% at 50% 44%, transparent 40%, rgba(8, 6, 5, 0.55) 100%),
+        linear-gradient(180deg, rgba(20, 16, 14, 0) 55%, rgba(20, 16, 14, 0.35) 100%);
+}
+
+/* the host page's own content sits on top of all of it */
+:where(.amb ~ *) { position: relative; z-index: 1; }
+
+@media (max-width: 700px) {
+    .amb-glow { filter: blur(60px); }
+    .amb-floor { background-size: 56px 56px; height: 50vh; }
+    .amb-hero { top: 22%; height: 34vh; min-height: 200px; opacity: 0.7; }
+    .amb-tape { height: 20vh; min-height: 120px; opacity: 0.45; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .amb-glow, .amb-floor, .amb-horizon, .amb-tape .tape-move, .amb-hero .hero-dot { animation: none; }
+    .amb-hero .hero-line { animation: none; stroke-dashoffset: 0; }
+    .amb-hero .hero-fill, .amb-hero .hero-dot { animation: none; opacity: 1; }
+}
+
+
+/* ============================================================
+ *  THE LINE — league.html only.
+ *
+ *  The layered room above is the practice floor's. The compete
+ *  page wanted the opposite: one line, drawn on a canvas by
+ *  js/ft-backdrop.js, over a faint graph grid. This is only the
+ *  positioning for it; everything it draws is in the script.
+ * ============================================================ */
+canvas.ft-backdrop {
+    position: fixed; inset: 0; z-index: 0;
+    width: 100%; height: 100%;
+    display: block; pointer-events: none;
+    opacity: 0.78;
+    /* The frame is faded here, as one mask over the finished image.
+       Doing it per-segment inside the draw loop is what banded. */
+    -webkit-mask-image:
+        linear-gradient(90deg,  transparent 0%, #000 26%, #000 100%),
+        linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+            mask-image:
+        linear-gradient(90deg,  transparent 0%, #000 26%, #000 100%),
+        linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+    -webkit-mask-composite: source-in;
+            mask-composite: intersect;
+}
+@media (prefers-reduced-motion: reduce) { canvas.ft-backdrop { opacity: 0.4; } }
+/* :where() gives this rule zero specificity. Without it, `X ~ *` outranks a
+   single-class rule like `.rc-back { position: fixed }`, so every overlay the
+   page appends to <body> — the chat panel, the tutorial, the lesson sheet — was
+   dragged into the document flow and made the page scroll. Any element that
+   sets its own position now keeps it. */
+:where(canvas.ft-backdrop ~ *) { position: relative; z-index: 1; }
+
+
+/* ============================================================
+ *  THE SCENE — practice.html.
+ *
+ *  The layered .amb room above, redrawn properly on one canvas by
+ *  js/ft-practice-scene.js. This is only its positioning; the
+ *  canvas paints its own background, so there is nothing behind it.
+ * ============================================================ */
+canvas.ft-scene {
+    position: fixed; inset: 0; z-index: 0;
+    width: 100%; height: 100%;
+    display: block; pointer-events: none;
+    background: #14100e;
+}
+:where(canvas.ft-scene ~ *) { position: relative; z-index: 1; }

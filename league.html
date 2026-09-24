@@ -1,2361 +1,1094 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- ft-canvas: the page background, declared before anything that can
-         block rendering. Every stylesheet on this page is render-blocking,
-         so when one is slow Chrome gives up holding the previous frame and
-         paints the default canvas — white — for a beat. That was the flash
-         between pages. Inline and first, it can never be white. -->
-    <style>html{background-color:#171310;}</style>
-    <!-- how the link looks when someone shares it -->
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Fantasy Trader">
-    <meta property="og:url" content="https://fantasytrader.co/">
-    <meta property="og:title" content="Come play Fantasy Trader">
-    <meta property="og:description" content="Fantasy football, but your players are real companies. Draft stocks, run $100,000, and beat your friends head-to-head every week. Free, no real money.">
-    <meta property="og:image" content="https://fantasytrader.co/og-image.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Fantasy Trader — draft real stocks, beat your friends">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Come play Fantasy Trader">
-    <meta name="twitter:description" content="Fantasy football, but your players are real companies. Draft stocks, run $100,000, and beat your friends every week.">
-    <meta name="twitter:image" content="https://fantasytrader.co/og-image.jpg">
+    <meta charset="UTF-8">
+    <style>html{background-color:#14100E;}
+/* ============================================================
+ *  THE BACKGROUND — still.
+ *
+ *  It used to be a line scrolling across a canvas: first too busy,
+ *  then shaky, then just not good. It is now the thing people liked
+ *  on the practice floor — one glowing green line — drawn in once
+ *  when the page opens and then left alone, over a faint dot grid.
+ *  Nothing moves after the first two seconds.
+ * ============================================================ */
+.lg-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+        radial-gradient(ellipse 60% 50% at 12% 0%, rgba(92,184,138,0.10), transparent 70%),
+        radial-gradient(ellipse 55% 45% at 100% 100%, rgba(224,162,76,0.07), transparent 70%);
+}
+.lg-bg::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(236,226,214,0.10) 1px, transparent 1.2px);
+    background-size: 26px 26px;
+    -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 20%, transparent 85%);
+            mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 20%, transparent 85%);
+}
+.lg-bg svg {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 18%, #000 100%);
+            mask-image: linear-gradient(90deg, transparent 0%, #000 18%, #000 100%);
+}
+.lg-bg-fill { fill: url(#lgFill); opacity: 0; animation: lgFade 1.4s ease 1.6s forwards; }
+.lg-bg-line, .lg-bg-glow {
+    fill: none; stroke-linecap: round; stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 1; stroke-dashoffset: 1;
+    animation: lgDraw 2.2s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards;
+}
+.lg-bg-line { stroke: #5CB88A; stroke-width: 2.4; filter: drop-shadow(0 0 5px rgba(92,184,138,0.6)); }
+.lg-bg-glow { stroke: rgba(92,184,138,0.16); stroke-width: 14; filter: blur(6px); }
+@keyframes lgDraw { to { stroke-dashoffset: 0; } }
+@keyframes lgFade { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+    .lg-bg-line, .lg-bg-glow { animation: none; stroke-dashoffset: 0; }
+    .lg-bg-fill { animation: none; opacity: 1; }
+}
+:where(.lg-bg ~ *) { position: relative; z-index: 1; }
+
+/* ============================================================
+ *  THE TWO DOORS — slim rows, not slabs.
+ *
+ *  Each is one line of intent: an icon, what it is, what it does,
+ *  and an arrow. The chunky edge, the uppercase kicker and the
+ *  full-width coloured button are gone; colour lives in the icon
+ *  and comes up on hover.
+ * ============================================================ */
+.lg-choice {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;
+    margin-top: 1.4rem;
+}
+.lg-card {
+    position: relative; top: 0;
+    display: grid !important; grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center; gap: 0.95rem;
+    padding: 1rem 1.05rem !important;
+    border-radius: 16px; text-align: left; cursor: pointer;
+    background: rgba(34, 29, 25, 0.82);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(236,226,214,0.10) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25) !important;
+    font-family: var(--lx-sans);
+    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    overflow: hidden;
+}
+.lg-card::before { display: none; }
+.lg-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--c-line-hi) !important;
+    background: rgba(40, 34, 29, 0.9);
+}
+.lg-card:active { top: 0; transform: translateY(0) scale(0.99); }
+.lg-card:focus-visible { outline: 2px solid var(--c-line-hi); outline-offset: 3px; }
+
+.lg-ico {
+    width: 46px; height: 46px; border-radius: 13px; margin: 0 !important;
+    display: grid; place-items: center;
+    background: var(--i-fill); border: 1px solid var(--i-line); box-shadow: none !important;
+    transition: transform 0.2s cubic-bezier(0.2,0.9,0.3,1.3);
+}
+.lg-ico svg { width: 26px; height: 26px; }
+.lg-create { --c-line-hi: var(--lx-sage); }
+.lg-join   { --c-line-hi: var(--lx-honey); }
+.lg-create .lg-ico { --i-fill: rgba(92,184,138,0.14); --i-line: rgba(92,184,138,0.38); }
+.lg-join   .lg-ico { --i-fill: rgba(224,162,76,0.14); --i-line: rgba(224,162,76,0.38); }
+.lg-card:hover .lg-ico { transform: rotate(-6deg) scale(1.05); }
+
+.lg-txt { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.lg-title {
+    font: 800 1.02rem 'Inter', system-ui, sans-serif; letter-spacing: -0.015em;
+    color: var(--lx-ink); margin: 0 !important;
+}
+.lg-desc { font: 500 0.8rem 'Inter', system-ui, sans-serif; color: var(--lx-ink-3); }
+
+.lg-go {
+    width: 34px; height: 34px; padding: 0 !important; margin: 0 !important;
+    border-radius: 50%; display: grid; place-items: center;
+    background: rgba(255,255,255,0.05) !important; color: var(--lx-ink-2) !important;
+    border: 1px solid rgba(236,226,214,0.10);
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.lg-go svg { width: 15px; height: 15px; transition: transform 0.18s ease; }
+.lg-card:hover .lg-go { background: var(--c-line-hi) !important; border-color: transparent; color: #14100E !important; }
+.lg-card:hover .lg-go svg { transform: translateX(2px); }
+@media (max-width: 640px) { .lg-choice { grid-template-columns: 1fr; } }
+</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Leagues — Fantasy Trader</title>
+    <meta name="description" content="Create a league, join one with a code, and play your friends head to head.">
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <meta name="theme-color" content="#171310">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock League</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #4a6785;
-            --secondary: #6aa08d;
-            --accent: #e0a24c;
-            --background: #1a1714;
-            --surface: #241f1b;
-            --success: #5cb88a;
-            --danger: #d9645c;
-            --neon-glow: none;
-            --hombre-gradient: linear-gradient(90deg, #e0a24c 0%, #5cb88a 100%);
-        }
-
-        body {
-            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #1a1714;
-            color: #ffffff;
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                url('217d950b-8f13-4c3d-97e6-a531cee4d706.png') center/cover no-repeat,
-                #1a1714;
-            opacity: 0.15;
-            z-index: 0;
-            pointer-events: none;
-            mask-image: radial-gradient(ellipse at center, black 50%, transparent 100%);
-            -webkit-mask-image: radial-gradient(ellipse at center, black 50%, transparent 100%);
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at center, transparent 0%, rgba(26, 23, 20, 0.6) 100%);
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        /* Floating Tickers */
-        .floating-tickers {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Animated background elements */
-        .bg-graphic {
-            position: fixed;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.08;
-        }
-
-        .bg-graphic.circle {
-            width: 300px;
-            height: 300px;
-            border: 2px solid var(--success);
-            border-radius: 50%;
-            top: 10%;
-            right: 10%;
-            animation: float 20s ease-in-out infinite;
-        }
-
-        .bg-graphic.square {
-            width: 200px;
-            height: 200px;
-            border: 2px solid rgba(224, 162, 76, 0.5);
-            border-radius: 12px;
-            bottom: 15%;
-            left: 8%;
-            animation: float 25s ease-in-out infinite reverse;
-            transform: rotate(45deg);
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(30px, -30px) rotate(120deg); }
-            66% { transform: translate(-20px, 20px) rotate(240deg); }
-        }
-
-        .ticker {
-            position: absolute;
-            color: rgba(236, 226, 214, 0.25);
-            font-family: monospace;
-            font-size: 1rem;
-            white-space: nowrap;
-            animation: float-up 15s linear infinite;
-            opacity: 0.6;
-            transform: translateY(100vh);
-        }
-
-        .ticker.price-up {
-            color: rgba(236, 226, 214, 0.25);
-        }
-
-        .ticker.price-down {
-            color: rgba(255, 68, 68, 0.25);
-        }
-
-        .ticker.down {
-            animation: float-down var(--duration) linear infinite;
-        }
-
-        @keyframes float-up {
-            from { transform: translateY(100vh); }
-            to { transform: translateY(-100vh); }
-        }
-
-        @keyframes float-down {
-            from { transform: translateY(-100px); }
-            to { transform: translateY(100vh); }
-        }
-
-        .selection-container {
-            max-width: 1000px;
-            padding: 3rem;
-            background: transparent;
-            backdrop-filter: none;
-            border-radius: 0;
-            box-shadow: none;
-            position: relative;
-            z-index: 1;
-        }
-
-        .welcome-message {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .welcome-message h1 {
-            font-size: 3.5rem;
-            margin: 0;
-            color: var(--sl-text, #F4EEE6);
-            font-weight: 700;
-        }
-
-        .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .option-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 2.5rem 2rem;
-            text-align: center;
-            flex: 1 1 0;
-            min-width: 280px;
-            max-width: 380px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            backdrop-filter: blur(20px);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .option-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(236, 226, 214, 0.1), transparent);
-            transition: left 0.6s ease;
-        }
-
-        .option-card:hover::before {
-            left: 100%;
-        }
-
-        .option-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(92, 184, 138, 0.4);
-            box-shadow: 
-                0 12px 40px rgba(0, 0, 0, 0.4),
-                0 2px 12px rgba(0,0,0,0.2);
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .option-card h2 {
-            color: #ffffff;
-            font-size: 1.8rem;
-            margin-bottom: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .option-card h2 i {
-            font-size: 1.6rem;
-            color: var(--success);
-        }
-
-        .option-card p {
-            color: rgba(255,255,255,0.85);
-            font-size: 1.1rem;
-            margin-bottom: 1.7rem;
-        }
-
-        .create-league, .join-form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .start-btn, .action-btn {
-            background: rgba(236, 226, 214, 0.1);
-            color: var(--success);
-            border: 1px solid rgba(92, 184, 138, 0.4);
-            padding: 1rem 2.2rem;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            margin-top: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .start-btn::before, .action-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(236, 226, 214, 0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .start-btn:hover::before, .action-btn:hover::before {
-            left: 100%;
-        }
-
-        .start-btn:hover, .action-btn:hover {
-            transform: translateY(-3px);
-            background: rgba(236, 226, 214, 0.15);
-            border-color: var(--success);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-        }
-
-        .join-form {
-            display: flex;
-            flex-direction: row;
-            gap: 0.5rem;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-
-        .join-form input {
-            background: rgba(255,255,255,0.07);
-            border: 1.5px solid rgba(236, 226, 214, 0.13);
-            padding: 0.9rem 1.2rem;
-            border-radius: 10px;
-            color: #fff;
-            font-size: 1.1rem;
-            min-width: 120px;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            flex: 1 1 0;
-            box-sizing: border-box;
-        }
-
-        .join-form input:focus {
-            border-color: var(--success);
-            box-shadow: 0 0 0 2px rgba(236, 226, 214, 0.13);
-        }
-
-        .join-form .action-btn {
-            padding: 0.9rem 1.7rem;
-            margin-top: 0;
-            font-size: 1.1rem;
-            border-radius: 10px;
-            white-space: nowrap;
-        }
-
-        .active-leagues {
-            margin-top: 3rem;
-            background: transparent;
-            border-radius: 0;
-            padding: 0;
-            overflow: visible;
-        }
-
-        .active-leagues h2 {
-            font-size: 1.8rem;
-            color: #ffffff;
-            margin-bottom: 2rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .active-leagues h2 i {
-            color: var(--success);
-            font-size: 1.6rem;
-        }
-
-        .leagues-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-            margin-top: 0.5rem;
-        }
-
-        .league-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 1.75rem 2rem;
-            margin-bottom: 1rem;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            min-height: 100px;
-            box-sizing: border-box;
-            backdrop-filter: blur(20px);
-        }
-
-        .league-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(236, 226, 214, 0.08), transparent);
-            transition: left 0.6s ease;
-        }
-
-        .league-card:hover::before {
-            left: 100%;
-        }
-
-        .league-card:hover {
-            border-color: rgba(92, 184, 138, 0.4);
-            background: rgba(255, 255, 255, 0.05);
-            transform: translateY(-4px);
-            box-shadow: 
-                0 8px 30px rgba(0, 0, 0, 0.4),
-                0 2px 12px rgba(0,0,0,0.2);
-        }
-
-        .league-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .league-avatar {
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, rgba(236, 226, 214, 0.2), rgba(71, 169, 146, 0.2));
-            border: 2px solid rgba(92, 184, 138, 0.3);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            color: var(--success);
-            font-size: 1.3rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-            position: relative;
-        }
-
-        .league-avatar i {
-            font-size: 1.2rem;
-        }
-
-        .league-info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            min-width: 0;
-            flex: 1;
-        }
-
-        .league-name {
-            color: #ffffff;
-            font-size: 1.2rem;
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .league-code {
-            color: #5cb88a;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .league-center {
-            flex: 1.5;
-            display: flex;
-            justify-content: center;
-            min-width: 0;
-        }
-
-        .league-stats {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .stat {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.9rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            white-space: nowrap;
-            padding: 0.5rem 1rem;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .stat i {
-            color: var(--success);
-            font-size: 1rem;
-        }
-
-        .league-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-shrink: 0;
-        }
-
-        .league-status {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .league-status.pending {
-            background: rgba(255, 193, 7, 0.1);
-            color: #e0a24c;
-            border: 1px solid rgba(255, 193, 7, 0.2);
-        }
-
-        .league-status.drafting {
-            background: rgba(33, 150, 243, 0.1);
-            color: #2196F3;
-            border: 1px solid rgba(33, 150, 243, 0.2);
-        }
-
-        .league-status.active {
-            background: rgba(236, 226, 214, 0.1);
-            color: #5cb88a;
-            border: 1px solid rgba(236, 226, 214, 0.2);
-        }
-
-        .league-status.completed {
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .league-btn {
-            background: #5cb88a;
-            color: #000;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-        }
-
-        .league-btn:hover {
-            background: #4fa87b;
-            transform: scale(1.05);
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        .text-primary {
-            color: #ffffff;
-        }
-
-
-
-        .no-leagues {
-            text-align: center;
-            padding: 60px 20px;
-            background: linear-gradient(135deg, rgba(36, 31, 27, 0.8), rgba(26, 23, 20, 0.9));
-            border-radius: 20px;
-            border: 2px dashed rgba(92, 184, 138, 0.3);
-        }
-
-        .no-leagues-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--success), var(--accent));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 2rem;
-            color: var(--background);
-            font-weight: 900;
-        }
-
-        .no-leagues h3 {
-            color: var(--success);
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-
-        .no-leagues p {
-            font-size: 1.1rem;
-            margin: 0 0 20px 0;
-            color: var(--text-secondary);
-        }
-
-        .create-first-btn {
-            background: linear-gradient(135deg, var(--success), var(--accent));
-            color: var(--background);
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .create-first-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-        }
-
-        .go-to-league-btn {
-            background: linear-gradient(135deg, var(--success), var(--accent));
-            border: none;
-            color: #000;
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .go-to-league-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-        }
-
-        .league-action-btn {
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .draft-demo-btn {
-            background: linear-gradient(90deg, var(--accent), var(--success));
-            color: var(--background);
-        }
-
-        .draft-demo-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-        }
-
-        .waiting-draft-btn {
-            background: rgba(33, 150, 243, 0.1);
-            color: #2196F3;
-            border: 1px solid rgba(33, 150, 243, 0.3);
-        }
-
-        .waiting-draft-btn:hover {
-            background: rgba(33, 150, 243, 0.2);
-            color: #fff;
-        }
-
-        /* Draft Demo Modal */
-        .draft-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(26, 23, 20, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .draft-modal-content {
-            background: rgba(36, 31, 27, 0.95);
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 800px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            border: 1px solid rgba(236, 226, 214, 0.2);
-            box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-        }
-
-        .draft-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .draft-header h2 {
-            color: var(--accent);
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .draft-header p {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 1.1rem;
-        }
-
-        .draft-order {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            border: 1px solid rgba(236, 226, 214, 0.1);
-        }
-
-        .draft-pick {
-            text-align: center;
-            flex: 1;
-        }
-
-        .pick-number {
-            background: var(--accent);
-            color: var(--background);
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 0.5rem;
-            font-weight: 700;
-            font-size: 0.9rem;
-        }
-
-        .pick-player {
-            font-size: 0.9rem;
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .available-stocks {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .stock-option {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(236, 226, 214, 0.1);
-            border-radius: 10px;
-            padding: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .stock-option:hover {
-            border-color: var(--success);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(236, 226, 214, 0.1);
-        }
-
-        .stock-option.selected {
-            border-color: var(--accent);
-            background: rgba(224, 162, 76, 0.1);
-        }
-
-        .stock-symbol {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 0.3rem;
-        }
-
-        .stock-name {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 0.5rem;
-        }
-
-        .stock-price {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--success);
-        }
-
-        .stock-change {
-            font-size: 0.8rem;
-            color: var(--danger);
-        }
-
-        .stock-change.positive {
-            color: var(--success);
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: #fff;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
-
-        .close-modal:hover {
-            background: rgba(255, 68, 68, 0.2);
-            color: var(--danger);
-        }
-
-        /* Waiting for Draft Screen */
-        .waiting-draft-screen {
-            background: rgba(36, 31, 27, 0.95);
-            border-radius: 16px;
-            padding: 2rem;
-            text-align: center;
-            border: 1px solid rgba(33, 150, 243, 0.2);
-            margin-top: 1rem;
-        }
-
-        .waiting-icon {
-            font-size: 3rem;
-            color: #2196F3;
-            margin-bottom: 1rem;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .waiting-title {
-            color: #2196F3;
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .waiting-subtitle {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .draft-countdown {
-            background: rgba(33, 150, 243, 0.1);
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .countdown-time {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #2196F3;
-        }
-
-        .countdown-label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-        }
-
-        .league-participants {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            justify-content: center;
-            margin-top: 1rem;
-        }
-
-        .participant {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-            color: #fff;
-        }
-
-        .participant.ready {
-            background: rgba(236, 226, 214, 0.2);
-            color: var(--success);
-        }
-
-        /* Back button styling */
-        .back-button {
-            position: absolute;
-            top: 2rem;
-            left: 2rem;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(236, 226, 214, 0.1));
-            border: 1px solid rgba(92, 184, 138, 0.3);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 500;
-            backdrop-filter: blur(10px);
-        }
-
-        .back-button:hover {
-            background: linear-gradient(135deg, rgba(236, 226, 214, 0.2), rgba(224, 162, 76, 0.2));
-            border-color: var(--accent);
-            transform: translateY(-2px);
-        }
-
-        .popup-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(26, 23, 20, 0.8);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .popup-content {
-            background: rgba(36, 31, 27, 0.8);
-            padding: 2.5rem;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: var(--neon-glow);
-            border: 1px solid rgba(236, 226, 214, 0.1);
-            animation: popup-appear 0.3s ease;
-            min-width: 300px;
-            backdrop-filter: blur(10px);
-        }
-
-        @keyframes popup-appear {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        #leagueCode {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(236, 226, 214, 0.2);
-            border-radius: 12px;
-            padding: 15px;
-            width: 200px;
-            text-align: center;
-            color: white;
-            font-size: 1.5rem;
-            letter-spacing: 5px;
-            margin: 20px 0;
-        }
-
-        .league-input {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(236, 226, 214, 0.2);
-            border-radius: 8px;
-            padding: 12px;
-            width: 100%;
-            color: white;
-            margin: 10px 0;
-            font-size: 1rem;
-        }
-
-        .popup-content input:focus {
-            outline: none;
-            border-color: var(--success);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-        }
-
-        .popup-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 1rem;
-        }
-
-        .popup-button {
-            padding: 12px 28px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .popup-button.cancel {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .popup-button.confirm {
-            background: var(--success);
-            color: black;
-            border: none;
-        }
-
-        .popup-button:hover {
-            transform: translateY(-2px);
-        }
-
-        /* Add helper text */
-        .code-helper {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            background: linear-gradient(to right, var(--success), #ffffff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 15px rgba(92, 184, 138, 0.3);
-            font-weight: 500;
-        }
-
-        .dashboard-btn {
-            position: fixed;
-            top: 24px;
-            left: 24px;
-            background: rgba(255,255,255,0.10);
-            color: #5cb88a;
-            border: 1.5px solid rgba(92,184,138,0.3);
-            padding: 0.85rem 1.7rem 0.85rem 1.2rem;
-            border-radius: 32px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.7rem;
-            font-size: 1.1rem;
-            font-weight: 700;
-            z-index: 2;
-            box-shadow: 0 2px 12px 0 rgba(236, 226, 214, 0.10);
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s, border-color 0.2s;
-            backdrop-filter: blur(5px);
-        }
-
-        .dashboard-btn:hover {
-            background: rgba(236, 226, 214, 0.13);
-            color: #fff;
-            border-color: #5cb88a;
-        }
-
-        .dashboard-btn .menu-icon {
-            font-size: 1.3rem;
-            margin-right: 0.3rem;
-        }
-
-        .league-container {
-            max-width: 1200px;
-            margin: 40px auto 30px auto;
-            padding: 0;
-            background: transparent;
-            border-radius: 0;
-            box-shadow: none;
-            position: relative;
-            z-index: 1;
-        }
-
-        .league-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .league-header h1 {
-            font-size: 3.5rem;
-            margin: 0;
-            background: linear-gradient(135deg, #ffffff 0%, var(--success) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 900;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            font-family: 'Inter', sans-serif;
-            position: relative;
-        }
-
-        .league-header h1::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--success), transparent);
-            border-radius: 2px;
-        }
-
-        .league-header p {
-            color: rgba(255,255,255,0.8);
-            font-size: 1.2rem;
-            margin-top: 10px;
-            margin-bottom: 0;
-        }
-
-        .league-options {
-            display: flex;
-            justify-content: center;
-            align-items: stretch;
-            gap: 2.5rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .option-card.join {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* ── Tutorial ── */
-        .tut-backdrop { display:none; position:fixed; inset:0; z-index:5000; }
-        .tut-backdrop.active { display:block; }
-        .tut-overlay-svg { position:fixed; inset:0; width:100%; height:100%; z-index:5000; pointer-events:auto; }
-        .tut-highlight-border { display:none; }
-        .tut-tooltip { position:fixed; z-index:5002; background:#241f1b; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:1.25rem 1.4rem; width:300px; pointer-events:auto; opacity:0; box-shadow:0 16px 48px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.04); }
-        .tut-tooltip.visible { animation:tutFadeIn 0.3s ease forwards; }
-        @keyframes tutFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-        .tut-tooltip-step { font-size:0.7rem; font-weight:600; letter-spacing:0.5px; color:rgba(92,184,138,0.7); margin-bottom:0.5rem; font-family:'Poppins','Inter',sans-serif; }
-        .tut-tooltip-title { font-size:1.05rem; font-weight:700; color:#fff; margin-bottom:0.4rem; font-family:'Poppins','Inter',sans-serif; letter-spacing:-0.3px; }
-        .tut-tooltip-desc { font-size:0.82rem; color:rgba(255,255,255,0.65); line-height:1.55; margin-bottom:1.1rem; font-family:'Inter',sans-serif; }
-        .tut-tooltip-progress { display:flex; gap:4px; margin-bottom:1rem; }
-        .tut-tooltip-pip { height:3px; border-radius:2px; background:rgba(255,255,255,0.1); flex:1; transition:background 0.3s ease; }
-        .tut-tooltip-pip.done { background:rgba(92,184,138,0.5); }
-        .tut-tooltip-pip.active { background:#5cb88a; }
-        .tut-tooltip-actions { display:flex; justify-content:space-between; align-items:center; }
-        .tut-skip-btn { background:none; border:none; color:rgba(255,255,255,0.3); font-size:0.78rem; font-weight:500; cursor:pointer; padding:0.3rem 0; font-family:'Inter',sans-serif; transition:color 0.2s; }
-        .tut-skip-btn:hover { color:rgba(255,255,255,0.55); }
-        .tut-next-btn { background:#5cb88a; color:#1a1714; border:none; padding:0.5rem 1.2rem; border-radius:8px; font-size:0.8rem; font-weight:600; cursor:pointer; font-family:'Poppins','Inter',sans-serif; transition:all 0.2s ease; letter-spacing:-0.2px; }
-        .tut-next-btn:hover { background:#54b082; box-shadow:0 4px 14px rgba(236, 226, 214, 0.25); }
-        .tut-secondary-btn { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.1); padding:0.5rem 1rem; border-radius:8px; font-size:0.8rem; font-weight:500; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s; }
-        .tut-secondary-btn:hover { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.8); }
-    </style>
-    <link rel="stylesheet" href="css/theme.css">
-    <style>
-        /* ===== Clean league theme (match dashboard) — no neon, no wallpaper ===== */
-        body::before, body::after { display: none !important; }
-        .floating-tickers, .bg-graphic { display: none !important; }
-        .welcome-message h1 { font-family: 'Fraunces', Georgia, serif !important; font-weight: 600 !important; }
-        .option-card {
-            background: #221E1A !important;
-            border: 1px solid rgba(236,226,214,0.08) !important;
-            border-radius: 14px !important;
-            box-shadow: none !important;
-        }
-        .option-card::before { display: none !important; }
-        .option-card:hover {
-            transform: translateY(-3px) !important;
-            border-color: rgba(236,226,214,0.2) !important;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.25) !important;
-            background: #262019 !important;
-        }
-        .start-btn, .action-btn {
-            background: #5CB88A !important; color: #14110E !important;
-            border: none !important; border-radius: 10px !important;
-            box-shadow: none !important; text-shadow: none !important;
-            font-weight: 700 !important; letter-spacing: 0 !important;
-        }
-        .start-btn:hover, .action-btn:hover { background: #6cc79a !important; transform: none !important; }
-        .league-card {
-            background: #221E1A !important;
-            border: 1px solid rgba(236,226,214,0.08) !important;
-            border-radius: 14px !important; box-shadow: none !important;
-        }
-        .league-card:hover { border-color: rgba(236,226,214,0.2) !important; }
-        .league-status { box-shadow: none !important; text-shadow: none !important; }
-    </style>
-    <style>
-        .welcome-message h1, .league-header h1 {
-            font-family: 'Fraunces', Georgia, serif !important;
-            font-weight: 600 !important;
-            background: linear-gradient(135deg, #ffffff 0%, #5cb88a 50%, #e0a24c 100%) !important;
-            -webkit-background-clip: text !important;
-            background-clip: text !important;
-            -webkit-text-fill-color: transparent !important;
-        }
-    </style>
-    <style>
-        .league-avatar.ft {
-            border-radius: 8px !important;
-            background: rgba(92, 184, 138, 0.08) !important;
-            display: flex !important; align-items: center; justify-content: center;
-            padding: 6px;
-        }
-        .league-avatar.ft img {
-            width: 100%; height: auto; display: block;
-            filter: drop-shadow(0 0 3px rgba(92, 184, 138, 0.22));
-        }
-        .league-btn.open-btn {
-            width: auto !important; border-radius: 8px !important;
-            padding: 0.55rem 1.4rem !important;
-            background: linear-gradient(180deg, #63bf92, #4faa7d) !important;
-            color: #14110E !important; font: 700 0.8rem 'Inter', sans-serif !important;
-            letter-spacing: 0.04em; border: none !important;
-        }
-        .league-btn.open-btn:hover { filter: brightness(1.07); }
-        .league-stats { display: flex; gap: 1.75rem !important; }
-        .league-stats .stat {
-            color: #F4EEE6 !important; font: 600 1.08rem 'Fraunces', Georgia, serif !important;
-            letter-spacing: 0 !important;
-            background: none !important; border: none !important; padding: 0 !important;
-            box-shadow: none !important;
-        }
-        .league-name { font: 600 1.15rem 'Fraunces', Georgia, serif !important; }
-        .league-code { font: 600 0.78rem 'Inter', sans-serif !important; letter-spacing: 2px; color: #E0A24C !important; }
-    </style>
-    <style>
-        .compete-header {
-            position: relative; display: flex; align-items: center;
-            padding: 0 2rem; height: 84px; margin-bottom: 1rem;
-            background: linear-gradient(135deg, rgba(26, 23, 20, 0.95) 0%, rgba(36, 31, 27, 0.95) 100%);
-            border-bottom: 1px solid rgba(236, 226, 214, 0.2);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-            z-index: 10;
-        }
-        .back-button-hdr {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(236, 226, 214, 0.15));
-            border: 1px solid rgba(92, 184, 138, 0.3);
-            color: #fff; padding: 0.8rem 1.5rem; border-radius: 10px; text-decoration: none;
-            font: 600 0.9rem 'Inter', sans-serif; z-index: 2; transition: all 0.3s ease;
-            display: inline-flex; align-items: center; gap: 0.5rem;
-        }
-        .back-button-hdr:hover {
-            background: linear-gradient(135deg, rgba(236, 226, 214, 0.25), rgba(224, 162, 76, 0.25));
-            border-color: #E0A24C; transform: translateY(-2px);
-        }
-        .compete-title {
-            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-            font: 600 2.7rem 'Fraunces', Georgia, serif !important; margin: 0;
-            background: none; color: #F4EEE6; -webkit-text-fill-color: #F4EEE6;
-        }
-        .welcome-message h1 { display: none !important; }
-        .league-container { margin-top: 0.5rem !important; }
-        .active-leagues {
-            border: 1px solid rgba(236, 226, 214, 0.16) !important;
-            border-radius: 14px; padding: 1.75rem !important;
-            min-height: 58vh;
-        }
-    </style>
-    <style>
-        /* Create/Join boxes — same feel as the Practice cards */
-        .option-card {
-            background: #221E1A !important;
-            border: 1px solid rgba(236, 226, 214, 0.12) !important;
-            border-radius: 16px !important;
-            box-shadow: none !important;
-            transition: transform 0.2s ease, border-color 0.2s ease !important;
-        }
-        .option-card:hover { transform: translateY(-4px); border-color: rgba(92, 184, 138, 0.45) !important; }
-        .option-card h2 {
-            font-family: 'Poppins', 'Inter', sans-serif !important;
-            font-weight: 800 !important; font-size: 1.6rem !important; letter-spacing: -0.5px !important;
-            background: none !important; -webkit-text-fill-color: #F4EEE6 !important; color: #F4EEE6 !important;
-        }
-        .option-card p { color: #B7ADA1 !important; font: 500 0.92rem 'Inter', sans-serif !important; }
-        .option-card .start-btn {
-            background: linear-gradient(180deg, #63bf92, #4faa7d) !important;
-            color: #14110E !important; border: none !important; border-radius: 10px !important;
-            font: 700 0.9rem 'Inter', sans-serif !important; box-shadow: none !important;
-        }
-        /* Page doesn't scroll — the leagues list does */
-        html, body { overflow: hidden !important; height: 100vh !important; }
-        .league-container {
-            height: calc(100vh - 96px) !important;
-            display: flex !important; flex-direction: column !important;
-            overflow: hidden !important; margin-top: 0 !important;
-        }
-        .active-leagues { flex: 0 1 auto !important; min-height: 0 !important; max-height: 44vh !important; overflow-y: auto !important; }
-    </style>
-    <style>
-        /* Option cards — practice-card look, icon tile included */
-        .option-card { text-align: center !important; padding: 2.4rem 2rem !important; }
-        .opt-icon {
-            width: 80px; height: 80px; margin: 0 auto 1.6rem;
-            background: linear-gradient(135deg, rgba(236, 226, 214, 0.2), rgba(236, 226, 214, 0.05));
-            border-radius: 20px; display: flex; align-items: center; justify-content: center;
-        }
-        .opt-icon i { font-size: 1.9rem; color: #5CB88A; }
-        .option-card.join .opt-icon i { color: #E0A24C; }
-        .option-card h2 i { display: none !important; }
-
-        /* Back button — identical to the practice page's */
-        .back-button-hdr {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(236, 226, 214, 0.15)) !important;
-            border: 1px solid rgba(92, 184, 138, 0.3) !important;
-            color: white !important; padding: 0.8rem 1.5rem !important; border-radius: 10px !important;
-            font-size: 0.9rem !important; font-weight: 600 !important;
-            backdrop-filter: blur(10px);
-        }
-        .back-button-hdr:hover {
-            background: linear-gradient(135deg, rgba(236, 226, 214, 0.25), rgba(224, 162, 76, 0.25)) !important;
-            border-color: #E0A24C !important; transform: translateY(-2px);
-        }
-
-        /* Active leagues: sharp corners, runs to the bottom */
-        .active-leagues {
-            flex: 1 1 auto !important; max-height: none !important; min-height: 0 !important;
-            overflow-y: auto !important; border-radius: 0 !important;
-            border: 1px solid rgba(236, 226, 214, 0.16) !important;
-        }
-        /* League rows: shorter, info right in neat boxes behind a divider */
-        .league-card { padding: 0.8rem 1.25rem !important; min-height: 0 !important; }
-        .league-center {
-            margin-left: auto !important; padding-left: 1.5rem !important;
-            border-left: 1px solid rgba(236, 226, 214, 0.14) !important;
-        }
-        .league-stats { gap: 0.6rem !important; }
-        .league-stats .stat {
-            font: 600 0.82rem 'Inter', sans-serif !important; color: #D8CFC2 !important;
-            background: rgba(236, 226, 214, 0.05) !important;
-            border: 1px solid rgba(236, 226, 214, 0.12) !important;
-            padding: 0.45rem 0.9rem !important; border-radius: 8px !important;
-        }
-        .league-avatar.ft img { filter: none !important; }
-    </style>
-
-    <style>
-        /* Back button — identical to every other page */
-        .back-button-hdr {
-            font-family: 'Inter', sans-serif !important;
-            display: inline-flex !important; align-items: center !important; gap: 0.5rem !important;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(236, 226, 214, 0.15)) !important;
-            border: 1px solid rgba(92, 184, 138, 0.3) !important;
-            color: #fff !important; padding: 0.8rem 1.5rem !important; border-radius: 10px !important;
-            font-size: 0.9rem !important; font-weight: 600 !important;
-            text-decoration: none !important; transition: all 0.3s ease !important;
-        }
-        .back-button-hdr:hover {
-            background: linear-gradient(135deg, rgba(236, 226, 214, 0.25), rgba(224, 162, 76, 0.25)) !important;
-            border-color: #E0A24C !important; transform: translateY(-2px);
-        }
-    </style>
-
-    <style>
-        /* Practice-format cards */
-        .option-card { text-align: center !important; padding: 2.2rem 2.2rem 2.4rem !important; display: flex; flex-direction: column; }
-        .opt-icon {
-            width: 72px !important; height: 72px !important; margin: 0 auto 1.5rem !important;
-            background: linear-gradient(135deg, rgba(92, 184, 138, 0.16), rgba(92, 184, 138, 0.05)) !important;
-            border: 1px solid rgba(92, 184, 138, 0.25); border-radius: 18px !important;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .opt-icon i { font-size: 1.7rem !important; color: #7ACCA3 !important; }
-        .option-card.join .opt-icon i { color: #7ACCA3 !important; }
-        .option-card h2 {
-            font-family: 'Fraunces', Georgia, serif !important; font-weight: 600 !important;
-            font-size: 1.8rem !important; color: #F4EEE6 !important; letter-spacing: 0 !important;
-            background: none !important; -webkit-text-fill-color: #F4EEE6 !important;
-            margin-bottom: 0.7rem !important;
-        }
-        .option-card p { font: 400 0.95rem/1.55 'Inter', sans-serif !important; color: #B7ADA1 !important; max-width: 40ch; margin: 0 auto 1.4rem !important; }
-        .opt-features { list-style: none; margin: 0 0 1.8rem; padding: 0; text-align: left; display: inline-block; }
-        .opt-features li {
-            position: relative; padding: 0.42rem 0 0.42rem 2.1rem;
-            font: 500 0.95rem 'Inter', sans-serif; color: #E7DFD3;
-        }
-        .opt-features li::before {
-            content: '✓'; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-            width: 22px; height: 22px; border-radius: 50%;
-            background: rgba(92, 184, 138, 0.15); color: #5CB88A;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.72rem; font-weight: 700;
-        }
-        .opt-cta {
-            margin-top: auto; width: 100%;
-            background: #7ACCA3 !important; color: #14110E !important; border: none !important;
-            padding: 1.05rem !important; border-radius: 14px !important;
-            font: 800 1rem 'Inter', sans-serif !important; letter-spacing: 0.22em !important;
-            text-transform: uppercase !important; cursor: pointer;
-            transition: filter 0.15s ease, transform 0.15s ease;
-        }
-        .opt-cta:hover { filter: brightness(1.07); transform: translateY(-2px); }
-
-        .back-button-hdr {
-            display: inline-flex !important; align-items: center !important; gap: 0.5rem !important;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(236, 226, 214, 0.15)) !important;
-            border: 1px solid rgba(92, 184, 138, 0.3) !important;
-            color: #ffffff !important; padding: 0.8rem 1.5rem !important; border-radius: 10px !important;
-            font: 600 0.9rem 'Inter', sans-serif !important;
-            text-decoration: none !important; cursor: pointer !important;
-            transition: all 0.3s ease !important; box-shadow: none !important; text-shadow: none !important;
-        }
-        .back-button-hdr:hover {
-            background: linear-gradient(135deg, rgba(236, 226, 214, 0.25), rgba(224, 162, 76, 0.25)) !important;
-            border-color: #E0A24C !important; transform: translateY(-2px) !important;
-        }
-    </style>
-    <style>
-        .active-leagues { padding-top: 0.9rem !important; }
-        .active-leagues h2 { margin-top: 0 !important; margin-bottom: 0.8rem !important; }
-        .active-leagues .league-card:first-of-type { margin-top: 0 !important; }
-        #leaguesList { margin-top: 0 !important; }
-    </style>
-    <style>
-        /* Compact option cards */
-        .option-card { padding: 1.1rem 1.8rem 1.3rem !important; min-height: 0 !important; }
-        .opt-icon { width: 46px !important; height: 46px !important; margin: 0 auto 0.7rem !important; border-radius: 12px !important; }
-        .opt-icon i { font-size: 1.1rem !important; }
-        .option-card h2 { font-size: 1.35rem !important; margin-bottom: 0.35rem !important; }
-        .option-card p { font-size: 0.85rem !important; margin: 0 auto 0.7rem !important; }
-        .opt-features { margin: 0 0 0.9rem !important; }
-        .opt-features li { padding: 0.28rem 0 0.28rem 1.9rem !important; font-size: 0.88rem !important; }
-        .opt-features li::before { width: 19px !important; height: 19px !important; font-size: 0.64rem !important; }
-        .opt-cta { padding: 0.7rem !important; font-size: 0.9rem !important; border-radius: 11px !important; }
-        .league-options { margin-bottom: 0.5rem !important; }
-
-        /* League info: bigger, human, pushed right */
-        .league-center { margin-left: auto !important; margin-right: 1.25rem; }
-        .league-stats { display: flex; gap: 2rem !important; align-items: baseline; }
-        .league-stats .stat {
-            font: 600 1.05rem 'Inter', sans-serif !important;
-            color: #E7DFD3 !important; letter-spacing: -0.01em !important;
-            background: none !important; border: none !important; padding: 0 !important;
-            box-shadow: none !important; text-transform: none !important;
-        }
-        .league-stats .stat .memberCount { color: #5CB88A; font-weight: 800; }
-    
-        /* section headings sit flat in cream, no gradient fill */
-        .league-header h1, .welcome-message h1 {
-            background: none !important; background-image: none !important;
-            -webkit-text-fill-color: #F4EEE6 !important; color: #F4EEE6 !important;
-            text-shadow: none !important;
-        }
-
-        /* ══════════════════════════════════════════════════════════════════
-           RESPONSIVE — this page had no breakpoints at all
-           ══════════════════════════════════════════════════════════════════ */
-
-        /* ══════════════════════════════════════════════════════════════════
-           CREATE / JOIN — the two doors into the game
-           ------------------------------------------------------------------
-           Built in the same language as the signup survey: translucent
-           surfaces, hairline borders, a small bordered icon tile, and colour
-           held back until you interact. The previous pair leaned on filled
-           green slabs and drop shadows, which is what read as generic.
-           ══════════════════════════════════════════════════════════════════ */
-        .lg-choice {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
-            /* .league-container is a flex column, so without an explicit width
-               this grid shrank to its content (649px) instead of taking the
-               840px it was allowed. */
-            width: 100%; align-self: center;
-            max-width: 840px; margin: 0 auto 2.5rem;
-        }
-        .lg-card {
-            /* bull green / bear red — the game's own language, and it makes
-               the two cards legible at a glance without reading a word */
-            --a: #4FCF9A;
-            --ink: #06170F;                       /* text that sits ON the accent */
-            position: relative; display: flex; flex-direction: column;
-            align-items: flex-start; text-align: left;
-            padding: 1.7rem 1.6rem 1.5rem;
-            border-radius: 18px; cursor: pointer; overflow: hidden;
-            font-family: 'Inter', sans-serif;
-            border: 1px solid color-mix(in srgb, var(--a) 34%, transparent);
-            background:
-                /* a soft floor shadow inside the card so the button sits in
-                   the light rather than floating on a flat panel */
-                radial-gradient(120% 70% at 50% 118%, rgba(0, 0, 0, 0.45), transparent 70%),
-                radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--a) 16%, transparent), transparent 62%),
-                linear-gradient(165deg, #2A231C, #1B1714 78%, #161311);
-            /* lifted off the page at rest, not only on hover */
-            box-shadow:
-                0 10px 26px rgba(0, 0, 0, 0.42),
-                0 2px 6px rgba(0, 0, 0, 0.3),
-                0 1px 0 rgba(255, 255, 255, 0.055) inset;
-            transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
-        }
-        .lg-join { --a: #E8705F; --ink: #23100C; }
-
-        /* The bull and the bear, lifted straight out of the hero artwork.
-           They were one PNG with the two animals interlocked — no vertical cut
-           separates them — so they were split by connected component instead,
-           which gives a clean silhouette of each.
-
-           The PNGs ship pre-tinted rather than being recoloured with a CSS
-           mask: Chromium refuses to load a file:// image as a mask
-           (net::ERR_FAILED), so a masked version renders as nothing at all if
-           anyone ever opens these pages straight off disk. A plain background
-           image has no such restriction. */
-        /* Top-right, where the card is empty. Along the bottom it sat behind
-           the button and got cropped into an unreadable wedge. */
-        .lg-card .lg-mark {
-            position: absolute; right: 6px; top: 8px;
-            width: 152px; height: 152px;
-            background: var(--mark) center / contain no-repeat;
-            opacity: 0.17; pointer-events: none;
-            transition: opacity .2s ease, transform .2s ease;
-        }
-        .lg-create { --mark: url('bull-mark.png'); }
-        .lg-join   { --mark: url('bear-mark.png'); }
-        .lg-card:hover .lg-mark { opacity: 0.27; transform: scale(1.06); }
-
-        .lg-card:hover {
-            transform: translateY(-3px);
-            border-color: color-mix(in srgb, var(--a) 70%, transparent);
-            box-shadow: 0 14px 34px rgba(0,0,0,0.45),
-                        0 0 0 1px color-mix(in srgb, var(--a) 22%, transparent);
-        }
-        .lg-card:focus-visible { outline: 2px solid var(--a); outline-offset: 3px; }
-
-        .lg-ico {
-            width: 52px; height: 52px; border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            background: color-mix(in srgb, var(--a) 16%, transparent);
-            border: 1px solid color-mix(in srgb, var(--a) 40%, transparent);
-            transition: background .2s ease, transform .2s ease;
-        }
-        /* same silhouette as the corner mark, at badge size */
-        .lg-ico::before {
-            content: ''; width: 32px; height: 32px;
-            background: var(--mark) center / contain no-repeat;
-        }
-        .lg-card:hover .lg-ico {
-            background: color-mix(in srgb, var(--a) 26%, transparent);
-            transform: scale(1.05) rotate(-2deg);
-        }
-
-        .lg-kick {
-            margin-top: 1.1rem;
-            font: 800 0.62rem 'Inter', sans-serif; letter-spacing: 0.2em;
-            text-transform: uppercase; color: var(--a);
-        }
-        .lg-title {
-            margin-top: 0.32rem;
-            font: 800 1.95rem 'Poppins', 'Inter', sans-serif;
-            letter-spacing: -0.025em; line-height: 1.05; color: #F4EEE6;
-        }
-
-        /* a real button: solid, high contrast, full width of the card */
-        .lg-go {
-            margin-top: 1.35rem; width: 100%;
-            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-            padding: 0.85rem 1rem; border-radius: 11px;
-            background: var(--a); color: var(--ink);
-            font: 800 0.9rem 'Inter', sans-serif; letter-spacing: 0.01em;
-            box-shadow: 0 1px 0 rgba(255,255,255,0.28) inset;
-            transition: filter .2s ease, transform .2s ease;
-        }
-        .lg-go svg { width: 17px; height: 17px; transition: transform .2s ease; }
-        .lg-card:hover .lg-go { filter: brightness(1.08); }
-        .lg-card:hover .lg-go svg { transform: translateX(4px); }
-        .lg-card:active .lg-go { transform: translateY(1px); }
-
-        @media (prefers-reduced-motion: reduce) {
-            .lg-card, .lg-go svg { transition: none; }
-            .lg-card:hover { transform: none; }
-        }
-
-        /* ── the league board, in a device shell ──────────────────────────
-           Same bezel, camera dot and base bar as the laptop on the landing
-           page, so the two screens are recognisably the same object. */
-        /* The cards started ~16px under an 84px header, so the top of each
-           card — including the bull/bear mark that sits proud of it — was
-           crowding the bar. Give the whole column room to breathe. */
-        /* Measured, not eyeballed: the cards sat 58px under the header and
-           112px above the clipboard. Moving 27px of that from below to above
-           puts them dead centre in the band. */
-        .league-container { padding-top: 4.3rem !important; }
-        .lg-choice { margin-bottom: 1.7rem !important; }
-
-        /* ── the clipboard ────────────────────────────────────────────────
-           Full container width — it was capped at 840 to line up with the
-           cards, which made the league list smaller than it used to be.
-           Deliberately unfinished at the bottom: no closing edge, no radius,
-           extra padding so the board runs past the fold. */
-        .al-board {
-            /* this page doesn't set a global border-box, so width:100% plus
-               26px of padding a side put the board 10px past the viewport */
-            box-sizing: border-box;
-            position: relative; width: 100%; align-self: center;
-            max-width: 1120px; margin: 3.6rem auto 0;
-            /* the sheet starts high enough that the clip lands ON the paper
-               rather than on bare board above it */
-            padding: 48px 26px 120px;
-            border-radius: 10px 10px 0 0;
-            border: 1px solid rgba(0, 0, 0, 0.55);
-            border-bottom: none;
-            /* pressed hardboard: warm, faintly fibrous, lit from above. The
-               grain is deliberately near-invisible — at 2px bands it read as
-               corduroy rather than board. */
-            background:
-                linear-gradient(180deg, rgba(255,255,255,0.05), transparent 140px),
-                repeating-linear-gradient(96deg,
-                    rgba(255,255,255,0.007) 0 3px, rgba(0,0,0,0.009) 3px 7px),
-                linear-gradient(168deg, #3B322A 0%, #2F2721 45%, #251F1A 100%);
-            box-shadow:
-                0 1px 0 rgba(255, 255, 255, 0.09) inset,
-                0 26px 60px rgba(0, 0, 0, 0.55);
-        }
-
-        /* The metal clip. The trick to it reading as metal rather than a grey
-           box is the gradient reversing partway down — bright at the top edge,
-           dark through the middle, then catching the light again underneath.
-           A single linear ramp looks like plastic. */
-        .al-clip {
-            /* sits low enough to bite the top of the paper, and holds the pen
-               underneath it */
-            position: absolute; top: 21px; left: 50%; transform: translateX(-50%);
-            width: 268px; height: 40px; z-index: 3;
-            border-radius: 5px;
-            background: linear-gradient(180deg,
-                #EFECE6 0%, #C8C2B9 20%, #948E86 48%,
-                #6B655F 68%, #8A847C 86%, #A9A39A 100%);
-            box-shadow:
-                0 3px 5px rgba(0, 0, 0, 0.55),
-                0 12px 22px rgba(0, 0, 0, 0.4),
-                0 1px 0 rgba(255, 255, 255, 0.6) inset;
-        }
-        /* the hinge groove across the jaw */
-        .al-clip::after {
-            content: ''; position: absolute; left: 9px; right: 9px; top: 62%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.42) 18%,
-                        rgba(0,0,0,0.42) 82%, transparent);
-        }
-        /* the raised lever, overlapping the jaw so it reads as sitting on it
-           rather than stacked above it */
-        .al-clip::before {
-            content: ''; position: absolute; left: 50%; transform: translateX(-50%);
-            top: -15px; width: 124px; height: 28px;
-            border-radius: 13px 13px 3px 3px;
-            background: linear-gradient(180deg,
-                #F5F2ED 0%, #D2CCC3 30%, #9C968E 64%, #746E68 100%);
-            box-shadow:
-                0 -1px 0 rgba(255, 255, 255, 0.6) inset,
-                0 4px 7px rgba(0, 0, 0, 0.5);
-        }
-        /* The hole punched through the lever — the one you hang the board on.
-           A real child rather than another pseudo-element, because ::before
-           and ::after are already the lever and the hinge groove. It paints
-           above ::before, so it reads as a hole in the metal rather than a
-           dot beside it: dark well, hard shadow on the inside top edge, and a
-           lit lip along the bottom where the light catches the far rim. */
-        .cl-hole {
-            position: absolute; left: 50%; top: -10px; transform: translateX(-50%);
-            width: 15px; height: 15px; border-radius: 50%;
-            background: radial-gradient(circle at 50% 34%, #14100D 0%, #241E19 100%);
-            box-shadow:
-                inset 0 2px 2.5px rgba(0, 0, 0, 0.9),
-                inset 0 -1.5px 0 rgba(255, 255, 255, 0.4),
-                0 1px 0 rgba(255, 255, 255, 0.28);
-        }
-
-        /* the sheet held under the clip */
-        .al-sheet {
-            position: relative;
-            border-radius: 4px;
-            background: #171310;
-            border: 1px solid rgba(236, 226, 214, 0.09);
-            box-shadow:
-                0 -2px 10px rgba(0, 0, 0, 0.5),
-                0 14px 30px rgba(0, 0, 0, 0.35);
-            padding: 1.1rem;
-        }
-        /* The top edge of the page curling up off the board: a shallow dome
-           lifting away from the sheet, lit along its lip because you're seeing
-           the underside, and casting a shadow down onto the page below it. */
-        .al-sheet::before {
-            content: ''; position: absolute; left: -1px; right: -1px; top: -17px;
-            height: 22px;
-            border-radius: 7px 7px 0 0 / 20px 20px 0 0;
-            background: linear-gradient(180deg,
-                #4A4038 0%, #362E27 26%, #241E19 62%, #1A1512 100%);
-            border-top: 1px solid rgba(236, 226, 214, 0.3);
-            box-shadow: 0 7px 12px rgba(0, 0, 0, 0.55);
-        }
-        /* the sliver of shadow the lifted edge throws across the page */
-        .al-sheet::after {
-            content: ''; position: absolute; left: 0; right: 0; top: 0; height: 16px;
-            pointer-events: none; border-radius: 4px 4px 0 0;
-            background: linear-gradient(180deg, rgba(0,0,0,0.45), transparent);
-        }
-        /* RULES: the league overview's button language — square corners,
-           green on black, nothing else. It was a rounded amber pill. */
-        .al-rules {
-            margin-left: auto;
-            display: inline-flex; align-items: center; gap: 8px;
-            background: #0F1512;
-            border: 1px solid rgba(92, 184, 138, 0.55);
-            border-radius: 0;
-            color: #5CB88A;
-            font: 700 0.78rem 'Inter', sans-serif;
-            letter-spacing: 0.12em; text-transform: uppercase;
-            padding: 0.62rem 1.35rem;
-            text-decoration: none; cursor: pointer;
-            transition: background .18s ease, border-color .18s ease, color .18s ease;
-        }
-        .al-rules:hover {
-            background: rgba(92, 184, 138, 0.14);
-            border-color: #5CB88A; color: #8FD9B2;
-        }
-        .al-rules i { font-size: 0.85em; }
-
-        /* the sheet supplies the frame now, so the panel drops its own */
-        .al-sheet .active-leagues {
-            border: none !important; border-radius: 0 !important;
-            background: transparent !important; margin-top: 0 !important;
-            padding: 0.9rem 1rem 1.1rem !important;
-            max-height: none !important;
-        }
-
-        @media (max-width: 900px) {
-            /* Create and Join sat side by side in a centred flex row with a
-               fixed gap, so on a phone they simply hung off both edges. */
-            .lg-choice { grid-template-columns: 1fr; gap: 0.85rem; margin-bottom: 2rem; }
-            .league-container { padding: 0 1rem; }
-            .al-board { padding: 40px 12px 90px; margin-top: 2.6rem; }
-            /* `top` has to track the desktop value — at the original -15px the
-               clip floated above the board entirely once it moved down onto
-               the paper. */
-            .al-clip { width: 208px; height: 36px; top: 19px; }
-            .al-clip::before { width: 112px; height: 26px; top: -14px; }
-            .cl-hole { width: 13px; height: 13px; top: -9px; }
-            .lg-card { padding: 1.4rem 1.3rem 1.3rem; }
-            .lg-title { font-size: 1.6rem; }
-        }
-        @media (max-width: 560px) {
-            /* the serif heading was breaking "Your / Active / Leagues" across
-               three lines to make room for the RULES button beside it */
-            .active-leagues h2 { font-size: 1.5rem !important; gap: 0.6rem !important; }
-        }
-
-        @media (max-width: 760px) {
-            /* "Compete" was absolutely centred in the bar, which put it
-               directly underneath the back button. Let both sit in the flow. */
-            .compete-header {
-                height: auto; flex-wrap: wrap; gap: 0.7rem;
-                padding: 0.9rem 1rem; justify-content: space-between;
-            }
-            .compete-title {
-                position: static !important; transform: none !important;
-                font-size: 1.5rem !important; order: 2;
-            }
-            .back-button-hdr { padding: 0.6rem 0.9rem !important; font-size: 0.8rem !important; order: 1; }
-            .league-header h1 { font-size: 2.1rem; }
-            .league-header { margin-bottom: 26px; }
-        }
-
-        @media (max-width: 420px) {
-            .compete-title { font-size: 1.25rem !important; }
-            .league-header h1 { font-size: 1.75rem; }
-        }
+    <meta name="theme-color" content="#14100E">
+
+    <link rel="stylesheet" href="css/ft-lessons.css?v=9">
+    <link rel="stylesheet" href="css/ft-ambient.css?v=6">
+    <link rel="stylesheet" href="css/ft-motion.css">
+<style>
+/* ============================================================
+ *  LEAGUES
+ *
+ *  Rebuilt on the Academy's design system. What went:
+ *
+ *   · the clipboard. It was a drawn desk object — a metal clip, a
+ *     paper sheet, a board running off the bottom of the page —
+ *     wrapped around a list of four rows. All of that furniture
+ *     to frame content that fits in a card.
+ *   · Fraunces. Headings are the same display face as the rest of
+ *     the app now, so "Compete" stopped looking like a different
+ *     product's title.
+ *   · eleven separate blocks restyling .league-card and .active-
+ *     leagues, several of them with !important, several of them
+ *     contradicting each other. One definition each now.
+ *   · the floating ticker generator: already display:none, still
+ *     spawning DOM nodes on a setInterval that never cleared.
+ * ============================================================ */
+
+.lg-wrap { max-width: 820px; margin: 0 auto; padding: 0 1.1rem 4rem; }
+
+/* ── header ─────────────────────────────────────────────────── */
+.lg-head {
+    position: sticky; top: 0; z-index: 40;
+    background: rgba(20, 16, 14, 0.94);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--lx-line);
+    padding: 0.8rem 1.1rem;
+}
+.lg-head-in {
+    max-width: 820px; margin: 0 auto;
+    display: flex; align-items: center; gap: 0.8rem;
+}
+.lg-back {
+    display: inline-flex; align-items: center;
+    color: var(--lx-ink-3); text-decoration: none;
+    font: 700 1rem var(--lx-sans);
+    padding: 0.2rem 0.3rem; border-radius: 8px;
+    transition: color 0.15s ease;
+}
+.lg-back:hover { color: var(--lx-ink); }
+.lg-wordmark {
+    font: 800 0.95rem 'Inter', system-ui, sans-serif; letter-spacing: -0.01em;
+    color: var(--lx-ink-2);
+}
+.lg-rules {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.42rem 0.8rem; border-radius: 999px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--lx-line);
+    color: var(--lx-ink-2); text-decoration: none;
+    font: 700 0.72rem 'Inter', system-ui, sans-serif; letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: all 0.15s ease;
+}
+.lg-rules:hover { color: var(--lx-ink); border-color: var(--lx-line-2); }
+.lg-rules svg { width: 14px; height: 14px; }
+
+/* ── hero ───────────────────────────────────────────────────── */
+.lg-hero { padding: 2rem 0 0.2rem; }
+.lg-kicker {
+    font: 800 0.68rem 'Inter', system-ui, sans-serif; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--lx-sage); margin: 0 0 0.5rem;
+}
+.lg-hero h1 {
+    margin: 0; font: 800 clamp(2rem, 5vw, 2.7rem)/1.04 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.035em;
+    background: linear-gradient(135deg, #ffffff 22%, var(--lx-sage) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+
+/* ── your leagues ───────────────────────────────────────────── */
+.lg-section {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 1rem; margin: 2.2rem 0 0.85rem;
+}
+.lg-section h2 {
+    margin: 0; font: 800 1.15rem 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.02em; color: var(--lx-ink);
+}
+.lg-section .count {
+    font: 700 0.68rem var(--lx-sans); letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--lx-ink-3);
+}
+
+.lg-list { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.lg-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center; gap: 1rem;
+    padding: 0.95rem 1.05rem;
+    border-radius: 16px;
+    background: var(--lx-surface);
+    border: 2px solid var(--lx-line);
+    border-bottom-width: 4px;
+    transition: border-color 0.16s ease, background 0.16s ease;
+}
+.lg-row:hover { border-color: var(--lx-line-2); }
+
+.lg-avatar {
+    width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0;
+    display: grid; place-items: center;
+    background: rgba(92,184,138,0.12);
+    border: 1px solid rgba(92,184,138,0.26);
+}
+.lg-avatar img { width: 26px; height: 26px; object-fit: contain; }
+.lg-avatar svg { width: 24px; height: 24px; }
+
+.lg-name {
+    font: 800 1rem 'Inter', system-ui, sans-serif; color: var(--lx-ink);
+    letter-spacing: -0.015em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.lg-meta {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
+    margin-top: 0.25rem;
+    font: 600 0.75rem var(--lx-sans); color: var(--lx-ink-3);
+}
+/* dot separators drawn rather than typed, so a missing charset could
+   never turn them into three bytes of noise again */
+.lg-meta span + span::before {
+    content: ''; display: inline-block;
+    width: 3px; height: 3px; border-radius: 50%;
+    background: currentColor; opacity: 0.6;
+    margin-right: 0.5rem; vertical-align: 0.18em;
+}
+.lg-code {
+    font: 700 0.7rem ui-monospace, 'JetBrains Mono', Menlo, monospace;
+    letter-spacing: 0.09em; color: var(--lx-honey);
+}
+
+.lg-right { display: flex; align-items: center; gap: 0.7rem; flex-shrink: 0; }
+.lg-status {
+    padding: 0.3rem 0.62rem; border-radius: 999px;
+    font: 800 0.6rem 'Inter', system-ui, sans-serif; letter-spacing: 0.09em;
+    text-transform: uppercase; white-space: nowrap;
+    border: 1px solid currentColor;
+}
+.lg-status.lobby, .lg-status.pending { color: var(--lx-honey); }
+.lg-status.drafting                  { color: var(--lx-blue); }
+.lg-status.active                    { color: var(--lx-sage); }
+.lg-status.complete,
+.lg-status.completed                 { color: var(--lx-ink-3); }
+
+.lg-open {
+    position: relative; top: 0;
+    padding: 0.62rem 1.05rem; border-radius: 12px;
+    border: none; cursor: pointer;
+    background: var(--lx-sage); color: #0C1A13;
+    font: 800 0.76rem 'Inter', system-ui, sans-serif;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    box-shadow: 0 4px 0 var(--lx-sage-dk);
+    transition: filter 0.15s ease, transform 0.07s ease, box-shadow 0.07s ease;
+}
+.lg-open:hover  { filter: brightness(1.07); }
+.lg-open:active { top: 4px; box-shadow: 0 0 0 var(--lx-sage-dk); }
+
+/* ── empty state ────────────────────────────────────────────────
+   No dashed box. A dashed border says "drop something here", which
+   is not what this is. */
+.lg-empty {
+    text-align: center; padding: 2.6rem 1.4rem;
+    border-radius: 18px;
+    background: var(--lx-surface);
+    border: 2px solid var(--lx-line);
+}
+.lg-empty-art { display: grid; place-items: center; margin-bottom: 0.9rem; opacity: 0.85; }
+.lg-empty-art svg { width: 66px; height: 66px; }
+.lg-empty h3 {
+    margin: 0 0 0.35rem; font: 800 1.1rem 'Inter', system-ui, sans-serif; color: var(--lx-ink);
+}
+.lg-empty p {
+    margin: 0; color: var(--lx-ink-2);
+    font: 500 0.88rem/1.6 var(--lx-sans);
+    max-width: 25rem; margin-inline: auto;
+}
+.lg-skeleton {
+    height: 74px; border-radius: 16px;
+    background: linear-gradient(100deg,
+        var(--lx-surface) 30%, var(--lx-surface-2) 50%, var(--lx-surface) 70%);
+    background-size: 260% 100%;
+    animation: lgShimmer 1.3s ease-in-out infinite;
+}
+@keyframes lgShimmer {
+    from { background-position: 130% 0; }
+    to   { background-position: -30% 0; }
+}
+
+.lg-legal {
+    text-align: center; color: var(--lx-ink-3);
+    font-size: 0.7rem; line-height: 1.65;
+    max-width: 32rem; margin: 2.2rem auto 0;
+}
+
+/* ── join sheet ─────────────────────────────────────────────── */
+.lg-code-input {
+    width: 100%; margin: 0.2rem 0 0.35rem;
+    padding: 0.9rem 1rem; border-radius: 14px;
+    background: var(--lx-bg-2);
+    border: 2px solid var(--lx-line);
+    color: var(--lx-ink);
+    font: 800 1.2rem ui-monospace, 'JetBrains Mono', Menlo, monospace;
+    letter-spacing: 0.22em; text-align: center; text-transform: uppercase;
+    outline: none; transition: border-color 0.16s ease;
+}
+.lg-code-input::placeholder { color: var(--lx-ink-3); letter-spacing: 0.16em; }
+.lg-code-input:focus { border-color: var(--lx-honey); }
+.lg-sheet-err {
+    color: var(--lx-red); font: 600 0.8rem var(--lx-sans);
+    min-height: 1.2rem; margin-bottom: 0.6rem;
+}
+
+/* ── responsive ─────────────────────────────────────────────── */
+@media (max-width: 700px) {
+    .lg-choice { grid-template-columns: 1fr; }
+    .lg-hero { padding-top: 1.4rem; }
+    /* the row collapses to two lines: identity on top, actions under */
+    .lg-row { grid-template-columns: auto minmax(0, 1fr); row-gap: 0.75rem; }
+    .lg-right { grid-column: 1 / -1; justify-content: space-between; }
+    .lg-open { flex: 1; max-width: 9rem; }
+}
+
+/* ── tutorial overlay ───────────────────────────────────────── */
+.tut-backdrop {
+    position: fixed; inset: 0; z-index: 90;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+.tut-backdrop.active { opacity: 1; pointer-events: auto; }
+.tut-overlay-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tut-highlight-border {
+    position: absolute; border: 2px solid var(--lx-sage);
+    border-radius: 18px; pointer-events: none;
+    box-shadow: 0 0 0 4px rgba(92,184,138,0.18);
+    transition: all 0.32s cubic-bezier(0.2,0.8,0.3,1);
+}
+.tut-tooltip {
+    position: absolute; width: 300px;
+    background: var(--lx-surface); border: 2px solid var(--lx-line-2);
+    border-radius: 16px; padding: 1rem 1.1rem;
+    box-shadow: 0 18px 46px rgba(0,0,0,0.55);
+    opacity: 0; transform: translateY(8px); transition: all 0.28s ease;
+}
+.tut-tooltip.visible { opacity: 1; transform: none; }
+.tut-tooltip-step {
+    font: 800 0.58rem 'Inter', system-ui, sans-serif; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--lx-sage); margin-bottom: 0.35rem;
+}
+.tut-tooltip-title { font: 800 1.02rem 'Inter', system-ui, sans-serif; margin-bottom: 0.35rem; }
+.tut-tooltip-desc  { font-size: 0.84rem; line-height: 1.55; color: var(--lx-ink-2); }
+.tut-tooltip-progress { display: flex; gap: 4px; margin: 0.9rem 0; }
+.tut-tooltip-pip { flex: 1; height: 4px; border-radius: 999px; background: rgba(236,226,214,0.12); }
+.tut-tooltip-pip.done   { background: var(--lx-sage-dk); }
+.tut-tooltip-pip.active { background: var(--lx-sage); }
+.tut-tooltip-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+.tut-secondary-btn, .tut-next-btn {
+    padding: 0.55rem 0.95rem; border-radius: 11px; cursor: pointer;
+    font: 800 0.74rem 'Inter', system-ui, sans-serif; letter-spacing: 0.05em;
+    text-transform: uppercase; border: none;
+}
+.tut-secondary-btn { background: none; color: var(--lx-ink-3); }
+.tut-secondary-btn:hover { color: var(--lx-ink); }
+.tut-next-btn { background: var(--lx-sage); color: #0C1A13; box-shadow: 0 3px 0 var(--lx-sage-dk); }
+
+
+
+/* ============================================================
+ *  LEAGUES — the arena.
+ * ============================================================ */
+.lg-arena { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+            background: linear-gradient(180deg, #120F0D 0%, #16120F 50%, #100D0B 100%); }
+.la-light { position: absolute; top: -30vh; width: 70vw; height: 120vh; filter: blur(10px); }
+.la-light.left  { left: -22vw;  background: radial-gradient(ellipse 45% 60% at 60% 30%, rgba(92,184,138,0.20), transparent 70%); transform: rotate(-14deg); }
+.la-light.right { right: -22vw; background: radial-gradient(ellipse 45% 60% at 40% 30%, rgba(224,162,76,0.17), transparent 70%); transform: rotate(14deg); }
+.la-court { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 48vh; }
+.la-vignette { position: absolute; inset: 0;
+    background: radial-gradient(ellipse 85% 75% at 50% 40%, transparent 45%, rgba(8,6,5,0.6) 100%); }
+:where(.lg-arena ~ *) { position: relative; z-index: 1; }
+
+.lg-hero { text-align: center; padding-top: 2.4rem !important; }
+.lg-hero h1 { font-size: clamp(2.2rem, 5vw, 3rem) !important; }
+.lg-sub { margin: 0.55rem 0 0; font: 600 0.95rem 'Inter', sans-serif; color: #9A8F84; }
+
+.lg-choice {
+    position: relative; display: grid !important;
+    grid-template-columns: 1fr auto 1fr !important; align-items: center; gap: 1rem !important;
+    margin-top: 2rem !important;
+}
+.lg-card {
+    grid-template-columns: 1fr !important; justify-items: center; text-align: center !important;
+    gap: 0.7rem !important; padding: 1.6rem 1.3rem 1.4rem !important;
+    border-radius: 22px !important; border-width: 2px !important; border-bottom-width: 5px !important;
+    background: rgba(30,26,22,0.88) !important;
+}
+.lg-create { border-color: rgba(92,184,138,0.35) !important; border-bottom-color: #3E8C65 !important; }
+.lg-join   { border-color: rgba(224,162,76,0.35) !important; border-bottom-color: #B37C33 !important; }
+.lg-card:hover { transform: translateY(-4px) !important; }
+.lg-create:hover { box-shadow: 0 18px 50px rgba(92,184,138,0.18) !important; }
+.lg-join:hover   { box-shadow: 0 18px 50px rgba(224,162,76,0.16) !important; }
+.lg-card:active { transform: translateY(2px) !important; border-bottom-width: 2px !important; }
+.lg-ico { width: 64px !important; height: 64px !important; border-radius: 18px !important; }
+.lg-ico svg { width: 36px !important; height: 36px !important; }
+.lg-txt { align-items: center; }
+.lg-title { font-size: 1.25rem !important; }
+.lg-go { display: none !important; }
+.lg-vs {
+    width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center;
+    font: 900 1rem 'Inter', sans-serif; letter-spacing: 0.04em; color: #F4EEE6;
+    background: radial-gradient(circle at 35% 30%, #3A322B, #1B1714);
+    border: 2px solid rgba(236,226,214,0.18);
+    box-shadow: 0 0 0 6px rgba(20,16,14,0.8), 0 10px 30px rgba(0,0,0,0.5);
+}
+@media (max-width: 640px) { .lg-choice { grid-template-columns: 1fr !important; } .lg-vs { justify-self: center; } }
+
+.lg-empty { padding: 1.6rem 1.4rem 1.4rem !important; background: rgba(30,26,22,0.8) !important; }
+.lg-steps { list-style: none; margin: 1.2rem 0 0; padding: 0; counter-reset: st;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; text-align: left; }
+.lg-steps li { counter-increment: st; position: relative; padding: 0.8rem 0.8rem 0.8rem 2.6rem;
+               border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(236,226,214,0.08); }
+.lg-steps li::before { content: counter(st); position: absolute; left: 0.75rem; top: 0.8rem;
+    width: 1.4rem; height: 1.4rem; border-radius: 50%; display: grid; place-items: center;
+    font: 800 0.7rem 'Inter', sans-serif; background: rgba(92,184,138,0.16); color: #7BD3A6; }
+.lg-steps b { display: block; font: 800 0.86rem 'Inter', sans-serif; color: #F4EEE6; }
+.lg-steps span { display: block; font: 500 0.74rem 'Inter', sans-serif; color: #9A8F84; margin-top: 2px; }
+@media (max-width: 640px) { .lg-steps { grid-template-columns: 1fr; } }
+
+/* ============================================================
+ *  LEAGUES v3 — stadium, mode select, match cards.
+ * ============================================================ */
+.lg-arena { background: #0E0C0A !important; }
+.la-stadium { position: absolute; inset: 0; width: 100%; height: 100%; }
+.la-vignette { background: radial-gradient(ellipse 80% 70% at 50% 45%, transparent 40%, rgba(6,5,4,0.75) 100%) !important; }
+.lg-hero .lg-kicker { font: 800 1rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; letter-spacing: 0.2em !important; color: #F0B865 !important; }
+.lg-hero { padding-top: 1.4rem !important; }
+.lg-hero h1 { font-size: clamp(2.8rem, 6vw, 4.2rem) !important; text-shadow: 0 6px 30px rgba(0,0,0,0.7); }
+
+/* mode select */
+.lg-choice { gap: 1.4rem !important; margin-top: 1.1rem !important; }
+.lg-card {
+    --tc: #5CB88A; --tcd: #2F6B4C;
+    position: relative; overflow: hidden;
+    display: flex !important; flex-direction: column; align-items: center;
+    gap: 0.55rem !important; padding: 2.1rem 1.4rem 1.3rem !important;
+    border-radius: 18px !important;
+    border: 2px solid color-mix(in srgb, var(--tc) 40%, transparent) !important;
+    border-bottom: 6px solid var(--tcd) !important;
+    background:
+        repeating-linear-gradient(-55deg, color-mix(in srgb, var(--tc) 5%, transparent) 0 10px, transparent 10px 22px),
+        radial-gradient(ellipse 80% 60% at 50% 0%, color-mix(in srgb, var(--tc) 22%, transparent), transparent 70%),
+        linear-gradient(180deg, rgba(36,31,26,0.95), rgba(20,17,14,0.96)) !important;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.45) !important;
+    transition: transform 0.18s cubic-bezier(0.2,0.9,0.3,1.3), box-shadow 0.18s ease !important;
+}
+.lg-join { --tc: #E0A24C; --tcd: #8A5E24; }
+.lg-card:hover { transform: translateY(-6px) !important; box-shadow: 0 24px 60px color-mix(in srgb, var(--tc) 24%, rgba(0,0,0,0.5)) !important; }
+.lg-card::after {    /* corner brackets */
+    content: ''; position: absolute; inset: 10px; pointer-events: none;
+    background:
+        linear-gradient(var(--tc), var(--tc)) left top / 18px 2px no-repeat, linear-gradient(var(--tc), var(--tc)) left top / 2px 18px no-repeat,
+        linear-gradient(var(--tc), var(--tc)) right top / 18px 2px no-repeat, linear-gradient(var(--tc), var(--tc)) right top / 2px 18px no-repeat,
+        linear-gradient(var(--tc), var(--tc)) left bottom / 18px 2px no-repeat, linear-gradient(var(--tc), var(--tc)) left bottom / 2px 18px no-repeat,
+        linear-gradient(var(--tc), var(--tc)) right bottom / 18px 2px no-repeat, linear-gradient(var(--tc), var(--tc)) right bottom / 2px 18px no-repeat;
+    opacity: 0.55;
+}
+.lg-ribbon { position: absolute; top: 14px; left: 50%; transform: translateX(-50%) skewX(-12deg);
+    padding: 0.16rem 0.8rem; background: var(--tc); color: #0E0B09;
+    font: 800 0.72rem 'Barlow Condensed', sans-serif; font-style: italic; letter-spacing: 0.22em; text-transform: uppercase; }
+.lg-ico { width: 84px !important; height: 84px !important; border-radius: 50% !important; margin-top: 0.5rem !important;
+    background: radial-gradient(circle at 40% 35%, color-mix(in srgb, var(--tc) 32%, transparent), color-mix(in srgb, var(--tc) 8%, transparent)) !important;
+    border: 2px solid color-mix(in srgb, var(--tc) 55%, transparent) !important;
+    box-shadow: 0 0 0 7px color-mix(in srgb, var(--tc) 8%, transparent), 0 12px 30px color-mix(in srgb, var(--tc) 22%, transparent) !important; }
+.lg-ico svg { width: 44px !important; height: 44px !important; }
+.lg-card:hover .lg-ico { transform: translateY(-3px) rotate(-6deg) scale(1.06) !important; }
+.lg-title { font: 900 1.9rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; text-transform: uppercase; letter-spacing: 0.01em !important; line-height: 1 !important; }
+.lg-desc { font-size: 0.84rem !important; }
+.lg-cta { margin-top: 0.6rem; padding: 0.55rem 1.6rem; transform: skewX(-12deg); background: var(--tc);
+    box-shadow: 0 4px 0 var(--tcd); transition: transform 0.12s ease, box-shadow 0.12s ease; }
+.lg-cta span { display: inline-block; transform: skewX(12deg); font: 900 1.15rem 'Barlow Condensed', sans-serif; font-style: italic;
+    text-transform: uppercase; letter-spacing: 0.05em; color: #0E0B09; }
+.lg-card:active .lg-cta { transform: skewX(-12deg) translateY(3px); box-shadow: 0 1px 0 var(--tcd); }
+.lg-vs { width: 74px !important; height: 74px !important; border-radius: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; }
+.lg-vs b { display: grid; place-items: center; width: 100%; height: 100%; transform: skewX(-12deg);
+    background: linear-gradient(135deg, #5CB88A 0 50%, #E0A24C 50% 100%);
+    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+    font: 900 1.7rem 'Barlow Condensed', sans-serif; font-style: italic; color: #0E0B09; text-shadow: 0 1px 0 rgba(255,255,255,0.3); }
+
+/* your leagues: match cards */
+.lg-section h2 { font: 900 1.6rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; text-transform: uppercase; letter-spacing: 0.01em !important; }
+.lg-row { --crest: #5CB88A; position: relative; overflow: hidden;
+    border-radius: 14px !important; border: 1px solid rgba(244,238,230,0.10) !important; border-left: 5px solid var(--crest) !important;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--crest) 12%, rgba(30,26,22,0.94)), rgba(24,20,17,0.94) 45%) !important;
+    transition: transform 0.16s ease; }
+.lg-row:hover { transform: translateX(4px); }
+.lg-crest { width: 48px !important; height: 54px !important; background: none !important; border: 0 !important; border-radius: 0 !important; }
+.lg-crest svg { width: 44px !important; height: 50px !important; }
+.lg-name { font: 900 1.35rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; text-transform: uppercase; letter-spacing: 0.01em; }
+.lg-pips { display: inline-flex; gap: 3px; margin-left: 6px; vertical-align: middle; font-style: normal; }
+.lg-pips b { width: 7px; height: 7px; border-radius: 50%; background: rgba(244,238,230,0.14); }
+.lg-pips b.on { background: var(--crest); }
+.lg-status { padding: 0.22rem 0.6rem; transform: skewX(-12deg); font: 800 0.66rem 'Inter', sans-serif !important; letter-spacing: 0.1em; text-transform: uppercase;
+    background: rgba(244,238,230,0.07); }
+.lg-status.active { background: rgba(217,100,92,0.18); color: #F0907E !important; }
+.lg-status.active::before { content: ''; display: inline-block; width: 6px; height: 6px; margin-right: 5px; border-radius: 50%; background: #E8544A; vertical-align: 1px; }
+.lg-open { border-radius: 0 !important; transform: skewX(-12deg); font: 900 1rem 'Barlow Condensed', sans-serif !important; font-style: italic !important;
+    text-transform: uppercase; letter-spacing: 0.05em; background: var(--crest) !important; color: #0E0B09 !important; box-shadow: 0 3px 0 rgba(0,0,0,0.45) !important; }
+
+/* empty: three objectives */
+.lg-empty { border-radius: 16px !important; border: 1px dashed rgba(244,238,230,0.16) !important; background: rgba(20,17,14,0.8) !important; }
+.lg-empty h3 { font: 900 1.6rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; text-transform: uppercase; }
+.lg-steps li { border-radius: 0 !important; transform: skewX(-6deg); background: rgba(244,238,230,0.04) !important; }
+.lg-steps li > * { transform: skewX(6deg); }
+.lg-steps li::before { border-radius: 0 !important; transform: skewX(6deg); font: 900 0.95rem 'Barlow Condensed', sans-serif !important; font-style: italic !important;
+    background: #5CB88A !important; color: #0E0B09 !important; }
+.lg-steps li:nth-child(2)::before { background: #E0A24C !important; }
+.lg-steps li:nth-child(3)::before { background: #F0907E !important; }
+@media (max-width: 640px) { .lg-card { padding: 1.8rem 1rem 1.1rem !important; } .lg-title { font-size: 1.6rem !important; } }
+</style>
+    <link rel="stylesheet" href="css/ft-legal.css">
+    <link rel="stylesheet" href="css/ft-screen.css?v=1">
+    <script src="js/ft-back.js?v=2"></script>
+<style>/* less subtext: the headings say it */
+.lg-desc, .lg-empty > p, .lg-steps span { display: none !important; } .lg-steps li { padding-top: 0.9rem !important; padding-bottom: 0.9rem !important; }
 </style>
 </head>
-<body>
-    <div class="compete-header">
-        <a href="dashboard.html" class="back-button-hdr">← Back to Dashboard</a>
-        <h1 class="compete-title">Compete</h1>
+<body class="lx">
+
+<!-- The stadium at night: floodlight towers on both sides, a full
+     crowd in the stands, an LED board, and the pitch split green and
+     amber down the middle — your side and theirs. Nothing moves. -->
+<div class="lg-arena" aria-hidden="true">
+    <svg class="la-stadium" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice">
+        <defs>
+            <linearGradient id="laSky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#0B0A09"/><stop offset="0.55" stop-color="#15110E"/><stop offset="1" stop-color="#0E0C0A"/>
+            </linearGradient>
+            <linearGradient id="laBeamG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#FFF4DC" stop-opacity="0.16"/><stop offset="1" stop-color="#FFF4DC" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="laPitch" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#1C2A22"/><stop offset="1" stop-color="#101712"/>
+            </linearGradient>
+            <linearGradient id="laPitchR" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#2E2415"/><stop offset="1" stop-color="#17120B"/>
+            </linearGradient>
+            <linearGradient id="laLine" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#F4EEE6" stop-opacity="0.10"/><stop offset="1" stop-color="#F4EEE6" stop-opacity="0.22"/>
+            </linearGradient>
+            <radialGradient id="laLamp"><stop offset="0" stop-color="#FFF6E0"/><stop offset="0.4" stop-color="#FFE3A8" stop-opacity="0.6"/><stop offset="1" stop-color="#FFE3A8" stop-opacity="0"/></radialGradient>
+            <radialGradient id="laSpot" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFF4DC" stop-opacity="0.10"/><stop offset="1" stop-color="#FFF4DC" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect width="1440" height="900" fill="url(#laSky)"/>
+        <!-- beams, crossing over the pitch -->
+        <path d="M150 70 L560 900 L980 900 Z" fill="url(#laBeamG)"/>
+        <path d="M1290 70 L880 900 L460 900 Z" fill="url(#laBeamG)"/>
+        <!-- upper stands, curved, with a roof edge -->
+        <path d="M0 300 Q720 200 1440 300 L1440 470 Q720 400 0 470 Z" fill="#181410"/>
+        <path d="M0 300 Q720 200 1440 300" stroke="#2A231D" stroke-width="3" fill="none"/>
+        <g id="laCrowd"></g>
+        <!-- LED board -->
+        <path d="M0 470 Q720 400 1440 470 L1440 500 Q720 430 0 500 Z" fill="#0A0908"/>
+        <text font-family="Barlow Condensed, Inter, sans-serif" font-style="italic" font-weight="800" font-size="17" letter-spacing="3" fill="#5CB88A" opacity="0.55">
+            <textPath href="#laBoardPath" startOffset="2%">FANTASY TRADER · HEAD TO HEAD · DRAFT REAL STOCKS · WIN THE WEEK · FANTASY TRADER · HEAD TO HEAD · DRAFT REAL STOCKS · WIN THE WEEK · FANTASY TRADER</textPath>
+        </text>
+        <path id="laBoardPath" d="M0 491 Q720 421 1440 491" fill="none"/>
+        <!-- the pitch: your half green, theirs amber -->
+        <path d="M720 500 L720 900 L-160 900 L260 520 Q490 492 720 500 Z" fill="url(#laPitch)"/>
+        <path d="M720 500 L720 900 L1600 900 L1180 520 Q950 492 720 500 Z" fill="url(#laPitchR)"/>
+        <g fill="none" stroke="url(#laLine)" stroke-width="2.4">
+            <path d="M260 520 Q720 488 1180 520 L1600 900 M260 520 L-160 900"/>
+            <path d="M720 498 L720 900"/>
+            <ellipse cx="720" cy="660" rx="200" ry="56"/>
+            <path d="M190 590 Q720 555 1250 590"/>
+            <path d="M60 760 Q720 725 1380 760"/>
+        </g>
+        <ellipse cx="720" cy="660" rx="6" ry="3" fill="#F4EEE6" opacity="0.3"/>
+        <ellipse cx="720" cy="640" rx="520" ry="150" fill="url(#laSpot)"/>
+        <!-- floodlight towers -->
+        <g>
+            <path d="M150 90 L150 310" stroke="#2B241E" stroke-width="7"/>
+            <rect x="96" y="40" width="108" height="50" rx="4" fill="#221C17" stroke="#3A3129" stroke-width="2"/>
+            <path d="M1290 90 L1290 310" stroke="#2B241E" stroke-width="7"/>
+            <rect x="1236" y="40" width="108" height="50" rx="4" fill="#221C17" stroke="#3A3129" stroke-width="2"/>
+            <g id="laLamps"></g>
+        </g>
+    </svg>
+    <span class="la-vignette"></span>
+</div>
+
+<script>
+/* Crowd and lamps are generated rather than written out: a few hundred
+   heads by hand would be most of this file. Seeded, so the crowd is the
+   same every visit and nothing jumps around between loads. */
+(function () {
+    let seed = 7;
+    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const NS = 'http://www.w3.org/2000/svg';
+    const crowd = document.getElementById('laCrowd');
+    const tones = ['#2A231D', '#312820', '#241E19', '#3A2F25', '#2E2A22'];
+    let out = '';
+    for (let row = 0; row < 7; row++) {
+        const t = row / 6;
+        for (let x = -10; x < 1450; x += 13 + rnd() * 5) {
+            const k = (x - 720) / 720;
+            const yTop = 300 - 100 * (1 - k * k) + 22;          // follow the curve of the stand
+            const y = yTop + row * 21 + rnd() * 4 + t * 8 - (1 - k * k) * t * 30;
+            const r = 4.2 + t * 1.2;
+            const tone = tones[Math.floor(rnd() * tones.length)];
+            out += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + r.toFixed(1) + '" fill="' + tone + '"/>' +
+                   '<rect x="' + (x - r * 1.3).toFixed(1) + '" y="' + (y + r * 0.8).toFixed(1) + '" width="' + (r * 2.6).toFixed(1) + '" height="' + (r * 2).toFixed(1) + '" rx="' + r.toFixed(1) + '" fill="' + tone + '"/>';
+            const roll = rnd();
+            if (roll < 0.018) out += '<circle cx="' + x.toFixed(1) + '" cy="' + (y - 1).toFixed(1) + '" r="2.2" fill="#FFF6E0" opacity="0.8"/>';        // a camera flash
+            else if (roll < 0.05) out += '<circle cx="' + x.toFixed(1) + '" cy="' + (y + 5).toFixed(1) + '" r="3" fill="' + (x < 720 ? '#5CB88A' : '#E0A24C') + '" opacity="0.5"/>';  // a scarf
+        }
+    }
+    crowd.innerHTML = out;
+    let lamps = '';
+    [100, 1240].forEach(x0 => {
+        for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) {
+            const cx = x0 + 14 + c * 26, cy = 54 + r * 22;
+            lamps += '<circle cx="' + cx + '" cy="' + cy + '" r="22" fill="url(#laLamp)" opacity="0.5"/>' +
+                     '<circle cx="' + cx + '" cy="' + cy + '" r="6.5" fill="#FFF6E0"/>';
+        }
+    });
+    document.getElementById('laLamps').innerHTML = lamps;
+})();
+</script>
+
+<header class="lg-head">
+    <div class="lg-head-in">
+        <a class="lg-back" href="dashboard.html" aria-label="Back to dashboard" data-back>&#8592;</a>
+        <span class="lg-wordmark">Leagues</span>
+        <div style="flex:1"></div>
+        <a class="lg-rules" href="rules.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/>
+                <path d="M8 7h8M8 11h6"/></svg>
+            Rules
+        </a>
+    </div>
+</header>
+
+<div class="lg-wrap ft-arrive">
+
+    <section class="lg-hero">
+        <p class="lg-kicker">Head to head</p>
+        <h1 class="ft-screen-title">Play your friends</h1>
+    </section>
+
+    <div class="lg-choice">
+        <button type="button" class="lg-card lg-create" onclick="window.location.href='create-league.html'">
+            <span class="lg-ribbon">Host</span>
+            <span class="lg-ico" id="icoCreate" aria-hidden="true"></span>
+            <span class="lg-txt">
+                <span class="lg-title">Create a league</span>
+                <span class="lg-desc">Set the rules, invite your friends</span>
+            </span>
+            <span class="lg-cta"><span>Start a league</span></span>
+            <span class="lg-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></span>
+        </button>
+
+        <span class="lg-vs" aria-hidden="true"><b>VS</b></span>
+
+        <button type="button" class="lg-card lg-join" onclick="openJoinPopup()">
+            <span class="lg-ribbon">Challenger</span>
+            <span class="lg-ico" id="icoJoin" aria-hidden="true"></span>
+            <span class="lg-txt">
+                <span class="lg-title">Join a league</span>
+                <span class="lg-desc">Got a code? Jump straight in</span>
+            </span>
+            <span class="lg-cta"><span>Enter code</span></span>
+            <span class="lg-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg></span>
+        </button>
     </div>
 
-    <div class="league-container">
-<!-- The "Stock Leagues" slab is gone: the header bar already says Compete,
-         and the two cards below say Create League / Join League. It was the
-         third label for the same screen. -->
+    <div class="lg-section">
+        <h2>Your leagues</h2>
+        <span class="count" id="leagueCount"></span>
+    </div>
+    <div id="leaguesList" class="lg-list">
+        <div class="lg-skeleton"></div>
+    </div>
+</div>
 
-        <!-- Deliberately new class names. The old .option-card is styled across
-             eleven separate blocks in this file, several with !important, so
-             restyling it in place would have been a fight. These start clean. -->
-        <div class="lg-choice">
-            <button type="button" class="lg-card lg-create" onclick="window.location.href='create-league.html'">
-                <span class="lg-mark" aria-hidden="true"></span>
-                <span class="lg-ico" aria-hidden="true"></span>
-                <span class="lg-kick">Be the commissioner</span>
-                <span class="lg-title">Create League</span>
-                <span class="lg-go">Start a league<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M5 12h13M12 5l7 7-7 7"/></svg></span>
-            </button>
+<!-- join by code -->
+<div class="lx-sheet-back" id="joinPopup">
+    <div class="lx-sheet">
+        <div class="lx-sheet-kicker">Got an invite</div>
+        <h3 class="lx-display">Enter the league code</h3>
+        <p>Whoever set the league up has it.</p>
+        <input class="lg-code-input" id="popupLeagueCode" type="text"
+               placeholder="ABC123" maxlength="12" autocomplete="off"
+               autocapitalize="characters" spellcheck="false">
+        <div class="lg-sheet-err" id="joinError"></div>
+        <button class="lx-btn primary wide" id="joinConfirm" onclick="submitJoinCode()">Join</button>
+        <button class="lx-btn ghost wide" style="margin-top:0.55rem" onclick="closeJoinPopup()">Cancel</button>
+    </div>
+</div>
 
-            <button type="button" class="lg-card lg-join" onclick="openJoinPopup()">
-                <span class="lg-mark" aria-hidden="true"></span>
-                <span class="lg-ico" aria-hidden="true"></span>
-                <span class="lg-kick">Got an invite</span>
-                <span class="lg-title">Join League</span>
-                <span class="lg-go">Enter code<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M5 12h13M12 5l7 7-7 7"/></svg></span>
-            </button>
-        </div>
-
-        <!-- A clipboard: the board runs off the bottom of the page rather
-             than closing, so it reads as a real object sitting on the desk
-             rather than a panel that happens to have a clip drawn on it. -->
-        <div class="al-board">
-          <span class="al-clip" aria-hidden="true"><i class="cl-hole"></i></span>
-          <div class="al-sheet">
-            <div class="active-leagues">
-            <h2 style="display:flex;align-items:center;gap:1rem;"><i class="fas fa-trophy"></i> Your Active Leagues
-                <a href="rules.html" class="al-rules"><i class="fas fa-book"></i> RULES</a>
-            </h2>
-            <div id="leaguesList" class="leagues-grid">
-                <!-- League cards will be dynamically generated here -->
-            </div>
-            </div>
-          </div>
+<!-- guided tour -->
+<div class="tut-backdrop" id="tutBackdrop">
+    <svg class="tut-overlay-svg" id="tutOverlay">
+        <defs><mask id="tutMask"><rect width="100%" height="100%" fill="white"/>
+            <rect id="tutCutout" rx="18" ry="18" fill="black"/></mask></defs>
+        <rect width="100%" height="100%" fill="rgba(8,6,5,0.72)" mask="url(#tutMask)"/>
+    </svg>
+    <div class="tut-highlight-border" id="tutBorder"></div>
+    <div class="tut-tooltip" id="tutTooltip">
+        <div class="tut-tooltip-step" id="tutStepLabel"></div>
+        <div class="tut-tooltip-title" id="tutTitle"></div>
+        <div class="tut-tooltip-desc" id="tutDesc"></div>
+        <div class="tut-tooltip-progress" id="tutProgress"></div>
+        <div class="tut-tooltip-actions" id="tutActions">
+            <button class="tut-secondary-btn"></button>
+            <button class="tut-next-btn"></button>
         </div>
     </div>
+</div>
 
-    <div class="floating-tickers" id="floatingTickers"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/ft-alert.js?v=2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/sl.js?v=3"></script>
+<script src="js/guard.js"></script>
+<script src="js/ft-illustrations.js"></script>
+<script src="js/ft-juice.js"></script>
 
-    <!-- Draft Demo Modal -->
-    <div id="draftModal" class="draft-modal">
-        <div class="draft-modal-content">
-            <button class="close-modal" onclick="closeDraftModal()">×</button>
-            <div class="draft-header">
-                <h2>Snake Draft Demo</h2>
-                <p>Preview the top companies available for selection</p>
-            </div>
-            
-            <div class="draft-order">
-                <div class="draft-pick">
-                    <div class="pick-number">1</div>
-                    <div class="pick-player">You</div>
-                </div>
-                <div class="draft-pick">
-                    <div class="pick-number">2</div>
-                    <div class="pick-player">Alex</div>
-                </div>
-                <div class="draft-pick">
-                    <div class="pick-number">3</div>
-                    <div class="pick-player">Sarah</div>
-                </div>
-                <div class="draft-pick">
-                    <div class="pick-number">4</div>
-                    <div class="pick-player">Mike</div>
-                </div>
-                <div class="draft-pick">
-                    <div class="pick-number">5</div>
-                    <div class="pick-player">Emma</div>
-                </div>
-                <div class="draft-pick">
-                    <div class="pick-number">6</div>
-                    <div class="pick-player">David</div>
-                </div>
-            </div>
+<script>
+/* ============================================================
+ *  Leagues — list, create, join.
+ * ============================================================ */
+(function () {
+    'use strict';
 
-            <div class="available-stocks" id="availableStocks">
-                <!-- Stock options will be dynamically generated -->
-            </div>
-        </div>
-    </div>
+    const listEl  = document.getElementById('leaguesList');
+    const countEl = document.getElementById('leagueCount');
 
-    <!-- Join League Popup -->
-    <div id="joinPopup" class="popup-overlay">
-        <div class="popup-content">
-            <div class="code-helper">Enter your league code</div>
-            <input type="text" maxlength="12" id="popupLeagueCode" placeholder="League Code" class="league-input">
-            <div class="popup-buttons">
-                <button class="popup-button cancel" onclick="closeJoinPopup()">Cancel</button>
-                <button class="popup-button confirm" onclick="submitJoinCode()">Join</button>
-            </div>
-        </div>
-    </div>
+    function sfx(n) { if (window.FTJuice && FTJuice.sfx[n]) FTJuice.sfx[n](); }
 
-    <div class="tut-backdrop" id="tutBackdrop">
-        <svg class="tut-overlay-svg" id="tutOverlay">
-            <defs><mask id="tutMask"><rect width="100%" height="100%" fill="white"/><rect id="tutCutout" rx="10" ry="10" fill="black"/></mask></defs>
-            <rect width="100%" height="100%" fill="rgba(0,0,0,0.6)" mask="url(#tutMask)"/>
-        </svg>
-        <div class="tut-highlight-border" id="tutBorder"></div>
-        <div class="tut-tooltip" id="tutTooltip">
-            <div class="tut-tooltip-step" id="tutStepLabel"></div>
-            <div class="tut-tooltip-title" id="tutTitle"></div>
-            <div class="tut-tooltip-desc" id="tutDesc"></div>
-            <div class="tut-tooltip-progress" id="tutProgress"></div>
-            <div class="tut-tooltip-actions" id="tutActions">
-                <button class="tut-skip-btn" onclick="endTutorial()">Skip tour</button>
-                <div style="display:flex;gap:0.5rem;">
-                    <button class="tut-secondary-btn" onclick="tutSkipLeague()">Not now</button>
-                    <button class="tut-next-btn" id="tutNextBtn" onclick="tutJoinLeague()">Join a League</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    /* Text is inserted with textContent, never interpolated into HTML —
+       a league name is whatever another player typed. */
+    function el(tag, cls, text) {
+        const n = document.createElement(tag);
+        if (cls) n.className = cls;
+        if (text != null) n.textContent = text;
+        return n;
+    }
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/ft-alert.js"></script>
-    <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
-    <script src="js/guard.js"></script>
-    <script>
-        // Enhanced floating tickers - removed duplicate function
+    document.getElementById('icoCreate').innerHTML = FTArt.node('trophy', 34);
+    document.getElementById('icoJoin').innerHTML   = FTArt.node('target', 34);
 
-        function openJoinPopup() {
-            document.getElementById('joinPopup').style.display = 'flex';
-            setTimeout(() => {
-                document.getElementById('popupLeagueCode').focus();
-            }, 100);
+    /* ── join by code ─────────────────────────────────────── */
+    const sheet = document.getElementById('joinPopup');
+    const codeEl = document.getElementById('popupLeagueCode');
+    const errEl  = document.getElementById('joinError');
+
+    window.openJoinPopup = function () {
+        errEl.textContent = '';
+        sheet.classList.add('open');
+        sfx('pop');
+        setTimeout(() => codeEl.focus(), 180);
+    };
+    window.closeJoinPopup = function () {
+        sheet.classList.remove('open');
+    };
+    sheet.addEventListener('click', e => { if (e.target === sheet) closeJoinPopup(); });
+    addEventListener('keydown', e => { if (e.key === 'Escape') closeJoinPopup(); });
+    codeEl.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); submitJoinCode(); }
+    });
+
+    window.submitJoinCode = async function () {
+        const code = codeEl.value.trim();
+        if (code.length < 3) {
+            errEl.textContent = "That's too short to be a league code.";
+            sfx('wrong');
+            return;
+        }
+        if (!SL.configured) {
+            errEl.textContent = 'Not connected — leagues need the server.';
+            sfx('wrong');
+            return;
+        }
+        const btn = document.getElementById('joinConfirm');
+        btn.disabled = true; btn.textContent = 'Joining…';
+        errEl.textContent = '';
+        try {
+            const league = await SL.joinLeague(code);
+            sfx('correct');
+            location.href = 'your-league.html?league=' + encodeURIComponent(league.id);
+        } catch (e) {
+            errEl.textContent = e.message || "No league with that code.";
+            sfx('wrong');
+            btn.disabled = false; btn.textContent = 'Join';
+        }
+    };
+
+    /* ── the list ─────────────────────────────────────────── */
+    const STATUS_TEXT = {
+        lobby: 'Waiting to draft', pending: 'Waiting to draft',
+        drafting: 'Drafting', active: 'Live',
+        complete: 'Ended', completed: 'Ended',
+    };
+
+    function timeLeft(lg) {
+        const weeks = Number(lg.duration_weeks) || 4;
+        if (lg.status === 'complete' || lg.status === 'completed') return 'Ended';
+        if (lg.status === 'lobby') return weeks + ' week season';
+        if (!lg.created_at) return weeks + ' week season';
+        const end = new Date(lg.created_at).getTime() + weeks * 7 * 86400000;
+        const days = Math.ceil((end - Date.now()) / 86400000);
+        if (days > 1)  return days + ' days left';
+        if (days === 1) return 'Final day';
+        return 'Ended';
+    }
+
+    function emptyState(msg) {
+        listEl.innerHTML = '';
+        const box = el('div', 'lg-empty');
+        const art = el('div', 'lg-empty-art');
+        art.innerHTML = FTArt.node('trophy', 66);
+        box.appendChild(art);
+        box.appendChild(el('h3', null, 'No leagues yet'));
+        box.appendChild(el('p', null, msg));
+        // what a season looks like, so an empty page still says what to do
+        const steps = el('ol', 'lg-steps');
+        [['Start or join', 'Make a league, or use a friend\u2019s code'],
+         ['Draft', 'Take turns picking real stocks'],
+         ['Win the week', 'Beat your matchup, climb the table']].forEach(([t, d]) => {
+            const li = el('li');
+            li.appendChild(el('b', null, t));
+            li.appendChild(el('span', null, d));
+            steps.appendChild(li);
+        });
+        box.appendChild(steps);
+        listEl.appendChild(box);
+        countEl.textContent = '';
+    }
+
+    function row(lg) {
+        const r = el('div', 'lg-row');
+
+        /* a crest: the league's initials on a shield in a colour of its own */
+        const CRESTS = ['#5CB88A', '#E0A24C', '#9DB8FF', '#E8867F', '#C9A0E8', '#7FD1C7'];
+        const nm = String(lg.name || 'League');
+        let h = 0; for (let i = 0; i < nm.length; i++) h = (h * 31 + nm.charCodeAt(i)) | 0;
+        const cc = CRESTS[Math.abs(h) % CRESTS.length];
+        const ini = nm.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'L';
+        const av = el('div', 'lg-avatar lg-crest');
+        av.innerHTML = '<svg viewBox="0 0 40 46"><path d="M20 2 L37 8 V24 C37 35 29 41 20 44 C11 41 3 35 3 24 V8 Z" fill="' + cc + '" fill-opacity="0.16" stroke="' + cc + '" stroke-width="2.2"/>' +
+            '<text x="20" y="28" text-anchor="middle" font-family="Barlow Condensed, Inter, sans-serif" font-style="italic" font-weight="900" font-size="16" fill="' + cc + '"></text></svg>';
+        av.querySelector('text').textContent = ini;
+        r.appendChild(av);
+        r.style.setProperty('--crest', cc);
+
+        const mid = el('div');
+        mid.appendChild(el('div', 'lg-name', lg.name || 'Untitled league'));
+        const meta = el('div', 'lg-meta');
+        const code = el('span');
+        code.appendChild(el('b', 'lg-code', lg.join_code || '—'));
+        meta.appendChild(code);
+        const seats = el('span');
+        const n = el('b', 'memberCount', '…');
+        n.dataset.league = lg.id;
+        seats.appendChild(n);
+        seats.appendChild(document.createTextNode(' of ' + (lg.max_players || '?') + ' players'));
+        const pips = el('i', 'lg-pips');
+        pips.dataset.league = lg.id;
+        pips.dataset.max = Math.min(12, Number(lg.max_players) || 0);
+        seats.appendChild(pips);
+        meta.appendChild(seats);
+        meta.appendChild(el('span', null,
+            '$' + Number(lg.starting_capital || 100000).toLocaleString('en-US') + ' start'));
+        meta.appendChild(el('span', null, timeLeft(lg)));
+        mid.appendChild(meta);
+        r.appendChild(mid);
+
+        const right = el('div', 'lg-right');
+        const st = lg.status || 'lobby';
+        right.appendChild(el('span', 'lg-status ' + st, STATUS_TEXT[st] || st));
+        const open = el('button', 'lg-open', 'Enter');
+        open.onclick = () => {
+            sfx('tap');
+            location.href = 'your-league.html?league=' + encodeURIComponent(lg.id);
+        };
+        right.appendChild(open);
+        r.appendChild(right);
+        return r;
+    }
+
+    function paint(leagues) {
+        if (!leagues.length) {
+            emptyState('Create one above, or join a friend’s with their code.');
+            return;
+        }
+        listEl.innerHTML = '';
+        leagues.forEach(lg => listEl.appendChild(row(lg)));
+        countEl.textContent = leagues.length + (leagues.length === 1 ? ' league' : ' leagues');
+    }
+
+    async function load() {
+        if (!SL.configured) {
+            // demo mode: whatever the local create flow left behind
+            let local = [];
+            try { local = JSON.parse(localStorage.getItem('stockLeagues') || '[]'); } catch (e) {}
+            paint(local.map(l => ({
+                id: l.leagueCode, name: l.name, join_code: l.leagueCode,
+                max_players: l.players, starting_capital: l.startingCapital,
+                duration_weeks: l.duration, created_at: l.createdAt, status: l.status || 'lobby',
+            })));
+            return;
         }
 
-        function closeJoinPopup() {
-            document.getElementById('joinPopup').style.display = 'none';
+        let rows;
+        try { rows = await SL.myLeagues(); }
+        catch (e) {
+            emptyState('Could not reach the server. Try again in a moment.');
+            return;
         }
+        const mine = (rows || []).map(r => r.leagues).filter(Boolean);
+        paint(mine);
 
-        async function submitJoinCode() {
-            const code = document.getElementById('popupLeagueCode').value.trim();
-            if (code.length < 3) {
-                alert('Please enter a valid league code.');
-                return;
-            }
-            if (!SL.configured) { alert('Connect Supabase to join leagues.'); return; }
-            const btn = document.querySelector('#joinPopup .popup-button.confirm');
-            if (btn) { btn.disabled = true; btn.textContent = 'Joining…'; }
+        /* Seat counts are a second round-trip each, so the rows render
+           immediately with a placeholder and fill in as they land. */
+        mine.forEach(async lg => {
             try {
-                const league = await SL.joinLeague(code);
-                window.location.href = `your-league.html?league=${league.id}`;
+                const members = await SL.getLeagueMembers(lg.id);
+                document.querySelectorAll('.memberCount[data-league="' + lg.id + '"]')
+                    .forEach(n => { n.textContent = members.length; });
+                document.querySelectorAll('.lg-pips[data-league="' + lg.id + '"]').forEach(p => {
+                    const max = Number(p.dataset.max) || 0;
+                    p.innerHTML = Array.from({ length: max }, (_, i) => '<b class="' + (i < members.length ? 'on' : '') + '"></b>').join('');
+                });
             } catch (e) {
-                alert(e.message || 'Could not join that league.');
-                if (btn) { btn.disabled = false; btn.textContent = 'Join'; }
+                document.querySelectorAll('.memberCount[data-league="' + lg.id + '"]')
+                    .forEach(n => { n.textContent = '?'; });
             }
+        });
+    }
+
+    load();
+})();
+</script>
+
+<script>
+/* ============================================================
+ *  Guided tour — league.html?tutorial. Steps 1 and 2 of the
+ *  app-wide 9-step tour; it hands back to the dashboard after.
+ * ============================================================ */
+(function () {
+    'use strict';
+    if (!location.search.includes('tutorial')) return;
+
+    const TOTAL = 9;
+    const returnStep = Number(localStorage.getItem('tutorialReturnStep') || '7');
+
+    const STEPS = [
+        { sel: '.lg-card.lg-create', title: 'Create a League',
+          desc: 'Start your own competition. Invite friends, set the rules, see who comes out on top.' },
+        { sel: '.lg-card.lg-join', title: 'Join a League',
+          desc: "Got a code from a friend? Drop it in and you're playing them head to head." },
+    ];
+
+    function place(target) {
+        const rect = target.getBoundingClientRect();
+        const pad = 8;
+        const w = rect.width + pad * 2, h = rect.height + pad * 2;
+        const x = rect.left - pad, y = rect.top - pad;
+
+        const cut = document.getElementById('tutCutout');
+        cut.setAttribute('x', x); cut.setAttribute('y', y);
+        cut.setAttribute('width', w); cut.setAttribute('height', h);
+
+        const b = document.getElementById('tutBorder');
+        b.style.left = x + 'px'; b.style.top = y + 'px';
+        b.style.width = w + 'px'; b.style.height = h + 'px';
+
+        const tip = document.getElementById('tutTooltip');
+        requestAnimationFrame(() => {
+            const tipH = tip.offsetHeight;
+            const below = innerHeight - (y + h);
+            let top = below >= tipH + 14 ? y + h + 12 : Math.max(12, y - 12 - tipH);
+            if (top + tipH > innerHeight - 12) top = innerHeight - tipH - 12;
+            let left = rect.left + rect.width / 2 - 150;
+            left = Math.max(12, Math.min(left, innerWidth - 312));
+            tip.style.top = top + 'px'; tip.style.left = left + 'px';
+            tip.classList.add('visible');
+        });
+    }
+
+    let at = 0, resizeTimer = null;
+
+    function show(i) {
+        const backdrop = document.getElementById('tutBackdrop');
+        const step = STEPS[i];
+        const target = step && document.querySelector(step.sel);
+
+        /* Never strand anyone under the backdrop: if a target is missing,
+           take the overlay down and move the tour on rather than freezing
+           the page behind a black sheet with no tooltip. */
+        if (!target) {
+            backdrop.classList.remove('active');
+            document.getElementById('tutTooltip').classList.remove('visible');
+            if (i + 1 < STEPS.length) show(i + 1); else tutBackToDash();
+            return;
         }
 
-        // Optional: close popup on Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') closeJoinPopup();
-        });
+        at = i;
+        backdrop.classList.add('active');
+        document.getElementById('tutTooltip').classList.remove('visible');
 
-        async function loadActiveLeagues() {
-            const leaguesList = document.getElementById('leaguesList');
-
-            // Prefer REAL leagues from Supabase
-            if (SL.configured) {
-                function timeLeftText(lg) {
-                    const weeks = Number(lg.duration_weeks) || 4;
-                    if (lg.status === 'complete') return 'Ended';
-                    if (lg.status === 'lobby') return weeks + ' wk season';
-                    const start = new Date(lg.created_at || Date.now()).getTime();
-                    const end = start + weeks * 7 * 86400000;
-                    const daysLeft = Math.max(0, Math.ceil((end - Date.now()) / 86400000));
-                    return daysLeft > 0 ? daysLeft + 'd left' : 'Final day';
-                }
-                const rows = await SL.myLeagues();
-                const mine = (rows || []).map(r => r.leagues).filter(Boolean);
-                if (mine.length === 0) {
-                    leaguesList.innerHTML = `
-                        <div class="no-leagues" style="text-align:center;padding:60px 20px;background:linear-gradient(135deg,rgba(36, 31, 27,.8),rgba(26, 23, 20,.9));border-radius:20px;border:2px dashed rgba(92,184,138,.3);">
-                            <h3 style="color:var(--success);font-size:1.5rem;margin-bottom:10px;">No Leagues Yet</h3>
-                            <p style="color:var(--text-secondary);">Create a league above, or join one with a code.</p>
-                        </div>`;
-                    return;
-                }
-                leaguesList.innerHTML = mine.map(l => `
-                    <div class="league-card">
-                        <div class="league-left">
-                            <div class="league-avatar ft"><img src="ft-logo-mark.png" alt=""></div>
-                            <div class="league-info">
-                                <div class="league-name">${l.name}</div>
-                                <div class="league-code">${l.join_code}</div>
-                            </div>
-                        </div>
-                        <div class="league-center">
-                            <div class="league-stats">
-                                <span class="stat"><span class="memberCount" data-league="${l.id}">…</span> of ${l.max_players} players</span>
-                                <span class="stat">$${Number(l.starting_capital || 100000).toLocaleString()} start</span>
-                                <span class="stat">${timeLeftText(l)}</span>
-                            </div>
-                        </div>
-                        <div class="league-right">
-                            <div class="league-status ${l.status}">${getStatusText(l.status==='lobby'?'pending':l.status)}</div>
-                            <button class="league-btn open-btn" onclick="window.location.href='your-league.html?league=${l.id}'">Open</button>
-                        </div>
-                    </div>`).join('');
-                // Real member counts — you count as a player in your own league.
-                mine.forEach(async (lg) => {
-                    try {
-                        const members = await SL.getLeagueMembers(lg.id);
-                        document.querySelectorAll('.memberCount[data-league="' + lg.id + '"]').forEach(el => {
-                            el.textContent = members.length;
-                        });
-                    } catch (e) {}
-                });
-                return;
-            }
-
-            const leagues = JSON.parse(localStorage.getItem('stockLeagues') || '[]');
-
-            if (leagues.length === 0) {
-                leaguesList.innerHTML = `
-                    <div class="no-leagues" style="text-align: center; padding: 60px 20px; background: linear-gradient(135deg, rgba(36, 31, 27, 0.8), rgba(26, 23, 20, 0.9)); border-radius: 20px; border: 2px dashed rgba(92, 184, 138, 0.3);">
-                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--success), var(--accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem; color: var(--background); font-weight: 900;">
-                            <i class="fas fa-plus"></i>
-                        </div>
-                        <h3 style="color: var(--success); font-size: 1.5rem; margin-bottom: 10px;">No Active Leagues</h3>
-                        <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 20px;">Create or join a league to start competing!</p>
-                        <button onclick="window.location.href='create-league.html'" style="background: linear-gradient(135deg, var(--success), var(--accent)); color: var(--background); border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s ease;">
-                            Create Your First League
-                        </button>
-                    </div>
-                `;
-                return;
-            }
-
-            leaguesList.innerHTML = leagues.map(league => {
-                const isOwner = league.owner === 'currentUser';
-                const endDate = new Date(league.createdAt);
-                endDate.setMonth(endDate.getMonth() + league.duration);
-                
-                // Calculate time until draft
-                const draftDate = new Date(league.draftDate);
-                const now = new Date();
-                const timeUntilDraft = draftDate - now;
-                const hoursUntilDraft = Math.floor(timeUntilDraft / (1000 * 60 * 60));
-                const minutesUntilDraft = Math.floor((timeUntilDraft % (1000 * 60 * 60)) / (1000 * 60));
-                
-                return `
-                    <div class="league-card">
-                        <div class="league-left">
-                            <div class="league-avatar"><i class="fas fa-chart-line"></i></div>
-                            <div class="league-info">
-                                <div class="league-name">${league.name}</div>
-                                <div class="league-code">${league.leagueCode}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="league-center">
-                            <div class="league-stats">
-                                <span class="stat"><i class="fas fa-users"></i> ${league.players} Players</span>
-                                <span class="stat"><i class="fas fa-dollar-sign"></i> ${league.capitalTransferPercentage}% Transfer</span>
-                                <span class="stat"><i class="fas fa-clock"></i> Draft in ${hoursUntilDraft}h ${minutesUntilDraft}m</span>
-                            </div>
-                        </div>
-                        
-                        <div class="league-right">
-                            <div class="league-status ${league.status}">${getStatusText(league.status)}</div>
-                            <button class="league-btn" onclick="goToLeague('${league.leagueCode}')">
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
+        const global = returnStep + i;
+        document.getElementById('tutStepLabel').textContent = global + ' of ' + TOTAL;
+        document.getElementById('tutTitle').textContent = step.title;
+        document.getElementById('tutDesc').textContent = step.desc;
+        document.getElementById('tutProgress').innerHTML =
+            Array.from({ length: TOTAL }, (_, k) => {
+                const cls = k + 1 < global ? 'done' : k + 1 === global ? 'active' : '';
+                return '<div class="tut-tooltip-pip ' + cls + '"></div>';
             }).join('');
-        }
 
-        function getStatusText(status) {
-            switch(status) {
-                case 'pending': return 'Waiting for Draft';
-                case 'drafting': return 'Draft in Progress';
-                case 'active': return 'League Active';
-                case 'completed': return 'League Completed';
-                default: return 'Unknown';
-            }
-        }
+        const skip = document.querySelector('.tut-secondary-btn');
+        const next = document.querySelector('.tut-next-btn');
+        skip.textContent = 'Not now';
+        skip.onclick = () => { location.href = 'dashboard.html'; };
+        next.textContent = 'Next';
+        next.onclick = () => { (i + 1 < STEPS.length) ? show(i + 1) : tutBackToDash(); };
 
-        function getStatusIcon(status) {
-            switch(status) {
-                case 'pending': return 'clock';
-                case 'drafting': return 'users';
-                case 'active': return 'play';
-                case 'completed': return 'trophy';
-                default: return 'question';
-            }
-        }
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => place(target), 500);
+    }
 
-        function openDraftDemo(leagueId) {
-            document.getElementById('draftModal').style.display = 'flex';
-            loadAvailableStocks();
-        }
+    /* One resize listener for the whole tour. The old version added a fresh
+       one on every step, so by step two the handler ran twice per resize. */
+    addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            const s = STEPS[at];
+            const t = s && document.querySelector(s.sel);
+            if (t && document.getElementById('tutBackdrop').classList.contains('active')) place(t);
+        }, 250);
+    });
 
-        function closeDraftModal() {
-            document.getElementById('draftModal').style.display = 'none';
-        }
+    window.tutBackToDash = function () {
+        localStorage.setItem('tutorialStep', '3');
+        localStorage.setItem('tutorialReturnStep', '9');
+        localStorage.setItem('tutorialActive', 'true');
+        location.href = 'dashboard.html?tutorial=true';
+    };
+    window.endTutorial = function () {
+        ['showTutorial', 'tutorialStep', 'tutorialActive', 'tutorialReturnStep']
+            .forEach(k => localStorage.removeItem(k));
+        location.href = 'dashboard.html';
+    };
 
-        function loadAvailableStocks() {
-            const topStocks = [
-                { symbol: 'AAPL', name: 'Apple Inc.', price: '178.39', change: '+1.2%', positive: true },
-                { symbol: 'MSFT', name: 'Microsoft Corp.', price: '338.11', change: '+0.9%', positive: true },
-                { symbol: 'GOOGL', name: 'Alphabet Inc.', price: '142.65', change: '-0.8%', positive: false },
-                { symbol: 'AMZN', name: 'Amazon.com Inc.', price: '145.24', change: '-1.1%', positive: false },
-                { symbol: 'TSLA', name: 'Tesla Inc.', price: '248.50', change: '+2.3%', positive: true },
-                { symbol: 'META', name: 'Meta Platforms Inc.', price: '334.92', change: '+1.5%', positive: true },
-                { symbol: 'NVDA', name: 'NVIDIA Corp.', price: '487.16', change: '+2.8%', positive: true },
-                { symbol: 'BRK.A', name: 'Berkshire Hathaway', price: '567,890', change: '+0.5%', positive: true },
-                { symbol: 'JPM', name: 'JPMorgan Chase', price: '156.78', change: '-0.3%', positive: false },
-                { symbol: 'JNJ', name: 'Johnson & Johnson', price: '167.45', change: '+0.7%', positive: true },
-                { symbol: 'V', name: 'Visa Inc.', price: '245.67', change: '+1.1%', positive: true },
-                { symbol: 'PG', name: 'Procter & Gamble', price: '156.89', change: '-0.2%', positive: false }
-            ];
-
-            const availableStocks = document.getElementById('availableStocks');
-            availableStocks.innerHTML = topStocks.map(stock => `
-                <div class="stock-option" onclick="selectStock('${stock.symbol}')">
-                    <div class="stock-symbol">${stock.symbol}</div>
-                    <div class="stock-name">${stock.name}</div>
-                    <div class="stock-price">$${stock.price}</div>
-                    <div class="stock-change ${stock.positive ? 'positive' : ''}">${stock.change}</div>
-                </div>
-            `).join('');
-        }
-
-        function selectStock(symbol) {
-            // Remove previous selections
-            document.querySelectorAll('.stock-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            
-            // Select clicked stock
-            event.target.closest('.stock-option').classList.add('selected');
-            
-            // Show selection feedback
-            setTimeout(() => {
-                alert(`You selected ${symbol}! This would be your first pick in the actual draft.`);
-            }, 100);
-        }
-
-        function enterDraft(leagueId) {
-            // This would redirect to the actual draft room
-            alert('Entering draft room... This would launch the live draft experience.');
-        }
-
-        function openLeague(leagueId) {
-            window.location.href = `your-league.html?id=${leagueId}`;
-        }
-
-        function goToLeague(leagueCode) {
-            // Redirect to the actual league page
-            console.log(`Going to league: ${leagueCode}`);
-            window.location.href = `your-league.html?code=${leagueCode}`;
-        }
-
-        // Initialize floating tickers
-        function initFloatingTickers() {
-            const tickerContainer = document.getElementById('floatingTickers');
-            const stocks = ['AAPL', 'MSFT', 'NVDA', 'GOOGL', 'TSLA', 'META', 'AMZN', 'NFLX', 'AMD', 'INTC', 'ORCL', 'CRM', 'ADBE', 'PYPL', 'UBER', 'JPM', 'BAC', 'WFC', 'GS', 'MS'];
-            
-            // Clear any existing tickers first
-            tickerContainer.innerHTML = '';
-            
-            // Create initial batch of tickers
-            for (let i = 0; i < 15; i++) {
-                createTicker();
-            }
-            
-            // Create new tickers every 2 seconds
-            setInterval(createTicker, 2000);
-        }
-
-        function createTicker() {
-            const tickerContainer = document.getElementById('floatingTickers');
-            const stocks = ['AAPL', 'MSFT', 'NVDA', 'GOOGL', 'TSLA', 'META', 'AMZN', 'NFLX', 'AMD', 'INTC', 'ORCL', 'CRM', 'ADBE', 'PYPL', 'UBER', 'JPM', 'BAC', 'WFC', 'GS', 'MS'];
-            
-            const ticker = document.createElement('div');
-            const isGoingUp = Math.random() > 0.5;
-            ticker.className = `ticker ${isGoingUp ? 'price-up' : 'price-down'} ${isGoingUp ? '' : 'down'}`;
-            
-            const randomStock = stocks[Math.floor(Math.random() * stocks.length)];
-            const randomPrice = (Math.random() * 1000 + 50).toFixed(2);
-            const randomChange = (Math.random() * 20 - 10).toFixed(2);
-            const changeSymbol = randomChange > 0 ? '+' : '';
-            
-            ticker.textContent = `${randomStock} $${randomPrice} ${changeSymbol}${randomChange}`;
-            
-            // Position ticker randomly across screen width
-            ticker.style.left = Math.random() * 80 + 10 + '%';
-            
-            // Set animation duration
-            const duration = 15 + Math.random() * 10;
-            ticker.style.animationDuration = `${duration}s`;
-            
-            // Random delay for staggered effect
-            ticker.style.animationDelay = `${Math.random() * 5}s`;
-            
-            tickerContainer.appendChild(ticker);
-            
-            // Remove ticker after animation
-            setTimeout(() => {
-                if (ticker.parentNode) {
-                    ticker.parentNode.removeChild(ticker);
-                }
-            }, (duration + 5) * 1000);
-        }
-
-        // Load leagues when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('League page loaded!');
-            loadActiveLeagues();
-            initFloatingTickers();
-
-            // Test if we can access localStorage
-            try {
-                const testLeagues = localStorage.getItem('stockLeagues');
-                console.log('Current leagues in localStorage:', testLeagues);
-            } catch (error) {
-                console.error('Error accessing localStorage:', error);
-            }
-        });
-
-        // Tutorial overlay script
-        (function() {
-            if (!window.location.search.includes('tutorial')) return;
-
-            let currentSubStep = 1;
-
-            function positionTutorial(target) {
-                const rect = target.getBoundingClientRect();
-                const pad = 8;
-                const maxW = Math.min(rect.width + pad * 2, 700);
-                const spotX = rect.left + rect.width / 2 - maxW / 2;
-                const maxH = Math.min(rect.height + pad * 2, 500);
-                const spotY = rect.top + rect.height / 2 - maxH / 2;
-
-                const cutout = document.getElementById('tutCutout');
-                cutout.setAttribute('x', spotX);
-                cutout.setAttribute('y', spotY);
-                cutout.setAttribute('width', maxW);
-                cutout.setAttribute('height', maxH);
-
-                const border = document.getElementById('tutBorder');
-                border.style.left = spotX + 'px';
-                border.style.top = spotY + 'px';
-                border.style.width = maxW + 'px';
-                border.style.height = maxH + 'px';
-
-                const tip = document.getElementById('tutTooltip');
-                requestAnimationFrame(() => {
-                    const tipH = tip.offsetHeight;
-                    const spaceBelow = window.innerHeight - (spotY + maxH);
-                    let top = spaceBelow >= tipH + 14 ? spotY + maxH + 12 : Math.max(12, spotY - 12 - tipH);
-                    if (top + tipH > window.innerHeight - 12) top = window.innerHeight - tipH - 12;
-                    let left = window.innerWidth / 2 - 150;
-                    left = Math.max(12, Math.min(left, window.innerWidth - 312));
-                    tip.style.top = top + 'px';
-                    tip.style.left = left + 'px';
-                    tip.classList.add('visible');
-                });
-            }
-
-            function showStep(stepNum) {
-                const backdrop = document.getElementById('tutBackdrop');
-                backdrop.classList.add('active');
-                document.getElementById('tutTooltip').classList.remove('visible');
-
-                const TOTAL = 9;
-                const returnStep = Number(localStorage.getItem('tutorialReturnStep') || '7');
-                let target = null;
-                let title = '';
-                let desc = '';
-
-                /* These used to look for `.option-card.join` / `.option-card.create`.
-                   The cards were rebuilt as `.lg-card.lg-join` / `.lg-card.lg-create`
-                   and the old class now survives only in dead CSS — so both lookups
-                   returned null. The bail-out below fired AFTER the backdrop had
-                   already been switched on, which left the page under a black
-                   overlay with no tooltip and no way to dismiss it.
-
-                   Order follows the cards on screen, left to right: Create sits
-                   first, Join second. */
-                if (stepNum === 1) {
-                    target = document.querySelector('.lg-card.lg-create');
-                    title = 'Create a League';
-                    desc = 'Start your own stock trading competition. Invite friends, set the rules, and see who comes out on top!';
-                } else if (stepNum === 2) {
-                    target = document.querySelector('.lg-card.lg-join');
-                    title = 'Join a League';
-                    desc = "Enter a friend's league code to join their trading competition. Compete head-to-head to see who picks the best stocks!";
-                }
-
-                /* Never strand the user under the backdrop. If a target is
-                   missing, take the overlay back down and hand the tour on
-                   rather than freezing the page. */
-                if (!target) {
-                    backdrop.classList.remove('active');
-                    document.getElementById('tutTooltip').classList.remove('visible');
-                    if (stepNum === 1) { showStep(2); } else { tutBackToDash(); }
-                    return;
-                }
-
-                document.getElementById('tutStepLabel').textContent = (returnStep + stepNum - 1) + ' of ' + TOTAL;
-                document.getElementById('tutTitle').textContent = title;
-                document.getElementById('tutDesc').textContent = desc;
-
-                const pipsHtml = Array.from({length: TOTAL}, (_, i) => {
-                    const cls = i + 1 < returnStep + stepNum - 1 ? 'done' : i + 1 === returnStep + stepNum - 1 ? 'active' : '';
-                    return '<div class="tut-tooltip-pip ' + cls + '"></div>';
-                }).join('');
-                document.getElementById('tutProgress').innerHTML = pipsHtml;
-
-                // Update button text based on step
-                const actionBtn = document.querySelector('.tut-secondary-btn');
-                const nextBtn = document.querySelector('.tut-next-btn');
-                if (stepNum === 1) {
-                    actionBtn.textContent = 'Not now';
-                    actionBtn.onclick = function() { tutSkipLeague(); };
-                    nextBtn.textContent = 'Next';
-                    nextBtn.onclick = function() { showStep(2); };
-                } else if (stepNum === 2) {
-                    actionBtn.textContent = 'Not now';
-                    actionBtn.onclick = function() { tutSkipLeague(); };
-                    nextBtn.textContent = 'Next';
-                    nextBtn.onclick = function() { tutBackToDash(); };
-                }
-
-                target.scrollIntoView({behavior: 'smooth', block: 'center'});
-                setTimeout(() => positionTutorial(target), 500);
-
-                let rt;
-                window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => positionTutorial(target), 250); });
-            }
-
-            // Hand the tour back to the dashboard for its closing step (index 3).
-            window.tutBackToDash = function() {
-                localStorage.setItem('tutorialStep', '3');
-                localStorage.setItem('tutorialReturnStep', '9');
-                localStorage.setItem('tutorialActive', 'true');
-                window.location.href = 'dashboard.html?tutorial=true';
-            };
-
-            window.tutJoinLeague = function() {
-                localStorage.removeItem('showTutorial');
-                localStorage.removeItem('tutorialStep');
-                localStorage.removeItem('tutorialActive');
-                localStorage.removeItem('tutorialReturnStep');
-                localStorage.setItem('tutorialCompleted', 'true');
-                document.getElementById('tutBackdrop').classList.remove('active');
-            };
-
-            window.tutSkipLeague = function() {
-                window.location.href = 'dashboard.html';
-            };
-
-            window.endTutorial = function() {
-                localStorage.removeItem('showTutorial');
-                localStorage.removeItem('tutorialStep');
-                localStorage.removeItem('tutorialActive');
-                localStorage.removeItem('tutorialReturnStep');
-                window.location.href = 'dashboard.html';
-            };
-
-            setTimeout(() => showStep(1), 600);
-        })();
-    </script>
-
-
+    setTimeout(() => show(0), 600);
+})();
+</script>
+<p class="ft-legal-foot">A simulation for education and entertainment — not investment advice. No real money changes hands in a league.</p>
+<!-- the dashboard's "check your league" quest -->
+<script>try{localStorage.setItem('ftQuestLeague',(function(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');})(new Date()))}catch(e){}</script>
+<script src="js/ft-tour.js?v=3"></script>
 </body>
-</html> 
+</html>

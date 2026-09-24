@@ -1,0 +1,281 @@
+/* ============================================================
+ *  RALLY CHAT — the mentor panel.
+ *
+ *  A right-hand drawer on a desktop, a full sheet on a phone.
+ *  Same tokens as the rest of the system; it inherits from
+ *  ft-lessons.css and falls back to literals so it can also be
+ *  dropped on a page that doesn't load that file.
+ * ============================================================ */
+
+.rc-back {
+    position: fixed; inset: 0; z-index: 120;
+    background: rgba(8, 6, 5, 0.55);
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.24s ease;
+}
+.rc-back.open { opacity: 1; pointer-events: auto; }
+
+.rc-panel {
+    position: absolute; top: 0; right: 0; bottom: 0;
+    width: min(410px, 100%);
+    display: flex; flex-direction: column;
+    background: var(--lx-bg-2, #1A1613);
+    border-left: 1px solid var(--lx-line-2, rgba(236,226,214,0.18));
+    box-shadow: -24px 0 60px rgba(0, 0, 0, 0.5);
+    transform: translateX(100%);
+    transition: transform 0.34s cubic-bezier(0.22, 0.9, 0.28, 1);
+}
+.rc-back.open .rc-panel { transform: none; }
+
+/* ── header ───────────────────────────────────────────────── */
+.rc-head {
+    display: flex; align-items: center; gap: 0.7rem;
+    padding: 0.85rem 0.9rem 0.85rem 1rem;
+    border-bottom: 1px solid var(--lx-line, rgba(236,226,214,0.10));
+    background: rgba(255, 255, 255, 0.02);
+    flex-shrink: 0;
+}
+.rc-head-bull {
+    width: 46px; height: 46px; flex-shrink: 0;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: rgba(92, 184, 138, 0.12);
+    border: 1px solid rgba(92, 184, 138, 0.28);
+}
+.rc-head-bull .bull-rig { width: 40px; height: 40px; }
+.rc-head-txt { flex: 1; min-width: 0; }
+.rc-head-txt b {
+    display: block;
+    font: 800 1.02rem var(--lx-display, 'Inter', sans-serif);
+    color: var(--lx-ink, #F4EEE6); letter-spacing: -0.01em;
+}
+.rc-head-txt i {
+    display: block; font-style: normal;
+    font: 600 0.72rem var(--lx-sans, 'Inter', sans-serif);
+    color: var(--lx-ink-3, #7D746A);
+}
+.rc-close {
+    flex-shrink: 0; width: 32px; height: 32px;
+    display: grid; place-items: center;
+    background: none; border: none; cursor: pointer;
+    color: var(--lx-ink-3, #7D746A); font-size: 0.95rem;
+    border-radius: 9px; transition: all 0.15s ease;
+}
+.rc-close:hover { color: var(--lx-ink, #F4EEE6); background: rgba(255,255,255,0.06); }
+
+/* ── transcript ───────────────────────────────────────────── */
+.rc-log {
+    flex: 1; overflow-y: auto; overscroll-behavior: contain;
+    padding: 1.1rem 1rem 0.4rem;
+    display: flex; flex-direction: column; gap: 0.6rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(236,226,214,0.16) transparent;
+}
+.rc-log::-webkit-scrollbar { width: 8px; }
+.rc-log::-webkit-scrollbar-thumb {
+    background: rgba(236,226,214,0.14); border-radius: 999px;
+}
+
+.rc-msg {
+    max-width: 86%; padding: 0.7rem 0.9rem;
+    border-radius: 16px;
+    font: 500 0.87rem/1.55 var(--lx-sans, 'Inter', sans-serif);
+    white-space: normal; word-wrap: break-word;
+}
+/* his side: surface, squared off at the corner nearest him */
+.rc-msg.rally {
+    align-self: flex-start;
+    background: var(--lx-surface, #221D19);
+    border: 1px solid var(--lx-line, rgba(236,226,214,0.10));
+    border-bottom-left-radius: 5px;
+    color: var(--lx-ink, #F4EEE6);
+}
+/* theirs: sage, and it reads as the thing they said */
+.rc-msg.me {
+    align-self: flex-end;
+    background: var(--lx-sage, #5CB88A);
+    border-bottom-right-radius: 5px;
+    color: #0C1A13; font-weight: 600;
+}
+.rc-msg.in { animation: rcIn 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.15); }
+@keyframes rcIn {
+    from { opacity: 0; transform: translateY(7px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* the three dots while he "reads" the question */
+.rc-typing { display: flex; gap: 4px; padding: 0.85rem 0.9rem; }
+.rc-typing i {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--lx-ink-3, #7D746A);
+    animation: rcDot 1.1s ease-in-out infinite;
+}
+.rc-typing i:nth-child(2) { animation-delay: 0.15s; }
+.rc-typing i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes rcDot {
+    0%, 60%, 100% { opacity: 0.28; transform: translateY(0); }
+    30%           { opacity: 1;    transform: translateY(-3px); }
+}
+
+/* ── suggestions ──────────────────────────────────────────── */
+.rc-chips {
+    display: flex; flex-wrap: wrap; gap: 0.35rem;
+    padding: 0.5rem 1rem 0.1rem;
+    flex-shrink: 0;
+}
+.rc-chip {
+    padding: 0.42rem 0.75rem; border-radius: 999px; cursor: pointer;
+    background: transparent;
+    border: 1px solid var(--lx-line-2, rgba(236,226,214,0.18));
+    color: var(--lx-ink-2, #B7ADA1);
+    font: 600 0.75rem var(--lx-sans, 'Inter', sans-serif);
+    transition: all 0.14s ease;
+}
+.rc-chip:hover {
+    color: var(--lx-ink, #F4EEE6);
+    border-color: var(--lx-sage, #5CB88A);
+    background: rgba(92, 184, 138, 0.10);
+}
+
+/* ── input ────────────────────────────────────────────────── */
+.rc-form {
+    display: flex; gap: 0.5rem; align-items: center;
+    padding: 0.75rem 1rem calc(0.9rem + env(safe-area-inset-bottom, 0px));
+    flex-shrink: 0;
+}
+.rc-input {
+    flex: 1; min-width: 0;
+    padding: 0.75rem 0.95rem; border-radius: 13px;
+    background: var(--lx-surface, #221D19);
+    border: 2px solid var(--lx-line, rgba(236,226,214,0.10));
+    color: var(--lx-ink, #F4EEE6);
+    font: 500 0.87rem var(--lx-sans, 'Inter', sans-serif);
+    outline: none; transition: border-color 0.16s ease;
+}
+.rc-input::placeholder { color: var(--lx-ink-3, #7D746A); }
+.rc-input:focus { border-color: var(--lx-sage, #5CB88A); }
+.rc-send {
+    flex-shrink: 0; width: 44px; height: 44px;
+    display: grid; place-items: center;
+    border: none; border-radius: 13px; cursor: pointer;
+    background: var(--lx-sage, #5CB88A); color: #0C1A13;
+    box-shadow: 0 3px 0 var(--lx-sage-dk, #3E8C65);
+    position: relative; top: 0;
+    transition: filter 0.15s ease, transform 0.07s ease, box-shadow 0.07s ease;
+}
+.rc-send:hover  { filter: brightness(1.07); }
+.rc-send:active { top: 3px; box-shadow: 0 0 0 var(--lx-sage-dk, #3E8C65); }
+.rc-send svg { width: 19px; height: 19px; }
+
+/* ── the launcher that sits beside him ────────────────────── */
+.rc-launch {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    padding: 0.6rem 1rem; border-radius: 999px; cursor: pointer;
+    background: var(--lx-surface, #221D19);
+    border: 2px solid rgba(92, 184, 138, 0.38);
+    color: var(--lx-ink, #F4EEE6);
+    font: 800 0.78rem var(--lx-display, 'Inter', sans-serif);
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.4);
+    position: relative; top: 0;
+    transition: border-color 0.16s ease, background 0.16s ease,
+                transform 0.08s ease, box-shadow 0.08s ease;
+}
+.rc-launch:hover  { border-color: var(--lx-sage, #5CB88A); background: rgba(92,184,138,0.10); }
+.rc-launch:active { top: 4px; box-shadow: 0 0 0 rgba(0,0,0,0.4); }
+.rc-launch svg { width: 15px; height: 15px; flex-shrink: 0; }
+/* a slow pulse on the dot, so the button reads as "he's available"
+   without anything bouncing */
+.rc-launch .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--lx-sage, #5CB88A);
+    animation: rcPulse 2.6s ease-in-out infinite;
+}
+@keyframes rcPulse {
+    0%, 100% { opacity: 0.45; transform: scale(0.85); }
+    50%      { opacity: 1;    transform: scale(1); }
+}
+
+/* ── phone ────────────────────────────────────────────────── */
+@media (max-width: 560px) {
+    .rc-panel {
+        width: 100%; top: auto; height: 88vh;
+        border-left: none;
+        border-top: 1px solid var(--lx-line-2, rgba(236,226,214,0.18));
+        border-radius: 22px 22px 0 0;
+        transform: translateY(100%);
+    }
+    .rc-msg { max-width: 92%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rc-panel { transition: none; }
+    .rc-msg.in, .rc-launch .dot { animation: none; }
+}
+
+/* ── the corner mount ─────────────────────────────────────────
+   For pages with no natural home for him. Fixed, so nothing in the
+   host layout shifts, and clear of the bottom-right where most of
+   these pages put their own furniture. */
+.rc-corner {
+    position: fixed; right: 18px; bottom: 18px; z-index: 90;
+    display: flex; flex-direction: column; align-items: center; gap: 0;
+    pointer-events: none;
+}
+.rc-corner .bull-rig { width: 84px; height: 84px; }
+.rc-corner .rc-launch {
+    margin-top: -0.3rem; font-size: 0.68rem; padding: 0.42rem 0.7rem;
+    white-space: nowrap; pointer-events: auto;
+}
+.rc-corner .bull-stage,
+.rc-corner .bull-holder,
+.rc-corner .bull-rig { pointer-events: auto; }
+.rc-corner .bull-holder { cursor: pointer; }
+.rc-corner .bull-holder .bull-rig { transition: transform 0.2s cubic-bezier(0.2,0.9,0.3,1.2); }
+.rc-corner .bull-holder:hover .bull-rig { transform: translateY(-4px) scale(1.03); }
+/* bubble to his left so it never runs off the right edge */
+.rc-corner .bull-stage { position: relative; align-items: center; }
+.rc-corner .bull-bubble {
+    position: absolute; right: calc(100% + 8px); top: 50%;
+    width: 230px; max-width: 230px;
+    transform: translateY(-50%) translateY(8px) scale(0.94);
+}
+.rc-corner .bull-bubble.show { transform: translateY(-50%); }
+
+@media (max-width: 700px) {
+    .rc-corner { right: 10px; bottom: 10px; }
+    .rc-corner .bull-rig { width: 64px; height: 64px; }
+    .rc-corner .rc-launch { display: none; }   /* tap him instead */
+}
+
+
+/* ============================================================
+ *  THE CORNER BUTTON.
+ *
+ *  The corner mount used to be a whole 84px bull plus a "Chat with
+ *  Rally" pill, standing in the bottom-right of pages that scroll —
+ *  so cards, text and images slid under his body as you read. He is
+ *  now a round button, the shape people already know as "help is
+ *  here": a 60px disc with him looking out of it. Small enough to sit
+ *  over content without hiding any of it, and obviously tappable.
+ * ============================================================ */
+.rc-corner {
+    right: 20px !important; bottom: 20px !important;
+    width: 60px; height: 60px; border-radius: 50%;
+    display: block !important; overflow: hidden;
+    background: radial-gradient(circle at 50% 35%, #2A3A30 0%, #1E1A16 75%);
+    border: 2px solid rgba(92,184,138,0.55);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.45), 0 0 0 4px rgba(20,16,14,0.6);
+    pointer-events: auto !important; cursor: pointer;
+    transition: transform 0.18s cubic-bezier(0.2,0.9,0.3,1.3), border-color 0.18s ease;
+}
+.rc-corner:hover { transform: translateY(-3px) scale(1.05); border-color: #5CB88A; }
+.rc-corner .bull-stage { position: absolute !important; left: 50%; top: 4px; transform: translateX(-50%); }
+.rc-corner .bull-rig { width: 74px !important; height: 74px !important; }
+.rc-corner .bull-holder:hover .bull-rig { transform: none !important; }
+.rc-corner .rc-launch { display: none !important; }
+.rc-corner .bull-shadow { display: none !important; }
+@media (max-width: 700px) {
+    .rc-corner { right: 12px !important; bottom: 12px !important; width: 52px; height: 52px; }
+    .rc-corner .bull-rig { width: 64px !important; height: 64px !important; }
+}

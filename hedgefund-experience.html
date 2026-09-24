@@ -29,11 +29,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Analyst Desk - Fantasy Trader</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/sl.js"></script>
+    <script src="js/sl.js?v=3"></script>
     <script src="js/guard.js"></script>
     <link rel="stylesheet" href="css/theme.css">
     <style>
@@ -61,7 +61,7 @@
         .art svg { display: block; width: 100%; height: auto; }
         .panel { background: #241F1B; border: 2px solid rgba(236, 226, 214, 0.12); padding: 1.6rem 1.7rem; }
         .kicker { font: 700 0.62rem 'Inter', sans-serif; letter-spacing: 0.22em; text-transform: uppercase; color: #E0A24C; margin-bottom: 0.5rem; }
-        .panel h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 1.5rem; margin-bottom: 0.9rem; }
+        .panel h2 { font-family: 'Inter', system-ui, sans-serif; font-weight: 600; font-size: 1.5rem; margin-bottom: 0.9rem; }
         .panel p { color: #C9C0B4; font-size: 0.94rem; line-height: 1.75; margin-bottom: 0.9rem; }
         .panel p b { color: #F4EEE6; }
         .say { border-left: 3px solid rgba(224, 162, 76, 0.6); padding: 0.2rem 0 0.2rem 1rem; margin: 0 0 0.9rem; font-style: italic; color: #D8CFC2; }
@@ -95,7 +95,7 @@
             letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
         }
         .go-on:hover { filter: brightness(1.07); }
-        .grade { font: 600 4.2rem 'Fraunces', Georgia, serif; line-height: 1; }
+        .grade { font: 600 4.2rem 'Inter', system-ui, sans-serif; line-height: 1; }
         .score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin: 1.2rem 0; }
         .score-cell { background: #1E1A16; border: 1px solid rgba(236,226,214,0.1); padding: 0.9rem 1rem; }
         .score-cell .k { font: 700 0.6rem 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #7d746a; }
@@ -105,11 +105,15 @@
         .lesson .dot { color: #E0A24C; font-weight: 800; }
         .legal-note { margin-top: 2rem; padding: 0.9rem 1.1rem; border: 1px solid rgba(236,226,214,0.1); font: 500 0.72rem 'Inter', sans-serif; color: #7d746a; line-height: 1.6; }
     </style>
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
+    <link rel="stylesheet" href="css/ft-rally-chat.css?v=3">
+    <link rel="stylesheet" href="css/ft-motion.css">
+    <script src="js/ft-back.js?v=2"></script>
 </head>
 <body>
     <div class="wrap">
         <div class="top">
-            <a href="experiences.html">← Experiences</a>
+            <a href="experiences.html" data-back>← Experiences</a>
             <span class="tag">Simulated Experience · Long/Short Equity</span>
         </div>
         <div class="hud">
@@ -379,7 +383,7 @@ body: () => {
         <span class="grade" style="color:${gradeCol}">${grade}</span>
         <div>
             <div style="font:700 0.66rem 'Inter',sans-serif;letter-spacing:0.16em;text-transform:uppercase;color:#7d746a;">Desk review</div>
-            <div style="font:600 1.05rem 'Fraunces',Georgia,serif;margin-top:0.2rem;">${verdict}</div>
+            <div style="font:600 1.05rem 'Inter', system-ui, sans-serif;margin-top:0.2rem;">${verdict}</div>
         </div>
     </div>
     <div class="score-grid">
@@ -402,5 +406,10 @@ choices: [], },
 
 render('day1');
 </script>
+<script src="js/ft-juice.js"></script>
+<script src="js/ft-bull.js?v=6"></script>
+<script src="js/ft-rally-chat.js?v=6"></script>
+<script src="js/ft-rally-widget.js?v=3"></script>
+<script src="js/ft-rally-corner.js?v=2"></script>
 </body>
 </html>

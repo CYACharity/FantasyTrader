@@ -114,6 +114,24 @@ body { overflow: hidden; color: #F4EEE6; font-family: 'Inter', system-ui, sans-s
 .sc-trade span { display: inline-block; transform: skewX(12deg); font: 900 0.95rem 'Barlow Condensed', sans-serif; font-style: italic; text-transform: uppercase; color: #7BD3A6; }
 .sc-trade:hover { background: #5CB88A; } .sc-trade:hover span { color: #0E0B09; }
 
+/* today at a glance */
+.wl-sum { display: flex; flex-wrap: wrap; gap: 8px; }
+.wl-sum span { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.8rem; transform: skewX(-12deg); background: rgba(244,238,230,0.05); border: 1px solid rgba(244,238,230,0.1); }
+.wl-sum span > * { transform: skewX(12deg); }
+.wl-sum b { font: 900 1.1rem 'Barlow Condensed', sans-serif; font-style: italic; }
+.wl-sum em { font: 800 0.66rem 'Inter', sans-serif; font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(244,238,230,0.55); }
+.wl-sum .up b { color: #7BD3A6; } .wl-sum .down b { color: #E8867F; }
+/* cards: owned tag, click to trade, a quick dollar buy */
+.sc { cursor: pointer; }
+.sc-own { margin-left: 6px; padding: 1px 6px; transform: skewX(-10deg); background: rgba(240,184,101,0.16); color: #F0B865; font: 800 0.62rem 'Inter', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; }
+.sc-acts { display: flex; gap: 6px; margin-left: auto; }
+.sc-foot { flex-wrap: wrap; row-gap: 8px; }
+.sc-since { white-space: nowrap; }
+.sc-trade, .sc-buy { padding: 0.32rem 0.6rem !important; }
+.sc-trade span, .sc-buy span { white-space: nowrap; }
+.sc-buy { padding: 0.35rem 0.7rem; transform: skewX(-12deg); text-decoration: none; background: #5CB88A; border: 1px solid #5CB88A; box-shadow: 0 3px 0 #2F6B4C; }
+.sc-buy span { display: inline-block; transform: skewX(12deg); font: 900 0.95rem 'Barlow Condensed', sans-serif; font-style: italic; text-transform: uppercase; color: #0E0B09; }
+.sc-buy:hover { filter: brightness(1.08); }
 .wl-empty { grid-column: 1 / -1; text-align: center; padding: 8vh 1rem; }
 .wl-empty h3 { margin: 0 0 0.4rem; font: 900 2rem 'Barlow Condensed', sans-serif; font-style: italic; text-transform: uppercase; }
 .wl-empty p { margin: 0; color: rgba(244,238,230,0.6); font: 600 0.9rem 'Inter', sans-serif; }
@@ -145,6 +163,7 @@ body { overflow: hidden; color: #F4EEE6; font-family: 'Inter', system-ui, sans-s
         <button class="wl-chip" data-sort="az"><span>A&ndash;Z</span></button>
         <div class="wl-quick" id="wlQuick"></div>
     </div>
+    <div class="wl-sum" id="wlSum" hidden></div>
     <section class="wl-board" id="wlBoard" aria-live="polite"></section>
     <div class="wl-legal">Prices may be delayed. A simulation for education and entertainment. Not investment advice.</div>
 </main>
@@ -160,7 +179,7 @@ body { overflow: hidden; color: #F4EEE6; font-family: 'Inter', system-ui, sans-s
     const pct = n => (n >= 0 ? '+' : '−') + Math.abs(n).toFixed(2) + '%';
     const loadMeta = () => { try { return JSON.parse(localStorage.getItem(META_KEY) || '{}'); } catch (e) { return {}; } };
     const saveMeta = m => { try { localStorage.setItem(META_KEY, JSON.stringify(m)); } catch (e) {} };
-    let rows = [], sort = 'move';
+    let rows = [], sort = 'move', owned = {};
     const spark = {};
 
     function toast(msg) {
@@ -171,6 +190,7 @@ body { overflow: hidden; color: #F4EEE6; font-family: 'Inter', system-ui, sans-s
     async function load() {
         let list = [];
         try { list = await SL.getWatchlistDetailed(); } catch (e) {}
+        try { const pf = await SL.loadPortfolio(); owned = {}; Object.keys(pf.stocks || {}).forEach(k => { const p = pf.stocks[k]; if (p && p.shares > 0) owned[k] = p.shares; }); } catch (e) {}
         const meta = loadMeta();
         const syms = list.map(r => r.symbol);
         let q = {};
@@ -217,6 +237,7 @@ body { overflow: hidden; color: #F4EEE6; font-family: 'Inter', system-ui, sans-s
         const board = $('wlBoard');
         $('wlCount').textContent = rows.length ? rows.length + (rows.length === 1 ? ' stock' : ' stocks') : '';
         paintQuick();
+        paintSum();
         if (!rows.length) {
             board.innerHTML = '<div class="wl-empty"><h3>Nothing on the board</h3></div>';
             return;
@@ -234,7 +255,7 @@ body { overflow: hidden; color: #F4EEE6; font-family: 'Inter', system-ui, sans-s
             const days = Math.max(0, Math.floor((Date.now() - r.at) / 86400000));
             el.innerHTML =
                 '<div class="sc-top">' + (window.logoHtml ? logoHtml(r.sym, r.sector) : '') +
-                    '<div><div class="sc-sym">' + esc(r.sym) + '</div><div class="sc-name">' + esc(r.name) + '</div></div>' +
+                    '<div><div class="sc-sym">' + esc(r.sym) + (owned[r.sym] ? '<span class="sc-own">Own ' + (+Number(owned[r.sym]).toFixed(2)) + '</span>' : '') + '</div><div class="sc-name">' + esc(r.name) + '</div></div>' +
                     '<button class="sc-x" title="Remove from watchlist" aria-label="Remove ' + esc(r.sym) + '">&times;</button></div>' +
                 '<div class="sc-mid"><span class="sc-px">' + (r.price != null ? '$' + r.price.toFixed(2) : '&mdash;') + '</span>' +
                     '<span class="sc-day">' + (r.day != null ? pct(r.day) + ' today' : 'no quote') + '</span></div>' +
@@ -242,8 +263,10 @@ body { overflow: hidden; color: #F4EEE6; font-family: 'Inter', system-ui, sans-s
                 '<div class="sc-foot"><span class="sc-since">' +
                     (r.since != null ? '<b class="' + (r.since >= 0 ? 'up' : 'down') + '">' + pct(r.since) + '</b> since added' : 'Tracking from today') +
                     (days ? ' · ' + days + 'd' : '') + '</span>' +
-                    '<a class="sc-trade" href="trading.html?symbol=' + encodeURIComponent(r.sym) + '"><span>Trade</span></a></div>';
-            el.querySelector('.sc-x').onclick = () => remove(r.sym);
+                    '<span class="sc-acts"><a class="sc-trade" href="trading.html?symbol=' + encodeURIComponent(r.sym) + '"><span>Trade</span></a>' +
+                    '<a class="sc-buy" title="Open the trade ticket with $500 ready" href="trading.html?symbol=' + encodeURIComponent(r.sym) + '&usd=500"><span>Buy $500</span></a></span></div>';
+            el.querySelector('.sc-x').onclick = e => { e.stopPropagation(); remove(r.sym); };
+            el.addEventListener('click', e => { if (!e.target.closest('a,button')) location.href = 'trading.html?symbol=' + encodeURIComponent(r.sym); });
             board.appendChild(el);
             paintSpark(r.sym);
         });
@@ -270,6 +293,17 @@ body { overflow: hidden; color: #F4EEE6; font-family: 'Inter', system-ui, sans-s
         toast(sym + ' removed');
     }
 
+    function paintSum() {
+        const box = $('wlSum');
+        const live = rows.filter(r => r.day != null);
+        if (!live.length) { box.hidden = true; return; }
+        const up = live.filter(r => r.day > 0).length, down = live.filter(r => r.day < 0).length;
+        const sorted = live.slice().sort((a, b) => b.day - a.day), best = sorted[0], worst = sorted[sorted.length - 1];
+        box.innerHTML = '<span class="up"><b>' + up + '</b><em>up today</em></span><span class="down"><b>' + down + '</b><em>down</em></span>' +
+            '<span class="' + (best.day >= 0 ? 'up' : 'down') + '"><em>Best</em><b>' + esc(best.sym) + ' ' + pct(best.day) + '</b></span>' +
+            (live.length > 1 ? '<span class="' + (worst.day >= 0 ? 'up' : 'down') + '"><em>Worst</em><b>' + esc(worst.sym) + ' ' + pct(worst.day) + '</b></span>' : '');
+        box.hidden = false;
+    }
     function paintQuick() {
         const have = new Set(rows.map(r => r.sym));
         const picks = ['NVDA', 'AAPL', 'MSFT', 'AMZN', 'TSLA', 'META', 'GOOGL', 'JPM'].filter(s => !have.has(s)).slice(0, 5);
@@ -342,7 +376,7 @@ body { overflow: hidden; color: #F4EEE6; font-family: 'Inter', system-ui, sans-s
 </script>
 <script src="js/ft-juice.js"></script>
 <script src="js/ft-bull.js?v=6"></script>
-<script src="js/ft-rally-chat.js?v=6"></script>
+<script src="js/ft-rally-chat.js?v=7"></script>
 <script src="js/ft-rally-widget.js?v=3"></script>
 <script src="js/ft-rally-corner.js?v=2"></script>
 <script src="js/ft-tour.js?v=3"></script>

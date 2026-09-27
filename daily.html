@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>html{background-color:#0E0B09;}</style>
+    <title>The Daily — Fantasy Trader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,700;1,800;1,900&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sl.js?v=3"></script>
+    <script src="js/guard.js"></script>
+    <script src="stock-data.js"></script>
+    <script src="js/stock-logo.js"></script>
+    <script src="js/draft-universe.js"></script>
+    <script src="js/ft-progression.js"></script>
+    <script src="js/ft-back.js?v=2"></script>
+    <link rel="stylesheet" href="css/ft-bull.css?v=5">
+<style>
+/* ============================================================
+ *  THE DAILY — your personal newsletter.
+ *  One issue a day: how the market closed, the stories that
+ *  mattered, how your money did, where you stand. Everything on
+ *  it is live data; nothing is filler. Reading it every day
+ *  keeps a streak.
+ * ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body { color: #F4EEE6; font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; min-height: 100vh;
+    background: radial-gradient(ellipse 60% 40% at 50% -8%, rgba(240,184,101,0.12), transparent 70%), radial-gradient(ellipse 90% 80% at 50% 40%, #1A1511 0%, #0E0B09 72%) fixed; }
+.dl { max-width: 1120px; margin: 0 auto; padding: 2.4vh 2.4vw 4vh; }
+.dl-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.4vh; }
+.dl-back { font: 700 0.78rem 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244,238,230,0.55); text-decoration: none; }
+.dl-back:hover { color: #F4EEE6; }
+.dl-streak { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.8rem; transform: skewX(-12deg); background: rgba(240,184,101,0.14); border: 1px solid rgba(240,184,101,0.45); }
+.dl-streak > * { transform: skewX(12deg); }
+.dl-streak b { font: 900 1.1rem 'Barlow Condensed', sans-serif; font-style: italic; color: #F0B865; }
+.dl-streak span { font: 800 0.66rem 'Inter', sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(244,238,230,0.75); }
+
+/* masthead */
+.mast { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.2rem; padding: 1.1rem 1.4rem; border-radius: 18px;
+    background: linear-gradient(120deg, rgba(92,184,138,0.14), rgba(30,26,22,0.95) 40%, rgba(30,26,22,0.95) 70%, rgba(240,184,101,0.12));
+    border: 1px solid rgba(244,238,230,0.10); border-bottom: 5px solid #2F6B4C; }
+.mast-av svg { display: block; }
+.mast-k { font: 800 0.7rem 'Inter', sans-serif; letter-spacing: 0.2em; text-transform: uppercase; color: #F0B865; }
+.mast h1 { margin: 0.1rem 0 0; font: 900 clamp(2.4rem, 4.6vw, 3.6rem)/0.92 'Barlow Condensed', sans-serif; font-style: italic; text-transform: uppercase; }
+.mast h1 span { color: #5CB88A; }
+.mast-hi { margin-top: 0.4rem; font: 700 1rem 'Inter', sans-serif; color: rgba(244,238,230,0.85); }
+.mast-issue { text-align: right; }
+.mast-issue b { display: block; font: 900 2.2rem/1 'Barlow Condensed', sans-serif; font-style: italic; }
+.mast-issue span { font: 800 0.66rem 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(244,238,230,0.5); }
+
+/* sections */
+.grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 14px; margin-top: 14px; }
+.card { position: relative; padding: 1rem 1.15rem 1.1rem; border-radius: 16px; background: linear-gradient(160deg, rgba(40,34,29,0.96), rgba(22,18,15,0.96));
+    border: 1px solid rgba(244,238,230,0.09); animation: dlIn 0.45s cubic-bezier(0.2,0.9,0.3,1) both; animation-delay: calc(var(--i,0) * 70ms); }
+@keyframes dlIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.card h2 { margin: 0 0 0.75rem; display: flex; align-items: center; gap: 0.55rem; font: 900 1.45rem 'Barlow Condensed', sans-serif; font-style: italic; text-transform: uppercase; }
+.card h2 i { width: 10px; height: 10px; transform: skewX(-14deg); background: var(--c, #5CB88A); }
+.card .more { position: absolute; top: 1rem; right: 1.1rem; font: 800 0.7rem 'Inter', sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(244,238,230,0.5); text-decoration: none; }
+.card .more:hover { color: #F0B865; }
+.span2 { grid-column: 1 / -1; }
+
+/* market */
+.mk { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.mk div { padding: 0.7rem 0.8rem 0.5rem; border-radius: 12px; background: rgba(12,10,8,0.5); border: 1px solid rgba(244,238,230,0.06); }
+.mk span { display: block; font: 800 0.64rem 'Inter', sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(244,238,230,0.5); }
+.mk b { display: block; margin-top: 2px; font: 900 1.5rem/1 'Barlow Condensed', sans-serif; font-style: italic; font-variant-numeric: tabular-nums; }
+.mk em { font: 800 0.85rem 'Inter', sans-serif; font-style: normal; }
+.up { color: #7BD3A6; } .down { color: #E8867F; }
+.mk svg { display: block; width: 100%; height: 34px; margin-top: 6px; }
+.mk-line { margin: 0.8rem 0 0; font: 600 0.92rem/1.5 'Inter', sans-serif; color: rgba(244,238,230,0.85); }
+
+/* stories */
+.st { display: grid; gap: 8px; }
+.st a { display: grid; grid-template-columns: 76px 1fr; gap: 0.8rem; align-items: center; padding: 0.45rem; border-radius: 12px; text-decoration: none; color: inherit; transition: background 0.14s ease; }
+.st a:hover { background: rgba(244,238,230,0.05); }
+.st .im { width: 76px; height: 56px; border-radius: 8px; overflow: hidden; background: linear-gradient(135deg, #3A2E22, #1E1813); display: grid; place-items: center;
+    font: 900 1.4rem 'Barlow Condensed', sans-serif; font-style: italic; color: #F0B865; }
+.st .im img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.st b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font: 700 0.92rem/1.3 'Inter', sans-serif; }
+.st small { display: block; margin-top: 3px; font: 700 0.66rem 'Inter', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(244,238,230,0.45); }
+
+/* portfolio */
+.pf-big { display: flex; align-items: flex-end; gap: 1rem; flex-wrap: wrap; }
+.pf-big b { font: 900 2.6rem/0.9 'Barlow Condensed', sans-serif; font-style: italic; font-variant-numeric: tabular-nums; }
+.pf-big span { font: 800 1rem 'Inter', sans-serif; padding: 0.15rem 0.6rem; transform: skewX(-10deg); background: rgba(244,238,230,0.07); }
+.pf-big span.up { background: rgba(92,184,138,0.16); } .pf-big span.down { background: rgba(217,100,92,0.16); }
+.pf-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 0.9rem; }
+.pf-row div { padding: 0.55rem 0.7rem; border-radius: 10px; background: rgba(12,10,8,0.5); }
+.pf-row small { display: block; font: 800 0.6rem 'Inter', sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(244,238,230,0.5); }
+.pf-row strong { display: flex; align-items: center; gap: 0.4rem; margin-top: 3px; font: 900 1.15rem 'Barlow Condensed', sans-serif; font-style: italic; }
+.pf-row .logo-tile { width: 20px !important; height: 20px !important; }
+
+/* standing */
+.sd { display: grid; gap: 10px; }
+.sd-row { display: flex; align-items: center; gap: 0.8rem; padding: 0.6rem 0.75rem; border-radius: 12px; background: rgba(12,10,8,0.5); text-decoration: none; color: inherit; }
+.sd-row:hover { background: rgba(244,238,230,0.06); }
+.sd-ico { flex: 0 0 34px; height: 34px; display: grid; place-items: center; transform: skewX(-10deg); background: var(--c); color: #0E0B09; font: 900 1rem 'Barlow Condensed', sans-serif; font-style: italic; }
+.sd-t { flex: 1; min-width: 0; }
+.sd-t b { display: block; font: 900 1.1rem 'Barlow Condensed', sans-serif; font-style: italic; text-transform: uppercase; }
+.sd-t span { font: 600 0.78rem 'Inter', sans-serif; color: rgba(244,238,230,0.65); }
+.sd-bar { height: 6px; margin-top: 5px; background: rgba(244,238,230,0.1); transform: skewX(-14deg); overflow: hidden; }
+.sd-bar i { display: block; height: 100%; width: 0; background: var(--c); transition: width 0.9s cubic-bezier(0.2,0.9,0.25,1); }
+
+/* rally's take */
+.take { display: flex; align-items: center; gap: 1rem; }
+.take .rig { width: 84px; height: 84px; flex-shrink: 0; }
+.take .rig .bull-rig { width: 84px; height: 84px; }
+.take p { margin: 0; position: relative; padding: 0.8rem 1rem; border-radius: 14px; background: rgba(244,238,230,0.06); border: 1px solid rgba(244,238,230,0.10);
+    font: 600 0.98rem/1.5 'Inter', sans-serif; }
+.take p b { color: #F0B865; }
+.sign { text-align: center; margin: 1.4rem 0 0; font: 800 0.72rem 'Inter', sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(244,238,230,0.4); }
+@media (max-width: 860px) { .grid { grid-template-columns: 1fr; } .mast { grid-template-columns: auto 1fr; } .mast-issue { display: none; } .pf-row { grid-template-columns: 1fr 1fr; } }
+@media (prefers-reduced-motion: reduce) { .card { animation: none; } }
+</style>
+</head>
+<body>
+<main class="dl">
+    <div class="dl-top">
+        <a class="dl-back" href="dashboard.html" data-back>&larr; Menu</a>
+        <span class="dl-streak" title="Days in a row you've read The Daily"><b id="streakN">1</b><span>day streak</span></span>
+    </div>
+
+    <header class="mast">
+        <span class="mast-av" id="mastAv"></span>
+        <div>
+            <div class="mast-k" id="mastDate">Today</div>
+            <h1>The <span>Daily</span></h1>
+            <div class="mast-hi" id="mastHi">Good morning.</div>
+        </div>
+        <div class="mast-issue"><b id="issueN">#1</b><span>Issue</span></div>
+    </header>
+
+    <div class="grid">
+        <section class="card" style="--i:0;--c:#9DB8FF"><h2><i></i>The market</h2>
+            <div class="mk">
+                <div id="mSP"><span>S&amp;P 500</span><b>&mdash;</b><svg viewBox="0 0 100 34" preserveAspectRatio="none"></svg></div>
+                <div id="mDOW"><span>Dow</span><b>&mdash;</b><svg viewBox="0 0 100 34" preserveAspectRatio="none"></svg></div>
+                <div id="mNAS"><span>Nasdaq</span><b>&mdash;</b><svg viewBox="0 0 100 34" preserveAspectRatio="none"></svg></div>
+            </div>
+            <p class="mk-line" id="mkLine">Checking the tape&hellip;</p>
+        </section>
+
+        <section class="card" style="--i:1;--c:#5CB88A"><h2><i></i>Your portfolio</h2><a class="more" href="portfolio.html">Open &rarr;</a>
+            <div class="pf-big"><b id="pfVal">$10,000</b><span id="pfDay">+0.00% today</span></div>
+            <div class="pf-row">
+                <div><small>Total return</small><strong id="pfRet">+0.00%</strong></div>
+                <div><small>Best today</small><strong id="pfBest">&mdash;</strong></div>
+                <div><small>Worst today</small><strong id="pfWorst">&mdash;</strong></div>
+            </div>
+        </section>
+
+        <section class="card" style="--i:2;--c:#F0B865"><h2><i></i>Top stories</h2><a class="more" href="news.html">All news &rarr;</a>
+            <div class="st" id="stories"></div>
+        </section>
+
+        <section class="card" style="--i:3;--c:#E8867F"><h2><i></i>Where you stand</h2>
+            <div class="sd">
+                <a class="sd-row" href="practice.html" style="--c:#5CB88A"><span class="sd-ico">50</span><span class="sd-t"><b>The +50% race</b><span id="raceTxt">First to +50% wins $25</span><div class="sd-bar"><i id="raceBar"></i></div></span></a>
+                <a class="sd-row" href="league.html" id="lgRow" style="--c:#9DB8FF"><span class="sd-ico">L</span><span class="sd-t"><b id="lgName">Leagues</b><span id="lgTxt">Start one and play your friends</span></span></a>
+                <a class="sd-row" href="academy.html" style="--c:#C9A0E8"><span class="sd-ico" id="lvIco">1</span><span class="sd-t"><b id="lvName">Newcomer</b><span id="lvTxt">Keep learning to level up</span><div class="sd-bar"><i id="lvBar"></i></div></span></a>
+            </div>
+        </section>
+
+        <section class="card span2" style="--i:4;--c:#7BD3A6"><h2><i></i>Rally's take</h2>
+            <div class="take"><span class="rig" id="takeRig"></span><p id="take">Reading the numbers&hellip;</p></div>
+        </section>
+    </div>
+    <p class="sign">That's the Daily. See you tomorrow.</p>
+</main>
+
+<script src="js/ft-bull.js?v=6"></script>
+<script src="js/ft-avatar.js?v=5"></script>
+<script>
+(function () {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const U = {}; (window.__U || []).forEach(u => { U[u.s] = u; });
+    const pct = n => (n >= 0 ? '+' : '−') + Math.abs(n).toFixed(2) + '%';
+    const money = n => '$' + Math.round(n).toLocaleString();
+    const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const dk = d => d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+
+    /* the masthead: your avatar, the date, the issue number and the reading streak */
+    const now = new Date(), today = dk(now);
+    let st = {}; try { st = JSON.parse(localStorage.getItem('ftDaily') || '{}'); } catch (e) {}
+    if (st.last !== today) {
+        const y = new Date(now); y.setDate(now.getDate() - 1);
+        st.streak = st.last === dk(y) ? (st.streak || 0) + 1 : 1;
+        st.issues = (st.issues || 0) + 1;
+        st.last = today;
+        try { localStorage.setItem('ftDaily', JSON.stringify(st)); } catch (e) {}
+    }
+    $('streakN').textContent = st.streak || 1;
+    $('issueN').textContent = '#' + (st.issues || 1);
+    $('mastDate').textContent = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+    const name = localStorage.getItem('username') || 'trader';
+    const hr = now.getHours();
+    $('mastHi').textContent = (hr < 12 ? 'Good morning, ' : hr < 18 ? 'Good afternoon, ' : 'Good evening, ') + name + '.';
+    if (window.FTAvatar) $('mastAv').innerHTML = FTAvatar.mine({ size: 92 });
+    if (window.FTBull) $('takeRig').innerHTML = FTBull.rigSVG();
+    try {
+        const P = FTProgress, s = P.load(), lv = P.levelFromXp(s.xp || 0);
+        $('lvIco').textContent = lv.level; $('lvName').textContent = 'Level ' + lv.level + ' · ' + lv.title;
+        $('lvTxt').textContent = (lv.span - lv.into) + ' XP to level ' + (lv.level + 1) + (s.streak ? ' · ' + s.streak + '-day streak' : '');
+        setTimeout(() => { $('lvBar').style.width = (lv.pct * 100).toFixed(1) + '%'; }, 250);
+    } catch (e) {}
+
+    async function chart(sym, range, interval) {
+        const path = '/v8/finance/chart/' + encodeURIComponent(sym) + '?range=' + range + '&interval=' + interval;
+        try { return await stockDataService.fetchYahoo(path, 5000); } catch (e) { return null; }
+    }
+    const spark = (svg, vals, up) => {
+        if (!svg || !vals || vals.length < 3) return;
+        const lo = Math.min(...vals), hi = Math.max(...vals), sp = hi - lo || 1;
+        const pts = vals.map((v, i) => (i / (vals.length - 1) * 100).toFixed(2) + ' ' + (32 - (v - lo) / sp * 30).toFixed(2));
+        const c = up ? '#7BD3A6' : '#E8867F';
+        svg.innerHTML = '<path d="M' + pts.join(' L') + ' L100 34 L0 34 Z" fill="' + c + '" opacity="0.14"/><path d="M' + pts.join(' L') + '" fill="none" stroke="' + c + '" stroke-width="1.6" vector-effect="non-scaling-stroke"/>';
+    };
+
+    async function market() {
+        const rows = [['^GSPC', 'mSP', 'S&P 500'], ['^DJI', 'mDOW', 'Dow'], ['^IXIC', 'mNAS', 'Nasdaq']];
+        const out = {};
+        await Promise.all(rows.map(async ([sym, id, label]) => {
+            const j = await chart(sym, '1d', '5m');
+            const r = j && j.chart && j.chart.result && j.chart.result[0];
+            if (!r || !r.meta) return;
+            const px = Number(r.meta.regularMarketPrice), prev = Number(r.meta.chartPreviousClose || r.meta.previousClose || px);
+            const p = prev ? (px - prev) / prev * 100 : 0;
+            out[label] = p;
+            const el = $(id);
+            el.querySelector('b').innerHTML = px.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' <em class="' + (p >= 0 ? 'up' : 'down') + '">' + pct(p) + '</em>';
+            const closes = ((r.indicators && r.indicators.quote && r.indicators.quote[0] && r.indicators.quote[0].close) || []).filter(v => v != null);
+            spark(el.querySelector('svg'), closes, p >= 0);
+        }));
+        const sp = out['S&P 500'], nq = out['Nasdaq'];
+        if (sp == null) { $('mkLine').textContent = 'Market data is catching up. Check back in a minute.'; return out; }
+        const mood = Math.abs(sp) < 0.25 ? 'barely moved' : sp > 1 ? 'had a strong day' : sp > 0 ? 'edged higher' : sp < -1 ? 'had a rough day' : 'slipped';
+        const tech = nq != null && Math.abs(nq - sp) > 0.4 ? (nq > sp ? ' Tech led the way.' : ' Tech lagged the rest.') : '';
+        $('mkLine').innerHTML = 'The S&amp;P 500 <b>' + mood + '</b> (' + pct(sp) + ').' + tech;
+        return out;
+    }
+
+    async function stories() {
+        let news = [];
+        for (const q of ['^GSPC', 'SPY']) {
+            try { const j = await stockDataService.fetchYahoo('/v1/finance/search?q=' + encodeURIComponent(q) + '&newsCount=10&quotesCount=0', 5000);
+                if (j && j.news && j.news.length) { news = j.news; break; } } catch (e) {}
+        }
+        const box = $('stories');
+        const ago = t => { const m = Math.max(1, Math.round((Date.now() / 1000 - t) / 60)); return m < 60 ? m + 'm ago' : m < 1440 ? Math.round(m / 60) + 'h ago' : Math.round(m / 1440) + 'd ago'; };
+        news = news.filter(n => n && n.title).sort((a, b) => (b.providerPublishTime || 0) - (a.providerPublishTime || 0)).slice(0, 4);
+        if (!news.length) { box.innerHTML = '<a href="news.html"><span class="im">N</span><span><b>Read today’s market news</b></span></a>'; return; }
+        box.innerHTML = '';
+        news.forEach(n => {
+            const r = (n.thumbnail && n.thumbnail.resolutions) || [];
+            const th = (r.filter(x => x.width >= 110).sort((a, b) => a.width - b.width)[0] || r[0] || {}).url;
+            const a = document.createElement('a'); a.href = n.link || 'news.html'; a.target = '_blank'; a.rel = 'noopener';
+            a.innerHTML = '<span class="im">' + (th ? '<img alt="" referrerpolicy="no-referrer" src="' + esc(th) + '">' : esc((n.publisher || 'N').charAt(0))) + '</span>' +
+                '<span><b>' + esc(n.title) + '</b><small>' + esc([n.publisher, n.providerPublishTime ? ago(n.providerPublishTime) : ''].filter(Boolean).join(' · ')) + '</small></span>';
+            const img = a.querySelector('img'); if (img) img.onerror = () => { img.parentNode.textContent = (n.publisher || 'N').charAt(0); };
+            box.appendChild(a);
+        });
+    }
+
+    async function portfolio(mk) {
+        let pf = { cash: 10000, stocks: {} };
+        try { pf = await SL.loadPortfolio(); } catch (e) {}
+        const syms = Object.keys(pf.stocks || {}).filter(s => pf.stocks[s] && pf.stocks[s].shares > 0);
+        let q = {}; try { q = syms.length ? await stockDataService.getQuotes(syms) : {}; } catch (e) {}
+        let total = Number(pf.cash) || 0, prev = total; const moves = [];
+        syms.forEach(s => {
+            const pos = pf.stocks[s], r = q[s] || {};
+            const px = r.price != null ? Number(r.price) : Number(pos.avgPrice || 0);
+            const c = r.change_pct != null ? Number(r.change_pct) : 0;
+            total += px * pos.shares; prev += (c > -100 ? px / (1 + c / 100) : px) * pos.shares;
+            if (r.change_pct != null) moves.push({ s, c });
+        });
+        const day = prev > 0 ? (total - prev) / prev * 100 : 0, ret = (total - 10000) / 100;
+        $('pfVal').textContent = money(total);
+        const d = $('pfDay'); d.textContent = pct(day) + ' today'; d.className = day > 0.005 ? 'up' : day < -0.005 ? 'down' : '';
+        const r = $('pfRet'); r.textContent = pct(ret); r.className = ret >= 0 ? 'up' : 'down';
+        moves.sort((a, b) => b.c - a.c);
+        const tag = m => (window.logoHtml ? logoHtml(m.s, (U[m.s] || {}).se) : '') + '<span class="' + (m.c >= 0 ? 'up' : 'down') + '">' + esc(m.s) + ' ' + pct(m.c) + '</span>';
+        if (moves.length) { $('pfBest').innerHTML = tag(moves[0]); $('pfWorst').innerHTML = tag(moves[moves.length - 1]); }
+        // the race
+        $('raceTxt').textContent = ret >= 50 ? 'You hit +50%. The $25 is yours.' : 'You’re at ' + pct(ret) + ' · ' + (50 - ret).toFixed(1) + ' points to go';
+        setTimeout(() => { $('raceBar').style.width = Math.max(0, Math.min(100, ret * 2)).toFixed(1) + '%'; }, 300);
+        return { total, day, ret, moves, syms, mk };
+    }
+
+    async function league() {
+        try {
+            const rows = await SL.myLeagues();
+            const ls = (rows || []).map(r => r.leagues).filter(Boolean);
+            if (!ls.length) return null;
+            const L = ls.find(l => l.status === 'active') || ls[0];
+            $('lgRow').href = 'your-league.html?league=' + encodeURIComponent(L.id);
+            $('lgName').textContent = L.name || 'Your league';
+            if (L.status !== 'active') { $('lgTxt').textContent = L.status === 'drafting' ? 'The draft is on. Get in there.' : 'Waiting for the draft'; return L; }
+            const stn = await SL.leagueStandings(L.id);
+            const me = await SL.currentUser();
+            const i = (stn || []).findIndex(s => me && s.user_id === me.id);
+            if (i >= 0) $('lgTxt').textContent = 'You’re #' + (i + 1) + ' of ' + stn.length + ' · ' + pct(Number(stn[i].returnPct) || 0);
+            return L;
+        } catch (e) { return null; }
+    }
+
+    function take(p) {
+        let t;
+        const big = p.moves.slice().sort((a, b) => Math.abs(b.c) - Math.abs(a.c))[0];
+        const sp = p.mk && p.mk['S&P 500'];
+        if (!p.syms.length) t = 'You don’t own anything yet. Pick one company you actually use and look it up on Trade. That’s how most good first trades start.';
+        else if (big && Math.abs(big.c) >= 2) t = '<b>' + esc(big.s) + '</b> moved ' + pct(big.c) + ' today, your biggest mover. Before you do anything, read why.';
+        else if (sp != null && p.day - sp > 0.5) t = 'You beat the S&amp;P 500 today by <b>' + (p.day - sp).toFixed(2) + ' points</b>. Nice. One day is noise, though; the race is the week.';
+        else if (sp != null && sp - p.day > 0.5) t = 'The market beat you by <b>' + (sp - p.day).toFixed(2) + ' points</b> today. Check whether one stock did the damage.';
+        else t = 'A quiet day for your book. Quiet days are when you do your homework for the loud ones.';
+        $('take').innerHTML = t;
+    }
+
+    (async function () {
+        for (let i = 0; i < 30 && !(window.SL && typeof stockDataService !== 'undefined'); i++) await new Promise(r => setTimeout(r, 100));
+        stories();
+        league();
+        const mk = await market();
+        take(await portfolio(mk));
+    })();
+})();
+</script>
+</body>
+</html>

@@ -416,6 +416,27 @@
     ];
     let missAt = 0;
 
+    /* ── the AI brain ──────────────────────────────────────────
+       With the rally-chat Edge Function deployed (supabase/functions/
+       rally-chat), he answers anything in his own voice, using the same
+       live context the local answers use. Without it, or if it's slow,
+       the local knowledge base answers exactly as before. One failure
+       parks the AI for the rest of the session so nobody waits twice. */
+    const AI_OFF = 'ftRallyAiOff';
+    async function askAI(text, log) {
+        try {
+            if (sessionStorage.getItem(AI_OFF) === '1') return null;
+            if (!global.SL || !SL.configured || !SL.client || !SL.client.functions) return null;
+            const call = SL.client.functions.invoke('rally-chat', {
+                body: { question: text, history: (log || []).slice(-10), context: ctx() },
+            });
+            const res = await Promise.race([call, new Promise(r => setTimeout(() => r({ timeout: true }), 9000))]);
+            if (res && !res.timeout && !res.error && res.data && res.data.reply) return String(res.data.reply);
+            if (!res || res.timeout || res.error) sessionStorage.setItem(AI_OFF, '1');
+        } catch (e) { try { sessionStorage.setItem(AI_OFF, '1'); } catch (x) {} }
+        return null;
+    }
+
     /* ── transcript ───────────────────────────────────────── */
     function loadLog() {
         try { return JSON.parse(localStorage.getItem(storeKey()) || '[]') || []; } catch (e) { return []; }
@@ -532,16 +553,18 @@
 
         if (global.FTJuice) FTJuice.sfx.tap();
 
-        setTimeout(() => {
+        const started = Date.now();
+        askAI(text, log.slice(0, -1)).then(ai => setTimeout(() => {
             wait.remove();
-            const hit = fromExt('answer', text) || answerFor(text) || fromExt('fallback', text);
+            const local = ai ? null : (fromExt('answer', text) || answerFor(text) || fromExt('fallback', text));
+            const hit = ai ? { text: ai, follow: [] } : local;
             const reply = hit ? hit.text : MISSES[missAt++ % MISSES.length];
             bubble('rally', reply, true);
             paintChips(hit && hit.follow.length ? hit.follow : suggestions());
             log.push({ w: 'rally', t: reply });
             saveLog(log);
             if (global.FTJuice) FTJuice.sfx.pop();
-        }, 420 + Math.min(700, text.length * 12));
+        }, Math.max(0, 420 + Math.min(700, text.length * 12) - (Date.now() - started))));
     }
 
     /* Openers adapt to what the page can see, so the first thing he

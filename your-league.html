@@ -2881,6 +2881,46 @@
         .cap-alloc .lineup-row .sym { font: 900 1.15rem 'Barlow Condensed', sans-serif; font-style: italic; }
         .cap-alloc.locked .lineup-row:not(.head) { opacity: 0.6; }
         .cap-alloc.locked input { cursor: not-allowed; }
+
+        /* ── the draft board: cards you want to pick ── */
+        #draftSuggestions { grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)) !important; gap: 10px !important; }
+        .df-card { border-radius: 12px !important; padding: 0.75rem 0.85rem !important; background: linear-gradient(160deg, rgba(42,36,30,0.96), rgba(24,20,17,0.96)) !important;
+            border: 1px solid rgba(244,238,230,0.09) !important; border-bottom: 3px solid #2F6B4C !important; transition: transform 0.14s cubic-bezier(0.2,0.9,0.3,1.3), border-color 0.14s ease !important; }
+        .df-card.pickable:hover { transform: translateY(-3px); border-color: rgba(92,184,138,0.6) !important; background: linear-gradient(160deg, rgba(92,184,138,0.12), rgba(24,20,17,0.96)) !important; }
+        .df-head { display: grid !important; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 0.55rem; }
+        .df-txt { display: flex; flex-direction: column; min-width: 0; }
+        .df-sym { font: 900 1.35rem/1 'Barlow Condensed', sans-serif !important; font-style: italic; color: #F4EEE6 !important; }
+        .df-name { margin: 2px 0 0 !important; font: 600 0.72rem 'Inter', sans-serif !important; color: rgba(244,238,230,0.55) !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .df-price { font: 900 1.15rem 'Barlow Condensed', sans-serif; font-style: italic; font-variant-numeric: tabular-nums; }
+        .df-meta { margin-top: 0.55rem; flex-wrap: wrap; }
+        .df-tag { border-radius: 0 !important; transform: skewX(-10deg); background: rgba(244,238,230,0.05); }
+        .df-suggest-label { font: 900 1.1rem 'Barlow Condensed', sans-serif !important; font-style: italic; text-transform: uppercase; color: #F0B865 !important; }
+        .draft-clock { border-radius: 14px !important; border-left-width: 5px !important; background: linear-gradient(90deg, rgba(92,184,138,0.12), rgba(30,26,22,0.95) 50%) !important; }
+        .draft-clock.mine { background: linear-gradient(90deg, rgba(240,184,101,0.2), rgba(30,26,22,0.95) 55%) !important; }
+        .clock-num { font: 900 2.6rem/1 'Barlow Condensed', sans-serif !important; font-style: italic; }
+        .clock-info b { font: 900 1.35rem 'Barlow Condensed', sans-serif !important; font-style: italic; text-transform: uppercase; }
+        .board-card h3, #draftSidebarTitle { font: 900 1.5rem 'Barlow Condensed', sans-serif !important; font-style: italic; text-transform: uppercase; }
+        .sec-chip, .cap-chip { border-radius: 0 !important; transform: skewX(-10deg); }
+        .sec-chip.active, .cap-chip.active { background: #F0B865 !important; border-color: #F0B865 !important; color: #120E0B !important; }
+
+        /* ── setup steps and the lineup picker ── */
+        .team-step { border-radius: 0 !important; transform: skewX(-8deg); }
+        .team-step > * { transform: skewX(8deg); }
+        .team-step.now { border-color: #F0B865 !important; background: rgba(240,184,101,0.12) !important; }
+        .team-step.done { border-color: #5CB88A !important; background: rgba(92,184,138,0.1) !important; }
+        .team-card.team-glow { border-radius: 16px !important; background: linear-gradient(165deg, rgba(42,36,30,0.96), rgba(22,18,15,0.97)) !important;
+            border: 1px solid rgba(244,238,230,0.1) !important; border-bottom: 5px solid #2F6B4C !important; box-shadow: 0 18px 44px rgba(0,0,0,0.35) !important; }
+        .team-head h3 { font: 900 1.7rem 'Barlow Condensed', sans-serif !important; font-style: italic; text-transform: uppercase; }
+        .pick-tile { border-radius: 12px !important; background: linear-gradient(160deg, rgba(42,36,30,0.96), rgba(24,20,17,0.96)) !important; border: 1.5px solid rgba(244,238,230,0.1) !important;
+            border-bottom-width: 3px !important; transition: transform 0.14s cubic-bezier(0.2,0.9,0.3,1.3), border-color 0.14s ease !important; }
+        .pick-tile.on { border-color: #5CB88A !important; background: linear-gradient(160deg, rgba(92,184,138,0.18), rgba(24,20,17,0.96)) !important; box-shadow: 0 3px 0 #2F6B4C; }
+        .pick-tile .pt-sym { font: 900 1.3rem 'Barlow Condensed', sans-serif !important; font-style: italic; }
+        .lineup-progress { height: 8px !important; transform: skewX(-14deg); border-radius: 0 !important; }
+        .lu-go, .lu-confirm { border-radius: 0 !important; transform: skewX(-12deg); font: 900 1.15rem 'Barlow Condensed', sans-serif !important; font-style: italic !important; text-transform: uppercase; }
+
+        /* ── icons: one drawn set instead of the generic font ── */
+        .ftx-ico { width: 20px; height: 20px; flex-shrink: 0; display: inline-block; vertical-align: -4px; }
+        .section-title .ftx-ico { width: 26px; height: 26px; color: #F0B865; margin-right: 0.3rem; }
     </style>
     <script src="js/ft-back.js?v=2"></script>
     <script src="js/ft-progression.js"></script>
@@ -5279,8 +5319,9 @@
         // Where the setup flow is standing. null = wherever the data says.
         let TEAM_STAGE = null;
         // Team Manager is split into parts; which one is open survives re-renders
-        let TEAM_PART = (() => { try { return sessionStorage.getItem('ftTeamPart') || 'overview'; } catch (e) { return 'overview'; } })();
+        let TEAM_PART = (() => { try { const v = sessionStorage.getItem('ftTeamPart') || 'overview'; return v === 'lineup' ? 'overview' : v; } catch (e) { return 'overview'; } })();
         window.setTeamPart = function (k) {
+            if (k === 'lineup') k = 'overview';      // lineup lives on the Team tab now
             TEAM_PART = k;
             try { sessionStorage.setItem('ftTeamPart', k); } catch (e) {}
             const box = document.querySelector('.tmx');
@@ -5475,8 +5516,7 @@
                   '<button class="tmx-btn" id="tmReallocate" onclick="reAllocate()"><span>Re-allocate</span></button>';
             return `<div class="tmx" data-part="${P}">
                 <div class="tmx-tabs">
-                    ${tab('overview', 'Overview')}
-                    ${tab('lineup', 'Lineup', starters.length)}
+                    ${tab('overview', 'Team', starters.length)}
                     ${tab('trade', 'Trade')}
                     ${tab('capital', 'Capital')}
                 </div>
@@ -5501,10 +5541,8 @@
                         </div>
                         <div style="position:relative;height:230px;"><canvas id="tmPerfChart"></canvas></div>
                     </div>
-                </section>
 
-                <section class="tmx-part" data-p="lineup">
-                    <div class="tmx-panel-head"><h4>Starters · ${starters.length}</h4><div class="tmx-actions">${lineupActions}</div></div>
+                    <div class="tmx-panel-head" style="margin-top:1rem;"><h4>Starters · ${starters.length}</h4><div class="tmx-actions">${lineupActions}</div></div>
                     <div class="tm-grid">${starters.map(card).join('')}</div>
                     ${bench.length ? `<div class="tmx-panel-head" style="margin-top:1.2rem;"><h4>Bench · ${bench.length}</h4></div>
                         <div class="tm-grid">${bench.map(r => '<div class="tm-benched">' + card(r) + '</div>').join('')}</div>` : ''}
@@ -6948,5 +6986,35 @@
 <!-- the dashboard's "check your league" quest -->
 <script>try{localStorage.setItem('ftQuestLeague',(function(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');})(new Date()))}catch(e){}</script>
 <script src="js/ft-tour.js?v=3"></script>
+
+<script>
+/* Swap the generic font icons in the menu and headings for a drawn set in
+   the game's style. Matchups gets crossed swords instead of a fist. */
+(function () {
+    const P = 'fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"';
+    const ICONS = {
+        'fa-home': '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
+        'fa-bolt': '<path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="currentColor" fill-opacity="0.18"/>',
+        'fa-user-shield': '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
+        'fa-trophy': '<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M9 17h6"/>',
+        'fa-fist-raised': '<path d="M5 3l9 9M3 5l2-2M14 12l2 2-2 2-2-2"/><path d="M19 3l-9 9M21 5l-2-2M10 12l-2 2 2 2 2-2"/><path d="M6 18l-2 3M18 18l2 3"/>',
+        'fa-right-left': '<path d="M4 8h14l-3-3M20 16H6l3 3"/>',
+        'fa-book': '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h7M8 11h5"/>',
+        'fa-history': '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/>',
+        'fa-users': '<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 11a3 3 0 1 0 0-6M21 20a5 5 0 0 0-4-4.9"/>',
+    };
+    function swap(root) {
+        (root || document).querySelectorAll('.sidebar-tab i.fas, .section-title i.fas').forEach(i => {
+            const k = [...i.classList].find(c => ICONS[c]);
+            if (!k) return;
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('class', 'ftx-ico'); svg.setAttribute('aria-hidden', 'true');
+            svg.innerHTML = ICONS[k].replace(/<path /g, '<path ' + P + ' ').replace(/<circle /g, '<circle ' + P + ' ');
+            i.replaceWith(svg);
+        });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => swap()); else swap();
+})();
+</script>
 </body>
 </html>

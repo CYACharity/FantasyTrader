@@ -148,6 +148,61 @@
     <script src="js/ft-back.js?v=2"></script>
     <link rel="stylesheet" href="css/ft-screen.css?v=1">
 <style>/* less subtext: the headings say it */ .card-desc { display: none !important; }</style>
+
+<style>
+/* step 2 as choices you tap, not a form you fill */
+.pick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.pick button { --c: #5CB88A; display: grid; place-items: center; gap: 2px; padding: 0.7rem 0.4rem; cursor: pointer; transform: skewX(-10deg);
+    background: rgba(244,238,230,0.04); border: 1.5px solid rgba(244,238,230,0.14); color: #F4EEE6; transition: background 0.14s ease, border-color 0.14s ease, transform 0.12s ease; }
+.pick button > * { transform: skewX(10deg); }
+.pick button b { font: 900 1.3rem/1 'Barlow Condensed', sans-serif; font-style: italic; text-transform: uppercase; }
+.pick button span { font: 800 0.62rem 'Inter', sans-serif; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(244,238,230,0.55); }
+.pick button:hover { border-color: color-mix(in srgb, var(--c) 60%, transparent); transform: skewX(-10deg) translateY(-2px); }
+.pick button.on { background: color-mix(in srgb, var(--c) 22%, transparent); border-color: var(--c); box-shadow: 0 3px 0 color-mix(in srgb, var(--c) 55%, #000); }
+.pick button.on span { color: #F4EEE6; }
+.pick.draft button b { font-size: 1.05rem; }
+.pick-custom { margin-top: 8px; max-width: 200px; }
+.pick-note { margin-left: 0.4rem; font-weight: 600; letter-spacing: 0; text-transform: none; color: rgba(244,238,230,0.4); }
+#draftAt:not([hidden]) { margin-top: 8px; }
+@media (max-width: 520px) { .pick { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // chips that set a hidden input or select
+    document.querySelectorAll('.pick[data-for]').forEach(function (g) {
+        const target = document.getElementById(g.dataset.for);
+        g.addEventListener('click', function (e) {
+            const b = e.target.closest('button'); if (!b) return;
+            g.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+            target.value = b.dataset.v;
+            target.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+        if (target.tagName === 'INPUT') target.addEventListener('input', function () {
+            g.querySelectorAll('button').forEach(x => x.classList.toggle('on', x.dataset.v === String(target.value)));
+        });
+    });
+    // draft time shortcuts
+    const at = document.getElementById('draftAt'), dp = document.getElementById('draftPick');
+    const local = d => { const p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + ':' + p(d.getMinutes()); };
+    function when(k) {
+        const d = new Date(); d.setSeconds(0, 0);
+        if (k === 'sunday') { d.setDate(d.getDate() + ((7 - d.getDay()) % 7 || 7)); d.setHours(19, 0); at.value = local(d); at.hidden = true; }
+        else if (k === 'tomorrow') { d.setDate(d.getDate() + 1); d.setHours(19, 0); at.value = local(d); at.hidden = true; }
+        else if (k === 'custom') { at.hidden = false; if (!at.value) { d.setDate(d.getDate() + 1); d.setHours(19, 0); at.value = local(d); } at.focus(); }
+        else { at.value = ''; at.hidden = true; }
+        const sp = dp.querySelector('[data-when="custom"] span');
+        if (sp) sp.textContent = k === 'custom' && at.value ? new Date(at.value).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) : '\u00a0';
+    }
+    dp.addEventListener('click', function (e) {
+        const b = e.target.closest('button'); if (!b) return;
+        dp.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+        when(b.dataset.when);
+    });
+    at.addEventListener('change', function () { when('custom'); });
+    when('sunday');
+});
+</script>
+    <link rel="stylesheet" href="css/ft-gate.css?v=1">
 </head>
 <body>
     <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
@@ -202,12 +257,24 @@
                 <div class="card-title">Capital &amp; season length</div>
                 <div class="card-desc">Everyone starts with the same capital and allocates it after the draft.</div>
                 <div class="field-group">
-                    <label class="field-label" for="startingCapital">Starting Capital ($)</label>
-                    <input class="field-input" id="startingCapital" type="number" min="1000" step="1000" value="100000">
+                    <label class="field-label" for="startingCapital">Starting capital</label>
+                    <div class="pick" data-for="startingCapital">
+                        <button type="button" data-v="10000"><b>$10K</b></button>
+                        <button type="button" data-v="50000"><b>$50K</b></button>
+                        <button type="button" data-v="100000" class="on"><b>$100K</b></button>
+                        <button type="button" data-v="1000000"><b>$1M</b></button>
+                    </div>
+                    <input class="field-input pick-custom" id="startingCapital" type="number" min="1000" step="1000" value="100000" aria-label="Custom starting capital">
                 </div>
                 <div class="field-group">
-                    <label class="field-label" for="transferPct">Weekly Capital Transfer</label>
-                    <select class="field-select" id="transferPct">
+                    <label class="field-label" for="transferPct">Weekly stakes <span class="pick-note">the loser pays the winner this much</span></label>
+                    <div class="pick stakes" data-for="transferPct">
+                        <button type="button" data-v="2" style="--c:#7FD1C7"><b>2%</b><span>Chill</span></button>
+                        <button type="button" data-v="5" style="--c:#5CB88A" class="on"><b>5%</b><span>Friendly</span></button>
+                        <button type="button" data-v="10" style="--c:#F0B865"><b>10%</b><span>Spicy</span></button>
+                        <button type="button" data-v="20" style="--c:#E8867F"><b>20%</b><span>Cutthroat</span></button>
+                    </div>
+                    <select class="field-select" id="transferPct" hidden>
                         <option value="2">2% — gentle</option>
                         <option value="3">3% — easygoing</option>
                         <option value="5" selected>5% — friendly</option>
@@ -218,13 +285,24 @@
                     </select>
                 </div>
                 <div class="field-group">
-                    <label class="field-label" for="draftAt">Draft Day &amp; Time</label>
-                    <input class="field-input" id="draftAt" type="datetime-local">
-                    <span style="font-size:0.72rem;color:var(--text-secondary);">Tip: draft on a <b style="color:var(--success);">Sunday</b> — your 24-hour prep window ends right as the market opens Monday. You can still start the draft manually any time.</span>
+                    <label class="field-label" for="draftAt">Draft day</label>
+                    <div class="pick draft" id="draftPick">
+                        <button type="button" data-when="sunday" class="on"><b>This Sunday</b><span>7pm &middot; best</span></button>
+                        <button type="button" data-when="tomorrow"><b>Tomorrow</b><span>7pm</span></button>
+                        <button type="button" data-when="custom"><b>Pick a time</b><span>&nbsp;</span></button>
+                        <button type="button" data-when="manual"><b>I&rsquo;ll start it</b><span>any time</span></button>
+                    </div>
+                    <input class="field-input" id="draftAt" type="datetime-local" hidden>
                 </div>
                 <div class="field-group">
-                    <label class="field-label" for="durationWeeks">League Duration</label>
-                    <select class="field-select" id="durationWeeks">
+                    <label class="field-label" for="durationWeeks">Season length</label>
+                    <div class="pick" data-for="durationWeeks">
+                        <button type="button" data-v="2"><b>2 wks</b><span>Sprint</span></button>
+                        <button type="button" data-v="4" class="on"><b>4 wks</b><span>Standard</span></button>
+                        <button type="button" data-v="8"><b>8 wks</b><span>Season</span></button>
+                        <button type="button" data-v="12"><b>12 wks</b><span>Marathon</span></button>
+                    </div>
+                    <select class="field-select" id="durationWeeks" hidden>
                         <option value="2">2 weeks — sprint</option>
                         <option value="4" selected>4 weeks — standard</option>
                         <option value="8">8 weeks — season</option>

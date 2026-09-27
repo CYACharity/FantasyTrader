@@ -125,6 +125,18 @@
         .rally-line .bull-bubble.show { opacity: 1; }
         .rally-line .bull-bubble::before, .rally-line .bull-bubble::after { display: none !important; }
         .rally-line:not(:has(.bull-bubble.show))::after { content: 'Tap Rally to ask about this stock'; position: absolute; left: 4.2rem; font: 600 0.78rem 'Inter', sans-serif; color: rgba(244,238,230,0.4); }
+
+        /* shares / dollars switch on the ticket */
+        .tk-mode { display: inline-flex; gap: 0; margin-bottom: 6px; }
+        .tk-mode button { padding: 0.18rem 0.7rem; cursor: pointer; transform: skewX(-12deg); background: rgba(244,238,230,0.05); border: 1px solid rgba(244,238,230,0.14); color: rgba(244,238,230,0.6);
+            font: 900 0.85rem 'Barlow Condensed', 'Inter', sans-serif; font-style: italic; text-transform: uppercase; letter-spacing: 0.04em; }
+        .tk-mode button.on { background: #F0B865; border-color: #F0B865; color: #120E0B; }
+        .tk-usd { display: flex; align-items: center; height: 44px; border-radius: 10px; background: rgba(12,10,8,0.6); border: 1px solid rgba(236,226,214,0.14); padding: 0 0.7rem; }
+        .tk-usd[hidden], .tk-usd-hint[hidden], .tk-stepper[hidden] { display: none !important; }
+        .tk-usd-sign { font: 900 1.3rem 'Barlow Condensed', sans-serif; font-style: italic; color: #F0B865; margin-right: 4px; }
+        .tk-usd input { width: 110px; background: none; border: 0; outline: none; color: #F4EEE6; font: 800 1.15rem 'Inter', sans-serif; }
+        .tk-usd input::-webkit-outer-spin-button, .tk-usd input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .tk-usd-hint { margin-top: 4px; font: 700 0.7rem 'Inter', sans-serif; color: rgba(244,238,230,0.6); white-space: nowrap; }
 </style>
     <!-- how the link looks when someone shares it -->
     <meta property="og:type" content="website">
@@ -157,8 +169,10 @@
     <script src="js/guard.js"></script>
     <script src="js/stock-logo.js"></script>
     <script src="js/ft-juice.js"></script>
+    <script src="js/ft-progression.js"></script>
+    <script src="js/ft-rewards.js?v=2"></script>
     <script src="js/ft-bull.js?v=6"></script>
-    <script src="js/ft-rally-chat.js?v=6"></script>
+    <script src="js/ft-rally-chat.js?v=7"></script>
     <script src="js/ft-rally-widget.js?v=3"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -2945,15 +2959,18 @@
         // Execute trade
         async function executeTrade(action) {
             const shares = parseFloat(document.getElementById('sharesInput').value);
+            const say = m => (window.FT && FT.error) ? FT.error(m) : alert(m);
             if (!shares || shares <= 0) {
-                alert('Please enter a valid number of shares');
+                say('Pick how many shares first.');
                 return;
             }
+            // sectors held before this trade, for the new-sector bonus
+            const heldSectors = new Set(Object.values(portfolio.stocks || {}).filter(p => p && p.shares > 0).map(p => getSectorForSymbol(p.symbol)));
 
             if (action === 'buy') {
                 const totalCost = shares * currentPrice;
                 if (totalCost > portfolio.cash) {
-                    alert('Insufficient funds');
+                    say('Not enough cash for that. Try fewer shares.');
                     return;
                 }
 
@@ -2973,10 +2990,10 @@
                 position.totalCost += totalCost;
                 position.avgPrice = position.totalCost / position.shares;
 
-                alert(`Successfully bought ${shares} shares of ${currentSymbol}`);
+
             } else if (action === 'sell') {
                 if (!portfolio.stocks[currentSymbol] || portfolio.stocks[currentSymbol].shares < shares) {
-                    alert('Insufficient shares to sell');
+                    say('You don\'t own that many shares to sell.');
                     return;
                 }
 
@@ -2988,7 +3005,7 @@
                     delete portfolio.stocks[currentSymbol];
                 }
 
-                alert(`Successfully sold ${shares} shares of ${currentSymbol}`);
+
             }
 
             // Convert to portfolioData format
@@ -3017,6 +3034,12 @@
             // the dashboard's "make a trade" quest reads this; set only on a trade that went through
             try { localStorage.setItem('ftQuestTrade', (function(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');})(new Date())); } catch (e) {}
             await SL.logTrade(currentSymbol, action, shares, currentPrice);
+            // the payout: XP, bonuses and streaks, in one card instead of an alert
+            try {
+                const sec = getSectorForSymbol(currentSymbol);
+                if (window.FTRewards) FTRewards.trade({ symbol: currentSymbol, side: action, shares, sector: sec, newSector: action === 'buy' && !heldSectors.has(sec) });
+                else if (window.FT && FT.success) FT.success((action === 'buy' ? 'Bought ' : 'Sold ') + shares + ' ' + currentSymbol);
+            } catch (e) {}
             updatePortfolioDisplay();
             document.getElementById('sharesInput').value = '';
             updateTotal();
@@ -3504,11 +3527,63 @@
     };
     chips.appendChild(max);
 
+    /* Dollars: think in money, trade in whole shares. The picks become
+       amounts; the shares box fills itself with as many whole shares as the
+       amount buys, and the line under it says what's left over. */
+    const mode = document.createElement('div');
+    mode.className = 'tk-mode';
+    mode.innerHTML = '<button type="button" data-m="shares" class="on">Shares</button><button type="button" data-m="usd">Dollars</button>';
+    const usdBox = document.createElement('div');
+    usdBox.className = 'tk-usd'; usdBox.hidden = true;
+    usdBox.innerHTML = '<span class="tk-usd-sign">$</span><input id="usdInput" type="number" min="0" step="50" placeholder="500" inputmode="decimal">';
+    const usdHint = document.createElement('div');
+    usdHint.className = 'tk-usd-hint'; usdHint.hidden = true;
+    step.parentNode.insertBefore(usdBox, step.nextSibling);
+    let MODE = 'shares';
+    const priceNow = () => { try { return Number(currentPrice) || 0; } catch (e) { return 0; } };
+    const cashNow = () => { try { return Number(portfolio.cash) || 0; } catch (e) { return 0; } };
+    function fromUsd() {
+        const usd = Math.max(0, Number(document.getElementById('usdInput').value) || 0), px = priceNow();
+        const n = px > 0 ? Math.floor(usd / px) : 0;
+        setShares(n);
+        usdHint.textContent = !usd ? '' : !px ? 'Pick a stock first' :
+            n ? '= ' + n + ' share' + (n === 1 ? '' : 's') + ' \u00b7 $' + (usd - n * px).toFixed(2) + ' stays as cash' : 'Not enough for one share (' + '$' + px.toFixed(2) + ')';
+    }
+    function setMode(m) {
+        MODE = m;
+        mode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+        step.hidden = m === 'usd'; usdBox.hidden = m !== 'usd'; usdHint.hidden = m !== 'usd';
+        const lab = gShares && gShares.querySelector('.form-label'); if (lab) lab.textContent = m === 'usd' ? 'Amount' : 'Shares';
+        chips.innerHTML = '';
+        (m === 'usd' ? [[100, '$100'], [500, '$500'], [1000, '$1K'], ['half', 'Half']] : [[1, '1'], [5, '5'], [10, '10'], ['max', 'Max']]).forEach(([v, label]) => {
+            const c = document.createElement('button'); c.type = 'button'; c.className = 'tk-chip'; c.textContent = label;
+            c.title = v === 'half' ? 'Half your cash' : v === 'max' ? 'As many as your cash covers' : '';
+            c.onclick = () => {
+                if (m === 'usd') { document.getElementById('usdInput').value = v === 'half' ? Math.floor(cashNow() / 2) : v; fromUsd(); }
+                else if (v === 'max') { const px = priceNow(); if (px > 0) setShares(Math.floor(cashNow() / px)); }
+                else setShares(v);
+            };
+            chips.appendChild(c);
+        });
+        if (m === 'usd') fromUsd();
+    }
+    mode.addEventListener('click', e => { const b = e.target.closest('button'); if (b) setMode(b.dataset.m); });
+    usdBox.querySelector('input').addEventListener('input', fromUsd);
+    mode.addEventListener('click', () => { try { localStorage.setItem('ftTradeMode', MODE); } catch (e) {} });
+    // the starting mode is applied once the whole ticket exists (see the end of this block):
+    // arriving with ?usd=500 (from the watchlist) opens it in dollars with that amount ready
+    function initMode() {
+        const usdParam = new URLSearchParams(location.search).get('usd');
+        let saved = null; try { saved = localStorage.getItem('ftTradeMode'); } catch (e) {}
+        if (usdParam) { setMode('usd'); document.getElementById('usdInput').value = usdParam; fromUsd(); setTimeout(fromUsd, 1500); setTimeout(fromUsd, 3500); }
+        else if (saved === 'usd') setMode('usd');
+    }
+
     // lay out the one row: shares, picks, total
     const row = document.createElement('div');
     row.className = 'tk-row';
     form.insertBefore(row, form.querySelector('.trade-buttons'));
-    if (gShares) row.appendChild(gShares);
+    if (gShares) { gShares.insertBefore(mode, gShares.firstChild); row.appendChild(gShares); gShares.appendChild(usdHint); }
     row.appendChild(chips);
     if (gTotal) {
         gTotal.classList.add('tk-total'); row.appendChild(gTotal);
@@ -3537,8 +3612,9 @@
         say(buy, 'Buy'); say(sell, 'Sell');
     }
     shares.addEventListener('input', paint);
-    setInterval(paint, 500);          // the symbol and price change from the search, outside this code
+    setInterval(() => { paint(); if (MODE === 'usd' && document.getElementById('usdInput').value) fromUsd(); }, 800);   // price and symbol change from outside this code
     paint();
+    initMode();
 })();
 
 /* ── Rally, inside the portfolio card ───────────────────────────── */

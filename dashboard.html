@@ -103,6 +103,7 @@ body {
 .ow-badge-n { font: 800 0.72rem 'Inter', sans-serif; font-style: normal; color: #1B1207; background: #F0B865;
     padding: 0.08rem 0.42rem; border-radius: 3px; transform: skewX(-10deg); text-shadow: none; }
 .ow-badge-n[hidden] { display: none; }
+.ow-item.daily { color: #F4EEE6; }
 
 /* ── player badge: your avatar, name and title ──────────── */
 .ow-top { grid-column: 2; grid-row: 1; justify-self: end; align-self: start; margin-top: calc(-1 * max(84px, 9vh) + 3.2vh); display: flex; align-items: center; gap: 1.1rem; }
@@ -374,6 +375,7 @@ body {
         <a class="ow-item big" href="learn.html">Learn</a>
         <a class="ow-item big" href="portfolio.html">Portfolio</a>
         <span class="ow-gap" aria-hidden="true"></span>
+        <a class="ow-item small daily" href="daily.html">The Daily <span class="ow-badge-n" id="dailyNew" hidden>New</span></a>
         <a class="ow-item small" href="news.html">News</a>
         <a class="ow-item small" href="mail.html">Inbox <span class="ow-badge-n" id="inboxCountBadge" hidden></span></a>
         <a class="ow-item small" href="profile.html">Career profile</a>
@@ -471,6 +473,15 @@ updateNavClock(); setInterval(updateNavClock, 30000);
         const P = window.FTProgress;
         if (P) document.getElementById('owRank').textContent = P.levelFromXp(P.load().xp || 0).title;
     } catch (e) {}
+})();
+
+/* ── The Daily: flagged until today's issue has been read ── */
+(function () {
+    try {
+        const s = JSON.parse(localStorage.getItem('ftDaily') || '{}'), d = new Date();
+        const k = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+        document.getElementById('dailyNew').hidden = s.last === k;
+    } catch (e) { document.getElementById('dailyNew').hidden = false; }
 })();
 
 /* ── market headlines ───────────────────────────────────────
